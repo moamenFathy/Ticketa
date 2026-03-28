@@ -1,7 +1,22 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Ticketa.Core.Interfaces;
+using Ticketa.Infrastructure.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddDbContext<ApplicationDbContext>((opt) =>
+{
+  opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+  .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+
+builder.Services.AddScoped<IUnitOfWork, IUnitOfWork>();
 
 var app = builder.Build();
 
@@ -16,13 +31,14 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{Area=Customer}/{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
 
