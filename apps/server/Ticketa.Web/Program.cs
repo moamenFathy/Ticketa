@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Ticketa.Core.Entities;
 using Ticketa.Core.Interfaces;
 using Ticketa.Infrastructure.Data;
+using Ticketa.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,10 +15,10 @@ builder.Services.AddDbContext<ApplicationDbContext>((opt) =>
   opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+builder.Services.AddIdentity<AppUser, IdentityRole>()
   .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
-builder.Services.AddScoped<IUnitOfWork, IUnitOfWork>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
 
