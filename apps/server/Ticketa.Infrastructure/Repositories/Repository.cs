@@ -17,17 +17,32 @@ namespace Ticketa.Infrastructure.Repositories
       _dbSet = _context.Set<T>();
     }
 
-    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter)
+    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter, params string[] includes)
     {
       IQueryable<T> query = _dbSet;
 
       if (filter is not null)
         query = query.Where(filter);
 
+      foreach (var include in includes)
+      {
+        query = query.Include(include);
+      }
+
       return await query.ToListAsync();
     }
 
-    public async Task<T?> GetByIdAsync(int id) => await _dbSet.FindAsync(id);
+    public async Task<T?> GetAsync(Expression<Func<T, bool>> filter, params string[] includes)
+    {
+      IQueryable<T> query = _dbSet;
+
+      foreach (var includeProperty in includes)
+      {
+        query = query.Include(includeProperty);
+      }
+
+      return await query.FirstOrDefaultAsync(filter);
+    }
 
     public async Task CreateAsync(T entity) => await _dbSet.AddAsync(entity);
 
