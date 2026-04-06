@@ -4,6 +4,7 @@ using Ticketa.Web.Models;
 
 namespace Ticketa.Web.Areas.Customer.Controllers
 {
+  [Area("Customer")]
   public class HomeController : Controller
   {
     public IActionResult Index()
