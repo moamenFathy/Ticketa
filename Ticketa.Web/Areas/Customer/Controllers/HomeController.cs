@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using Ticketa.Web.Models;
 
-namespace Ticketa.Web.Controllers
+namespace Ticketa.Web.Areas.Customer.Controllers
 {
   public class HomeController : Controller
   {
