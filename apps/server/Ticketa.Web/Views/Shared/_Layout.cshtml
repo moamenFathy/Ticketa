@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="~/Ticketa.Web.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/output.css" asp-append-version="true" />
 </head>
-<body>
+<body class="flex flex-col h-screen">
     <header>
         <div class="navbar bg-base-100 shadow-sm">
             <div class="flex-1">
@@ -76,7 +76,7 @@
         </div>
     </header>
 
-    <div class="">
+    <div class="grow">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
@@ -88,9 +88,9 @@
         </aside>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script>
+    <script src="~/js/themeToggle.js" asp-append-version="true"></script>
+    @* <script>
             const toggle = document.getElementById("themeToggle");
 
             toggle.addEventListener("click", (e) => {
@@ -100,7 +100,7 @@
                 html.getAttribute("data-theme") === "nord" ? "night" : "nord"
               );
             });
-    </script>
+    </script> *@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
