@@ -17,7 +17,7 @@ namespace Ticketa.Infrastructure.Repositories
       _dbSet = _context.Set<T>();
     }
 
-    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter, params string[] includes)
+    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, params string[] includes)
     {
       IQueryable<T> query = _dbSet;
 
