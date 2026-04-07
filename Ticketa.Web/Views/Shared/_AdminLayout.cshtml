@@ -12,6 +12,7 @@
     <nav class="navbar w-full bg-base-300 flex justify-between">
         <div>
             <label id="drawerToggleBtn" for="my-drawer-4" aria-label="open sidebar" class="btn btn-square btn-ghost swap swap-rotate">
+                <input id="drawerSwapState" type="checkbox" class="hidden" />
                 <svg class="swap-off my-1.5 inline-block size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18" /><path d="M3 6h18" /><path d="M3 18h18" /></svg>
                 <svg class="swap-on my-1.5 inline-block size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
             </label>
@@ -58,9 +59,19 @@
                 <ul class="menu w-full grow">
                     <!-- List item -->
                     <li>
+                        <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Homepage">
                             <!-- Home icon -->
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="my-1.5 inline-block size-4"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
                             <span class="is-drawer-close:hidden">Homepage</span>
+                        </button>
+                    </li>
+
+                    <!-- List item -->
+                    <li>
+                        <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Hall">
+                            <!-- Hall icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="my-1.5 inline-block size-4"><path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3" /><path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z" /><path d="M5 18v2" /><path d="M19 18v2" /></svg>                            <span class="is-drawer-close:hidden">Homepage</span>
+                        </button>
                     </li>
 
                     <!-- List item -->
@@ -83,15 +94,15 @@
     <script src="~/js/themeToggle.js" asp-append-version="true"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
-            const drawerToggle = document.getElementById("my-drawer-4");
-            const drawerToggleBtn = document.getElementById("drawerToggleBtn");
+        const drawerToggle = document.getElementById("my-drawer-4");
+        const drawerSwapState = document.getElementById("drawerSwapState");
 
-            const syncDrawerSwap = () => {
-              drawerToggleBtn.classList.toggle("swap-active", drawerToggle.checked);
-            };
+        const syncDrawerSwap = () => {
+          drawerSwapState.checked = drawerToggle.checked;
+        };
 
-            drawerToggle.addEventListener("change", syncDrawerSwap);
-            syncDrawerSwap();
+        drawerToggle.addEventListener("change", syncDrawerSwap);
+        syncDrawerSwap();
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
