@@ -2600,9 +2600,6 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .overflow-x-auto {
-    overflow-x: auto;
-  }
   .overflow-y-auto {
     overflow-y: auto;
   }
@@ -2635,33 +2632,6 @@
   .border {
     border-style: var(--tw-border-style);
     border-width: 1px;
-  }
-  .btn-dash {
-    @layer daisyui.l1 {
-      &:not( .btn-active, :hover, :active:focus, :focus-visible, input:checked:not(.filter .btn), :disabled, [disabled], .btn-disabled ) {
-        --btn-shadow: "";
-        --btn-bg: #0000;
-        --btn-fg: var(--btn-color);
-        --btn-border: var(--btn-color);
-        --btn-noise: none;
-      }
-      @media (hover: none) {
-        &:not(.btn-active, :active, :focus-visible, input:checked:not(.filter .btn)):hover {
-          --btn-shadow: "";
-          --btn-bg: #0000;
-          --btn-fg: var(--btn-color);
-          --btn-border: var(--btn-color);
-          --btn-noise: none;
-        }
-      }
-    }
-    border-style: dashed;
-  }
-  .border-base-content\/5 {
-    border-color: var(--color-base-content);
-    @supports (color: color-mix(in lab, red, red)) {
-      border-color: color-mix(in oklab, var(--color-base-content) 5%, transparent);
-    }
   }
   .table-zebra {
     @layer daisyui.l1.l2 {
@@ -2716,10 +2686,6 @@
   .text-7xl {
     font-size: var(--text-7xl);
     line-height: var(--tw-leading, var(--text-7xl--line-height));
-  }
-  .text-9xl {
-    font-size: var(--text-9xl);
-    line-height: var(--tw-leading, var(--text-9xl--line-height));
   }
   .text-lg {
     font-size: var(--text-lg);
@@ -2817,70 +2783,10 @@
       }
     }
   }
-  .btn-soft {
-    @layer daisyui.l1 {
-      &:not( .btn-active, :hover, :active:focus, :focus-visible, input:checked:not(.filter .btn), :disabled, [disabled], .btn-disabled ) {
-        --btn-shadow: "";
-        --btn-fg: var(--btn-color, var(--color-base-content));
-        --btn-bg: var(--btn-color, var(--color-base-content));
-        @supports (color: color-mix(in lab, red, red)) {
-          --btn-bg: color-mix(
-        in oklab,
-        var(--btn-color, var(--color-base-content)) 8%,
-        var(--color-base-100)
-      );
-        }
-        --btn-border: var(--btn-color, var(--color-base-content));
-        @supports (color: color-mix(in lab, red, red)) {
-          --btn-border: color-mix(
-        in oklab,
-        var(--btn-color, var(--color-base-content)) 10%,
-        var(--color-base-100)
-      );
-        }
-        --btn-noise: none;
-      }
-      @media (hover: none) {
-        &:not(.btn-active, :active, :focus-visible, input:checked:not(.filter .btn)):hover {
-          --btn-shadow: "";
-          --btn-fg: var(--btn-color, var(--color-base-content));
-          --btn-bg: var(--btn-color, var(--color-base-content));
-          @supports (color: color-mix(in lab, red, red)) {
-            --btn-bg: color-mix(
-          in oklab,
-          var(--btn-color, var(--color-base-content)) 8%,
-          var(--color-base-100)
-        );
-          }
-          --btn-border: var(--btn-color, var(--color-base-content));
-          @supports (color: color-mix(in lab, red, red)) {
-            --btn-border: color-mix(
-          in oklab,
-          var(--btn-color, var(--color-base-content)) 10%,
-          var(--color-base-100)
-        );
-          }
-          --btn-noise: none;
-        }
-      }
-    }
-  }
   .btn-error {
     @layer daisyui.l1.l2.l3 {
       --btn-color: var(--color-error);
       --btn-fg: var(--color-error-content);
-    }
-  }
-  .btn-info {
-    @layer daisyui.l1.l2.l3 {
-      --btn-color: var(--color-info);
-      --btn-fg: var(--color-info-content);
-    }
-  }
-  .btn-neutral {
-    @layer daisyui.l1.l2.l3 {
-      --btn-color: var(--color-neutral);
-      --btn-fg: var(--color-neutral-content);
     }
   }
   .btn-primary {
