@@ -1,0 +1,39 @@
+﻿@model Hall
+
+@if (Model is null)
+{
+    <h3 class="text-lg font-bold">Hall not found</h3>
+    <p class="py-4">No hall data was returned.</p>
+    <div class="modal-action">
+        <label for="edit-modal" class="btn">Close</label>
+    </div>
+}
+else
+{
+    <h3 class="text-lg font-bold mb-3">Edit Hall</h3>
+
+    <form class="flex flex-col gap-3" id="editForm" method="post" asp-area="Admin" asp-controller="Hall" asp-action="Edit"
+          data-submit-url="/Admin/Hall/Edit" data-modal-id="edit-modal" data-modal-content-id="modalContent">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-error"></div>
+        <input asp-for="Id" type="hidden" />
+
+        <label class="form-control w-full">
+            <span class="label-text">Name</span>
+            <input asp-for="Name" type="text" class="input input-bordered w-full validator" />
+            <span asp-validation-for="Name" class="text-error text-sm"></span>
+        </label>
+
+
+        <label class="form-control w-full">
+            <span class="label-text">Total Seats</span>
+            <input asp-for="TotalSeats" type="text" min="1" class="input input-bordered w-full validator" />
+            <span asp-validation-for="TotalSeats" class="text-error text-sm"></span>
+        </label>
+        <div class="modal-action m-0">
+            <label for="edit-modal" class="btn btn-ghost">Cancel</label>
+            <button class="btn btn-primary" type="submit">Save</button>
+        </div>
+    </form>
+
+}

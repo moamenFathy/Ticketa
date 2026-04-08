@@ -1,39 +1,37 @@
 ﻿@model IEnumerable<Hall>
-<!DOCTYPE HTML>
-<html lang="en">
+<table class="table table-zebra text-center">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Seats</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var hall in Model)
+        {
+            <tr>
+                <td>@hall.Id</td>
+                <td>@hall.Name</td>
+                <td>@hall.TotalSeats</td>
+                <td>
+                    <button type="button" onclick="openEditModal(@hall.Id, '/admin/hall/edit/@hall.Id')" class="btn btn-primary btn-outline">Edit</button>
+                    <a asp-action="Delete" asp-route-id="@hall.Id" class="btn btn-error btn-outline">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<input type="checkbox" id="edit-modal" class="modal-toggle" />
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+<div class="modal" id="edit-modal-wrapper" role="dialog" aria-modal="true">
+    <div class="modal-box" id="modalContent">
+        <!-- Modal content will be loaded here via JavaScript -->
+    </div>
+    <label class="modal-backdrop" for="edit-modal">Close</label>
+</div>
 
-<body>
-        <table class="table table-zebra text-center">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Seats</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var hall in Model)
-                {
-                    <tr>
-                        <td>@hall.Id</td>
-                        <td>@hall.Name</td>
-                        <td>@hall.TotalSeats</td>
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@hall.Id" class="btn btn-primary btn-outline">Edit</a>
-                            <a asp-action="Delete" asp-route-id="@hall.Id" class="btn btn-error btn-outline">Delete</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-
-</body>
-
-</html>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
