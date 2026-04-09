@@ -18,7 +18,7 @@
                 <td>@hall.TotalSeats</td>
                 <td>
                     <button type="button" onclick="openModal('editForm', '/admin/hall/Upsert/@hall.Id')" class="btn btn-primary btn-outline">Edit</button>
-                    <a asp-action="Delete" asp-route-id="@hall.Id" class="btn btn-error btn-outline">Delete</a>
+                    <button type="button" onclick="openModal('deleteForm', '/admin/hall/DeleteConfirmation/@hall.Id')" class="btn btn-error btn-outline">Delete</button>
                 </td>
             </tr>
         }
@@ -26,7 +26,7 @@
 </table>
 <input type="checkbox" id="modal" class="modal-toggle" />
 
-<div class="modal" id="modal-wrapper" role="dialog" aria-modal="true">
+<div class="modal shadow-2xl" id="modal-wrapper" role="dialog" aria-modal="true">
     <div class="modal-box" id="modalContent">
         <!-- Modal content will be loaded here via JavaScript -->
     </div>
