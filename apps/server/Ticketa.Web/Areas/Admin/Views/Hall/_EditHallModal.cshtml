@@ -2,38 +2,89 @@
 
 @if (Model is null)
 {
-    <h3 class="text-lg font-bold">Hall not found</h3>
-    <p class="py-4">No hall data was returned.</p>
-    <div class="modal-action">
-        <label for="edit-modal" class="btn">Close</label>
+    <div class="modal-box rounded-2xl shadow-xl">
+
+        <h3 class="text-xl font-bold text-error">Hall not found</h3>
+
+        <p class="mt-2 text-gray-500">
+            No hall data was returned.
+        </p>
+
+        <div class="modal-action mt-4">
+            <label for="edit-modal" class="btn border border-base-300">
+                Close
+            </label>
+        </div>
+
     </div>
 }
 else
 {
-    <h3 class="text-lg font-bold mb-3">Edit Hall</h3>
 
-    <form class="flex flex-col gap-3" id="editForm" method="post" asp-area="Admin" asp-controller="Hall" asp-action="Upsert"
+    <!-- Header -->
+    <div class="flex items-center justify-between pb-3 border-b border-base-300">
+        <h3 class="text-xl font-bold">Edit Hall</h3>
+
+        <label for="modal" class="btn btn-sm btn-ghost btn-circle hover:bg-base-300">
+            ✕
+        </label>
+    </div>
+
+    <!-- Form -->
+    <form class="flex flex-col gap-4 mt-4"
+          id="editForm"
+          method="post"
+          asp-area="Admin"
+          asp-controller="Hall"
+          asp-action="Upsert"
           data-submit-url="/Admin/Hall/Upsert">
+
         @Html.AntiForgeryToken()
-        <div asp-validation-summary="ModelOnly" class="text-error"></div>
+
+        <!-- Validation -->
+        <div asp-validation-summary="ModelOnly"
+             class="text-error text-sm bg-error/10 p-2 rounded-lg">
+        </div>
+
         <input asp-for="Id" type="hidden" />
 
+        <!-- Name -->
         <label class="form-control w-full">
-            <span class="label-text">Name</span>
-            <input asp-for="Name" type="text" class="input input-bordered w-full validator" autofocus />
-            <span asp-validation-for="Name" class="text-error text-sm"></span>
+            <span class="label-text font-medium">Hall Name</span>
+            <input asp-for="Name"
+                   type="text"
+                   class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary validator"
+                   placeholder="Enter hall name"
+                   autofocus />
+            <span asp-validation-for="Name" class="validator-hint"></span>
         </label>
 
+        <!-- Total Seats -->
         <label class="form-control w-full">
-            <span class="label-text">Total Seats</span>
-            <input asp-for="TotalSeats" type="text" min="1" class="input input-bordered w-full validator" />
-            <span asp-validation-for="TotalSeats" class="text-error text-sm"></span>
+            <span class="label-text font-medium">Total Seats</span>
+            <input asp-for="TotalSeats"
+                   type="number"
+                   min="1"
+                   class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary validator"
+                   placeholder="Enter number of seats" />
+            <span asp-validation-for="TotalSeats" class="validator-hint"></span>
         </label>
 
-        <div class="modal-action m-0">
-            <label for="modal" class="btn btn-ghost">Cancel</label>
-            <button class="btn btn-primary" type="submit">Save</button>
+        <!-- Actions -->
+        <div class="modal-action mt-2 flex justify-end gap-3">
+
+            <label for="modal"
+                   class="btn btn-ghost border border-base-300 hover:bg-base-200">
+                Cancel
+            </label>
+
+            <button class="btn btn-primary px-5 hover:brightness-110"
+                    type="submit">
+                Save Changes
+            </button>
+
         </div>
+
     </form>
 
 }
