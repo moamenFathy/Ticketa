@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<Hall>
+<button onclick="openModal('createForm', '/admin/hall/Upsert')" class="btn btn-primary">Create New +</button>
 <table class="table table-zebra text-center">
     <thead>
         <tr>
@@ -16,20 +17,20 @@
                 <td>@hall.Name</td>
                 <td>@hall.TotalSeats</td>
                 <td>
-                    <button type="button" onclick="openEditModal(@hall.Id, '/admin/hall/edit/@hall.Id')" class="btn btn-primary btn-outline">Edit</button>
+                    <button type="button" onclick="openModal('editForm', '/admin/hall/Upsert/@hall.Id')" class="btn btn-primary btn-outline">Edit</button>
                     <a asp-action="Delete" asp-route-id="@hall.Id" class="btn btn-error btn-outline">Delete</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
-<input type="checkbox" id="edit-modal" class="modal-toggle" />
+<input type="checkbox" id="modal" class="modal-toggle" />
 
-<div class="modal" id="edit-modal-wrapper" role="dialog" aria-modal="true">
+<div class="modal" id="modal-wrapper" role="dialog" aria-modal="true">
     <div class="modal-box" id="modalContent">
         <!-- Modal content will be loaded here via JavaScript -->
     </div>
-    <label class="modal-backdrop" for="edit-modal">Close</label>
+    <label class="modal-backdrop" for="modal">Close</label>
 </div>
 
 @section Scripts {

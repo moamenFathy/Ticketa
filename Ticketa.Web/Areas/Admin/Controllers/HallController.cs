@@ -21,25 +21,42 @@ namespace Ticketa.Web.Areas.Admin.Controllers
     }
 
     [HttpGet]
-    public async Task<IActionResult> Edit(int id)
+    public async Task<IActionResult> Upsert(int? id)
     {
-      var hall = await _uow.Halls.GetAsync(h => h.Id == id);
+      var hall = id.HasValue ? await _uow.Halls.GetAsync(h => h.Id == id.Value) : new Hall();
 
-      return PartialView("_EditHallModal", hall);
+      if (!id.HasValue)
+      {
+        return PartialView("_CreateHallModal", hall);
+      }
+      else
+      {
+        return PartialView("_EditHallModal", hall);
+      }
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(Hall model)
+    public async Task<IActionResult> Upsert(Hall model)
     {
-      if (!ModelState.IsValid)
+      if (!ModelState.IsValid && model.Id == 0)
       {
         return PartialView("_EditHallModal", model);
       }
 
-      _uow.Halls.Update(model);
-      await _uow.SaveAsync();
-      return Json(new { success = true, data = new { id = model.Id, name = model.Name, totalSeats = model.TotalSeats } });
+      if (model.Id == 0)
+      {
+        await _uow.Halls.CreateAsync(model);
+        await _uow.SaveAsync();
+        return Json(new { success = true, data = new { id = model.Id, name = model.Name, totalSeats = model.TotalSeats } });
+      }
+      else
+      {
+        _uow.Halls.Update(model);
+        await _uow.SaveAsync();
+        return Json(new { success = true, data = new { id = model.Id, name = model.Name, totalSeats = model.TotalSeats } });
+      }
     }
+
   }
 }

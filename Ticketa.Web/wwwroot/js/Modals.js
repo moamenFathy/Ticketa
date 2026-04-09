@@ -1,4 +1,4 @@
-﻿function openEditModal(id, url) {
+﻿function openModal(formId, url) {
     fetch(url)
         .then(res => {
             if (!res.ok) {
@@ -9,25 +9,29 @@
         })
         .then(html => {
             document.getElementById("modalContent").innerHTML = html;
-            const form = $("#editForm");
+            const form = $(`#${formId}`);
             form.removeData("validator");
             form.removeData("unobtrusiveValidation");
             $.validator.unobtrusive.parse(form);
             // Open DaisyUI modal
-            document.getElementById("edit-modal").checked = true;
+            document.getElementById("modal").checked = true;
+
+            // Focus autofocus elements manually after injection
+            const autofocusInput = document.querySelector("#modalContent [autofocus]");
+            if (autofocusInput) autofocusInput.focus();
         })
         .catch(() => {
             document.getElementById("modalContent").innerHTML = `<p class='text-error'>Could not load hall details.</p>
                                                                              <div class="modal-action">
-                                                                                <label for="edit-modal" class="btn btn-ghost">Cancel</label>
+                                                                                <label for="modal" class="btn btn-ghost">Cancel</label>
                                                                              </div>`;
-            document.getElementById("edit-modal").checked = true;
+            document.getElementById("modal").checked = true;
         });
 }
 
 document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
-        const editModal = document.getElementById("edit-modal");
+        const editModal = document.getElementById("modal");
         if (editModal) {
             editModal.checked = false;
         }
@@ -35,8 +39,8 @@ document.addEventListener("keydown", function (e) {
 });
 
 document.addEventListener("click", function (e) {
-    const modalWrapper = document.getElementsByClassName("edit-modal-wrapper");
-    const editModal = document.getElementById("edit-modal");
+    const modalWrapper = document.getElementsByClassName("modal-wrapper");
+    const editModal = document.getElementById("modal");
 
     if (!modalWrapper || !editModal || !editModal.checked) {
         return;
@@ -52,7 +56,6 @@ document.addEventListener("submit", async (e) => {
     e.preventDefault();
     const form = e.target;
 
-    console.log(e.target);
     // Each form declares its own url via data attribute
     const url = form.dataset.submitUrl;
     if (!url) return;
@@ -61,13 +64,10 @@ document.addEventListener("submit", async (e) => {
 
     if ($(form).valid && !$(form).valid()) return;
 
-    const modalId = form.dataset.modalId;
-    const modalContent = form.dataset.modalContentId;
-
-    await handleModalFormSubmit(form, url, modalId, modalContent);
+    await handleModalFormSubmit(form, url);
 });
 
-async function handleModalFormSubmit(form, url, modalId, modalContentId) {
+async function handleModalFormSubmit(form, url) {
     const formData = new FormData(form);
 
     try {
@@ -80,7 +80,7 @@ async function handleModalFormSubmit(form, url, modalId, modalContentId) {
         const contentType = response.headers.get("content-type");
         if (!response.ok || contentType?.includes("text/html")) {
             const html = await response.text();
-            document.getElementById(modalContentId).innerHTML = html || "<p class='text-danger'>Request failed.</p>";
+            document.getElementById("modalContent").innerHTML = html || "<p class='text-danger'>Request failed.</p>";
 
             const failedForm = $(`#${form.id}`);
             failedForm.removeData("validator").removeData("unobtrusiveValidation");
@@ -91,7 +91,7 @@ async function handleModalFormSubmit(form, url, modalId, modalContentId) {
         // Success → JSON
         const result = await response.json();
         if (result.success) {
-            document.getElementById(modalId).checked = false;
+            document.getElementById("modal").checked = false;
             location.reload();
         }
 
