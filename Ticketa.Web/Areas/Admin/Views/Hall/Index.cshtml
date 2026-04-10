@@ -1,29 +1,26 @@
 ﻿@model IEnumerable<Hall>
-<button onclick="openModal('createForm', '/admin/hall/Upsert')" class="btn btn-primary">Create New +</button>
-<table class="table table-zebra text-center">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Seats</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var hall in Model)
-        {
-            <tr>
-                <td>@hall.Id</td>
-                <td>@hall.Name</td>
-                <td>@hall.TotalSeats</td>
-                <td>
-                    <button type="button" onclick="openModal('editForm', '/admin/hall/Upsert/@hall.Id')" class="btn btn-primary btn-outline">Edit</button>
-                    <button type="button" onclick="openModal('deleteForm', '/admin/hall/DeleteConfirmation/@hall.Id')" class="btn btn-error btn-outline">Delete</button>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="card bg-base-100 border border-base-300 shadow-sm">
+    <div class="card-body gap-4">
+        <div class="flex items-center justify-between border-b border-base-300 pb-3">
+            <h2 class="card-title">Halls</h2>
+            <button onclick="openModal('createForm', '/admin/hall/Upsert')" class="btn btn-primary">Create New +</button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table id="DataTable" class="table cell-border hover stripe compact">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Seats</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
 <input type="checkbox" id="modal" class="modal-toggle" />
 
 <div class="modal shadow-2xl" id="modal-wrapper" role="dialog" aria-modal="true">
@@ -35,4 +32,5 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script type="module" src="~/js/AdminTables/Hall.js" asp-append-version="true"></script>
 }
