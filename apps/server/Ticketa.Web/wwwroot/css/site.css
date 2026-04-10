@@ -1,4 +1,172 @@
 @import "tailwindcss";
+
 @plugin "daisyui" {
-    themes: nord --default, night --prefersdark;
+    themes: light --default, dark --prefersdark;
+}
+
+.dt-layout-row {
+    @apply gap-3;
+}
+
+.dt-layout-row:first-child,
+.dt-layout-row:last-child {
+    @apply flex flex-wrap items-center justify-between;
+}
+
+.dt-layout-row:last-child .dt-layout-start,
+.dt-layout-row:last-child .dt-layout-end {
+    @apply flex items-center;
+}
+
+.dt-layout-row:last-child .dt-layout-end {
+    @apply ml-auto;
+}
+
+.dt-search label,
+.dt-length label,
+.dt-info {
+    @apply text-sm opacity-70;
+}
+
+.dt-container .dt-length {
+    @apply flex items-center;
+}
+
+.dt-container .dt-length label {
+    @apply ml-1 whitespace-nowrap;
+}
+
+.dt-container .dt-search input {
+    @apply input input-sm ml-2 w-72 max-w-full;
+}
+
+.dt-container .dt-length select,
+.dt-container select.dt-input {
+    @apply select select-sm bg-base-100 text-base-content min-w-20 h-9 pl-3 pr-8;
+}
+
+.dt-container .dt-length select option {
+    @apply bg-base-100 text-base-content;
+}
+
+thead {
+    @apply bg-violet-700 text-white text-xs uppercase tracking-widest;
+}
+
+.dt-container table.dataTable thead th {
+    @apply bg-violet-600 text-white text-xs uppercase tracking-widest;
+}
+
+.dt-container table.dataTable thead > tr > th span.dt-column-order::before,
+.dt-container table.dataTable thead > tr > th span.dt-column-order::after {
+    color: #ffffff !important;
+    opacity: 0.25 !important;
+    font-size: 0.8rem !important;
+    font-weight: 900;
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.8);
+}
+
+.dt-container table.dataTable thead > tr > th.dt-ordering-asc span.dt-column-order::before {
+    opacity: 1 !important;
+}
+
+.dt-container table.dataTable thead > tr > th.dt-ordering-asc span.dt-column-order::after {
+    opacity: 0.2 !important;
+}
+
+.dt-container table.dataTable thead > tr > th.dt-ordering-desc span.dt-column-order::before {
+    opacity: 0.2 !important;
+}
+
+.dt-container table.dataTable thead > tr > th.dt-ordering-desc span.dt-column-order::after {
+    opacity: 1 !important;
+}
+
+td.dt-type-numeric {
+    text-align: center !important;
+}
+
+.dt-column-header {
+    text-align: center;
+}
+
+
+tr th:first-child {
+    border-start-start-radius: 10px;
+}
+
+tr th:last-child {
+    border-start-end-radius: 10px;
+}
+
+.dt-paging {
+    @apply w-full flex justify-center mt-2;
+}
+
+.dt-paging nav {
+    @apply rounded-box shadow-sm;
+}
+
+.dt-paging .dt-paging-button {
+    @apply text-sm font-bold;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+.dt-paging .dt-paging-button:not(.btn-disabled):not([disabled]):hover {
+    background-color: #4f46e5 !important;
+    color: #fff !important;
+}
+
+div.dt-container .dt-paging .dt-paging-button.current,
+div.dt-container .dt-paging .dt-paging-button.is-current,
+div.dt-container .dt-paging .dt-paging-button[aria-current="page"] {
+    background-color: #4338ca !important;
+    --btn-fg: #fff !important;
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+}
+
+div.dt-container .dt-paging .dt-paging-button.last {
+    border-end-end-radius: 0.5rem;
+    border-start-end-radius: 0.5rem;
+}
+
+div.dt-container .dt-paging .dt-paging-button.first {
+    border-start-start-radius: 0.5rem;
+    border-end-start-radius: 0.5rem;
+}
+
+div.dt-container .dt-paging .dt-paging-button.current *,
+div.dt-container .dt-paging .dt-paging-button.is-current *,
+div.dt-container .dt-paging .dt-paging-button[aria-current="page"] * {
+    color: #fff !important;
+}
+
+tbody tr:last-child td:first-child {
+    border-end-start-radius: 15px;
+}
+
+tbody tr:last-child td:last-child {
+    border-end-end-radius: 15px;
+}
+
+table.dataTable > tbody > tr {
+    @apply transition-all duration-200 ease-in-out;
+}
+
+.table tbody tr:nth-child(odd) {
+    @apply bg-base-200/40;
+}
+
+table.dataTable > tbody > tr:hover {
+    @apply bg-primary/12;
+}
+
+.dt-search input {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='%239ca3af' width='16' height='16'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.803 5.803a7.5 7.5 0 0 0 10.394 10.394z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    padding-left: 34px !important;
+    font-size: unset;
 }

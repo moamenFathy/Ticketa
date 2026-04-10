@@ -16,8 +16,21 @@ namespace Ticketa.Web.Areas.Admin.Controllers
 
     public async Task<ActionResult> Index()
     {
+      return View();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
       var halls = await _uow.Halls.GetAllAsync();
-      return View(halls);
+      var result = halls.Select((h, index) => new
+      {
+        rowNumber = index + 1,
+        id = h.Id,
+        name = h.Name,
+        totalSeats = h.TotalSeats
+      }).ToList();
+      return Json(new { data = result });
     }
 
     [HttpGet]

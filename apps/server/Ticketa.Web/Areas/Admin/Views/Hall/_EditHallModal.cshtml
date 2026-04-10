@@ -56,18 +56,18 @@ else
                    class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary validator"
                    placeholder="Enter hall name"
                    autofocus />
-            <span asp-validation-for="Name" class="validator-hint"></span>
+            <span asp-validation-for="Name" class="text-error text-sm mt-1"></span>
         </label>
 
         <!-- Total Seats -->
         <label class="form-control w-full">
             <span class="label-text font-medium">Total Seats</span>
             <input asp-for="TotalSeats"
-                   type="number"
+                   type="text"
                    min="1"
                    class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary validator"
                    placeholder="Enter number of seats" />
-            <span asp-validation-for="TotalSeats" class="validator-hint"></span>
+            <span asp-validation-for="TotalSeats" class="text-error text-sm mt-1"></span>
         </label>
 
         <!-- Actions -->

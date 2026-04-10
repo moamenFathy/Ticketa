@@ -1,11 +1,13 @@
 ﻿<!DOCTYPE HTML>
-<html lang="en" data-theme="nord">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Ticketa.Web</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/Ticketa.Web.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.7/css/dataTables.dataTables.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.4.0/css/fixedHeader.dataTables.min.css">
     <link rel="stylesheet" href="~/css/output.css" asp-append-version="true" />
 </head>
 <body class="">
@@ -94,13 +96,15 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/themeToggle.js" asp-append-version="true"></script>
     <script src="~/js/Modals.js" asp-append-version="true"></script>
+    <script src="https://cdn.datatables.net/2.3.7/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/fixedheader/3.4.0/js/dataTables.fixedHeader.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         const drawerToggle = document.getElementById("my-drawer-4");
         const drawerSwapState = document.getElementById("drawerSwapState");
 
         const syncDrawerSwap = () => {
-          drawerSwapState.checked = drawerToggle.checked;
+        drawerSwapState.checked = drawerToggle.checked;
         };
 
         drawerToggle.addEventListener("change", syncDrawerSwap);
