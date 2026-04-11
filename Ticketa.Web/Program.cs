@@ -15,10 +15,18 @@ builder.Services.AddDbContext<ApplicationDbContext>((opt) =>
   opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-builder.Services.AddIdentity<AppUser, IdentityRole>()
+builder.Services.AddIdentity<AppUser, IdentityRole>(opt =>
+{
+  opt.User.RequireUniqueEmail = true;
+})
   .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.ConfigureApplicationCookie(opt =>
+{
+  opt.LoginPath = "/Auth/Login";
+});
 
 var app = builder.Build();
 
@@ -45,3 +53,14 @@ app.MapControllerRoute(
 
 
 app.Run();
+
+using (var scope = app.Services.CreateScope())
+{
+  var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+  string[] roles = ["Admin", "User"];
+
+  foreach (var role in roles)
+    if (!await roleManager.RoleExistsAsync(role))
+      await roleManager.CreateAsync(new IdentityRole(role));
+}
