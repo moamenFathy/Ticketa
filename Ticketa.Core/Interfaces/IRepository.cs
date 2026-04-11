@@ -8,5 +8,6 @@ namespace Ticketa.Core.Interfaces
     Task<T?> GetAsync(Expression<Func<T, bool>> filter, params string[] includes);
     Task CreateAsync(T entity);
     void Delete(T entity);
+    Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
   }
 }
