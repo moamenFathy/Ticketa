@@ -1,4 +1,4 @@
-namespace Ticketa.Web.Models
+namespace Ticketa.Web.ViewModels
 {
   public class ErrorViewModel
   {

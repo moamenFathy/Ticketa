@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using Ticketa.Web.Models;
+using Ticketa.Web.ViewModels;
 
 namespace Ticketa.Web.Areas.Customer.Controllers
 {
