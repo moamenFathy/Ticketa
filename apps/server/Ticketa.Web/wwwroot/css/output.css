@@ -3762,7 +3762,7 @@ tr th:last-child {
 }
 .dt-paging nav {
   border-radius: var(--radius-box);
-  --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+  --tw-shadow: 0 4px 6px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 2px 4px -2px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
   box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
 .dt-paging .dt-paging-button {
@@ -3772,9 +3772,13 @@ tr th:last-child {
   font-weight: var(--font-weight-bold);
   background-image: none !important;
   box-shadow: none !important;
+  border: 0px !important;
+}
+.dt-paging .dt-paging-button.disabled:hover, .dt-paging .dt-paging-button.btn-disabled:hover, .dt-paging .dt-paging-button[disabled]:hover {
+  background-color: #B8B4EC !important;
 }
 .dt-paging .dt-paging-button:not(.btn-disabled):not([disabled]):hover {
-  background-color: #4f46e5 !important;
+  background-color: #4f46e5;
   color: #fff !important;
 }
 div.dt-container .dt-paging .dt-paging-button.current, div.dt-container .dt-paging .dt-paging-button.is-current, div.dt-container .dt-paging .dt-paging-button[aria-current="page"] {
@@ -3827,6 +3831,13 @@ table.dataTable > tbody > tr:hover {
   background-position: 10px center;
   padding-left: 34px !important;
   font-size: unset;
+}
+input.input-validation-error, select.input-validation-error, textarea.input-validation-error {
+  border-color: #f43f5e !important;
+}
+input.input-validation-error:focus, select.input-validation-error:focus, textarea.input-validation-error:focus {
+  border-color: #f43f5e !important;
+  box-shadow: 0 0 0 1px #f43f5e;
 }
 @layer base {
   :where(:root),:root:has(input.theme-controller[value=light]:checked),[data-theme=light] {

@@ -14,7 +14,7 @@ namespace Ticketa.Web.Areas.Admin.Controllers
       _uow = uow;
     }
 
-    public async Task<ActionResult> Index()
+    public ActionResult Index()
     {
       return View();
     }
@@ -36,39 +36,43 @@ namespace Ticketa.Web.Areas.Admin.Controllers
     [HttpGet]
     public async Task<IActionResult> Upsert(int? id)
     {
-      var hall = id.HasValue ? await _uow.Halls.GetAsync(h => h.Id == id.Value) : new Hall();
 
       if (!id.HasValue)
-      {
-        return PartialView("_CreateHallModal", hall);
-      }
-      else
-      {
-        return PartialView("_EditHallModal", hall);
-      }
+        return PartialView("_CreateHallModal", new Hall());
+
+      var hall = await _uow.Halls.GetAsync(h => h.Id == id.Value);
+
+      if (id.HasValue && hall == null)
+        return NotFound();
+
+      return PartialView("_EditHallModal", hall);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Upsert(Hall model)
     {
-      if (!ModelState.IsValid && model.Id == 0)
+      var viewName = model.Id == 0 ? "_CreateHallModal" : "_EditHallModal";
+
+
+      if (!ModelState.IsValid)
       {
-        return PartialView("_EditHallModal", model);
+        return PartialView(viewName, model);
+      }
+
+      if (await IsHallExist(model.Name, model.Id))
+      {
+        ModelState.AddModelError(nameof(Hall.Name), "A hall with this name already exists.");
+        return PartialView(viewName, model);
       }
 
       if (model.Id == 0)
-      {
         await _uow.Halls.CreateAsync(model);
-        await _uow.SaveAsync();
-        return Json(new { success = true, data = new { id = model.Id, name = model.Name, totalSeats = model.TotalSeats } });
-      }
       else
-      {
         _uow.Halls.Update(model);
-        await _uow.SaveAsync();
-        return Json(new { success = true, data = new { id = model.Id, name = model.Name, totalSeats = model.TotalSeats } });
-      }
+
+      await _uow.SaveAsync();
+      return Json(new { success = true, data = new { id = model.Id, name = model.Name, totalSeats = model.TotalSeats } });
     }
 
     [HttpGet]
@@ -95,6 +99,11 @@ namespace Ticketa.Web.Areas.Admin.Controllers
       _uow.Halls.Delete(hall);
       await _uow.SaveAsync();
       return Json(new { success = true });
+    }
+
+    private async Task<bool> IsHallExist(string name, int excludedId = 0)
+    {
+      return await _uow.Halls.AnyAsync(h => h.Name.ToLower() == name.Trim().ToLower() && h.Id != excludedId);
     }
   }
 }

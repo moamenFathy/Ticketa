@@ -48,5 +48,7 @@ namespace Ticketa.Infrastructure.Repositories
 
     public void Delete(T entity) => _dbSet.Remove(entity);
 
+    public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate) => await _dbSet.AnyAsync(predicate);
+
   }
 }

@@ -37,4 +37,6 @@ initDataTable("/Admin/Hall/GetAll", [
                         </div>
                     `
     }
-]);
+], {
+    order: [[0, 'des']]
+});

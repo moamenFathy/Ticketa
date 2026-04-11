@@ -104,17 +104,24 @@ tr th:last-child {
 }
 
 .dt-paging nav {
-    @apply rounded-box shadow-sm;
+    @apply rounded-box shadow-md;
 }
 
 .dt-paging .dt-paging-button {
     @apply text-sm font-bold;
     background-image: none !important;
     box-shadow: none !important;
+    border: 0px !important;
+}
+
+.dt-paging .dt-paging-button.disabled:hover,
+.dt-paging .dt-paging-button.btn-disabled:hover,
+.dt-paging .dt-paging-button[disabled]:hover {
+    background-color: #B8B4EC !important;
 }
 
 .dt-paging .dt-paging-button:not(.btn-disabled):not([disabled]):hover {
-    background-color: #4f46e5 !important;
+    background-color: #4f46e5;
     color: #fff !important;
 }
 
@@ -169,4 +176,18 @@ table.dataTable > tbody > tr:hover {
     background-position: 10px center;
     padding-left: 34px !important;
     font-size: unset;
+}
+
+/* ASP.NET unobtrusive/jQuery validation error state */
+input.input-validation-error,
+select.input-validation-error,
+textarea.input-validation-error {
+    border-color: #f43f5e !important;
+}
+
+input.input-validation-error:focus,
+select.input-validation-error:focus,
+textarea.input-validation-error:focus {
+    border-color: #f43f5e !important;
+    box-shadow: 0 0 0 1px #f43f5e;
 }
