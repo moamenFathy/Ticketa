@@ -1,6 +1,6 @@
 using Ticketa.Core.Entities;
 
-namespace Ticketa.Core.Interfaces;
+namespace Ticketa.Core.Interfaces.Repositories;
 
 public interface IHallRepository : IRepository<Hall>
 {

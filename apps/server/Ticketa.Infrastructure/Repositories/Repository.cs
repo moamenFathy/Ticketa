@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using Ticketa.Core.Interfaces;
+using Ticketa.Core.Interfaces.Repositories;
 using Ticketa.Infrastructure.Data;
 
 namespace Ticketa.Infrastructure.Repositories
