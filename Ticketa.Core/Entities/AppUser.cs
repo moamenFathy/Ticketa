@@ -5,5 +5,6 @@ namespace Ticketa.Core.Entities
   public class AppUser : IdentityUser
   {
     public DateOnly DateOfBirth { get; set; }
+    public string Theme { get; set; } = "light";
   }
 }
