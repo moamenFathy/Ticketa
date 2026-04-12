@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Interfaces;
+using Ticketa.Core.DTOs;
 using Ticketa.Web.ViewModels;
 
 namespace Ticketa.Web.Controllers
@@ -65,7 +66,7 @@ namespace Ticketa.Web.Controllers
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginVM model)
+    public async Task<IActionResult> Login(LoginVM model, string? returnUrl = null)
     {
       if (!ModelState.IsValid)
         return View(model);
@@ -73,7 +74,18 @@ namespace Ticketa.Web.Controllers
       var result = await _signInManger.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
 
       if (result.Succeeded)
-        return RedirectToAction("Index", "Home");
+      {
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        if (user != null && !string.IsNullOrEmpty(user.Theme))
+        {
+            Response.Cookies.Append("theme", user.Theme, new CookieOptions { MaxAge = TimeSpan.FromDays(365), Path = "/" });
+        }
+
+        if (Url.IsLocalUrl(returnUrl))
+            return LocalRedirect(returnUrl);
+
+        return LocalRedirect("/");
+      }
 
       ModelState.AddModelError(string.Empty, "Invalid login attempt.");
       return View(model);
@@ -82,7 +94,24 @@ namespace Ticketa.Web.Controllers
     public async Task<IActionResult> Logout()
     {
       await _signInManger.SignOutAsync();
+      Response.Cookies.Delete("theme");
       return RedirectToAction("Index", "Home");
+    }
+
+    [HttpPost]
+    [IgnoreAntiforgeryToken] // Allow AJAX calls simply without token checking for a minor theme setting, or you can implement CSRF headers
+    public async Task<IActionResult> UpdateTheme([FromBody] UpdateThemeDto dto)
+    {
+        if (User?.Identity?.IsAuthenticated == true)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null && dto.Theme != null)
+            {
+                user.Theme = dto.Theme;
+                await _userManager.UpdateAsync(user);
+            }
+        }
+        return Ok();
     }
   }
 }
