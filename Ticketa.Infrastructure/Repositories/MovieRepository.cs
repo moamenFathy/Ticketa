@@ -5,7 +5,7 @@ using Ticketa.Infrastructure.Data;
 
 namespace Ticketa.Infrastructure.Repositories
 {
-  public class MovieRepository : Repository<Movie>, IMovieRepository
+  public class MovieRepository : GenericRepository<Movie>, IMovieRepository
   {
 
     public MovieRepository(ApplicationDbContext context) : base(context) { }

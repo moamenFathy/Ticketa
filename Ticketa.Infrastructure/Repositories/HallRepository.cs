@@ -1,10 +1,10 @@
 using Ticketa.Core.Entities;
-using Ticketa.Core.Interfaces.Repositories;
+using Ticketa.Core.Interfaces.IRepositories;
 using Ticketa.Infrastructure.Data;
 
 namespace Ticketa.Infrastructure.Repositories;
 
-public class HallRepository : Repository<Hall>, IHallRepository
+public class HallRepository : GenericRepository<Hall>, IHallRepository
 {
   public HallRepository(ApplicationDbContext context) : base(context)
   {

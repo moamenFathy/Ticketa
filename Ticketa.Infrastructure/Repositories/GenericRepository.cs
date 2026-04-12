@@ -1,17 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using Ticketa.Core.Interfaces.Repositories;
+using Ticketa.Core.Interfaces.IRepositories;
 using Ticketa.Infrastructure.Data;
 
 namespace Ticketa.Infrastructure.Repositories
 {
 
-  public class Repository<T> : IRepository<T> where T : class
+  public class GenericRepository<T> : IGenericRepository<T> where T : class
   {
     protected readonly ApplicationDbContext _context;
     private readonly DbSet<T> _dbSet;
 
-    public Repository(ApplicationDbContext context)
+    public GenericRepository(ApplicationDbContext context)
     {
       _context = context;
       _dbSet = _context.Set<T>();

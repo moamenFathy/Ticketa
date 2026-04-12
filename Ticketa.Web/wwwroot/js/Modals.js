@@ -53,7 +53,6 @@ document.addEventListener("click", function (e) {
 
 // One global listener handles all modals
 document.addEventListener("submit", async (e) => {
-    e.preventDefault();
     const form = e.target;
 
     // Each form declares its own url via data attribute
