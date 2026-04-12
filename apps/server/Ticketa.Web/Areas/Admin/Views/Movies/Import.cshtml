@@ -1,0 +1,101 @@
+﻿@model MovieImportVM
+
+<div class="max-w-2xl mx-auto p-6">
+
+    <h1 class="text-2xl font-bold mb-6">Import Movie from TMDB</h1>
+
+    @if (TempData["Success"] is string success)
+    {
+        <div role="alert" class="alert alert-success mb-4">
+            <span>@success</span>
+        </div>
+    }
+
+    @if (TempData["Error"] is string error)
+    {
+        <div role="alert" class="alert alert-error mb-4">
+            <span>@error</span>
+        </div>
+    }
+
+    <form method="post" asp-area="Admin" asp-controller="Movies" asp-action="Import">
+
+        <div class="card bg-base-200 shadow-md">
+            <div class="card-body gap-4">
+
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-medium">Select a Popular Movie</span>
+                    </label>
+                    <select name="SelectedTmdbId" class="select select-bordered w-full">
+                        <option value="" disabled selected>-- Choose a movie --</option>
+                        @foreach (var movie in Model.AvailableMovies)
+                        {
+                            var year = movie.ReleaseDate?.Length >= 4
+                                       ? movie.ReleaseDate[..4]
+                                       : "N/A";
+                            <option value="@movie.TmdbId">
+                                @movie.Title (@year) ⭐ @movie.VoteAverage.ToString("F1")
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Live preview card, updated via JS -->
+                <div id="preview" class="hidden">
+                    <div class="divider">Preview</div>
+                    <div class="flex gap-4 items-start">
+                        <img id="preview-poster"
+                             src="" alt="Poster"
+                             class="w-24 rounded-lg shadow" />
+                        <div>
+                            <p id="preview-title" class="font-bold text-lg"></p>
+                            <p id="preview-overview" class="text-sm text-base-content/70 mt-1 line-clamp-3"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <!-- Heroicon: arrow-down-tray -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
+                         viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                    Import Movie
+                </button>
+
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        // Build a lookup map from the Razor model
+        const movies = {
+          @foreach (var m in Model.AvailableMovies)
+          {
+                    @: "@m.TmdbId": {
+                    @:   title: "@Html.Raw(m.Title?.Replace("\"", "\\\""))",
+                    @:   overview: "@Html.Raw(m.Overview?.Replace("\"", "\\\"").Replace("\n", " "))",
+                    @:   poster: "@m.PosterPath"
+                    @: },
+          }
+        };
+
+        const imageBase = "https://image.tmdb.org/t/p/w200";
+        const select    = document.querySelector("select[name='SelectedTmdbId']");
+        const preview   = document.getElementById("preview");
+
+        select.addEventListener("change", () => {
+          const data = movies[select.value];
+          if (!data) { preview.classList.add("hidden"); return; }
+
+          document.getElementById("preview-title").textContent    = data.title;
+          document.getElementById("preview-overview").textContent = data.overview;
+          document.getElementById("preview-poster").src           = imageBase + data.poster;
+          preview.classList.remove("hidden");
+        });
+    </script>
+}

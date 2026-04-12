@@ -1,8 +1,8 @@
 ﻿using System.Linq.Expressions;
 
-namespace Ticketa.Core.Interfaces.Repositories
+namespace Ticketa.Core.Interfaces.IRepositories
 {
-  public interface IRepository<T> where T : class
+  public interface IGenericRepository<T> where T : class
   {
     Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, params string[] includes);
     Task<T?> GetAsync(Expression<Func<T, bool>> filter, params string[] includes);

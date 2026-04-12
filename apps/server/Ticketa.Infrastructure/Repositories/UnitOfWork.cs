@@ -1,6 +1,5 @@
 ﻿using Ticketa.Core.Interfaces;
 using Ticketa.Core.Interfaces.IRepositories;
-using Ticketa.Core.Interfaces.Repositories;
 using Ticketa.Infrastructure.Data;
 
 namespace Ticketa.Infrastructure.Repositories

@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Interfaces;
+using Ticketa.Core.Interfaces.Services;
 using Ticketa.Infrastructure.Data;
 using Ticketa.Infrastructure.Repositories;
+using Ticketa.Infrastructure.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +24,13 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(opt =>
   .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.AddAutoMapper(cfg =>
+{
+  cfg.AddProfile<Ticketa.Web.Mapping.MovieProfile>();
+});
+
+builder.Services.AddHttpClient<ITmdbService, TmdbService>();
 
 builder.Services.ConfigureApplicationCookie(opt =>
 {
@@ -51,6 +60,13 @@ app.MapControllerRoute(
     pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
 
