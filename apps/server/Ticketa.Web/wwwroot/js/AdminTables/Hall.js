@@ -38,5 +38,8 @@ initDataTable("/Admin/Hall/GetAll", [
                     `
     }
 ], {
-    order: [[0, 'des']]
+    order: [[0, 'des']],
+    columnDefs: [
+        { className: "flex justify-center gap-1", targets: 3 }
+    ]
 });

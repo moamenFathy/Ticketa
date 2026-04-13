@@ -2857,6 +2857,9 @@
   .h-6 {
     height: calc(var(--spacing) * 6);
   }
+  .h-24 {
+    height: calc(var(--spacing) * 24);
+  }
   .h-80 {
     height: calc(var(--spacing) * 80);
   }
@@ -2892,11 +2895,20 @@
   .w-10 {
     width: calc(var(--spacing) * 10);
   }
+  .w-16 {
+    width: calc(var(--spacing) * 16);
+  }
+  .w-20 {
+    width: calc(var(--spacing) * 20);
+  }
   .w-24 {
     width: calc(var(--spacing) * 24);
   }
   .w-52 {
     width: calc(var(--spacing) * 52);
+  }
+  .w-64 {
+    width: calc(var(--spacing) * 64);
   }
   .w-80 {
     width: calc(var(--spacing) * 80);
@@ -2973,6 +2985,9 @@
   }
   .flex-col {
     flex-direction: column;
+  }
+  .flex-row {
+    flex-direction: row;
   }
   .items-center {
     align-items: center;
@@ -3185,6 +3200,9 @@
   .text-center {
     text-align: center;
   }
+  .align-middle {
+    vertical-align: middle;
+  }
   .text-2xl {
     font-size: var(--text-2xl);
     line-height: var(--tw-leading, var(--text-2xl--line-height));
@@ -3250,6 +3268,12 @@
   .tracking-widest {
     --tw-tracking: var(--tracking-widest);
     letter-spacing: var(--tracking-widest);
+  }
+  .whitespace-normal {
+    white-space: normal;
+  }
+  .whitespace-nowrap {
+    white-space: nowrap;
   }
   .alert-error {
     @layer daisyui.l1.l2 {

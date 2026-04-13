@@ -23,9 +23,21 @@ namespace Ticketa.Infrastructure.Service
 
     public async Task<IReadOnlyList<TmdbMovieDto>> GetPopularMoviesAsync()
     {
-      var url = $"{BaseUrl}/movie/popular?language=en-US&page=1";
+      var url = $"{BaseUrl}/movie/now_playing?language=en-US&page=1";
       var response = await _httpClient.GetFromJsonAsync<TmdbPopularResponseDto>(url);
       return response?.Results ?? [];
+    }
+
+    public async Task<string?> GetTrailerKeyAsync(int tmdbId)
+    {
+      var url = $"{BaseUrl}/movie/{tmdbId}/videos?language=en-US";
+      var response = await _httpClient.GetFromJsonAsync<TmdbVideoResponseDto>(url);
+      // Look for an official trailer on YouTube
+      return response?.Results
+          .Where(v => v.Site == "YouTube" && v.Type == "Trailer" && v.Official).Select(v => v.Key).FirstOrDefault()
+
+          ?? response?.Results
+          .Where(v => v.Site == "YouTube" && v.Type == "Trailer").Select(v => v.Key).FirstOrDefault();
     }
   }
 }
