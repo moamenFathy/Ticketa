@@ -21,9 +21,6 @@
                 type: 'GET',
             },
             columns,
-            columnDefs: [
-                { className: "flex justify-center gap-1", targets: 3 }
-            ],
             dom: "<'flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4'<''l><'flex items-center gap-2'f>>t<i'mt-5 flex flex-col items-center gap-3'<'text-sm opacity-70'p>>",
             drawCallback: function () {
                 applyDaisyPagination(this.api().table().container());

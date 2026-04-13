@@ -1,0 +1,49 @@
+﻿@model IEnumerable<Movie>
+<div class="card bg-base-100 border border-base-300 shadow-sm">
+    <div class="card-body gap-4">
+        <div class="flex items-center justify-between border-b border-base-300 pb-3">
+            <h2 class="card-title">Movies</h2>
+            <div>
+                <button onclick="openModal('createForm', '/admin/movies/Upsert')" class="btn btn-primary">Create New +</button>
+                <a asp-controller="Movies" asp-action="Import" class="btn btn-primary">
+                    Import Movies
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
+                         viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table id="DataTable" class="table cell-border hover stripe compact">
+                <thead>
+                    <tr>
+                        <th class="w-20">Poster</th>
+                        <th>Title</th>
+                        <th class="w-64">Overview</th>
+                        <th>Vote</th>
+                        <th>Release Date</th>
+                        <th>Imported Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<input type="checkbox" id="modal" class="modal-toggle" />
+
+<div class="modal shadow-2xl" id="modal-wrapper" role="dialog" aria-modal="true">
+    <div class="modal-box" id="modalContent">
+        <!-- Modal content will be loaded here via JavaScript -->
+    </div>
+    <label class="modal-backdrop" for="modal">Close</label>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script type="module" src="~/js/AdminTables/Movie.js" asp-append-version="true"></script>
+}

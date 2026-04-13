@@ -58,11 +58,20 @@ namespace Ticketa.Web.Areas.Admin.Controllers
       }
 
       var movie = _mapper.Map<Movie>(selected);
+      movie.TrailerKey = await _tmdbService.GetTrailerKeyAsync(selected.TmdbId);
+
       await _uow.Movies.CreateAsync(movie);
       await _uow.SaveAsync();
 
       TempData["Success"] = $"Successfully imported '{movie.Title}'!";
       return RedirectToAction(nameof(Import));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+      var movies = await _uow.Movies.GetAllAsync();
+      return Json(new { data = movies });
     }
   }
 }
