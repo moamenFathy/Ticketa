@@ -1,139 +1,138 @@
-﻿@model MovieImportVM
+@model MovieImportVM
 
-<div class="max-w-4xl mx-auto p-4 sm:p-8">
-
-    <div class="text-center mb-8">
-        <h1 class="text-4xl font-extrabold tracking-tight text-primary">Import Movie</h1>
-        <p class="text-base-content/60 mt-3 text-lg">Select a popular movie from TMDB to add to your catalog.</p>
-    </div>
-
-    @if (TempData["Success"] is string success)
-    {
-        <div role="alert" class="alert alert-success mb-6 shadow-sm rounded-xl">
-            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            <span class="font-medium">@success</span>
+<div class="card bg-base-100 border border-base-300 shadow-sm">
+    <div class="card-body gap-4">
+        <div class="flex items-center justify-between border-b border-base-300 pb-3">
+            <h2 class="card-title">Import Movie from TMDB</h2>
+            <a asp-action="Index" class="btn btn-ghost btn-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
+                </svg>
+                Back to Movies
+            </a>
         </div>
-    }
 
-    @if (TempData["Error"] is string error)
-    {
-        <div role="alert" class="alert alert-error mb-6 shadow-sm rounded-xl">
-            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            <span class="font-medium">@error</span>
-        </div>
-    }
-
-    <form method="post" asp-area="Admin" asp-controller="Movies" asp-action="Import">
-
-        <div class="card bg-base-100 border border-base-300 shadow-xl overflow-visible rounded-2xl">
-            <div class="card-body p-6 sm:p-10 gap-6">
-
-                <div class="form-control w-full max-w-2xl mx-auto">
-                    <label class="label justify-center pb-4">
-                        <span class="label-text font-semibold text-lg text-base-content/80">Search & Select a Movie</span>
-                    </label>
-                    <select name="SelectedTmdbId" class="select select-bordered select-lg w-full text-base bg-base-200/50 focus:bg-base-100 transition-colors shadow-inner rounded-xl">
-                        <option value="" disabled selected>-- Choose a movie --</option>
-                        @foreach (var movie in Model.AvailableMovies)
-                        {
-                            var year = movie.ReleaseDate?.Length >= 4
-                                       ? movie.ReleaseDate[..4]
-                                       : "N/A";
-                            <option value="@movie.TmdbId">
-                                @movie.Title (@year) ⭐ @movie.VoteAverage.ToString("F1")
-                            </option>
-                        }
-                    </select>
-                </div>
-
-                <!-- Live preview card, updated via JS -->
-                <div id="preview" class="hidden flex flex-col gap-6 mt-4 opacity-0 transition-opacity duration-500 ease-in-out">
-                    <div class="divider text-base-content/40 uppercase tracking-widest text-sm font-semibold">Movie Preview</div>
-                    
-                    <div id="trailer-container" class="hidden w-full rounded-2xl overflow-hidden shadow-2xl bg-black ring-1 ring-base-300">
-                        <iframe id="preview-trailer" class="w-full aspect-video" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row gap-6 items-start bg-base-200/40 p-6 rounded-2xl border border-base-300 hover:border-primary/30 transition-colors shadow-sm">
-                        <img id="preview-poster"
-                             src="" alt="Poster"
-                             class="w-32 sm:w-44 rounded-xl shadow-lg object-cover ring-1 ring-base-300" />
-                        <div class="flex-1 space-y-3">
-                            <h2 id="preview-title" class="font-extrabold text-2xl sm:text-3xl text-base-content leading-tight"></h2>
-                            <p id="preview-overview" class="text-base sm:text-lg text-base-content/70 leading-relaxed"></p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-8 flex justify-center">
-                    <button type="submit" class="btn btn-primary btn-wide btn-lg shadow-lg shadow-primary/30 text-lg rounded-full disabled:opacity-50" id="import-btn" disabled>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mr-2" fill="none"
-                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m3 16.5 2.25 4.5h13.5l2.25-4.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                        </svg>
-                        Import Movie
-                    </button>
-                </div>
-
+        @if (TempData["Success"] is string success)
+        {
+            <div role="alert" class="alert alert-success shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>@success</span>
             </div>
-        </div>
-    </form>
+        }
+
+        @if (TempData["Error"] is string error)
+        {
+            <div role="alert" class="alert alert-error shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>@error</span>
+            </div>
+        }
+
+        <form method="post" asp-area="Admin" asp-controller="Movies" asp-action="Import">
+            <div class="form-control w-full">
+                <label class="label">
+                    <span class="label-text font-medium">Select a Movie</span>
+                </label>
+                <select name="SelectedTmdbId" class="select select-bordered w-full" id="movie-select">
+                    <option value="" disabled selected>-- Search and select a movie --</option>
+                    @foreach (var movie in Model.AvailableMovies)
+                    {
+                        var year = movie.ReleaseDate?.Length >= 4 ? movie.ReleaseDate[..4] : "N/A";
+                        <option value="@movie.TmdbId">
+                            @movie.Title (@year) ⭐ @movie.VoteAverage.ToString("F1")
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <!-- Live preview card -->
+            <div id="preview" class="hidden mt-6 opacity-0 transition-opacity duration-300">
+                <div class="divider">Preview</div>
+
+                <div id="trailer-container" class="hidden mb-4 rounded-xl overflow-hidden bg-black ring-1 ring-base-300">
+                    <iframe id="preview-trailer" class="w-full aspect-video" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 bg-base-200/50 p-4 rounded-xl border border-base-300">
+                    <img id="preview-poster" src="" alt="Poster" class="w-28 sm:w-36 rounded-lg shadow-md object-cover ring-1 ring-base-300" />
+                    <div class="flex-1 space-y-2">
+                        <h3 id="preview-title" class="font-bold text-xl text-base-content"></h3>
+                        <p id="preview-overview" class="text-sm text-base-content/70 line-clamp-4"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button type="submit" class="btn btn-primary" id="import-btn" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
+                         viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                    Import Movie
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 @section Scripts {
     <script>
-        // Build a lookup map from the Razor model
         const movies = {
-          @foreach (var m in Model.AvailableMovies)
-          {
-                    @: "@m.TmdbId": {
-                    @:   title: "@Html.Raw(m.Title?.Replace("\"", "\\\""))",
-                    @:   overview: "@Html.Raw(m.Overview?.Replace("\"", "\\\"").Replace("\n", " "))",
-                    @:   poster: "@m.PosterPath"
-                    @: },
-          }
+            @foreach (var m in Model.AvailableMovies)
+            {
+                @: "@m.TmdbId": {
+                @:   title: "@Html.Raw(m.Title?.Replace("\"", "\\\""))",
+                @:   overview: "@Html.Raw(m.Overview?.Replace("\"", "\\\"").Replace("\n", " "))",
+                @:   poster: "@m.PosterPath"
+                @: },
+            }
         };
 
         const imageBase = "https://image.tmdb.org/t/p/w200";
-        const select    = document.querySelector("select[name='SelectedTmdbId']");
-        const preview   = document.getElementById("preview");
+        const select = document.getElementById("movie-select");
+        const preview = document.getElementById("preview");
         const importBtn = document.getElementById("import-btn");
 
         select.addEventListener("change", async () => {
-          const tmdbId = select.value;
-          const data = movies[tmdbId];
-          if (!data) { 
-              preview.classList.add("hidden", "opacity-0"); 
-              importBtn.disabled = true;
-              return; 
-          }
+            const tmdbId = select.value;
+            const data = movies[tmdbId];
+            if (!data) {
+                preview.classList.add("hidden", "opacity-0");
+                importBtn.disabled = true;
+                return;
+            }
 
-          document.getElementById("preview-title").textContent    = data.title;
-          document.getElementById("preview-overview").textContent = data.overview;
-          document.getElementById("preview-poster").src           = imageBase + data.poster;
-          
-          importBtn.disabled = false;
-          preview.classList.remove("hidden");
-          setTimeout(() => preview.classList.remove("opacity-0"), 10);
-          
-          const trailerContainer = document.getElementById("trailer-container");
-          const trailerEl = document.getElementById("preview-trailer");
-          trailerContainer.classList.add("hidden");
-          trailerEl.src = "";
-          
-          try {
-              const response = await fetch(`/Admin/Movies/GetTrailerKey?tmdbId=${tmdbId}`);
-              if (response.ok) {
-                  const resData = await response.json();
-                  const trailerKey = resData.key || resData.Key;
-                  if (trailerKey) {
-                      trailerEl.src = `https://www.youtube.com/embed/${trailerKey}`;
-                      trailerContainer.classList.remove("hidden", "w-full", "aspect-video");
-                  }
-              }
-          } catch (err) {
-              console.error("Error fetching trailer key", err);
-          }
+            document.getElementById("preview-title").textContent = data.title;
+            document.getElementById("preview-overview").textContent = data.overview;
+            document.getElementById("preview-poster").src = imageBase + data.poster;
+
+            importBtn.disabled = false;
+            preview.classList.remove("hidden");
+            setTimeout(() => preview.classList.remove("opacity-0"), 10);
+
+            const trailerContainer = document.getElementById("trailer-container");
+            const trailerEl = document.getElementById("preview-trailer");
+            trailerContainer.classList.add("hidden");
+            trailerEl.src = "";
+
+            try {
+                const response = await fetch(`/Admin/Movies/GetTrailerKey?tmdbId=${tmdbId}`);
+                if (response.ok) {
+                    const resData = await response.json();
+                    const trailerKey = resData.key || resData.Key;
+                    if (trailerKey) {
+                        trailerEl.src = `https://www.youtube.com/embed/${trailerKey}`;
+                        trailerContainer.classList.remove("hidden");
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching trailer key", err);
+            }
         });
     </script>
 }
