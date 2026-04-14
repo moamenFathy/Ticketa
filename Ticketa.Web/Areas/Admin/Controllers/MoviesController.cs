@@ -121,11 +121,13 @@ namespace Ticketa.Web.Areas.Admin.Controllers
 
       if (movie is null)
       {
+        TempData["Error"] = "The Movie Not Found";
         return NotFound();
       }
 
       _uow.Movies.Delete(movie);
       await _uow.SaveAsync();
+      TempData["success"] = "Movie deleted successfully";
       return Json(new { success = true });
     }
   }
