@@ -55,6 +55,38 @@ initDataTable("/Admin/Movies/GetAll", [
         }
     },
     {
+        data: "runtimeMinutes",
+        render: function (minutes) {
+            const h = Math.floor(minutes / 60);
+            const m = minutes % 60;
+            return h > 0 ? `${h}h ${m}m` : `${m}m`;
+        }
+    },
+    {
+        data: "status",
+        className: 'align-middle text-center whitespace-nowrap',
+        render: (data, type, row) => {
+            const activeSel = data === 0 ? "selected" : "";
+            const comingSel = data === 1 ? "selected" : "";
+            const archivedSel = data === 2 ? "selected" : "";
+            
+            const colorClass = data === 0 ? "text-green-700 bg-green-100 border-green-200" :
+                               data === 1 ? "text-blue-700 bg-blue-100 border-blue-200" :
+                               "text-gray-600 bg-gray-100 border-gray-200";
+
+            return `
+                <div class="relative inline-block">
+                    <select class="select select-sm select-bordered w-32 font-semibold focus:outline-none transition-all duration-200 ${colorClass}" onchange="updateMovieStatus(${row.id}, this)">
+                        <option value="0" ${activeSel}>✓ Active</option>
+                        <option value="1" ${comingSel}>🕐 Coming Soon</option>
+                        <option value="2" ${archivedSel}>📦 Archived</option>
+                    </select>
+                    <span class="status-indicator absolute -right-1 -top-1 hidden"></span>
+                </div>
+            `;
+        }
+    },
+    {
         data: 'id',
         orderable: false,
         className: 'align-middle text-center whitespace-nowrap',
@@ -82,3 +114,67 @@ initDataTable("/Admin/Movies/GetAll", [
 ], {
     order: [[5, 'desc']]
 });
+
+// Attach globally to allow onchange handler in the table
+window.updateMovieStatus = async function(id, selectEl) {
+    const newStatus = parseInt(selectEl.value, 10);
+    const wrapper = selectEl.parentElement;
+    const indicator = wrapper.querySelector('.status-indicator');
+    
+    // Apply new styling immediately
+    let colorClass = newStatus === 0 ? "text-green-700 bg-green-100 border-green-200" :
+                     newStatus === 1 ? "text-blue-700 bg-blue-100 border-blue-200" :
+                     "text-gray-600 bg-gray-100 border-gray-200";
+    
+    selectEl.className = "select select-sm select-bordered w-32 font-semibold focus:outline-none transition-all duration-200 " + colorClass;
+    
+    // Show loading state
+    selectEl.disabled = true;
+    selectEl.style.opacity = '0.7';
+    selectEl.style.cursor = 'wait';
+    indicator.innerHTML = '⟳';
+    indicator.className = 'status-indicator absolute -right-1 -top-1 text-xs animate-spin text-violet-600';
+    indicator.classList.remove('hidden');
+
+    try {
+        const formData = new FormData();
+        formData.append('id', id);
+        formData.append('status', newStatus);
+
+        const response = await fetch('/Admin/Movies/UpdateStatus', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+                // Success feedback
+                indicator.innerHTML = '✓';
+                indicator.className = 'status-indicator absolute -right-1 -top-1 text-xs text-green-600';
+                setTimeout(() => indicator.classList.add('hidden'), 1500);
+            } else {
+                showError();
+            }
+        } else {
+            showError();
+        }
+    } catch (err) {
+        console.error("Error updating status:", err);
+        showError();
+    } finally {
+        selectEl.disabled = false;
+        selectEl.style.opacity = '1';
+        selectEl.style.cursor = 'default';
+    }
+
+    function showError() {
+        indicator.innerHTML = '✕';
+        indicator.className = 'status-indicator absolute -right-1 -top-1 text-xs text-red-600';
+        selectEl.classList.add('animate-pulse');
+        setTimeout(() => {
+            indicator.classList.add('hidden');
+            selectEl.classList.remove('animate-pulse');
+        }, 2000);
+    }
+};

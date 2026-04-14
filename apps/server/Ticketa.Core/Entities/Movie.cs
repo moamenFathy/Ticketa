@@ -1,4 +1,6 @@
-﻿namespace Ticketa.Core.Entities
+﻿using Ticketa.Core.Enums;
+
+namespace Ticketa.Core.Entities
 {
   public class Movie
   {
@@ -11,7 +13,9 @@
     public string? TrailerKey { get; set; }  // YouTube video key from TMDB
     public double VoteAverage { get; set; }
     public DateTime ReleaseDate { get; set; }
+    public int RuntimeMinutes { get; set; }
     public string Language { get; set; } = string.Empty;
+    public MovieStatus Status { get; set; } = MovieStatus.Active;
     public DateTime ImportedAt { get; set; } = DateTime.UtcNow;
   }
 }
