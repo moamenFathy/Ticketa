@@ -67,9 +67,15 @@ namespace Ticketa.Web.Areas.Admin.Controllers
       }
 
       if (model.Id == 0)
+      {
         await _uow.Halls.CreateAsync(model);
+        TempData["Success"] = "Hall created successfully";
+      }
       else
+      {
         _uow.Halls.Update(model);
+        TempData["Success"] = "Hall updated successfully";
+      }
 
       await _uow.SaveAsync();
       return Json(new { success = true, data = new { id = model.Id, name = model.Name, totalSeats = model.TotalSeats } });
@@ -95,11 +101,13 @@ namespace Ticketa.Web.Areas.Admin.Controllers
       var hall = await _uow.Halls.GetAsync(h => h.Id == id);
       if (hall == null)
       {
+        TempData["Error"] = "The hall not found";
         return Json(new { success = false, message = "Hall not found." });
       }
 
       _uow.Halls.Delete(hall);
       await _uow.SaveAsync();
+      TempData["success"] = "The hall deleted successfully";
       return Json(new { success = true });
     }
 

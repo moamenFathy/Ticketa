@@ -16,7 +16,8 @@ initDataTable("/Admin/Movies/GetAll", [
     },
     { 
         data: 'title',
-        className: 'align-middle font-semibold'
+        className: 'align-middle font-semibold',
+        render: (data) => (data && data.length > 40) ? data.substring(0, 30) + "..." : data
     },
     {
         data: 'overview',
