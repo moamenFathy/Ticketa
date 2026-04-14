@@ -79,10 +79,12 @@ namespace Ticketa.Web.Areas.Admin.Controllers
     public async Task<IActionResult> DeleteConfirmation(int id)
     {
       var hall = await _uow.Halls.GetAsync(h => h.Id == id);
+
       if (hall == null)
       {
         return NotFound();
       }
+
       return PartialView("_DeleteHallModal", hall);
     }
 
