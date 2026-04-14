@@ -1,8 +1,8 @@
-﻿function openModal(formId, url) {
+﻿function openModal(formId, url, name) {
     fetch(url)
         .then(res => {
             if (!res.ok) {
-                throw new Error("Failed to load hall data.");
+                throw new Error(`Failed to load ${name} data.`);
             }
 
             return res.text();
@@ -21,7 +21,7 @@
             if (autofocusInput) autofocusInput.focus();
         })
         .catch(() => {
-            document.getElementById("modalContent").innerHTML = `<p class='text-error'>Could not load hall details.</p>
+            document.getElementById("modalContent").innerHTML = `<p class='text-error'>Could not load ${name} details.</p>
                                                                              <div class="modal-action">
                                                                                 <label for="modal" class="btn btn-ghost">Cancel</label>
                                                                              </div>`;

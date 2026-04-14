@@ -85,7 +85,6 @@ namespace Ticketa.Web.Areas.Admin.Controllers
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateStatus(int id, int status)
     {
       var movie = await _uow.Movies.GetAsync(m => m.Id == id);
@@ -99,6 +98,34 @@ namespace Ticketa.Web.Areas.Admin.Controllers
       await _uow.Movies.UpdateAsync(movie);
       await _uow.SaveAsync();
 
+      return Json(new { success = true });
+    }
+
+    public async Task<IActionResult> DeleteConfirmation(int id)
+    {
+      var movie = await _uow.Movies.GetAsync(m => m.Id == id);
+
+      if (movie is null)
+      {
+        return NotFound();
+      }
+
+      return PartialView("_DeleteMovieModal", movie);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+      var movie = await _uow.Movies.GetAsync(m => m.Id == id);
+
+      if (movie is null)
+      {
+        return NotFound();
+      }
+
+      _uow.Movies.Delete(movie);
+      await _uow.SaveAsync();
       return Json(new { success = true });
     }
   }
