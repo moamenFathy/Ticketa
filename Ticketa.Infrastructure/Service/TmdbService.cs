@@ -39,5 +39,11 @@ namespace Ticketa.Infrastructure.Service
           ?? response?.Results
           .Where(v => v.Site == "YouTube" && v.Type == "Trailer").Select(v => v.Key).FirstOrDefault();
     }
+
+    public async Task<TmdbMovieDetailDto> GetMovieDetailAsync(int tmdbId)
+    {
+      var url = $"{BaseUrl}/movie/{tmdbId}?language=en-US";
+      return await _httpClient.GetFromJsonAsync<TmdbMovieDetailDto>(url);
+    }
   }
 }

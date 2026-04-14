@@ -57,14 +57,17 @@ namespace Ticketa.Web.Areas.Admin.Controllers
         return View(model);
       }
 
+      var detail = await _tmdbService.GetMovieDetailAsync(selected.TmdbId);
       var movie = _mapper.Map<Movie>(selected);
+
       movie.TrailerKey = await _tmdbService.GetTrailerKeyAsync(selected.TmdbId);
+      movie.RuntimeMinutes = detail.Runtime;
 
       await _uow.Movies.CreateAsync(movie);
       await _uow.SaveAsync();
 
       TempData["Success"] = $"Successfully imported '{movie.Title}'!";
-      return RedirectToAction(nameof(Import));
+      return RedirectToAction(nameof(Index));
     }
 
     [HttpGet]
@@ -72,6 +75,31 @@ namespace Ticketa.Web.Areas.Admin.Controllers
     {
       var movies = await _uow.Movies.GetAllAsync();
       return Json(new { data = movies });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetTrailerKey(int tmdbId)
+    {
+      var key = await _tmdbService.GetTrailerKeyAsync(tmdbId);
+      return Json(new { key });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateStatus(int id, int status)
+    {
+      var movie = await _uow.Movies.GetAsync(m => m.Id == id);
+      if (movie == null)
+      {
+        return Json(new { success = false, message = "Movie not found" });
+      }
+
+      movie.Status = (Core.Enums.MovieStatus)status;
+
+      await _uow.Movies.UpdateAsync(movie);
+      await _uow.SaveAsync();
+
+      return Json(new { success = true });
     }
   }
 }

@@ -6,5 +6,6 @@ namespace Ticketa.Core.Interfaces.Services
   {
     Task<IReadOnlyList<TmdbMovieDto>> GetPopularMoviesAsync();
     Task<string?> GetTrailerKeyAsync(int tmdbId);
+    Task<TmdbMovieDetailDto> GetMovieDetailAsync(int tmdbId);
   }
 }

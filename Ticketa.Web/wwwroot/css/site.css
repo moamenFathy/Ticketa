@@ -45,8 +45,13 @@
     @apply select select-sm bg-base-100 text-base-content min-w-20 h-9 pl-3 pr-8;
 }
 
-.dt-container .dt-length select option {
-    @apply bg-base-100 text-base-content;
+select option {
+    background-color: oklch(var(--b1) / 1) !important;
+}
+
+select:focus {
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 thead {
