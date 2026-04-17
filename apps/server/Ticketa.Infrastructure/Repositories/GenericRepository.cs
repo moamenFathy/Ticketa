@@ -50,5 +50,6 @@ namespace Ticketa.Infrastructure.Repositories
 
     public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate) => await _dbSet.AnyAsync(predicate);
 
+    public async Task CreateRangeAsync(IEnumerable<T> entities) => await _dbSet.AddRangeAsync(entities);
   }
 }
