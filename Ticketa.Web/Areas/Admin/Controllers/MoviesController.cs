@@ -37,51 +37,75 @@ namespace Ticketa.Web.Areas.Admin.Controllers
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Import(MovieImportVM model)
+    public async Task<IActionResult> Import(MovieImportVM vm)
     {
-      var allMovies = await _tmdbService.GetPopularMoviesAsync();
-
-      var selected = allMovies.FirstOrDefault(m => m.TmdbId == model.SelectedTmdbId);
-
-      if (selected is null)
+      if (vm.SelectedTmdbIds is null || vm.SelectedTmdbIds.Count == 0)
       {
-        TempData["Error"] = "Please select a valid movie before importing.";
-        model.AvailableMovies = allMovies.ToList();
-        return View(model);
+        TempData["Error"] = "Please select at least one movie.";
+        vm.AvailableMovies = (await _tmdbService.GetPopularMoviesAsync()).ToList();
+        return View(vm);
       }
 
-      if (await _uow.Movies.ExistsByTmdbId(model.SelectedTmdbId))
+      var selectedIds = vm.SelectedTmdbIds.Distinct().ToList();
+      var existingIds = await _uow.Movies.ExistingTmdbIdsAsync(selectedIds);
+      var idsToImport = selectedIds.Where(id => !existingIds.Contains(id)).ToList();
+
+      var moviesToAdd = new List<Movie>();
+      var failedIds = new List<int>();
+
+      foreach (var tmdbId in idsToImport)
       {
-        TempData["Error"] = $"The movie '{selected.Title}' has already been imported.";
-        model.AvailableMovies = allMovies.ToList();
-        return View(model);
+        var dto = await _tmdbService.GetMovieByIdAsync(tmdbId);
+        if (dto is null)
+        {
+          failedIds.Add(tmdbId);
+          continue;
+        }
+
+        var movieDetails = await _tmdbService.GetMovieDetailAsync(tmdbId);
+        var movie = _mapper.Map<Movie>(dto);
+        movie.TrailerKey = await _tmdbService.GetTrailerKeyAsync(tmdbId);
+        movie.RuntimeMinutes = movieDetails.Runtime;
+        moviesToAdd.Add(movie);
       }
 
-      var detail = await _tmdbService.GetMovieDetailAsync(selected.TmdbId);
-      var movie = _mapper.Map<Movie>(selected);
+      if (moviesToAdd.Count > 0)
+      {
+        await _uow.Movies.CreateRangeAsync(moviesToAdd);
+        await _uow.SaveAsync();
+      }
 
-      movie.TrailerKey = await _tmdbService.GetTrailerKeyAsync(selected.TmdbId);
-      movie.RuntimeMinutes = detail.Runtime;
+      if (moviesToAdd.Count > 0)
+        TempData["Success"] = $"Imported: {string.Join(", ", moviesToAdd.Select(m => m.Title))}";
 
-      await _uow.Movies.CreateAsync(movie);
-      await _uow.SaveAsync();
+      if (existingIds.Count > 0)
+        TempData["Warning"] = $"Skipped {existingIds.Count} movie(s) because they already exist.";
 
-      TempData["Success"] = $"Successfully imported '{movie.Title}'!";
+      if (failedIds.Count > 0)
+        TempData["Error"] = $"Could not fetch {failedIds.Count} selected movie(s) from TMDB.";
+
       return RedirectToAction(nameof(Index));
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> SearchMovies(string query)
     {
-      var movies = await _uow.Movies.GetAllAsync();
-      return Json(new { data = movies });
-    }
+      if (string.IsNullOrWhiteSpace(query))
+        return Json(new List<object>());
 
-    [HttpGet]
-    public async Task<IActionResult> GetTrailerKey(int tmdbId)
-    {
-      var key = await _tmdbService.GetTrailerKeyAsync(tmdbId);
-      return Json(new { key });
+      var results = await _tmdbService.SearchMoviesAsync(query);
+
+      var mapped = results.Select(m => new
+      {
+        value = m.TmdbId,
+        text = m.Title,
+        year = m.ReleaseDate?.Length >= 4 ? m.ReleaseDate[..4] : "N/A",
+        rating = m.VoteAverage.ToString("F1"),
+        poster = m.PosterPath,
+        overview = m.Overview
+      });
+
+      return Json(mapped);
     }
 
     [HttpPost]
@@ -129,6 +153,20 @@ namespace Ticketa.Web.Areas.Admin.Controllers
       await _uow.SaveAsync();
       TempData["success"] = "Movie deleted successfully";
       return Json(new { success = true });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+      var movies = await _uow.Movies.GetAllAsync();
+      return Json(new { data = movies });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetTrailerKey(int tmdbId)
+    {
+      var key = await _tmdbService.GetTrailerKeyAsync(tmdbId);
+      return Json(new { key });
     }
   }
 }

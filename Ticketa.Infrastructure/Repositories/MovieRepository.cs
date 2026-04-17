@@ -10,7 +10,11 @@ namespace Ticketa.Infrastructure.Repositories
 
     public MovieRepository(ApplicationDbContext context) : base(context) { }
 
-    public async Task<bool> ExistsByTmdbId(int tmdbId) => await _context.Movies.AnyAsync(m => m.TmdbId == tmdbId);
+    public async Task<List<int>> ExistingTmdbIdsAsync(IEnumerable<int> tmdbIds)
+      => await _context.Movies
+          .Where(m => tmdbIds.Contains(m.TmdbId))
+          .Select(m => m.TmdbId)
+          .ToListAsync();
 
     public async Task UpdateAsync(Movie movie)
     {

@@ -9,6 +9,6 @@ namespace Ticketa.Web.ViewModels
     public List<TmdbMovieDto> AvailableMovies { get; set; } = new();
 
     // The admin's selection (submitted via form)
-    public int SelectedTmdbId { get; set; }
+    public List<int> SelectedTmdbIds { get; set; } = new();
   }
 }

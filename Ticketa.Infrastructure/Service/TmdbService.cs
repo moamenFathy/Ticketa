@@ -28,6 +28,12 @@ namespace Ticketa.Infrastructure.Service
       return response?.Results ?? [];
     }
 
+    public async Task<TmdbMovieDto?> GetMovieByIdAsync(int tmdbId)
+    {
+      var url = $"{BaseUrl}/movie/{tmdbId}?language=en-US";
+      return await _httpClient.GetFromJsonAsync<TmdbMovieDto>(url);
+    }
+
     public async Task<string?> GetTrailerKeyAsync(int tmdbId)
     {
       var url = $"{BaseUrl}/movie/{tmdbId}/videos?language=en-US";
@@ -44,6 +50,34 @@ namespace Ticketa.Infrastructure.Service
     {
       var url = $"{BaseUrl}/movie/{tmdbId}?language=en-US";
       return await _httpClient.GetFromJsonAsync<TmdbMovieDetailDto>(url);
+    }
+
+    public async Task<IReadOnlyList<TmdbMovieDto>> SearchMoviesAsync(string query)
+    {
+      if (string.IsNullOrWhiteSpace(query))
+        return [];
+
+      var encoded = Uri.EscapeDataString(query);
+
+      var language = IsArabic(query) ? "ar" : "en-US";
+      var url = $"{BaseUrl}/search/movie?language={language}&query={encoded}&page=1";
+
+      var response = await _httpClient.GetFromJsonAsync<TmdbPopularResponseDto>(url);
+      var results = response?.Results ?? [];
+
+      if (!results.Any() && IsArabic(query))
+      {
+        var fallbackUrl = $"{BaseUrl}/search/movie?language=en-US&query={encoded}&page=1";
+        var fallbackResponse = await _httpClient.GetFromJsonAsync<TmdbPopularResponseDto>(fallbackUrl);
+        results = fallbackResponse?.Results ?? [];
+      }
+
+      return results;
+    }
+
+    private bool IsArabic(string text)
+    {
+      return text.Any(c => c >= 0x0600 && c <= 0x06FF);
     }
   }
 }

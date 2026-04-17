@@ -7,6 +7,7 @@ namespace Ticketa.Core.Interfaces.IRepositories
     Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, params string[] includes);
     Task<T?> GetAsync(Expression<Func<T, bool>> filter, params string[] includes);
     Task CreateAsync(T entity);
+    Task CreateRangeAsync(IEnumerable<T> entities);
     void Delete(T entity);
     Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
   }

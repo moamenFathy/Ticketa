@@ -87,7 +87,7 @@ thead {
     opacity: 1 !important;
 }
 
-td.dt-type-numeric {
+td.dt-type-numeric, td.dt-type-date {
     text-align: center !important;
 }
 
@@ -210,6 +210,10 @@ form label.input:has(input.input-validation-error) {
     border-color: oklch(var(--er)) !important;
 }
 
+ts-dropdown-content {
+    @apply border border-base-200;
+}
+
 /* Toast animations */
 .toast-container {
     position: fixed;
@@ -267,4 +271,118 @@ form label.input:has(input.input-validation-error) {
     to {
         width: 0%;
     }
+}
+
+/* Movies import page */
+.ts-wrapper.multi .ts-control {
+    min-height: 4.25rem;
+    padding: 0.55rem 0.65rem;
+    border-radius: 1rem;
+    border-color: oklch(var(--bc) / 0.15);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.ts-wrapper.multi.focus .ts-control {
+    border-color: oklch(var(--p) / 0.45);
+    box-shadow: 0 0 0 3px oklch(var(--p) / 0.18);
+}
+
+.ts-dropdown {
+    border-radius: 1rem;
+    border-color: oklch(var(--bc) / 0.12);
+    overflow: hidden;
+}
+
+.ts-dropdown-content {
+    max-height: 21rem;
+}
+
+.preview-card {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transform-origin: top center;
+    max-height: 220px;
+    margin-top: 0.75rem;
+    overflow: hidden;
+    transition: opacity 420ms cubic-bezier(0.16, 1, 0.3, 1),
+                transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
+                max-height 320ms ease,
+                margin-top 320ms ease;
+}
+
+.preview-card-enter {
+    opacity: 0;
+    transform: translateY(16px) scale(0.985);
+}
+
+.preview-card-exit {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+    max-height: 0;
+    margin-top: 0;
+}
+
+.trailer-squircle {
+    border-radius: 34%;
+    transition: transform 220ms ease, border-radius 220ms ease, box-shadow 220ms ease;
+}
+
+.trailer-squircle:hover {
+    border-radius: 22%;
+    transform: translateY(-2px) scale(1.06);
+    box-shadow: 0 10px 18px rgb(79 70 229 / 0.32);
+}
+
+.preview-scroll {
+    scrollbar-width: thin;
+}
+
+.trailer-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    pointer-events: none;
+}
+
+.trailer-modal.is-open {
+    pointer-events: auto;
+}
+
+.trailer-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / 0);
+    backdrop-filter: blur(0px);
+    transition: background-color 320ms ease, backdrop-filter 320ms ease;
+}
+
+.trailer-modal.is-open .trailer-modal__backdrop {
+    background: rgb(3 7 18 / 0.65);
+    backdrop-filter: blur(3px);
+}
+
+.trailer-modal__panel {
+    position: fixed;
+    overflow: hidden;
+    background: oklch(var(--b1));
+    border: 1px solid oklch(var(--bc) / 0.14);
+    box-shadow: 0 10px 28px rgb(15 23 42 / 0.35);
+    border-radius: 34%;
+    transition: top 460ms cubic-bezier(0.2, 0.9, 0.22, 1),
+                left 460ms cubic-bezier(0.2, 0.9, 0.22, 1),
+                width 460ms cubic-bezier(0.2, 0.9, 0.22, 1),
+                height 460ms cubic-bezier(0.2, 0.9, 0.22, 1),
+                border-radius 460ms cubic-bezier(0.2, 0.9, 0.22, 1),
+                box-shadow 320ms ease;
+    will-change: top, left, width, height, border-radius;
+}
+
+.trailer-modal__panel.is-expanded {
+    border-radius: 1rem;
+    box-shadow: 0 28px 65px rgb(0 0 0 / 0.5);
+}
+
+body.trailer-modal-lock {
+    overflow: hidden;
 }
