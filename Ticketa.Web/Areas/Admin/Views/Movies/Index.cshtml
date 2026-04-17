@@ -4,7 +4,6 @@
         <div class="flex items-center justify-between border-b border-base-300 pb-3">
             <h2 class="card-title">Movies</h2>
             <div>
-                <button onclick="openModal('createForm', '/admin/movies/Upsert')" class="btn btn-primary">Create New +</button>
                 <a asp-controller="Movies" asp-action="Import" class="btn btn-primary">
                     Import Movies
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
@@ -43,6 +42,35 @@
         <!-- Modal content will be loaded here via JavaScript -->
     </div>
     <label class="modal-backdrop" for="modal">Close</label>
+</div>
+
+<div id="trailer-modal" class="trailer-modal" hidden aria-hidden="true">
+    <div class="trailer-modal__backdrop" data-modal-close></div>
+    <section id="trailer-modal-panel"
+             class="trailer-modal__panel"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="trailer-modal-title">
+        <div class="flex items-center justify-between border-b border-base-300/60 px-4 py-3 bg-base-200/70">
+            <h3 id="trailer-modal-title" class="font-semibold truncate pr-3">Movie trailer</h3>
+            <button id="trailer-modal-close"
+                    type="button"
+                    class="btn btn-ghost btn-sm btn-circle"
+                    aria-label="Close trailer">
+                ✕
+            </button>
+        </div>
+        <div class="h-[calc(100%-3.25rem)] bg-black">
+            <iframe id="trailer-modal-iframe"
+                    class="w-full h-full"
+                    src=""
+                    title="Movie trailer"
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    allowfullscreen></iframe>
+        </div>
+    </section>
 </div>
 
 @section Scripts {

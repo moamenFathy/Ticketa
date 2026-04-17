@@ -210,10 +210,6 @@ form label.input:has(input.input-validation-error) {
     border-color: oklch(var(--er)) !important;
 }
 
-ts-dropdown-content {
-    @apply border border-base-200;
-}
-
 /* Toast animations */
 .toast-container {
     position: fixed;
@@ -289,13 +285,13 @@ ts-dropdown-content {
 }
 
 .ts-dropdown {
-    border-radius: 1rem;
-    border-color: oklch(var(--bc) / 0.12);
-    overflow: hidden;
+    border-radius: 20px !important;
+    border-color: oklch(var(--bc) / 0.12) !important;
+    overflow: hidden !important;
 }
 
 .ts-dropdown-content {
-    max-height: 21rem;
+    max-height: 21rem !important;
 }
 
 .preview-card {

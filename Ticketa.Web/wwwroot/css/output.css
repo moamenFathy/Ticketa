@@ -11,13 +11,16 @@
     --color-red-400: oklch(70.4% 0.191 22.216);
     --color-red-600: oklch(57.7% 0.245 27.325);
     --color-red-700: oklch(50.5% 0.213 27.518);
+    --color-orange-500: oklch(70.5% 0.213 47.604);
     --color-green-100: oklch(96.2% 0.044 156.743);
     --color-green-200: oklch(92.5% 0.084 155.995);
     --color-green-600: oklch(62.7% 0.194 149.214);
     --color-green-700: oklch(52.7% 0.154 150.069);
+    --color-blue-50: oklch(97% 0.014 254.604);
     --color-blue-100: oklch(93.2% 0.032 255.585);
     --color-blue-200: oklch(88.2% 0.059 254.128);
     --color-blue-700: oklch(48.8% 0.243 264.376);
+    --color-indigo-600: oklch(51.1% 0.262 276.966);
     --color-violet-50: oklch(96.9% 0.016 293.756);
     --color-violet-500: oklch(60.6% 0.25 292.717);
     --color-violet-600: oklch(54.1% 0.281 293.009);
@@ -3611,6 +3614,9 @@
   .text-green-700 {
     color: var(--color-green-700);
   }
+  .text-indigo-600 {
+    color: var(--color-indigo-600);
+  }
   .text-info {
     color: var(--color-info);
   }
@@ -3844,6 +3850,13 @@
         @supports (color: color-mix(in lab, red, red)) {
           background-color: color-mix(in oklab, var(--color-base-content) 10%, transparent);
         }
+      }
+    }
+  }
+  .hover\:bg-blue-50 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-blue-50);
       }
     }
   }
@@ -4675,11 +4688,6 @@ form label.input input.input-validation-error {
 form label.input:has(input.input-validation-error) {
   border-color: oklch(var(--er)) !important;
 }
-ts-dropdown-content {
-  border-style: var(--tw-border-style);
-  border-width: 1px;
-  border-color: var(--color-base-200);
-}
 .toast-container {
   position: fixed;
   z-index: 9999;
@@ -4743,12 +4751,12 @@ ts-dropdown-content {
   box-shadow: 0 0 0 3px oklch(var(--p) / 0.18);
 }
 .ts-dropdown {
-  border-radius: 1rem;
-  border-color: oklch(var(--bc) / 0.12);
-  overflow: hidden;
+  border-radius: 20px !important;
+  border-color: oklch(var(--bc) / 0.12) !important;
+  overflow: hidden !important;
 }
 .ts-dropdown-content {
-  max-height: 21rem;
+  max-height: 21rem !important;
 }
 .preview-card {
   opacity: 1;
