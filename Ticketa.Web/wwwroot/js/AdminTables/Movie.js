@@ -1,4 +1,4 @@
-﻿import { initDataTable } from "../DataTables.js";
+import { initDataTable } from "../DataTables.js";
 
 const imageBase = "https://image.tmdb.org/t/p/w200";
 const trailerKeyCache = new Map();
@@ -486,26 +486,26 @@ function initMovieImportPage() {
         const safeRating = escapeHtml(movie.rating || "0.0");
 
         card.innerHTML = `
-            <div class="w-24 sm:w-28 shrink-0 overflow-hidden rounded-l-2xl bg-base-300">
+            <div class="w-20 sm:w-24 shrink-0 overflow-hidden rounded-l-2xl bg-base-300">
                 ${poster
                 ? `<img src="${poster}" alt="${safeTitle}" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />`
                 : `<div class="h-full w-full"></div>`}
             </div>
-            <div class="flex flex-1 items-center justify-between gap-4 p-4">
+            <div class="flex flex-1 items-center justify-between gap-3 p-3">
                 <div class="min-w-0 flex-1">
-                    <div class="mb-1.5 flex flex-wrap items-center gap-2">
-                        <h3 class="truncate text-base font-semibold" title="${safeTitle}">${safeTitle}</h3>
-                        <span class="badge badge-sm">${safeYear}</span>
-                        <span class="badge badge-sm badge-warning badge-outline">⭐ ${safeRating}</span>
+                    <div class="mb-1 flex flex-wrap items-center gap-2">
+                        <h3 class="truncate text-sm font-semibold" title="${safeTitle}">${safeTitle}</h3>
+                        <span class="badge badge-xs">${safeYear}</span>
+                        <span class="badge badge-xs badge-warning badge-outline">⭐ ${safeRating}</span>
                     </div>
-                    <p class="line-clamp-2 text-sm text-base-content/65">${safeOverview}</p>
+                    <p class="line-clamp-2 text-xs text-base-content/60">${safeOverview}</p>
                 </div>
                 <button type="button"
-                        class="trailer-squircle btn btn-primary btn-sm h-11 w-11 min-h-0 p-0"
+                        class="trailer-squircle btn btn-primary btn-sm h-9 w-9 min-h-0 p-0"
                         data-trailer-title="${safeTitle} ${safeYear}"
                         data-tmdb-id="${movie.value}"
                         title="Watch trailer">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                         <path d="M7 6v12l10-6z" />
                     </svg>
                 </button>
@@ -578,12 +578,12 @@ function initMovieImportPage() {
             return query.length >= 2;
         },
         maxOptions: 70,
-        closeAfterSelect: true,
         loadingClass: "text-center",
         load: debouncedLoad,
         render: {
             option: function (data, escape) {
                 const imgSrc = getImageSrc(data.poster, "w92");
+                const isSelected = movieSelect.items.includes(String(data.value));
 
                 return `
                     <div class="flex items-center gap-3 py-1.5">
@@ -611,9 +611,15 @@ function initMovieImportPage() {
                 year: option.year,
                 rating: option.rating
             });
+
+            // Update checkbox state in dropdown
+            this.refreshOptions(false);
         },
         onItemRemove: function (value) {
             removePreviewCard(value);
+
+            // Update checkbox state in dropdown
+            this.refreshOptions(false);
         }
     });
 

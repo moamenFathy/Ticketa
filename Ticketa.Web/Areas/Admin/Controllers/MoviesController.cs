@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ticketa.Core.Entities;
@@ -37,12 +37,12 @@ namespace Ticketa.Web.Areas.Admin.Controllers
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Import(MovieImportVM vm)
+    public async Task<IActionResult> Import(MovieImportVM vm, CancellationToken cancellationToken)
     {
       if (vm.SelectedTmdbIds is null || vm.SelectedTmdbIds.Count == 0)
       {
         TempData["Error"] = "Please select at least one movie.";
-        vm.AvailableMovies = (await _tmdbService.GetPopularMoviesAsync()).ToList();
+        vm.AvailableMovies = (await _tmdbService.GetPopularMoviesAsync(cancellationToken)).ToList();
         return View(vm);
       }
 
@@ -55,17 +55,18 @@ namespace Ticketa.Web.Areas.Admin.Controllers
 
       foreach (var tmdbId in idsToImport)
       {
-        var dto = await _tmdbService.GetMovieByIdAsync(tmdbId);
-        if (dto is null)
+        // 1. Call the service (which is now safe)
+        var movieDetails = await _tmdbService.GetMovieDetailAsync(tmdbId, cancellationToken);
+        // 2. VALIDATION: Check if the returned object is empty/invalid
+        // If the service returned a 'new TmdbMovieDetailDto()', the ID will be 0
+        if (movieDetails == null || movieDetails.TmdbId == 0)
         {
-          failedIds.Add(tmdbId);
-          continue;
+            failedIds.Add(tmdbId); // Mark this specific movie as failed
+            continue;              // Skip to the next movie, don't crash the loop!
         }
-
-        var movieDetails = await _tmdbService.GetMovieDetailAsync(tmdbId);
-        var movie = _mapper.Map<Movie>(dto);
-        movie.TrailerKey = await _tmdbService.GetTrailerKeyAsync(tmdbId);
-        movie.RuntimeMinutes = movieDetails.Runtime;
+        // 3. Only map and save if the data is actually valid
+        var movie = _mapper.Map<Movie>(movieDetails);
+        movie.TrailerKey = await _tmdbService.GetTrailerKeyAsync(tmdbId, cancellationToken);
         moviesToAdd.Add(movie);
       }
 
@@ -88,12 +89,12 @@ namespace Ticketa.Web.Areas.Admin.Controllers
     }
 
     [HttpGet]
-    public async Task<IActionResult> SearchMovies(string query)
+    public async Task<IActionResult> SearchMovies(string query, CancellationToken cancellationToken)
     {
       if (string.IsNullOrWhiteSpace(query))
         return Json(new List<object>());
 
-      var results = await _tmdbService.SearchMoviesAsync(query);
+      var results = await _tmdbService.SearchMoviesAsync(query, cancellationToken);
 
       var mapped = results.Select(m => new
       {
@@ -163,9 +164,9 @@ namespace Ticketa.Web.Areas.Admin.Controllers
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetTrailerKey(int tmdbId)
+    public async Task<IActionResult> GetTrailerKey(int tmdbId, CancellationToken cancellationToken)
     {
-      var key = await _tmdbService.GetTrailerKeyAsync(tmdbId);
+      var key = await _tmdbService.GetTrailerKeyAsync(tmdbId, cancellationToken);
       return Json(new { key });
     }
   }
