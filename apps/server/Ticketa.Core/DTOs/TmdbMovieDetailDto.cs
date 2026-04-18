@@ -2,7 +2,7 @@
 
 namespace Ticketa.Core.DTOs
 {
-  public class TmdbMovieDetailDto
+  public class TmdbMovieDetailDto : TmdbMovieDto
   {
     [JsonPropertyName("runtime")]
     public int Runtime { get; set; }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Polly;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Interfaces;
 using Ticketa.Core.Interfaces.Services;
@@ -30,7 +31,12 @@ builder.Services.AddAutoMapper(cfg =>
   cfg.AddProfile<Ticketa.Web.Mapping.MovieProfile>();
 });
 
-builder.Services.AddHttpClient<ITmdbService, TmdbService>();
+builder.Services.AddHttpClient<ITmdbService, TmdbService>(opt =>
+{
+  opt.BaseAddress = new Uri("https://api.themoviedb.org/3/");
+  opt.Timeout = TimeSpan.FromSeconds(10);
+}).AddTransientHttpErrorPolicy(policy => 
+    policy.WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
 
 builder.Services.ConfigureApplicationCookie(opt =>
 {

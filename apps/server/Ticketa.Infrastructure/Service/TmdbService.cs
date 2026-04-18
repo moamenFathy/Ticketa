@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Ticketa.Core.DTOs;
@@ -9,9 +10,9 @@ namespace Ticketa.Infrastructure.Service
   public class TmdbService : ITmdbService
   {
     private readonly HttpClient _httpClient;
-    private const string BaseUrl = "https://api.themoviedb.org/3";
+    private readonly ILogger<TmdbService> _logger;
 
-    public TmdbService(HttpClient httpClient, IConfiguration configuration)
+    public TmdbService(HttpClient httpClient, IConfiguration configuration, ILogger<TmdbService> logger)
     {
       _httpClient = httpClient;
       var apiKey = configuration["Tmdb:ApiKey"]
@@ -19,60 +20,101 @@ namespace Ticketa.Infrastructure.Service
 
       // Set the TMDB Read Access Token (v4) as a Bearer token
       _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+      _logger = logger;
     }
 
-    public async Task<IReadOnlyList<TmdbMovieDto>> GetPopularMoviesAsync()
+    public async Task<IReadOnlyList<TmdbMovieDto>> GetPopularMoviesAsync(CancellationToken ct = default)
     {
-      var url = $"{BaseUrl}/movie/now_playing?language=en-US&page=1";
-      var response = await _httpClient.GetFromJsonAsync<TmdbPopularResponseDto>(url);
-      return response?.Results ?? [];
+      try
+      {
+        var url = $"movie/now_playing?language=en-US&page=1";
+        var response = await _httpClient.GetFromJsonAsync<TmdbPopularResponseDto>(url, ct);
+        return response?.Results ?? [];
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex, $"Error fetching now playing movies");
+        return [];
+      }
     }
 
-    public async Task<TmdbMovieDto?> GetMovieByIdAsync(int tmdbId)
+    public async Task<TmdbMovieDto?> GetMovieByIdAsync(int tmdbId, CancellationToken ct = default)
     {
-      var url = $"{BaseUrl}/movie/{tmdbId}?language=en-US";
-      return await _httpClient.GetFromJsonAsync<TmdbMovieDto>(url);
+      try
+      {
+        var url = $"movie/{tmdbId}?language=en-US";
+        return await _httpClient.GetFromJsonAsync<TmdbMovieDto>(url, ct);
+      } catch(Exception ex)
+      {
+        _logger.LogError(ex, $"Error fetching movie {tmdbId} from TMDB");
+        return null;
+      }
     }
 
-    public async Task<string?> GetTrailerKeyAsync(int tmdbId)
+    public async Task<string?> GetTrailerKeyAsync(int tmdbId, CancellationToken ct = default)
     {
-      var url = $"{BaseUrl}/movie/{tmdbId}/videos?language=en-US";
-      var response = await _httpClient.GetFromJsonAsync<TmdbVideoResponseDto>(url);
+      try
+      {
+        
+       var url = $"movie/{tmdbId}/videos?language=en-US";
+      var response = await _httpClient.GetFromJsonAsync<TmdbVideoResponseDto>(url, ct);
       // Look for an official trailer on YouTube
       return response?.Results
           .Where(v => v.Site == "YouTube" && v.Type == "Trailer" && v.Official).Select(v => v.Key).FirstOrDefault()
 
           ?? response?.Results
           .Where(v => v.Site == "YouTube" && v.Type == "Trailer").Select(v => v.Key).FirstOrDefault();
-    }
-
-    public async Task<TmdbMovieDetailDto> GetMovieDetailAsync(int tmdbId)
-    {
-      var url = $"{BaseUrl}/movie/{tmdbId}?language=en-US";
-      return await _httpClient.GetFromJsonAsync<TmdbMovieDetailDto>(url);
-    }
-
-    public async Task<IReadOnlyList<TmdbMovieDto>> SearchMoviesAsync(string query)
-    {
-      if (string.IsNullOrWhiteSpace(query))
-        return [];
-
-      var encoded = Uri.EscapeDataString(query);
-
-      var language = IsArabic(query) ? "ar" : "en-US";
-      var url = $"{BaseUrl}/search/movie?language={language}&query={encoded}&page=1";
-
-      var response = await _httpClient.GetFromJsonAsync<TmdbPopularResponseDto>(url);
-      var results = response?.Results ?? [];
-
-      if (!results.Any() && IsArabic(query))
+      } catch (Exception ex)
       {
-        var fallbackUrl = $"{BaseUrl}/search/movie?language=en-US&query={encoded}&page=1";
-        var fallbackResponse = await _httpClient.GetFromJsonAsync<TmdbPopularResponseDto>(fallbackUrl);
-        results = fallbackResponse?.Results ?? [];
+        _logger.LogError(ex, $"error fetching trailer for movie {tmdbId}");
+        return null;
       }
+    }
 
-      return results;
+    public async Task<TmdbMovieDetailDto> GetMovieDetailAsync(int tmdbId, CancellationToken ct = default)
+    {
+      try
+      {
+
+        var url = $"movie/{tmdbId}?language=en-US";
+        return await _httpClient.GetFromJsonAsync<TmdbMovieDetailDto>(url, ct);
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex, $"Error fetching details for movie {tmdbId}");
+        return new TmdbMovieDetailDto();
+      }
+    }
+
+    public async Task<IReadOnlyList<TmdbMovieDto>> SearchMoviesAsync(string query, CancellationToken ct = default)
+    {
+      try
+      {
+        if (string.IsNullOrWhiteSpace(query))
+          return [];
+
+        var encoded = Uri.EscapeDataString(query);
+
+        var language = IsArabic(query) ? "ar" : "en-US";
+        var url = $"search/movie?language={language}&query={encoded}&page=1";
+
+        var response = await _httpClient.GetFromJsonAsync<TmdbPopularResponseDto>(url, ct);
+        var results = response?.Results ?? [];
+
+        if (!results.Any() && IsArabic(query))
+        {
+           var fallbackUrl = $"search/movie?language=en-US&query={encoded}&page=1";
+          var fallbackResponse = await _httpClient.GetFromJsonAsync<TmdbPopularResponseDto>(fallbackUrl, ct);
+          results = fallbackResponse?.Results ?? [];
+        }
+
+        return results;
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex, $"error searching tmdb for query: {query}");
+        return [];
+      }
     }
 
     private bool IsArabic(string text)
