@@ -217,6 +217,8 @@ form label.input:has(input.input-validation-error) {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    top: 1rem;
+    right: 1rem;
 }
 
 .toast-enter {

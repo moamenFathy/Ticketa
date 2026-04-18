@@ -1,4 +1,4 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
+// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
 // for details on configuring this project to bundle and minify static web assets.
 
 // Mobile menu toggle
@@ -20,8 +20,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Toast system
 function initToasts() {
+    const container = getOrCreateToastContainer();
     const toasts = document.querySelectorAll('[data-toast]');
     toasts.forEach(toast => {
+        container.appendChild(toast);
         const duration = parseInt(toast.dataset.toastDuration) || 4000;
         autoDismissToast(toast, duration);
     });
@@ -63,7 +65,6 @@ function getOrCreateToastContainer() {
         container = document.createElement('div');
         container.id = 'toast-container';
         container.className = 'toast-container';
-        container.style.cssText = 'top: 1rem; right: 1rem;';
         document.body.appendChild(container);
     }
     return container;
