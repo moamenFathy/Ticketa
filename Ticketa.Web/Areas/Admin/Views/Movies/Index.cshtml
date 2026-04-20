@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Movie>
+@model IEnumerable<Movie>
 <div class="card bg-base-100 border border-base-300 shadow-sm">
     <div class="card-body gap-4">
         <div class="flex items-center justify-between border-b border-base-300 pb-3">
@@ -73,6 +73,15 @@
     </section>
 </div>
 
+<div id="mySegmentedFilter" style="display: none;">
+    <div class="msf-track" role="tablist" aria-label="Movie filters">
+        <span class="msf-pill" aria-hidden="true"></span>
+        <button type="button" class="msf-btn is-active" role="tab" aria-selected="true" data-segment="all">All</button>
+        <button type="button" class="msf-btn" role="tab" aria-selected="false" data-segment="active">Active</button>
+        <button type="button" class="msf-btn" role="tab" aria-selected="false" data-segment="coming">Coming Soon</button>
+        <button type="button" class="msf-btn" role="tab" aria-selected="false" data-segment="archived">Archived</button>
+    </div>
+</div>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script type="module" src="~/js/AdminTables/Movie.js" asp-append-version="true"></script>

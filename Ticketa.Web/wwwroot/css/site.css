@@ -382,3 +382,64 @@ form label.input:has(input.input-validation-error) {
 body.trailer-modal-lock {
     overflow: hidden;
 }
+
+/* Movies list segmented filter */
+#mySegmentedFilter {
+    display: flex;
+    align-items: center;
+}
+
+.segmentedFilter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.msf-track {
+    position: relative;
+    display: inline-grid;
+    grid-auto-flow: column;
+    gap: 0.25rem;
+    padding: 0.35rem;
+    border-radius: 9999px;
+    @apply bg-base-100 border border-base-300;
+    box-shadow: 0 4px 14px -6px rgb(0 0 0 / 0.1);
+    isolation: isolate;
+    width: fit-content;
+}
+
+.msf-pill {
+    position: absolute;
+    top: 0.35rem;
+    left: 0;
+    height: calc(100% - 0.7rem);
+    border-radius: 9999px;
+    @apply bg-base-100 border border-primary/50;
+    box-shadow: 0 4px 10px -2px rgb(79 70 229 / 0.15);
+    transition: transform 350ms cubic-bezier(.22, 1, .36, 1), width 350ms cubic-bezier(.22, 1, .36, 1);
+    z-index: 0;
+    will-change: transform, width;
+}
+
+.msf-btn {
+    position: relative;
+    z-index: 1;
+    border: 0;
+    background: transparent;
+    @apply text-base-content/60;
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: color 280ms ease;
+    white-space: nowrap;
+}
+
+.msf-btn:hover,
+.msf-btn:focus-visible,
+.msf-btn.is-active {
+    @apply text-base-content;
+    outline: none;
+}

@@ -1,4 +1,6 @@
 ﻿export function initDataTable(url, columns, options = {}) {
+    const ajaxData = options.ajaxData;
+    delete options.ajaxData
     const applyDaisyPagination = (container) => {
         if (!container) {
             return;
@@ -19,9 +21,14 @@
             ajax: {
                 url: url,
                 type: 'GET',
+                data: (d) => {
+                    if (typeof (ajaxData) === "function") {
+                        Object.assign(d, ajaxData());
+                    }
+                }
             },
             columns,
-            dom: "<'flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4'<''l><'flex items-center gap-2'f>>t<i'mt-5 flex flex-col items-center gap-3'<'text-sm opacity-70'p>>",
+            dom: "<'flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4'<''l><'segmentedFilter'><'flex items-center gap-2'f>>t<i'mt-5 flex flex-col items-center gap-3'<'text-sm opacity-70'p>>",
             drawCallback: function () {
                 applyDaisyPagination(this.api().table().container());
             },
