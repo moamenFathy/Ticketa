@@ -668,6 +668,7 @@ function initMovieImportPage() {
         plugins: ["remove_button", "checkbox_options"],
         valueField: "value",
         labelField: "text",
+        maxItems: 5,
         searchField: ["text"],
         preload: false,
         shouldLoad: function (query) {
