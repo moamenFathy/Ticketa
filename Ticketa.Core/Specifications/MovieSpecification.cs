@@ -36,7 +36,7 @@ namespace Ticketa.Core.Specifications
           else AddOrderBy(m => m.RuntimeMinutes);
           break;
         default:
-          AddOrderByDesc(m => m.ImportedAt); // fallback
+          AddOrderByDesc(m => m.ImportedAt);
           break;
       }
 
