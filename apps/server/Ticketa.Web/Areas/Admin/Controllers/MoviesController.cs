@@ -1,9 +1,12 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Ticketa.Core.DTOs;
 using Ticketa.Core.Entities;
+using Ticketa.Core.Enums;
 using Ticketa.Core.Interfaces;
 using Ticketa.Core.Interfaces.Services;
+using Ticketa.Core.Specifications;
 using Ticketa.Web.ViewModels;
 
 namespace Ticketa.Web.Areas.Admin.Controllers
@@ -55,18 +58,18 @@ namespace Ticketa.Web.Areas.Admin.Controllers
 
       foreach (var tmdbId in idsToImport)
       {
-        // 1. Call the service (which is now safe)
         var movieDetails = await _tmdbService.GetMovieDetailAsync(tmdbId, cancellationToken);
-        // 2. VALIDATION: Check if the returned object is empty/invalid
-        // If the service returned a 'new TmdbMovieDetailDto()', the ID will be 0
+
         if (movieDetails == null || movieDetails.TmdbId == 0)
         {
-            failedIds.Add(tmdbId); // Mark this specific movie as failed
-            continue;              // Skip to the next movie, don't crash the loop!
+          failedIds.Add(tmdbId);
+          continue;
         }
-        // 3. Only map and save if the data is actually valid
+
         var movie = _mapper.Map<Movie>(movieDetails);
         movie.TrailerKey = await _tmdbService.GetTrailerKeyAsync(tmdbId, cancellationToken);
+        movie.RuntimeMinutes = movieDetails.Runtime;
+
         moviesToAdd.Add(movie);
       }
 
@@ -157,10 +160,39 @@ namespace Ticketa.Web.Areas.Admin.Controllers
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(
+        [FromQuery] DataTableRequestsDto request,
+        [FromQuery(Name = "search[value]")] string? searchValue = null,
+        [FromQuery(Name = "order[0][column]")] int orderColumn = 0,
+        [FromQuery(Name = "order[0][dir]")] string orderDir = "asc",
+        string? segmentedFilter = null)
     {
-      var movies = await _uow.Movies.GetAllAsync();
-      return Json(new { data = movies });
+      MovieStatus? status = segmentedFilter?.ToLower() switch
+      {
+        "active" => MovieStatus.Active,
+        "coming" => MovieStatus.ComingSoon,
+        "archived" => MovieStatus.Archived,
+        _ => null
+      };
+
+      var search = string.IsNullOrWhiteSpace(searchValue) ? null : searchValue;
+
+      var totalSpec = new MovieSpecification();
+      var total = await _uow.Movies.CountAsync(totalSpec);
+
+      var countSpec = new MovieSpecification(status, search);
+      var filtered = await _uow.Movies.CountAsync(countSpec);
+
+      var spec = new MovieSpecification(status, search, orderColumn, orderDir, request.Start, request.Length);
+      var movies = await _uow.Movies.GetAllWithSpecAsync(spec);
+
+      return Json(new
+      {
+        draw = request.Draw,
+        recordsTotal = total,
+        recordsFiltered = filtered,
+        data = movies
+      });
     }
 
     [HttpGet]

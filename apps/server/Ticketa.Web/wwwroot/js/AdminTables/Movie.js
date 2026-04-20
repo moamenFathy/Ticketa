@@ -186,9 +186,86 @@ window.openMovieTrailer = async function (triggerButton, title, trailerKey = "",
     document.body.classList.add("trailer-modal-lock");
 };
 
+function initMovieSegmentedFilter(onChange) {
+    const segmentedRoot = document.getElementById("mySegmentedFilter");
+    if (!segmentedRoot) {
+        return;
+    }
+
+    const mountSegmentedFilter = () => {
+        const host = document.querySelector(".segmentedFilter");
+        if (!host) {
+            return false;
+        }
+
+        if (segmentedRoot.parentElement !== host) {
+            host.appendChild(segmentedRoot);
+            segmentedRoot.style.display = "";
+            segmentedRoot.classList.remove("hidden");
+        }
+
+        return true;
+    };
+
+    if (!mountSegmentedFilter()) {
+        const observer = new MutationObserver(() => {
+            if (mountSegmentedFilter()) {
+                observer.disconnect();
+            }
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+        window.setTimeout(() => observer.disconnect(), 5000);
+    }
+
+    const segmented = segmentedRoot.querySelector(".msf-track");
+    if (!segmented) {
+        return;
+    }
+
+    const pill = segmented.querySelector(".msf-pill");
+    const items = Array.from(segmented.querySelectorAll(".msf-btn"));
+    if (!pill || items.length === 0) {
+        return;
+    }
+
+    const movePillTo = (item) => {
+        pill.style.width = `${item.offsetWidth}px`;
+        pill.style.transform = `translateX(${item.offsetLeft}px)`;
+    };
+
+    const getActiveItem = () => segmented.querySelector(".msf-btn.is-active") ?? items[0];
+
+    const setActive = (item) => {
+        items.forEach(button => {
+            const isCurrent = button === item;
+            button.classList.toggle("is-active", isCurrent);
+            button.setAttribute("aria-selected", isCurrent ? "true" : "false");
+        });
+
+        movePillTo(item);
+
+        if (typeof onChange === 'function') {
+            onChange(item.dataset.segment || "all");
+        }
+    };
+
+    items.forEach(item => {
+        item.addEventListener("mouseenter", () => movePillTo(item));
+        item.addEventListener("focus", () => movePillTo(item));
+        item.addEventListener("click", () => setActive(item));
+    });
+
+    segmented.addEventListener("mouseleave", () => movePillTo(getActiveItem()));
+    window.addEventListener("resize", () => movePillTo(getActiveItem()));
+
+    movePillTo(getActiveItem());
+}
+
 const dataTableElement = document.getElementById("DataTable");
 
 if (dataTableElement) {
+    let currentFilter = "all";
     initDataTable("/Admin/Movies/GetAll", [
         {
             data: "posterPath",
@@ -204,11 +281,13 @@ if (dataTableElement) {
         },
         {
             data: "title",
+            orderable: false,
             className: "align-middle font-semibold",
             render: (data) => (data && data.length > 40) ? data.substring(0, 30) + "..." : data
         },
         {
             data: "overview",
+            orderable: false,
             className: "align-middle whitespace-normal w-64",
             render: (data) => {
                 if (!data) return "";
@@ -239,6 +318,7 @@ if (dataTableElement) {
         },
         {
             data: "runtimeMinutes",
+            className: "text-center",
             render: (minutes) => {
                 const h = Math.floor(minutes / 60);
                 const m = minutes % 60;
@@ -247,6 +327,7 @@ if (dataTableElement) {
         },
         {
             data: "status",
+            orderable: false,
             className: "align-middle text-center whitespace-nowrap",
             render: (data, _type, row) => {
                 const activeSel = data === 0 ? "selected" : "";
@@ -295,7 +376,22 @@ if (dataTableElement) {
                         `
         }
     ], {
-        order: [[5, "desc"]]
+        order: [[5, "desc"]],
+        ajaxData: function () {
+            return {
+                // Include your segmented filter as an extra request parameter
+                segmentedFilter: currentFilter
+            };
+        },
+        initComplete: function () {
+            const api = this.api();
+
+            initMovieSegmentedFilter((filter) => {
+                currentFilter = filter;
+                api.ajax.reload();
+            });
+        },
+        serverSide: true
     });
 }
 

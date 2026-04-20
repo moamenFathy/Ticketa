@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using Ticketa.Core.Interfaces.IRepositories;
+using Ticketa.Core.Specifications;
 using Ticketa.Infrastructure.Data;
+using Ticketa.Infrastructure.Specification;
 
 namespace Ticketa.Infrastructure.Repositories
 {
@@ -44,12 +46,22 @@ namespace Ticketa.Infrastructure.Repositories
       return await query.FirstOrDefaultAsync(filter);
     }
 
+    public async Task<IReadOnlyList<T>> GetAllWithSpecAsync(BaseSpecification<T> spec) =>
+      await SpecificationEvaluator<T>
+              .GetQuery(_dbSet, spec)
+              .ToListAsync();
+
     public async Task CreateAsync(T entity) => await _dbSet.AddAsync(entity);
+    public async Task CreateRangeAsync(IEnumerable<T> entities) => await _dbSet.AddRangeAsync(entities);
+
+    public async Task<int> CountAsync(BaseSpecification<T> spec) =>
+      await SpecificationEvaluator<T>
+          .GetQuery(_dbSet, spec)
+          .CountAsync();
 
     public void Delete(T entity) => _dbSet.Remove(entity);
 
     public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate) => await _dbSet.AnyAsync(predicate);
 
-    public async Task CreateRangeAsync(IEnumerable<T> entities) => await _dbSet.AddRangeAsync(entities);
   }
 }
