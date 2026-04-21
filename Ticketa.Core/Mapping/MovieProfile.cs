@@ -2,7 +2,7 @@
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Entities;
 
-namespace Ticketa.Web.Mapping
+namespace Ticketa.Core.Mapping
 {
   public class MovieProfile : Profile
   {

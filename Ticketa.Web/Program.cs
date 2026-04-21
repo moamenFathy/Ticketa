@@ -3,7 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Polly;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Interfaces;
+using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Core.Interfaces.Services;
+using Ticketa.Core.Mapping;
 using Ticketa.Infrastructure.Data;
 using Ticketa.Infrastructure.Repositories;
 using Ticketa.Infrastructure.Service;
@@ -28,20 +30,23 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddAutoMapper(cfg =>
 {
-  cfg.AddProfile<Ticketa.Web.Mapping.MovieProfile>();
+  cfg.AddMaps(typeof(MovieProfile).Assembly);
 });
+
 
 builder.Services.AddHttpClient<ITmdbService, TmdbService>(opt =>
 {
   opt.BaseAddress = new Uri("https://api.themoviedb.org/3/");
   opt.Timeout = TimeSpan.FromSeconds(10);
-}).AddTransientHttpErrorPolicy(policy => 
+}).AddTransientHttpErrorPolicy(policy =>
     policy.WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
 
 builder.Services.ConfigureApplicationCookie(opt =>
 {
   opt.LoginPath = "/Auth/Login";
 });
+
+builder.Services.AddScoped<IMoviesService, MoviesService>();
 
 var app = builder.Build();
 
