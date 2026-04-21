@@ -5,6 +5,6 @@ namespace Ticketa.Core.DTOs
   public class TmdbVideoResponseDto
   {
     [JsonPropertyName("results")]
-    public List<TmdbVideoDto> Results { get; set; }
+    public List<TmdbVideoDto> Results { get; set; } = new();
   }
 }

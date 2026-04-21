@@ -9,6 +9,7 @@ namespace Ticketa.Infrastructure.Data
   {
     public DbSet<Hall> Halls { get; set; }
     public DbSet<Movie> Movies { get; set; }
+    public DbSet<Genre> Genres { get; set; }
 
     public ApplicationDbContext(DbContextOptions options) : base(options) { }
 
