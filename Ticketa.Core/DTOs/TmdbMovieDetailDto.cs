@@ -6,5 +6,8 @@ namespace Ticketa.Core.DTOs
   {
     [JsonPropertyName("runtime")]
     public int Runtime { get; set; }
+
+    [JsonPropertyName("genres")]
+    public List<TmdbGenreDto> Genres { get; set; } = new();
   }
 }

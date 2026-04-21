@@ -17,5 +17,7 @@ namespace Ticketa.Core.Entities
     public string Language { get; set; } = string.Empty;
     public MovieStatus Status { get; set; } = MovieStatus.Active;
     public DateTime ImportedAt { get; set; } = DateTime.UtcNow;
+
+    public ICollection<Genre> Genres { get; set; } = new List<Genre>();
   }
 }

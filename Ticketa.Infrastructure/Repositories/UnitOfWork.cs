@@ -9,6 +9,7 @@ namespace Ticketa.Infrastructure.Repositories
     private readonly ApplicationDbContext _context;
     private IHallRepository? _halls;
     private IMovieRepository? _movies;
+    private IGenreRepository? _genres;
 
     public UnitOfWork(ApplicationDbContext context)
     {
@@ -18,6 +19,8 @@ namespace Ticketa.Infrastructure.Repositories
     public IHallRepository Halls => _halls ??= new HallRepository(_context);
 
     public IMovieRepository Movies => _movies ??= new MovieRepository(_context);
+
+    public IGenreRepository Genres => _genres ??= new GenreRepository(_context);
 
     public async Task SaveAsync()
     {

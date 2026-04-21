@@ -6,6 +6,7 @@ namespace Ticketa.Core.Interfaces
   {
     IHallRepository Halls { get; }
     IMovieRepository Movies { get; }
+    IGenreRepository Genres { get; }
     Task SaveAsync();
   }
 }
