@@ -1,11 +1,14 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Polly;
+using Resend;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Interfaces;
 using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Core.Interfaces.Services;
 using Ticketa.Core.Mapping;
+using Ticketa.Core.Settings;
 using Ticketa.Infrastructure.Data;
 using Ticketa.Infrastructure.Repositories;
 using Ticketa.Infrastructure.Service;
@@ -23,16 +26,34 @@ builder.Services.AddDbContext<ApplicationDbContext>((opt) =>
 builder.Services.AddIdentity<AppUser, IdentityRole>(opt =>
 {
   opt.User.RequireUniqueEmail = true;
-})
-  .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+  opt.SignIn.RequireConfirmedEmail = true;
+}).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IMoviesService, MoviesService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+// Email settings
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddScoped(sp => sp.GetRequiredService<IOptions<EmailSettings>>().Value);
+
+// Resend SDK
+builder.Services.AddOptions();
+builder.Services.AddHttpClient<ResendClient>();
+builder.Services.Configure<ResendClientOptions>(o =>
+{
+  o.ApiToken = builder.Configuration["EmailSettings:ApiKey"]!;
+});
+builder.Services.AddTransient<IResend, ResendClient>();
+
+// Your service
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 
 builder.Services.AddAutoMapper(cfg =>
 {
   cfg.AddMaps(typeof(MovieProfile).Assembly);
 });
-
 
 builder.Services.AddHttpClient<ITmdbService, TmdbService>(opt =>
 {
@@ -46,7 +67,6 @@ builder.Services.ConfigureApplicationCookie(opt =>
   opt.LoginPath = "/Auth/Login";
 });
 
-builder.Services.AddScoped<IMoviesService, MoviesService>();
 
 var app = builder.Build();
 
