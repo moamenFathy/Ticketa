@@ -6,5 +6,7 @@ namespace Ticketa.Core.Entities
   {
     public DateOnly DateOfBirth { get; set; }
     public string Theme { get; set; } = "light";
+    public string? VerficationCode { get; set; }
+    public DateTime? VerficationCodeExpiry { get; set; }
   }
 }

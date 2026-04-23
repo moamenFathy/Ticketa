@@ -443,3 +443,13 @@ body.trailer-modal-lock {
     @apply text-base-content;
     outline: none;
 }
+
+input[type="text"] {
+    -moz-appearance: textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}

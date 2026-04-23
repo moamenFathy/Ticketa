@@ -1,117 +1,155 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Ticketa.Core.Entities;
-using Ticketa.Core.Interfaces;
-using Ticketa.Core.DTOs;
+using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Web.ViewModels;
 
-namespace Ticketa.Web.Controllers
+[Route("[controller]/[action]")]
+public class AuthController : Controller
 {
-  [Route("[controller]/[action]")]
-  public class AuthController : Controller
+  private readonly UserManager<AppUser> _userManager;
+  private readonly SignInManager<AppUser> _signInManger;
+  private readonly IAuthService _authService;
+
+  public AuthController(
+      UserManager<AppUser> userManager,
+      SignInManager<AppUser> signInManger,
+      IEmailService email,
+      IAuthService authService)
   {
-    private readonly UserManager<AppUser> _userManager;
-    private readonly SignInManager<AppUser> _signInManger;
+    _userManager = userManager;
+    _signInManger = signInManger;
+    _authService = authService;
+  }
 
-    public AuthController(UserManager<AppUser> userManager, IUnitOfWork uow, SignInManager<AppUser> signInManger)
+  public IActionResult Register()
+  {
+    return View();
+  }
+
+  [HttpPost]
+  [ValidateAntiForgeryToken]
+  public async Task<IActionResult> Register(ReigsterVM model)
+  {
+    if (!ModelState.IsValid)
+      return View(model);
+
+    var user = new AppUser
     {
-      _userManager = userManager;
-      _signInManger = signInManger;
+      UserName = model.Email,
+      Email = model.Email,
+      DateOfBirth = model.DateOfBirth,
+      EmailConfirmed = false
+    };
+
+    var result = await _userManager.CreateAsync(user, model.Password);
+
+    if (result.Succeeded)
+    {
+      await _userManager.AddToRoleAsync(user, "User");
+
+      await _authService.GenerateAndSendOtpAsync(user);
+
+      return RedirectToAction("VerifyEmail", new { email = user.Email });
     }
 
-    public IActionResult Register()
+    foreach (var error in result.Errors)
     {
-      return View();
+      if (!error.Code.Contains("UserName"))
+        ModelState.AddModelError("", error.Description);
     }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Register(ReigsterVM model)
+    return View(model);
+  }
+
+  public IActionResult Login()
+  {
+    return View();
+  }
+
+  [HttpPost]
+  [ValidateAntiForgeryToken]
+  public async Task<IActionResult> Login(LoginVM model, string? returnUrl = null)
+  {
+    if (!ModelState.IsValid)
+      return View(model);
+
+    var user = await _userManager.FindByEmailAsync(model.Email);
+
+    if (user != null && !user.EmailConfirmed &&
+        await _userManager.CheckPasswordAsync(user, model.Password))
     {
-      if (!ModelState.IsValid)
+      TempData["StatusMessage"] = "Your account is not verified.";
+      return RedirectToAction("VerifyEmail", new { email = model.Email });
+    }
+
+    var result = await _signInManger.PasswordSignInAsync(
+        model.Email, model.Password, model.RememberMe, false);
+
+    if (result.Succeeded)
+    {
+      if (user != null && !string.IsNullOrEmpty(user.Theme))
       {
-        return View(model);
+        Response.Cookies.Append("theme", user.Theme,
+            new CookieOptions { MaxAge = TimeSpan.FromDays(365), Path = "/" });
       }
 
-      var user = new AppUser
-      {
-        UserName = model.Email,
-        Email = model.Email,
-        DateOfBirth = model.DateOfBirth
-      };
+      if (Url.IsLocalUrl(returnUrl))
+        return LocalRedirect(returnUrl);
 
-      var result = await _userManager.CreateAsync(user, model.Password);
+      return LocalRedirect("/");
+    }
 
-      if (result.Succeeded)
-      {
-        await _userManager.AddToRoleAsync(user, "User");
-        return RedirectToAction(nameof(Login));
-      }
+    ModelState.AddModelError("", "Invalid login attempt.");
+    return View(model);
+  }
 
-      foreach (var error in result.Errors)
-      {
-        if (!error.Code.Contains("UserName"))
-        {
-          ModelState.AddModelError("", error.Description);
-        }
-      }
+  public async Task<IActionResult> Logout()
+  {
+    await _signInManger.SignOutAsync();
+    Response.Cookies.Delete("theme");
+    return RedirectToAction("Index", "Home");
+  }
 
+  public IActionResult VerifyEmail(string email)
+  {
+    return View(new VerifyEmailVM { Email = email });
+  }
+
+  [HttpPost]
+  [ValidateAntiForgeryToken]
+  public async Task<IActionResult> VerifyEmail(VerifyEmailVM model)
+  {
+    if (!ModelState.IsValid)
+      return View(model);
+
+    var user = await _userManager.FindByEmailAsync(model.Email);
+    if (user == null)
+      return NotFound();
+
+    var isValid = await _authService.VerifyOtpAsync(user, model.Code);
+
+    if (!isValid)
+    {
+      ModelState.AddModelError("", "Invalid or expired code");
       return View(model);
     }
 
-    public IActionResult Login()
-    {
-      return View();
-    }
+    await _signInManger.SignInAsync(user, true);
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginVM model, string? returnUrl = null)
-    {
-      if (!ModelState.IsValid)
-        return View(model);
+    TempData["StatusMessage"] = "Email verified successfully.";
+    return RedirectToAction("Index", "Home", new { area = "Customer" });
+  }
 
-      var result = await _signInManger.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+  public async Task<IActionResult> ResendVerificationCode(string email)
+  {
+    var user = await _userManager.FindByEmailAsync(email);
+    if (user == null)
+      return NotFound();
 
-      if (result.Succeeded)
-      {
-        var user = await _userManager.FindByEmailAsync(model.Email);
-        if (user != null && !string.IsNullOrEmpty(user.Theme))
-        {
-            Response.Cookies.Append("theme", user.Theme, new CookieOptions { MaxAge = TimeSpan.FromDays(365), Path = "/" });
-        }
+    await _authService.GenerateAndSendOtpAsync(user);
 
-        if (Url.IsLocalUrl(returnUrl))
-            return LocalRedirect(returnUrl);
-
-        return LocalRedirect("/");
-      }
-
-      ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-      return View(model);
-    }
-
-    public async Task<IActionResult> Logout()
-    {
-      await _signInManger.SignOutAsync();
-      Response.Cookies.Delete("theme");
-      return RedirectToAction("Index", "Home");
-    }
-
-    [HttpPost]
-    [IgnoreAntiforgeryToken] // Allow AJAX calls simply without token checking for a minor theme setting, or you can implement CSRF headers
-    public async Task<IActionResult> UpdateTheme([FromBody] UpdateThemeDto dto)
-    {
-        if (User?.Identity?.IsAuthenticated == true)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user != null && dto.Theme != null)
-            {
-                user.Theme = dto.Theme;
-                await _userManager.UpdateAsync(user);
-            }
-        }
-        return Ok();
-    }
+    TempData["StatusMessage"] = "New code sent.";
+    return RedirectToAction("VerifyEmail", new { email = user.Email });
   }
 }

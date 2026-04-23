@@ -74,7 +74,7 @@
                                 <img alt="User avatar" src="https://ui-avatars.com/api/?name=@(Uri.EscapeDataString(User.Identity?.Name) ?? "User")&background=random" />
                             </div>
                         </div>
-                        <ul tabindex="-1" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+                        <ul tabindex="-1" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow truncate">
                             <span class="menu-title">@User.Identity?.Name</span>
                             @if (User.IsInRole("User"))
                             {
