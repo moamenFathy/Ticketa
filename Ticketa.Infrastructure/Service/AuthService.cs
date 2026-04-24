@@ -15,6 +15,8 @@ public class AuthService : IAuthService
     _email = email;
   }
 
+
+
   public async Task GenerateAndSendOtpAsync(AppUser user)
   {
     var code = RandomNumberGenerator.GetInt32(100000, 999999).ToString();
@@ -46,5 +48,32 @@ public class AuthService : IAuthService
     await _userManager.UpdateAsync(user);
 
     return true;
+  }
+
+  public async Task<bool> ForgotPasswordAsync(string email, string resetLink)
+  {
+    var user = await _userManager.FindByEmailAsync(email);
+
+    if (user is null || !user.EmailConfirmed)
+      return true;
+
+    var subject = "Reset your Ticketa password";
+    var body = EmailTemplates.ForgotPassword(user.UserName ?? "there", resetLink);
+
+    await _email.SendEmailAsync(user.Email!, subject, body);
+    return true;
+  }
+
+  public async Task<(bool Success, IEnumerable<string> Errors)> ResetPasswordAsync(string email, string token, string newPassword)
+  {
+    var user = await _userManager.FindByEmailAsync(email);
+    if (user == null)
+      return (false, new[] { "Invalid request." });
+
+    var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+
+    return result.Succeeded
+        ? (true, Enumerable.Empty<string>())
+        : (false, result.Errors.Select(e => e.Description));
   }
 }
