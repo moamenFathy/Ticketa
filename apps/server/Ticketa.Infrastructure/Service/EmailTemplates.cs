@@ -45,9 +45,10 @@
       return EmailLayout("Verify Your Email", content);
     }
 
-    public static string ForgotPassword(string resetLink)
+    public static string ForgotPassword(string userName, string resetLink)
     {
       var content = $"""
+            <h3>Hello {userName},</h3>
             <p>We received a request to reset the password for your Ticketa account. No worries, it happens to the best of us!</p>
             <p>Click the button below to choose a new password. This link will expire in <strong>1 hour</strong>.</p>
             <div style="text-align: center; margin: 32px 0;">

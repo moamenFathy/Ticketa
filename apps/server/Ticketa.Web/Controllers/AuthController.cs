@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Web.ViewModels;
@@ -151,5 +152,63 @@ public class AuthController : Controller
 
     TempData["StatusMessage"] = "New code sent.";
     return RedirectToAction("VerifyEmail", new { email = user.Email });
+  }
+
+  [HttpGet]
+  public IActionResult ForgotPassword() => View();
+
+  [HttpPost, ValidateAntiForgeryToken]
+  public async Task<IActionResult> ForgotPassword(ForgotPasswordVM vm)
+  {
+    if (!ModelState.IsValid) return View(vm);
+
+    // Build the reset link — Identity token must be URL-encoded
+    var user = await _userManager.FindByEmailAsync(vm.Email);
+    if (user != null)
+    {
+      var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+      var encodedToken = WebUtility.UrlEncode(token);
+
+      var resetLink = Url.Action(
+          action: "ResetPassword",
+          controller: "Auth",
+          values: new { email = vm.Email, token = encodedToken },
+          protocol: Request.Scheme)!;
+
+      await _authService.ForgotPasswordAsync(vm.Email, resetLink);
+    }
+
+    // Always show the same message — don't leak if email exists
+    TempData["Info"] = "If that email is registered, you'll receive a reset link shortly.";
+    return RedirectToAction(nameof(ForgotPassword));
+  }
+
+  [HttpGet]
+  public IActionResult ResetPassword(string email, string token)
+  {
+    var vm = new ResetPasswordVM { Email = email, Token = token };
+    return View(vm);
+  }
+
+  // POST /Auth/ResetPassword
+  [HttpPost, ValidateAntiForgeryToken]
+  public async Task<IActionResult> ResetPassword(ResetPasswordVM vm)
+  {
+    if (!ModelState.IsValid) return View(vm);
+
+    // Decode token before passing to Identity
+    var decodedToken = WebUtility.UrlDecode(vm.Token);
+    var (success, errors) = await _authService.ResetPasswordAsync(
+        vm.Email, decodedToken, vm.NewPassword);
+
+    if (!success)
+    {
+      foreach (var e in errors)
+        ModelState.AddModelError(string.Empty, e);
+      return View(vm);
+    }
+
+    TempData["Success"] = "Password reset successfully. Please log in.";
+    return RedirectToAction(nameof(Login));
   }
 }
