@@ -10,6 +10,7 @@ namespace Ticketa.Infrastructure.Data
     public DbSet<Hall> Halls { get; set; }
     public DbSet<Movie> Movies { get; set; }
     public DbSet<Genre> Genres { get; set; }
+    public DbSet<Showtime> Showtimes { get; set; }
 
     public ApplicationDbContext(DbContextOptions options) : base(options) { }
 
@@ -18,11 +19,6 @@ namespace Ticketa.Infrastructure.Data
       base.OnModelCreating(builder);
 
       builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-
-      builder.Entity<Hall>().HasData(
-        new Hall { Id = 1, Name = "Main Hall", TotalSeats = 200 },
-        new Hall { Id = 2, Name = "VIP Lounge", TotalSeats = 50 }
-      );
     }
   }
 }
