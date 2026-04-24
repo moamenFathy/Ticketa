@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Polly;
-using Resend;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Interfaces;
 using Ticketa.Core.Interfaces.IServices;
@@ -37,14 +36,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped(sp => sp.GetRequiredService<IOptions<EmailSettings>>().Value);
 
-// Resend SDK
 builder.Services.AddOptions();
-builder.Services.AddHttpClient<ResendClient>();
-builder.Services.Configure<ResendClientOptions>(o =>
-{
-  o.ApiToken = builder.Configuration["EmailSettings:ApiKey"]!;
-});
-builder.Services.AddTransient<IResend, ResendClient>();
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 // Your service
 builder.Services.AddScoped<IEmailService, EmailService>();

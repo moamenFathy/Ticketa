@@ -79,7 +79,7 @@ public class AuthController : Controller
     if (user != null && !user.EmailConfirmed &&
         await _userManager.CheckPasswordAsync(user, model.Password))
     {
-      TempData["StatusMessage"] = "Your account is not verified.";
+      TempData["StatusMessage"] = "The verification code sent successfully, please check you email.";
       return RedirectToAction("VerifyEmail", new { email = model.Email });
     }
 
@@ -137,7 +137,7 @@ public class AuthController : Controller
 
     await _signInManger.SignInAsync(user, true);
 
-    TempData["StatusMessage"] = "Email verified successfully.";
+    TempData["StatusMessage"] = "The verification code sent successfully, please check you email.";
     return RedirectToAction("Index", "Home", new { area = "Customer" });
   }
 
