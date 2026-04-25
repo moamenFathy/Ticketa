@@ -108,17 +108,14 @@ namespace Ticketa.Infrastructure.Service
 
       if (movieGenrePairs.Any())
       {
-        // 1. Collect all unique genre DTOs across all movies
         var allGenreDtos = movieGenrePairs
             .SelectMany(p => p.Genres)
             .DistinctBy(g => g.Id)
             .ToList();
 
-        // 2. Bulk fetch already-existing genres — single DB query
         var existingGenres = await _uow.Genres.GetByTmdbIdsAsync(allGenreDtos.Select(g => g.Id));
         var genreMap = existingGenres.ToDictionary(g => g.TmdbId);
 
-        // 3. Create missing genres
         var newGenres = allGenreDtos
             .Where(g => !genreMap.ContainsKey(g.Id))
             .Select(g => new Genre { TmdbId = g.Id, Name = g.Name })
@@ -127,11 +124,11 @@ namespace Ticketa.Infrastructure.Service
         if (newGenres.Any())
         {
           await _uow.Genres.AddRangeAsync(newGenres);
+          await _uow.SaveAsync();
           foreach (var g in newGenres)
-            genreMap[g.TmdbId] = g; // add to map so linking below can see them
+            genreMap[g.TmdbId] = g;
         }
 
-        // 4. Link genres to each movie
         foreach (var (movie, genreDtos) in movieGenrePairs)
         {
           foreach (var dto in genreDtos)
@@ -139,7 +136,6 @@ namespace Ticketa.Infrastructure.Service
               movie.Genres.Add(genre);
         }
 
-        // 5. Single save — covers genres + movies + join rows
         var moviesToAdd = movieGenrePairs.Select(p => p.Movie).ToList();
         await _uow.Movies.CreateRangeAsync(moviesToAdd);
         await _uow.SaveAsync();
@@ -148,9 +144,9 @@ namespace Ticketa.Infrastructure.Service
       }
 
       result.SkippedCount = existingIds.Count;
-
       return result;
     }
+
 
     public async Task<IEnumerable<MovieSearchResultDto>> SearchMoviesAsync(string query, CancellationToken cancellationToken)
     {
