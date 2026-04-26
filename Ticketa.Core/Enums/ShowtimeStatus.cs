@@ -3,7 +3,8 @@
   public enum ShowtimeStatus
   {
     Scheduled,
-    Canceled,
+    SoldOut,
+    Cancelled,
     Completed
   }
 }

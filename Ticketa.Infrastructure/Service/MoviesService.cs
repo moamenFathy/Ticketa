@@ -176,6 +176,19 @@ namespace Ticketa.Infrastructure.Service
       return true;
     }
 
+    public async Task<IEnumerable<MovieDropdownDto>> GetAllActiveAsync()
+    {
+      var movies = await _uow.Movies.GetAllWithSpecAsync(
+          new MovieSpecification(MovieStatus.Active, null));
+
+      return movies.Select(m => new MovieDropdownDto
+      {
+        Id = m.Id,
+        Title = m.Title,
+        Runtime = m.RuntimeMinutes,
+        PosterPath = m.PosterPath,     // for the modal dropdown card
+      });
+    }
 
     private static MovieStatus? MapStatus(string? segmentedFilter)
     {

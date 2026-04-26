@@ -43,8 +43,9 @@ namespace Ticketa.Infrastructure.Service
       try
       {
         var url = $"movie/{tmdbId}?language=en-US";
-        return await _httpClient.GetFromJsonAsync<TmdbMovieDto>(url, ct);
-      } catch(Exception ex)
+        return await _httpClient.GetFromJsonAsync<TmdbMovieDetailDto>(url, ct) ?? new TmdbMovieDetailDto();
+      }
+      catch (Exception ex)
       {
         _logger.LogError(ex, $"Error fetching movie {tmdbId} from TMDB");
         return null;
@@ -55,16 +56,17 @@ namespace Ticketa.Infrastructure.Service
     {
       try
       {
-        
-       var url = $"movie/{tmdbId}/videos?language=en-US";
-      var response = await _httpClient.GetFromJsonAsync<TmdbVideoResponseDto>(url, ct);
-      // Look for an official trailer on YouTube
-      return response?.Results
-          .Where(v => v.Site == "YouTube" && v.Type == "Trailer" && v.Official).Select(v => v.Key).FirstOrDefault()
 
-          ?? response?.Results
-          .Where(v => v.Site == "YouTube" && v.Type == "Trailer").Select(v => v.Key).FirstOrDefault();
-      } catch (Exception ex)
+        var url = $"movie/{tmdbId}/videos?language=en-US";
+        var response = await _httpClient.GetFromJsonAsync<TmdbVideoResponseDto>(url, ct);
+        // Look for an official trailer on YouTube
+        return response?.Results
+            .Where(v => v.Site == "YouTube" && v.Type == "Trailer" && v.Official).Select(v => v.Key).FirstOrDefault()
+
+            ?? response?.Results
+            .Where(v => v.Site == "YouTube" && v.Type == "Trailer").Select(v => v.Key).FirstOrDefault();
+      }
+      catch (Exception ex)
       {
         _logger.LogError(ex, $"error fetching trailer for movie {tmdbId}");
         return null;
@@ -77,7 +79,7 @@ namespace Ticketa.Infrastructure.Service
       {
 
         var url = $"movie/{tmdbId}?language=en-US";
-        return await _httpClient.GetFromJsonAsync<TmdbMovieDetailDto>(url, ct);
+        return await _httpClient.GetFromJsonAsync<TmdbMovieDetailDto>(url, ct) ?? new TmdbMovieDetailDto();
       }
       catch (Exception ex)
       {
@@ -103,7 +105,7 @@ namespace Ticketa.Infrastructure.Service
 
         if (!results.Any() && IsArabic(query))
         {
-           var fallbackUrl = $"search/movie?language=en-US&query={encoded}&page=1";
+          var fallbackUrl = $"search/movie?language=en-US&query={encoded}&page=1";
           var fallbackResponse = await _httpClient.GetFromJsonAsync<TmdbPopularResponseDto>(fallbackUrl, ct);
           results = fallbackResponse?.Results ?? [];
         }

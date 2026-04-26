@@ -11,14 +11,20 @@ namespace Ticketa.Infrastructure.Repositories
 
     public ShowtimeRepository(ApplicationDbContext context) : base(context) { }
 
-    public Task<bool> HasConflictAsync(int hallId, DateTime startTime, DateTime endTime, int? excludeShowtimeId = null)
+    public Task<bool> HasConflictAsync(int hallId, DateTime startTime, DateTime endTime, int? excludeId = null)
       => _context.Showtimes
          .Where(s => s.HallId == hallId
-                      && s.Status != ShowtimeStatus.Scheduled
-                      && (excludeShowtimeId == null || s.Id != excludeShowtimeId)
+                      && s.Status != ShowtimeStatus.Cancelled
+                      && (excludeId == null || s.Id != excludeId)
                       && s.StartTime < endTime
                       && s.EndTime > startTime
          )
          .AnyAsync();
+
+    public Task UpdateAsync(Showtime showtime)
+    {
+      _context.Showtimes.Update(showtime);
+      return Task.CompletedTask;
+    }
   }
 }
