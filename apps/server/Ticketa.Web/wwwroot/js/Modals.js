@@ -61,9 +61,23 @@ document.addEventListener("submit", async (e) => {
 
     e.preventDefault();
 
-    if ($(form).valid && !$(form).valid()) return;
+    // Check jQuery validation if it exists on the form
+    if (typeof $(form).valid === "function" && !$(form).valid()) return;
+
+    const submitBtn = form.querySelector("button[type='submit']");
+    const originalBtnContent = submitBtn ? submitBtn.innerHTML : null;
+
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="loading loading-spinner loading-sm"></span> Processing...';
+    }
 
     await handleModalFormSubmit(form, url);
+
+    if (submitBtn && originalBtnContent) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnContent;
+    }
 });
 
 async function handleModalFormSubmit(form, url) {
@@ -92,6 +106,14 @@ async function handleModalFormSubmit(form, url) {
         if (result.success) {
             document.getElementById("modal").checked = false;
             location.reload();
+        } else if (result.message) {
+            const errorBanner = document.getElementById("errorBanner");
+            if (errorBanner) {
+                errorBanner.innerText = result.message;
+                errorBanner.classList.remove("hidden");
+            } else {
+                alert(result.message);
+            }
         }
 
     } catch (error) {
