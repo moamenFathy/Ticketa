@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Web.ViewModels;
@@ -6,6 +7,7 @@ using Ticketa.Web.ViewModels;
 namespace Ticketa.Web.Areas.Admin.Controllers
 {
   [Area("Admin")]
+  [Authorize]
   public class ShowtimeController : Controller
   {
     private readonly IShowtimeService _showtimeService;
@@ -34,33 +36,47 @@ namespace Ticketa.Web.Areas.Admin.Controllers
     }
 
     [HttpGet]
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> Upsert(int? id)
     {
-      var vm = new ShowtimeCreateVM
+      var vm = new ShowtimeUpsertVM
       {
         Halls = await _showtimeService.GetHallsAsync(),
         Movies = await _moviesService.GetAllActiveAsync()
       };
 
-      return PartialView("_CreateShowtimeModal", vm);
+      if (!id.HasValue)
+        return PartialView("_CreateShowtimeModal", vm);
+
+      var dto = await _showtimeService.GetForUpsertAsync(id.Value);
+      if (dto == null)
+        return NotFound();
+
+      vm.Form = dto;
+      return PartialView("_EditShowtimeModal", vm);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind(Prefix = "Form")] ShowtimeCreateDto dto)
+    public async Task<IActionResult> Upsert([Bind(Prefix = "Form")] ShowtimeUpsertDto dto)
     {
+      var viewName = dto.Id == 0 ? "_CreateShowtimeModal" : "_EditShowtimeModal";
+
       if (!ModelState.IsValid)
       {
-        var vm = new ShowtimeCreateVM
+        var vm = new ShowtimeUpsertVM
         {
           Form = dto,
           Halls = await _showtimeService.GetHallsAsync(),
           Movies = await _moviesService.GetAllActiveAsync(),
         };
-        return PartialView("_CreateShowtimeModal", vm);
+        return PartialView(viewName, vm);
       }
 
-      var error = await _showtimeService.CreateAsync(dto);
+      string? error;
+      if (dto.Id == 0)
+        error = await _showtimeService.CreateAsync(dto);
+      else
+        error = await _showtimeService.UpdateAsync(dto);
 
       if (error is not null)
         return Json(new { success = false, message = error });

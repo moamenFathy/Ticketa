@@ -4,7 +4,6 @@
   {
     Scheduled,
     SoldOut,
-    Cancelled,
     Completed
   }
 }

@@ -2,9 +2,9 @@
 
 namespace Ticketa.Web.ViewModels
 {
-  public class ShowtimeCreateVM
+  public class ShowtimeUpsertVM
   {
-    public ShowtimeCreateDto Form { get; set; } = new();
+    public ShowtimeUpsertDto Form { get; set; } = new();
     public IEnumerable<HallDto> Halls { get; set; } = [];
     public IEnumerable<MovieDropdownDto> Movies { get; set; } = [];
   }

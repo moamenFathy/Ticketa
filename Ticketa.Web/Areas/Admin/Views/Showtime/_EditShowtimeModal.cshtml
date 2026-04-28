@@ -2,7 +2,7 @@
 
 <!-- Header -->
 <div class="flex items-center justify-between pb-3 border-b border-base-300">
-    <h3 class="text-xl font-bold">Create Showtime</h3>
+    <h3 class="text-xl font-bold">Edit Showtime</h3>
 
     <label for="modal" class="btn btn-sm btn-ghost btn-circle hover:bg-base-300">
         ✕
@@ -51,13 +51,13 @@
     <div class="flex gap-4">
         <label class="form-control w-full">
             <span class="label-text font-medium">Start Time</span>
-            <input asp-for="Form.StartTime" value="" type="datetime-local" class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary validator" />
+            <input asp-for="Form.StartTime" type="datetime-local" class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary validator" />
             <span asp-validation-for="Form.StartTime" class="text-error mt-1 text-sm font-bold"></span>
         </label>
 
         <label class="form-control w-full">
             <span class="label-text font-medium">Price ($)</span>
-            <input asp-for="Form.Price" value="" type="text" min="1" class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary validator" placeholder="10.00" />
+            <input asp-for="Form.Price" type="text" min="1" class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary validator" placeholder="10.00" />
             <span asp-validation-for="Form.Price" class="text-error mt-1 text-sm font-bold"></span>
         </label>
     </div>
@@ -68,7 +68,7 @@
             Cancel
         </label>
         <button class="btn btn-primary px-5 hover:brightness-110" type="submit">
-            Create Showtime
+            Save Changes
         </button>
     </div>
 </form>

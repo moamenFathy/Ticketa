@@ -28,7 +28,6 @@ namespace Ticketa.Infrastructure.Service
       {
         "scheduled" => ShowtimeStatus.Scheduled,
         "soldout" => ShowtimeStatus.SoldOut,
-        "cancelled" => ShowtimeStatus.Cancelled,
         "completed" => ShowtimeStatus.Completed,
         _ => null
       };
@@ -37,30 +36,15 @@ namespace Ticketa.Infrastructure.Service
 
       var total = await _uow.Showtimes.CountAsync(new ShowtimeSpecification());
       var filtered = await _uow.Showtimes.CountAsync(new ShowtimeSpecification(status, query));
-      var rows = await _uow.Showtimes.GetAllWithSpecAsync(
+      var data = await _uow.Showtimes.GetShowtimeListAsync(
                          new ShowtimeSpecification(status, query, orderColumn, orderDir, request.Start, request.Length));
-
-      var data = rows.Select(s => new ShowtimeListItemDto
-      {
-        Id = s.Id,
-        MovieTitle = s.Movie.Title,
-        MoviePoster = s.Movie.PosterPath,
-        HallName = s.Hall.Name,
-        TotalSeats = s.Hall.TotalSeats,
-        StartTime = s.StartTime,
-        EndTime = s.EndTime,
-        Price = s.Price,
-        Status = s.Status,
-        TrailerKey = s.Movie.TrailerKey,
-        TmdbId = s.Movie.TmdbId
-      });
 
       return new { draw = request.Draw, recordsTotal = total, recordsFiltered = filtered, data };
     }
 
-    // ── Create ───────────────────────────────────────────────────
+    // ── Create & Update ───────────────────────────────────────────────────
 
-    public async Task<string?> CreateAsync(ShowtimeCreateDto dto)
+    public async Task<string?> CreateAsync(ShowtimeUpsertDto dto)
     {
       if (dto.StartTime < DateTime.Now)
         return "A showtime cannot be scheduled in the past.";
@@ -89,6 +73,60 @@ namespace Ticketa.Infrastructure.Service
         Status = ShowtimeStatus.Scheduled,
       });
 
+      await _uow.SaveAsync();
+      return null;
+    }
+
+    public async Task<ShowtimeUpsertDto?> GetForUpsertAsync(int id)
+    {
+      var showtime = await _uow.Showtimes.GetAsync(s => s.Id == id);
+      if (showtime == null) return null;
+
+      return new ShowtimeUpsertDto
+      {
+        Id = showtime.Id,
+        MovieId = showtime.MovieId,
+        HallId = showtime.HallId,
+        StartTime = showtime.StartTime,
+        Price = showtime.Price
+      };
+    }
+
+    public async Task<string?> UpdateAsync(ShowtimeUpsertDto dto)
+    {
+      if (dto.StartTime < DateTime.Now)
+        return "A showtime cannot be scheduled in the past.";
+
+      if (dto.StartTime < DateTime.Now.AddHours(5))
+        return "A showtime must be scheduled at least 5 hours from now.";
+
+      var movie = await _uow.Movies.GetAsync(m => m.Id == dto.MovieId);
+      if (movie is null) return "Movie not found.";
+
+      var hall = await _uow.Halls.GetAsync(h => h.Id == dto.HallId);
+      if (hall is null) return "Hall not found.";
+
+      var showtime = await _uow.Showtimes.GetAsync(s => s.Id == dto.Id);
+      if (showtime is null) return "Showtime not found.";
+
+      if (showtime.StartTime <= DateTime.Now.AddHours(5))
+        return "A showtime cannot be edited less than 5 hours before it starts.";
+
+      if (showtime.Status == ShowtimeStatus.Completed)
+        return "The showtime is already completed";
+
+      var endTime = dto.StartTime.AddMinutes((movie.RuntimeMinutes > 0 ? movie.RuntimeMinutes : 120) + BufferMinutes);
+
+      if (await _uow.Showtimes.HasConflictAsync(dto.HallId, dto.StartTime, endTime, dto.Id))
+        return $"{hall.Name} already has a showtime during that slot.";
+
+      showtime.MovieId = dto.MovieId;
+      showtime.HallId = dto.HallId;
+      showtime.StartTime = dto.StartTime;
+      showtime.EndTime = endTime;
+      showtime.Price = dto.Price;
+
+      await _uow.Showtimes.UpdateAsync(showtime);
       await _uow.SaveAsync();
       return null;
     }
