@@ -22,5 +22,7 @@ namespace Ticketa.Core.Interfaces.IServices
         int orderColumn,
         string orderDir,
         string? segmentedFilter);
+
+    Task<IEnumerable<MovieDropdownDto>> GetAllActiveAsync();
   }
 }
