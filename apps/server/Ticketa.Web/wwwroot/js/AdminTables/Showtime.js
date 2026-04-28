@@ -281,7 +281,6 @@ if (dataTableElement) {
         },
         {
             data: "movieTitle",
-            orderable: false,
             className: "align-middle font-semibold",
             render: (data) => (data && data.length > 40) ? data.substring(0, 30) + "..." : data
         },
@@ -313,22 +312,19 @@ if (dataTableElement) {
             render: (data, _type, row) => {
                 const scheduledSel = data === 0 ? "selected" : "";
                 const soldOutSel = data === 1 ? "selected" : "";
-                const cancelledSel = data === 2 ? "selected" : "";
-                const completedSel = data === 3 ? "selected" : "";
+                const completedSel = data === 2 ? "selected" : "";
 
                 let colorClass = "";
                 if (data === 0) colorClass = "text-blue-700 bg-blue-100 border-blue-200";
                 else if (data === 1) colorClass = "text-yellow-700 bg-yellow-100 border-yellow-200";
-                else if (data === 2) colorClass = "text-red-700 bg-red-100 border-red-200";
-                else if (data === 3) colorClass = "text-green-700 bg-green-100 border-green-200";
+                else if (data === 2) colorClass = "text-green-700 bg-green-100 border-green-200";
 
                 return `
                     <div class="relative inline-block">
-                        <select class="select select-sm select-bordered w-36 font-semibold focus:outline-none transition-all duration-200 ${colorClass}" onchange="updateShowtimeStatus(${row.id}, this)">
+                        <select class="select select-sm select-bordered w-32 font-semibold focus:outline-none transition-all duration-200 ${colorClass}" onchange="updateShowtimeStatus(${row.id}, this)">
                             <option value="0" ${scheduledSel}>✓ Scheduled</option>
                             <option value="1" ${soldOutSel}>🎟️ Sold Out</option>
-                            <option value="2" ${cancelledSel}>🚫 Cancelled</option>
-                            <option value="3" ${completedSel}>✅ Completed</option>
+                            <option value="2" ${completedSel}>✅ Completed</option>
                         </select>
                         <span class="status-indicator absolute -right-1 -top-1 hidden"></span>
                     </div>
@@ -339,7 +335,41 @@ if (dataTableElement) {
             data: "id",
             orderable: false,
             className: "align-middle text-center whitespace-nowrap",
-            render: (id, _type, row) => `
+            render: (id, _type, row) => {
+                const startTime = new Date(row.startTime);
+                const fiveHoursFromNow = new Date(new Date().getTime() + (5 * 60 * 60 * 1000));
+                
+                const canEditTime = startTime > fiveHoursFromNow;
+                const canEditStatus = row.status !== 2 && row.status !== 1;
+
+                let canEdit = true;
+                let tooltipMsg = "Edit";
+
+                if (!canEditStatus) {
+                    canEdit = false;
+                    tooltipMsg = "Cannot edit this status right now";
+                } else if (!canEditTime) {
+                    canEdit = false;
+                    tooltipMsg = "Cannot edit within 5 hours of starting";
+                }
+
+                const editButton = canEdit
+                    ? `<div class="tooltip" data-tip="${tooltipMsg}">
+                         <button type="button" class="btn btn-ghost btn-sm text-violet-500 hover:bg-violet-50" onclick="openModal('createForm', '/admin/showtime/Upsert/' + ${id}, 'showtime')">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-icon lucide-pencil">
+                                <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>
+                             </svg>
+                         </button>
+                    </div>`
+                    : `<div class="tooltip" data-tip="${tooltipMsg}">
+                         <button type="button" class="btn btn-ghost btn-sm text-gray-400 cursor-not-allowed" disabled>
+                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-icon lucide-pencil">
+                                <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>
+                             </svg>
+                         </button>
+                    </div>`;
+
+                return `
                 <div class="flex flex-row justify-center items-center gap-2">
                     <div class="tooltip" data-tip="Trailer">
                          <button type="button" class="btn btn-ghost btn-sm hover:bg-blue-50 text-bold" onclick="openMovieTrailer(this, '${(row.movieTitle ?? "Movie").replace(/'/g, "&#39;")}', '${row.trailerKey ?? ""}', '${row.tmdbId ?? ""}')">
@@ -348,13 +378,7 @@ if (dataTableElement) {
                             </svg>
                          </button>
                     </div>
-                    <div class="tooltip" data-tip="Edit">
-                         <button type="button" class="btn btn-ghost btn-sm text-violet-500 hover:bg-violet-50" onclick="openModal('createForm', '/admin/showtime/create', 'showtime')">
-                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-icon lucide-pencil">
-                                <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>
-                             </svg>
-                         </button>
-                    </div>
+                    ${editButton}
                     <div class="tooltip" data-tip="Delete">
                          <button type="button" class="btn btn-ghost btn-sm text-red-400 hover:bg-red-50" onclick="openModal('deleteForm', '/Admin/Showtime/DeleteConfirmation/${id}', 'showtime')">
                                     <svg xmlns="http://www.w3.org/2000/svg"
@@ -365,7 +389,8 @@ if (dataTableElement) {
                          </button>
                     </div>
                 </div>
-            `
+            `;
+            }
         }
     ], {
         order: [[3, "desc"]],
@@ -379,7 +404,8 @@ if (dataTableElement) {
                 api.ajax.reload();
             });
         },
-        serverSide: true
+        serverSide: true,
+        responsive: true
     });
 }
 
@@ -391,8 +417,7 @@ window.updateShowtimeStatus = async function (id, selectEl) {
     let colorClass = "";
     if (newStatus === 0) colorClass = "text-blue-700 bg-blue-100 border-blue-200";
     else if (newStatus === 1) colorClass = "text-yellow-700 bg-yellow-100 border-yellow-200";
-    else if (newStatus === 2) colorClass = "text-red-700 bg-red-100 border-red-200";
-    else if (newStatus === 3) colorClass = "text-green-700 bg-green-100 border-green-200";
+    else if (newStatus === 2) colorClass = "text-green-700 bg-green-100 border-green-200";
 
     selectEl.className = "select select-sm select-bordered w-36 font-semibold focus:outline-none transition-all duration-200 " + colorClass;
 

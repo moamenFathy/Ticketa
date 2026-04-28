@@ -11,7 +11,9 @@ namespace Ticketa.Core.Interfaces.IServices
     string orderDir,
     string? segmentedFilter);
 
-    Task<string?> CreateAsync(ShowtimeCreateDto dto);
+    Task<string?> CreateAsync(ShowtimeUpsertDto dto);
+    Task<string?> UpdateAsync(ShowtimeUpsertDto dto);
+    Task<ShowtimeUpsertDto?> GetForUpsertAsync(int id);
 
     Task<IEnumerable<HallDto>> GetHallsAsync();
     
