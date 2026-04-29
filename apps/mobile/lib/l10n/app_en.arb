@@ -1,0 +1,34 @@
+{
+  "appName": "Ticketa",
+  "welcomeMessage": "Welcome to Ticketa",
+  "home": "Home",
+  "settings": "Settings",
+  "language": "Language",
+  "changeLanguage": "Change Language",
+  "hello": "Hello {userName}",
+  "@hello": {
+    "placeholders": {
+      "userName": {"type": "String"}
+    }
+  },
+  "nowShowing": "Now Showing",
+  "comingSoon": "Coming Soon",
+  "seeAll": "See All",
+  "comingSoonLabel": "Soon",
+  "storyLine": "Storyline",
+  "selectDate": "Select Date",
+  "bookNow": "Book Now",
+  "selectSeats": "Select Seats",
+  "available": "Available",
+  "selected": "Selected",
+  "occupied": "Occupied",
+  "screen": "Screen",
+  "total": "Total",
+  "continueText": "Continue",
+  "bookingConfirm": "Booking Confirmation",
+  "bookingSuccess": "Booking Successful! 🎉",
+  "movie": "Movie",
+  "date": "Date",
+  "seats": "Seats",
+  "backToHome": "Back to Home"
+}
