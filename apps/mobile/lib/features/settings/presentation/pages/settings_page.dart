@@ -32,7 +32,7 @@ class SettingsPage extends StatelessWidget {
               final newLocale = currentLocale.languageCode == 'en'
                   ? const Locale('ar')
                   : const Locale('en');
-              MyApp.of(context)?.setLocale(newLocale);
+              MyApp.setLocale(context, newLocale);
             },
           ),
           const SizedBox(height: 16),
@@ -43,7 +43,7 @@ class SettingsPage extends StatelessWidget {
             trailing: Switch(
               value: isDark,
               onChanged: (val) {
-                // Future implementation for theme toggle
+                MyApp.setTheme(context, val ? ThemeMode.dark : ThemeMode.light);
               },
               activeColor: AppColors.warmOrange,
             ),

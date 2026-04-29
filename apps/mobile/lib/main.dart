@@ -1,42 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:ticketa/core/theme/app_theme.dart';
+import 'package:ticketa/features/main/presentation/pages/main_page.dart';
 import 'package:ticketa/features/settings/presentation/pages/settings_page.dart';
-import 'package:ticketa/features/home/presentation/pages/booking_confirmation_page.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
-import 'core/di/injection.dart';
-import 'core/theme/app_theme.dart';
-import 'features/home/presentation/pages/home_page.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await initInjection();
-
+void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-
   static _MyAppState? of(BuildContext context) =>
       context.findAncestorStateOfType<_MyAppState>();
+
+  static void setLocale(BuildContext context, Locale newLocale) {
+    of(context)?.setState(() => of(context)?._locale = newLocale);
+  }
+
+  static void setTheme(BuildContext context, ThemeMode newTheme) {
+    of(context)?.setState(() => of(context)?._themeMode = newTheme);
+  }
+
+  @override
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  Locale _locale = const Locale('ar');
-
-  void setLocale(Locale value) {
-    setState(() {
-      _locale = value;
-    });
-  }
+  Locale _locale = const Locale('en');
+  ThemeMode _themeMode = ThemeMode.dark;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Ticketa',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: _themeMode,
+      locale: _locale,
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -47,20 +50,10 @@ class _MyAppState extends State<MyApp> {
         Locale('en'),
         Locale('ar'),
       ],
-      locale: _locale,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
-      home: const HomePage(),
+      home: const MainPage(),
       routes: {
         '/settings': (context) => const SettingsPage(),
-        '/confirmation': (context) {
-          final args =
-              ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-          return BookingConfirmationPage(bookingData: args);
-        },
       },
-      debugShowCheckedModeBanner: false,
     );
   }
 }
