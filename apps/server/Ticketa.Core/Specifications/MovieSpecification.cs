@@ -5,7 +5,22 @@ namespace Ticketa.Core.Specifications
 {
   public class MovieSpecification : BaseSpecification<Movie>
   {
-    public MovieSpecification(MovieStatus? status = null, string? search = null, int orderColumn = 0, string orderDir = "asc", int? skip = null, int? take = null)
+    public MovieSpecification()
+    {
+    }
+
+    public MovieSpecification(MovieStatus? status, string? search) : this()
+    {
+      ApplyFilters(status, search);
+    }
+
+    public MovieSpecification(MovieStatus? status, string? search, int orderColumn, string orderDir, int skip, int take) : this(status, search)
+    {
+      ApplyOrdering(orderColumn, orderDir);
+      ApplyPaging(skip, take);
+    }
+
+    private void ApplyFilters(MovieStatus? status, string? search)
     {
       if (status.HasValue && !string.IsNullOrEmpty(search))
         AddCriteria(m => m.Status == status.Value && m.Title.Contains(search));
@@ -13,9 +28,11 @@ namespace Ticketa.Core.Specifications
         AddCriteria(m => m.Status == status.Value);
       else if (!string.IsNullOrEmpty(search))
         AddCriteria(m => m.Title.Contains(search));
+    }
 
-      // Ordering — map column index to actual property
-      var isDesc = orderDir.ToLower() == "desc";
+    private void ApplyOrdering(int orderColumn, string orderDir)
+    {
+      var isDesc = orderDir.Equals("desc", StringComparison.OrdinalIgnoreCase);
 
       switch (orderColumn)
       {
@@ -39,9 +56,6 @@ namespace Ticketa.Core.Specifications
           AddOrderByDesc(m => m.ImportedAt);
           break;
       }
-
-      if (skip.HasValue && take.HasValue)
-        ApplyPaging(skip.Value, take.Value);
     }
   }
 }

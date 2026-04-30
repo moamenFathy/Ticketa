@@ -1,4 +1,5 @@
 ﻿using Ticketa.Core.DTOs;
+using Ticketa.Core.Enums;
 
 namespace Ticketa.Core.Interfaces.IServices
 {
@@ -16,7 +17,7 @@ namespace Ticketa.Core.Interfaces.IServices
     Task<ShowtimeUpsertDto?> GetForUpsertAsync(int id);
 
     Task<IEnumerable<HallDto>> GetHallsAsync();
-    
-    Task<bool> UpdateStatusAsync(int id, Ticketa.Core.Enums.ShowtimeStatus status);
+
+    Task<bool> UpdateStatusAsync(int id, ShowtimeStatus status);
   }
 }

@@ -5,8 +5,8 @@ namespace Ticketa.Core.Interfaces.IRepositories
 {
   public interface IGenericRepository<T> where T : class
   {
-    Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, params string[] includes);
-    Task<T?> GetAsync(Expression<Func<T, bool>> filter, params string[] includes);
+    Task<IEnumerable<T>> GetAllAsync();
+    Task<T?> GetAsync(Expression<Func<T, bool>> filter);
     Task CreateAsync(T entity);
     Task CreateRangeAsync(IEnumerable<T> entities);
     Task<int> CountAsync(BaseSpecification<T> spec);
