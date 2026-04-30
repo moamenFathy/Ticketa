@@ -16,6 +16,19 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
+  late PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _currentIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +51,13 @@ class _MainPageState extends State<MainPage> {
           MediaQuery.removePadding(
             context: context,
             removeBottom: true,
-            child: IndexedStack(
-              index: _currentIndex,
+            child: PageView(
+              controller: _pageController,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
               children: _pages,
             ),
           ),
@@ -68,7 +86,12 @@ class _MainPageState extends State<MainPage> {
                   ),
                 ],
                 currentIndex: _currentIndex,
-                onTap: (index) => setState(() => _currentIndex = index),
+                onTap: (index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                  _pageController.jumpToPage(index);
+                },
               ),
             ),
         ],
@@ -121,6 +144,7 @@ class _MainPageState extends State<MainPage> {
                       setState(() {
                         _currentIndex = index;
                       });
+                      _pageController.jumpToPage(index);
                     },
                   ),
                 ),
