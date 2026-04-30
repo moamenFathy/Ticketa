@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/main.dart';
@@ -11,184 +12,204 @@ class SettingsPage extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
+    final size = MediaQuery.of(context).size;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: Text(l10n.account, style: const TextStyle(fontWeight: FontWeight.bold)),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.edit_note_rounded, color: theme.colorScheme.primary),
-            onPressed: () {},
-          )
-        ],
-      ),
-      body: ListView(
+      body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        children: [
-          const SizedBox(height: 10),
-          _buildProfileHeader(theme, l10n),
-          const SizedBox(height: 32),
-          _buildStatsRow(theme, l10n),
-          const SizedBox(height: 40),
-          
-          _buildSectionHeader(l10n.appSettings, theme),
-          const SizedBox(height: 12),
-          _buildLanguageDropdownTile(context, theme, l10n),
-          const SizedBox(height: 12),
-          _buildSettingTile(
-            theme: theme,
-            icon: isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
-            title: l10n.darkMode,
-            subtitle: l10n.toggleDarkLight,
-            trailing: Switch.adaptive(
-              value: isDark,
-              onChanged: (val) {
-                MyApp.setTheme(context, val ? ThemeMode.dark : ThemeMode.light);
-              },
-              activeColor: AppColors.warmOrange,
+        slivers: [
+          // Premium Header
+          SliverAppBar(
+            expandedHeight: 280,
+            pinned: true,
+            stretch: true,
+            backgroundColor: theme.scaffoldBackgroundColor,
+            elevation: 0,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  // Background Image/Gradient
+                  Image.network(
+                    "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&q=80&w=1000",
+                    fit: BoxFit.cover,
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          theme.scaffoldBackgroundColor.withOpacity(0.8),
+                          theme.scaffoldBackgroundColor,
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Profile Content
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        _buildAnimatedAvatar(theme),
+                        const SizedBox(height: 12),
+                        Text(
+                          "Mohamed Ahmed",
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        Text(
+                          "mohamed@ticketa.com",
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.textTheme.bodyMedium?.color?.withOpacity(0.6),
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          
-          const SizedBox(height: 32),
-          _buildSectionHeader(l10n.account, theme),
-          const SizedBox(height: 12),
-          _buildSettingTile(
-            theme: theme,
-            icon: Icons.confirmation_number_outlined,
-            title: l10n.myTickets,
-            subtitle: "Manage your bookings",
+
+          // Main Content
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Stats Section
+                  _buildPremiumStats(theme, l10n),
+                  const SizedBox(height: 32),
+
+                  // App Settings Section
+                  _buildSectionTitle(l10n.appSettings, theme),
+                  const SizedBox(height: 16),
+                  _buildGlassTile(
+                    theme: theme,
+                    icon: Icons.translate_rounded,
+                    title: l10n.language,
+                    subtitle: l10n.changeLanguage,
+                    trailing: _buildLanguageSelector(context, theme, l10n),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildGlassTile(
+                    theme: theme,
+                    icon: isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                    title: l10n.darkMode,
+                    subtitle: l10n.toggleDarkLight,
+                    trailing: Switch.adaptive(
+                      value: isDark,
+                      onChanged: (val) {
+                        MyApp.setTheme(context, val ? ThemeMode.dark : ThemeMode.light);
+                      },
+                      activeColor: AppColors.warmOrange,
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+                  // Account Section
+                  _buildSectionTitle(l10n.account, theme),
+                  const SizedBox(height: 16),
+                  _buildGlassTile(
+                    theme: theme,
+                    icon: Icons.confirmation_number_outlined,
+                    title: l10n.myTickets,
+                    subtitle: "12 active bookings",
+                  ),
+                  const SizedBox(height: 12),
+                  _buildGlassTile(
+                    theme: theme,
+                    icon: Icons.notifications_none_rounded,
+                    title: l10n.notifications,
+                    subtitle: l10n.manageNotifications,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildGlassTile(
+                    theme: theme,
+                    icon: Icons.security_rounded,
+                    title: l10n.privacySecurity,
+                    subtitle: l10n.privacyPolicy,
+                  ),
+
+                  const SizedBox(height: 48),
+                  // Logout Button
+                  _buildPremiumLogout(theme, l10n),
+                  const SizedBox(height: 60),
+                ],
+              ),
+            ),
           ),
-          const SizedBox(height: 12),
-          _buildSettingTile(
-            theme: theme,
-            icon: Icons.notifications_none_rounded,
-            title: l10n.notifications,
-            subtitle: l10n.manageNotifications,
-          ),
-          const SizedBox(height: 12),
-          _buildSettingTile(
-            theme: theme,
-            icon: Icons.verified_user_outlined,
-            title: l10n.privacySecurity,
-            subtitle: l10n.privacyPolicy,
-          ),
-          
-          const SizedBox(height: 48),
-          _buildSignOutButton(theme, l10n),
-          const SizedBox(height: 40),
         ],
       ),
     );
   }
 
-  Widget _buildProfileHeader(ThemeData theme, AppLocalizations l10n) {
-    return Column(
+  Widget _buildAnimatedAvatar(ThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: const LinearGradient(
+          colors: [AppColors.warmOrange, Colors.orangeAccent],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.warmOrange.withOpacity(0.3),
+            blurRadius: 20,
+            spreadRadius: 5,
+          ),
+        ],
+      ),
+      child: const CircleAvatar(
+        radius: 45,
+        backgroundColor: Colors.white10,
+        backgroundImage: NetworkImage("https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"),
+      ),
+    );
+  }
+
+  Widget _buildPremiumStats(ThemeData theme, AppLocalizations l10n) {
+    return Row(
       children: [
-        Container(
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: AppColors.warmOrange.withOpacity(0.2), width: 1),
-          ),
-          child: const CircleAvatar(
-            radius: 50,
-            backgroundImage: NetworkImage("https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"),
-            backgroundColor: Colors.transparent,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          "Mohamed Ahmed",
-          style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-        ),
+        Expanded(child: _buildStatItem(theme, "12", l10n.totalTickets, Icons.local_activity_outlined)),
+        const SizedBox(width: 16),
+        Expanded(child: _buildStatItem(theme, "850", "Points", Icons.stars_rounded)),
       ],
     );
   }
 
-  Widget _buildStatsRow(ThemeData theme, AppLocalizations l10n) {
-    return Center(
-      child: SizedBox(
-        width: 160,
-        child: _buildStatCard(theme, "12", l10n.totalTickets, Icons.local_activity_outlined),
-      ),
-    );
-  }
-
-  Widget _buildLanguageDropdownTile(BuildContext context, ThemeData theme, AppLocalizations l10n) {
-    final currentLocale = Localizations.localeOf(context);
-    
+  Widget _buildStatItem(ThemeData theme, String val, String label, IconData icon) {
     return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.primary.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(Icons.translate_rounded, color: theme.colorScheme.primary, size: 20),
-        ),
-        title: Text(l10n.language, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-        subtitle: Text(l10n.changeLanguage, style: theme.textTheme.bodySmall?.copyWith(fontSize: 11)),
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.primary.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: currentLocale.languageCode,
-              icon: Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: theme.colorScheme.primary),
-              elevation: 16,
-              style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 12),
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  MyApp.setLocale(context, Locale(newValue));
-                }
-              },
-              items: <String>['en', 'ar'].map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value.toUpperCase()),
-                );
-              }).toList(),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatCard(ThemeData theme, String value, String label, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: theme.dividerColor.withOpacity(0.05)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          Icon(icon, color: theme.colorScheme.primary.withOpacity(0.5), size: 20),
+          Icon(icon, color: AppColors.warmOrange, size: 24),
           const SizedBox(height: 8),
           Text(
-            value,
+            val,
             style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
           ),
-          const SizedBox(height: 4),
           Text(
             label,
-            textAlign: TextAlign.center,
             style: theme.textTheme.labelSmall?.copyWith(
               color: theme.textTheme.labelSmall?.color?.withOpacity(0.5),
             ),
@@ -198,65 +219,107 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(String title, ThemeData theme) {
+  Widget _buildSectionTitle(String title, ThemeData theme) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.only(left: 4),
       child: Text(
-        title.toUpperCase(),
-        style: theme.textTheme.labelMedium?.copyWith(
-          color: theme.colorScheme.primary,
+        title,
+        style: theme.textTheme.titleMedium?.copyWith(
           fontWeight: FontWeight.bold,
-          letterSpacing: 1.5,
+          color: AppColors.warmOrange,
         ),
       ),
     );
   }
 
-  Widget _buildSettingTile({
+  Widget _buildGlassTile({
     required ThemeData theme,
     required IconData icon,
     required String title,
     required String subtitle,
     Widget? trailing,
-    VoidCallback? onTap,
   }) {
-    return ListTile(
-      onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      tileColor: theme.colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface.withOpacity(0.6),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: theme.dividerColor.withOpacity(0.05)),
       ),
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.primary.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(12),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        leading: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: AppColors.warmOrange.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Icon(icon, color: AppColors.warmOrange, size: 22),
         ),
-        child: Icon(icon, color: theme.colorScheme.primary, size: 20),
+        title: Text(
+          title,
+          style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.textTheme.bodySmall?.color?.withOpacity(0.5),
+          ),
+        ),
+        trailing: trailing ?? const Icon(Icons.arrow_forward_ios_rounded, size: 14),
       ),
-      title: Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-      subtitle: Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(fontSize: 11)),
-      trailing: trailing ?? const Icon(Icons.arrow_forward_ios_rounded, size: 12),
     );
   }
 
-  Widget _buildSignOutButton(ThemeData theme, AppLocalizations l10n) {
+  Widget _buildLanguageSelector(BuildContext context, ThemeData theme, AppLocalizations l10n) {
+    final currentLocale = Localizations.localeOf(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: AppColors.warmOrange.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: currentLocale.languageCode,
+          icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: AppColors.warmOrange),
+          style: const TextStyle(color: AppColors.warmOrange, fontWeight: FontWeight.bold, fontSize: 13),
+          onChanged: (String? newValue) {
+            if (newValue != null) {
+              MyApp.setLocale(context, Locale(newValue));
+            }
+          },
+          items: <String>['en', 'ar'].map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value.toUpperCase()),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPremiumLogout(ThemeData theme, AppLocalizations l10n) {
     return Container(
       width: double.infinity,
+      height: 60,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          colors: [Colors.red.shade900.withOpacity(0.1), Colors.red.shade400.withOpacity(0.05)],
+        ),
         border: Border.all(color: Colors.red.withOpacity(0.2)),
       ),
       child: TextButton.icon(
         onPressed: () {},
-        icon: const Icon(Icons.logout_rounded, color: Colors.red, size: 20),
+        icon: const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 22),
         label: Text(
           l10n.signOut,
-          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-        ),
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          style: const TextStyle(
+            color: Colors.redAccent,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
         ),
       ),
     );
