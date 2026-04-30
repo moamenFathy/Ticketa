@@ -1,4 +1,4 @@
-﻿using Ticketa.Core.DTOs;
+using Ticketa.Core.DTOs;
 using Ticketa.Core.Enums;
 
 namespace Ticketa.Core.Interfaces.IServices
@@ -19,5 +19,8 @@ namespace Ticketa.Core.Interfaces.IServices
     Task<IEnumerable<HallDto>> GetHallsAsync();
 
     Task<bool> UpdateStatusAsync(int id, ShowtimeStatus status);
+
+    public Task<Ticketa.Core.Entities.Showtime?> GetByIdAsync(int id);
+    public Task<bool> DeleteAsync(int id);
   }
 }

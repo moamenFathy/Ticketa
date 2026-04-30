@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Interfaces.IServices;
@@ -91,5 +91,31 @@ namespace Ticketa.Web.Areas.Admin.Controllers
       return Json(new { success });
     }
 
+    [HttpGet]
+    public async Task<IActionResult> DeleteConfirmation(int id)
+    {
+      var showtime = await _showtimeService.GetByIdAsync(id);
+
+      if (showtime is null)
+        return NotFound();
+
+      return PartialView("_DeleteShowtimeModal", showtime);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+      var showtime = await _showtimeService.GetByIdAsync(id);
+      if (showtime is null)
+        return NotFound();
+
+      var success = await _showtimeService.DeleteAsync(id);
+      if (!success)
+        return Json(new { success = false, message = "Failed to delete showtime." });
+
+      TempData["success"] = "Showtime deleted successfully";
+      return Json(new { success = true });
+    }
   }
 }
