@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Enums;
@@ -28,6 +28,9 @@ namespace Ticketa.Infrastructure.Service
 
       if (movie is null)
         return false;
+
+      if (await _uow.Showtimes.AnyAsync(s => s.MovieId == id))
+        return false; // Prevention logic
 
       _uow.Movies.Delete(movie);
       await _uow.SaveAsync();
@@ -70,13 +73,26 @@ namespace Ticketa.Infrastructure.Service
         draw = request.Draw,
         recordsTotal = total,
         recordsFiltered = filtered,
-        data = movies
+        data = movies.Select(m => new
+        {
+          m.Id,
+          m.Title,
+          m.Status,
+          m.PosterPath,
+          m.Overview,
+          m.ReleaseDate,
+          m.VoteAverage,
+          m.ImportedAt,
+          m.RuntimeMinutes,
+          m.TmdbId,
+          m.TrailerKey,
+        })
       };
     }
 
     public async Task<Movie?> GetByIdAsync(int id)
     {
-      return await _uow.Movies.GetAsync(m => m.Id == id);
+      return await _uow.Movies.GetAsync(m => m.Id == id, "Showtimes");
     }
 
     public async Task<MovieImportResultDto> ImportMoviesAsync(List<int> tmdbIds, CancellationToken cancellationToken)

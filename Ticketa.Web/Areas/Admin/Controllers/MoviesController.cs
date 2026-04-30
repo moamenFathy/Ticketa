@@ -92,10 +92,13 @@ namespace Ticketa.Web.Areas.Admin.Controllers
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-      var success = await _movieService.DeleteAsync(id);
-
-      if (!success)
+      var movie = await _movieService.GetByIdAsync(id);
+      if (movie is null)
         return NotFound();
+
+      var success = await _movieService.DeleteAsync(id);
+      if (!success)
+        return Json(new { success = false, message = "Failed to delete movie." });
 
       TempData["success"] = "Movie deleted successfully";
       return Json(new { success = true });

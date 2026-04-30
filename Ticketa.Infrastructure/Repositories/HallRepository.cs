@@ -12,10 +12,11 @@ public class HallRepository : GenericRepository<Hall>, IHallRepository
 
   public void Update(Hall hall)
   {
-    var existingHall = _context.Halls.Find(hall.Id) ?? throw new KeyNotFoundException($"Hall with ID {hall.Id} not found");
+    var existingHall = _context.Halls.Find(hall.Id)
+        ?? throw new KeyNotFoundException($"Hall with ID {hall.Id} not found");
 
+    // Only Name is editable — HallType is immutable after creation
     existingHall.Name = hall.Name;
-    existingHall.TotalSeats = hall.TotalSeats;
 
     _context.Halls.Update(existingHall);
   }
