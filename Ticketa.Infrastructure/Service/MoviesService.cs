@@ -67,32 +67,40 @@ namespace Ticketa.Infrastructure.Service
 
       var movies = await _uow.Movies.GetAllWithSpecAsync(spec);
 
+      var dataList = new List<object>();
+      foreach (var m in movies)
+      {
+          bool hasShowtimes = await _uow.Showtimes.AnyAsync(s => s.MovieId == m.Id);
+          dataList.Add(new
+          {
+              m.Id,
+              m.Title,
+              m.Status,
+              m.PosterPath,
+              m.Overview,
+              m.ReleaseDate,
+              m.VoteAverage,
+              m.ImportedAt,
+              m.RuntimeMinutes,
+              m.TmdbId,
+              m.TrailerKey,
+              hasShowtimes
+          });
+      }
+
       // 4. DataTables response
       return new
       {
         draw = request.Draw,
         recordsTotal = total,
         recordsFiltered = filtered,
-        data = movies.Select(m => new
-        {
-          m.Id,
-          m.Title,
-          m.Status,
-          m.PosterPath,
-          m.Overview,
-          m.ReleaseDate,
-          m.VoteAverage,
-          m.ImportedAt,
-          m.RuntimeMinutes,
-          m.TmdbId,
-          m.TrailerKey,
-        })
+        data = dataList
       };
     }
 
     public async Task<Movie?> GetByIdAsync(int id)
     {
-      return await _uow.Movies.GetAsync(m => m.Id == id, "Showtimes");
+      return await _uow.Movies.GetAsync(m => m.Id == id);
     }
 
     public async Task<MovieImportResultDto> ImportMoviesAsync(List<int> tmdbIds, CancellationToken cancellationToken)

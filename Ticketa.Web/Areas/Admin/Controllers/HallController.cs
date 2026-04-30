@@ -4,6 +4,7 @@ using Ticketa.Core.Entities;
 using Ticketa.Core.Enums;
 using Ticketa.Core.Helpers;
 using Ticketa.Core.Interfaces;
+using Ticketa.Core.Specifications;
 
 namespace Ticketa.Web.Areas.Admin.Controllers
 {
@@ -27,7 +28,8 @@ namespace Ticketa.Web.Areas.Admin.Controllers
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-      var halls = await _uow.Halls.GetAllAsync(filter: null, includes: "Showtimes");
+      var spec = new HallSpecification();
+      var halls = await _uow.Halls.GetAllWithSpecAsync(spec);
       var result = halls.Select((h, index) => new
       {
         rowNumber = index + 1,

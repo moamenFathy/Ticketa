@@ -356,14 +356,7 @@ if (dataTableElement) {
             className: "align-middle text-center whitespace-nowrap",
             render: (id, _type, row) => `
                         <div class="flex flex-row justify-center items-center gap-2">
-                            <div class="tooltip" data-tip="Trailer">
-                                 <button type="button" class="btn btn-ghost btn-sm hover:bg-blue-50 text-bold" onclick="openMovieTrailer(this, '${(row.title ?? "Movie").replace(/'/g, "&#39;")}', '${row.trailerKey ?? ""}', '${row.tmdbId ?? ""}')">
-                                    <svg xmlns="http://www.w3.org/2000/svg" height="18" width="18" fill="currentColor" viewBox="0 0 24 24" stroke="none" class="file-current text-indigo-600">
-                                        <path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/>
-                                    </svg>
-                                 </button>
-                            </div>
-                            <div class="tooltip" data-tip="${row.hasShowtimes ? 'Cannot delete: Movie has active showtimes' : 'Delete'}">
+                            <div class="tooltip" data-tip="${row.hasShowtimes ? 'Movie has active showtimes' : 'Delete'}">
                                  <button type="button" 
                                          class="btn btn-ghost btn-sm text-red-400 hover:bg-red-50 ${row.hasShowtimes ? 'btn-disabled opacity-30' : ''}" 
                                          ${row.hasShowtimes ? 'disabled' : ''}
@@ -373,6 +366,13 @@ if (dataTableElement) {
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                       d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16" />
                                             </svg>
+                                 </button>
+                            </div>
+                            <div class="tooltip" data-tip="Trailer">
+                                 <button type="button" class="btn btn-ghost btn-sm hover:bg-blue-50 text-bold" onclick="openMovieTrailer(this, '${(row.title ?? "Movie").replace(/'/g, "&#39;")}', '${row.trailerKey ?? ""}', '${row.tmdbId ?? ""}')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="18" width="18" fill="currentColor" viewBox="0 0 24 24" stroke="none" class="file-current text-indigo-600">
+                                        <path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/>
+                                    </svg>
                                  </button>
                             </div>
                         </div>
