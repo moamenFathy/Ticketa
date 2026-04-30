@@ -55,5 +55,12 @@
   "myTickets": "My Tickets",
   "loyaltyPoints": "Loyalty Points",
   "totalTickets": "Total Tickets",
-  "points": "Points"
+  "points": "Points",
+  "paymentMethod": "Payment Method",
+  "orderSummary": "Order Summary",
+  "payNow": "Pay Now",
+  "creditCard": "Credit Card",
+  "eWallet": "E-Wallet",
+  "ticketId": "Ticket ID",
+  "downloadTicket": "Download Ticket"
 }

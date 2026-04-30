@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'package:ticketa/features/payment/presentation/pages/payment_page.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 
 class SeatSelectionPage extends StatefulWidget {
-  const SeatSelectionPage({super.key});
+  final String movieTitle;
+  const SeatSelectionPage({super.key, required this.movieTitle});
 
   @override
   State<SeatSelectionPage> createState() => _SeatSelectionPageState();
@@ -295,7 +297,25 @@ class _SeatSelectionPageState extends State<SeatSelectionPage>{
             ),
           ),
           GestureDetector(
-            onTap: _selectedSeats.isEmpty ? null : () {},
+            onTap: _selectedSeats.isEmpty ? null : () {
+              final now = DateTime.now();
+              final selectedDate = now.add(Duration(days: _selectedDateIndex));
+              final dateStr = DateFormat('dd MMM yyyy').format(selectedDate);
+              final timeStr = ["08:00", "10:30", "14:00", "18:45"][_selectedTimeIndex];
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PaymentPage(
+                    totalAmount: total,
+                    movieTitle: widget.movieTitle,
+                    selectedSeats: _selectedSeats,
+                    date: dateStr,
+                    time: timeStr,
+                  ),
+                ),
+              );
+            },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 18),

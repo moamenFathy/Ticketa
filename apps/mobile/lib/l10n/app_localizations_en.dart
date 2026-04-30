@@ -167,4 +167,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get points => 'Points';
+
+  @override
+  String get paymentMethod => 'Payment Method';
+
+  @override
+  String get orderSummary => 'Order Summary';
+
+  @override
+  String get payNow => 'Pay Now';
+
+  @override
+  String get creditCard => 'Credit Card';
+
+  @override
+  String get eWallet => 'E-Wallet';
+
+  @override
+  String get ticketId => 'Ticket ID';
+
+  @override
+  String get downloadTicket => 'Download Ticket';
 }

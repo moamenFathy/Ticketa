@@ -409,6 +409,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Points'**
   String get points;
+
+  /// No description provided for @paymentMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Method'**
+  String get paymentMethod;
+
+  /// No description provided for @orderSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Summary'**
+  String get orderSummary;
+
+  /// No description provided for @payNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay Now'**
+  String get payNow;
+
+  /// No description provided for @creditCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit Card'**
+  String get creditCard;
+
+  /// No description provided for @eWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'E-Wallet'**
+  String get eWallet;
+
+  /// No description provided for @ticketId.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket ID'**
+  String get ticketId;
+
+  /// No description provided for @downloadTicket.
+  ///
+  /// In en, this message translates to:
+  /// **'Download Ticket'**
+  String get downloadTicket;
 }
 
 class _AppLocalizationsDelegate

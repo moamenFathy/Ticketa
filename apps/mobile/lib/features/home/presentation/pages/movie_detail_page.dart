@@ -217,7 +217,7 @@ class MovieDetailPage extends StatelessWidget {
                         onPressed: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const SeatSelectionPage(),
+                            builder: (_) => SeatSelectionPage(movieTitle: movie.title),
                           ),
                         ),
                         style: ElevatedButton.styleFrom(

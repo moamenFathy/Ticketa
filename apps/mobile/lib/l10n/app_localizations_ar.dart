@@ -167,4 +167,25 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get points => 'نقطة';
+
+  @override
+  String get paymentMethod => 'طريقة الدفع';
+
+  @override
+  String get orderSummary => 'ملخص الطلب';
+
+  @override
+  String get payNow => 'ادفع الآن';
+
+  @override
+  String get creditCard => 'بطاقة ائتمان';
+
+  @override
+  String get eWallet => 'محفظة إلكترونية';
+
+  @override
+  String get ticketId => 'رقم التذكرة';
+
+  @override
+  String get downloadTicket => 'تحميل التذكرة';
 }

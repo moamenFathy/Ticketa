@@ -50,5 +50,12 @@
   "myTickets": "تذاكري",
   "loyaltyPoints": "نقاط الولاء",
   "totalTickets": "إجمالي التذاكر",
-  "points": "نقطة"
+  "points": "نقطة",
+  "paymentMethod": "طريقة الدفع",
+  "orderSummary": "ملخص الطلب",
+  "payNow": "ادفع الآن",
+  "creditCard": "بطاقة ائتمان",
+  "eWallet": "محفظة إلكترونية",
+  "ticketId": "رقم التذكرة",
+  "downloadTicket": "تحميل التذكرة"
 }
