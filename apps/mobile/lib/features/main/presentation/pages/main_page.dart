@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ticketa/features/home/presentation/pages/home_page.dart';
 import 'package:ticketa/features/now_showing/presentation/pages/now_showing_page.dart';
 import 'package:ticketa/features/settings/presentation/pages/settings_page.dart';
+import 'package:ticketa/l10n/app_localizations.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -13,56 +14,43 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = [
-    const HomePage(),
-    const NowShowingPage(),
-    const Scaffold(backgroundColor: Colors.black, body: Center(child: Text("Offers", style: TextStyle(color: Colors.white)))),
-    const SettingsPage(),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
+    final List<Widget> _pages = [
+      const HomePage(),
+      const NowShowingPage(),
+      Scaffold(body: Center(child: Text(l10n.offers))),
+      const SettingsPage(),
+    ];
+
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
         children: _pages,
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(color: Colors.white.withOpacity(0.05), width: 1),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+        items: [
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.movie_filter_rounded),
+            label: l10n.home,
           ),
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) => setState(() => _currentIndex = index),
-          backgroundColor: Colors.black,
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: const Color(0xFFFF4500),
-          unselectedItemColor: Colors.white38,
-          selectedFontSize: 12,
-          unselectedFontSize: 12,
-          showSelectedLabels: true,
-          showUnselectedLabels: true,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.movie_filter_rounded),
-              label: "Movies",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.local_play_rounded),
-              label: "Now",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.confirmation_number_rounded),
-              label: "Offers",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_rounded),
-              label: "Account",
-            ),
-          ],
-        ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.local_play_rounded),
+            label: l10n.now,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.confirmation_number_rounded),
+            label: l10n.offers,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.person_rounded),
+            label: l10n.account,
+          ),
+        ],
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ticketa/core/data/dummy_data.dart';
 import 'package:ticketa/core/models/movie.dart';
 import 'package:ticketa/features/home/presentation/pages/movie_detail_page.dart';
+import 'package:ticketa/l10n/app_localizations.dart';
 
 class NowShowingPage extends StatelessWidget {
   const NowShowingPage({super.key});
@@ -10,22 +11,19 @@ class NowShowingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final movies = DummyData.movies;
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: const Text(
-          "NOW SHOWING",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 18),
+        title: Text(
+          l10n.nowShowing.toUpperCase(),
         ),
-        centerTitle: true,
-        elevation: 0,
       ),
       body: ListView.builder(
         padding: const EdgeInsets.symmetric(vertical: 20),
         itemCount: movies.length,
-        itemBuilder: (context, index) => _NowShowingCard(movie: movies[index]),
+        itemBuilder: (context, index) => _NowShowingCard(movie: movies[index], l10n: l10n, theme: theme),
       ),
     );
   }
@@ -33,7 +31,9 @@ class NowShowingPage extends StatelessWidget {
 
 class _NowShowingCard extends StatelessWidget {
   final Movie movie;
-  const _NowShowingCard({required this.movie});
+  final AppLocalizations l10n;
+  final ThemeData theme;
+  const _NowShowingCard({required this.movie, required this.l10n, required this.theme});
 
   @override
   Widget build(BuildContext context) {
@@ -46,9 +46,9 @@ class _NowShowingCard extends StatelessWidget {
         height: 200,
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         decoration: BoxDecoration(
-          color: const Color(0xFF1A1A1A),
+          color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.white.withOpacity(0.05)),
+          border: Border.all(color: theme.dividerColor.withOpacity(0.05)),
         ),
         child: Row(
           children: [
@@ -76,12 +76,12 @@ class _NowShowingCard extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildFormatBadge(index: movie.id.length % 2), // Dummy Standard/IMAX
+                        _buildFormatBadge(index: movie.id.length % 2),
                         Row(
                           children: [
                             const Icon(Icons.star_rounded, color: Colors.orange, size: 16),
                             const SizedBox(width: 4),
-                            Text(movie.rating.toString(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                            Text(movie.rating.toString(), style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ],
@@ -91,12 +91,12 @@ class _NowShowingCard extends StatelessWidget {
                       movie.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       movie.genre.split('|')[0],
-                      style: const TextStyle(color: Colors.white38, fontSize: 12),
+                      style: theme.textTheme.bodySmall,
                     ),
                     const Spacer(),
                     // Showtimes row
@@ -110,11 +110,11 @@ class _NowShowingCard extends StatelessWidget {
                     // Trailer Button
                     Row(
                       children: [
-                        const Icon(Icons.play_circle_fill_rounded, color: Color(0xFFFF4500), size: 18),
+                        Icon(Icons.play_circle_fill_rounded, color: theme.colorScheme.primary, size: 18),
                         const SizedBox(width: 6),
-                        const Text("Watch Trailer", style: TextStyle(color: Color(0xFFFF4500), fontSize: 12, fontWeight: FontWeight.bold)),
+                        Text(l10n.watchTrailer, style: TextStyle(color: theme.colorScheme.primary, fontSize: 12, fontWeight: FontWeight.bold)),
                         const Spacer(),
-                        const Icon(Icons.arrow_forward_rounded, color: Colors.white24, size: 16),
+                        Icon(Icons.arrow_forward_rounded, color: theme.dividerColor.withOpacity(0.2), size: 16),
                       ],
                     ),
                   ],
@@ -128,8 +128,8 @@ class _NowShowingCard extends StatelessWidget {
   }
 
   Widget _buildFormatBadge({required int index}) {
-    final format = index == 0 ? "IMAX" : "STANDARD";
-    final color = index == 0 ? const Color(0xFF00B0FF) : Colors.white24;
+    final format = index == 0 ? l10n.imax : l10n.standard;
+    final color = index == 0 ? const Color(0xFF00B0FF) : theme.colorScheme.onSurface.withOpacity(0.4);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -149,12 +149,12 @@ class _NowShowingCard extends StatelessWidget {
       margin: const EdgeInsets.only(right: 6),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: theme.dividerColor.withOpacity(0.05),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
         "${time.hour}:${time.minute.toString().padLeft(2, '0')}",
-        style: const TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold),
+        style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold),
       ),
     );
   }

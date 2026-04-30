@@ -259,6 +259,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back to Home'**
   String get backToHome;
+
+  /// No description provided for @offers.
+  ///
+  /// In en, this message translates to:
+  /// **'Offers'**
+  String get offers;
+
+  /// No description provided for @account.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get account;
+
+  /// No description provided for @now.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get now;
+
+  /// No description provided for @searchMovies.
+  ///
+  /// In en, this message translates to:
+  /// **'Search movies...'**
+  String get searchMovies;
+
+  /// No description provided for @watchTrailer.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch Trailer'**
+  String get watchTrailer;
+
+  /// No description provided for @appSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'App Settings'**
+  String get appSettings;
+
+  /// No description provided for @darkMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Mode'**
+  String get darkMode;
+
+  /// No description provided for @toggleDarkLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle between dark and light themes'**
+  String get toggleDarkLight;
+
+  /// No description provided for @notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notifications;
+
+  /// No description provided for @manageNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your alerts and reminders'**
+  String get manageNotifications;
+
+  /// No description provided for @privacySecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & Security'**
+  String get privacySecurity;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Security settings and privacy policy'**
+  String get privacyPolicy;
+
+  /// No description provided for @signOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Out'**
+  String get signOut;
+
+  /// No description provided for @standard.
+  ///
+  /// In en, this message translates to:
+  /// **'STANDARD'**
+  String get standard;
+
+  /// No description provided for @imax.
+  ///
+  /// In en, this message translates to:
+  /// **'IMAX'**
+  String get imax;
+
+  /// No description provided for @price.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get price;
+
+  /// No description provided for @bookTickets.
+  ///
+  /// In en, this message translates to:
+  /// **'Book Tickets'**
+  String get bookTickets;
+
+  /// No description provided for @buyFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy For {price}'**
+  String buyFor(Object price);
+
+  /// No description provided for @cast.
+  ///
+  /// In en, this message translates to:
+  /// **'Cast'**
+  String get cast;
+
+  /// No description provided for @reviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get reviews;
+
+  /// No description provided for @editProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get editProfile;
+
+  /// No description provided for @myTickets.
+  ///
+  /// In en, this message translates to:
+  /// **'My Tickets'**
+  String get myTickets;
+
+  /// No description provided for @loyaltyPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Loyalty Points'**
+  String get loyaltyPoints;
+
+  /// No description provided for @totalTickets.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Tickets'**
+  String get totalTickets;
+
+  /// No description provided for @points.
+  ///
+  /// In en, this message translates to:
+  /// **'Points'**
+  String get points;
 }
 
 class _AppLocalizationsDelegate

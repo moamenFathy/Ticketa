@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'package:ticketa/l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 
 class SeatSelectionPage extends StatefulWidget {
   const SeatSelectionPage({super.key});
@@ -12,29 +14,31 @@ class _SeatSelectionPageState extends State<SeatSelectionPage>{
   int _selectedDateIndex = 0;
   int _selectedTimeIndex = 1;
   
-  // منطق اختيار المقاعد
   final List<String> _selectedSeats = [];
-  final double _pricePerSeat = 20.0; // السعر لكل كرسي
+  final double _pricePerSeat = 120.0;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final locale = Localizations.localeOf(context).languageCode;
+
     return Scaffold(
-      backgroundColor: Colors.black,
       body: SafeArea(
         child: Column(
           children: [
             // Header
-            _buildAppBar(),
+            _buildAppBar(l10n, theme),
             
             const SizedBox(height: 10),
             
-            // Dates Section (Film Strip Style)
-            _buildUniqueDateSelector(),
+            // Dates Section
+            _buildUniqueDateSelector(l10n, theme, locale),
             
             const SizedBox(height: 20),
             
-            // Times Section (Centered Pills)
-            _buildUniqueTimeSelector(),
+            // Times Section
+            _buildUniqueTimeSelector(theme),
             
             const SizedBox(height: 30),
             
@@ -43,26 +47,22 @@ class _SeatSelectionPageState extends State<SeatSelectionPage>{
               child: Stack(
                 alignment: Alignment.topCenter,
                 children: [
-                  // تم إزالة التوهج الخلفي بناءً على طلبك
-                  
-                  // رسم الشاشة والمنظور
                   CustomPaint(
-                    size: Size(MediaQuery.of(context).size.width, 300),
-                    painter: ScreenAndPerspectivePainter(),
+                    size: Size(MediaQuery.of(context).size.width * 0.9, 250),
+                    painter: ScreenAndPerspectivePainter(color: theme.colorScheme.primary),
                   ),
 
-                  // سهم الإشارة وكلمة SCREEN
                   Positioned(
                     top: 35,
                     child: Column(
                       children: [
-                        Icon(Icons.keyboard_arrow_up_rounded, color: Colors.white.withOpacity(0.5), size: 24),
+                        Icon(Icons.keyboard_arrow_up_rounded, color: theme.colorScheme.onBackground.withOpacity(0.5), size: 24),
                         Text(
-                          "SCREEN",
+                          l10n.screen.toUpperCase(),
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.5),
-                            fontSize: 10,
-                            letterSpacing: 8,
+                            color: theme.colorScheme.onBackground.withOpacity(0.5),
+                            fontSize: 9,
+                            letterSpacing: 6,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -70,27 +70,26 @@ class _SeatSelectionPageState extends State<SeatSelectionPage>{
                     ),
                   ),
                   
-                  // توزيع المقاعد التفاعلي
                   Positioned(
                     top: 90,
-                    child: _buildSeatLayout(),
+                    child: _buildSeatLayout(theme),
                   ),
                 ],
               ),
             ),
             
             // Legend
-            _buildLegend(),
+            _buildLegend(l10n, theme),
             
             // Bottom Action Bar
-            _buildBottomAction(),
+            _buildBottomAction(l10n, theme),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(AppLocalizations l10n, ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
@@ -98,22 +97,26 @@ class _SeatSelectionPageState extends State<SeatSelectionPage>{
         children: [
           GestureDetector(
             onTap: () => Navigator.pop(context),
-            child: _buildCircleBtn(Icons.arrow_back_ios_new)
+            child: _buildCircleBtn(Icons.arrow_back_ios_new, theme)
           ),
-          const Text("Select Seats", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-          _buildCircleBtn(Icons.more_vert),
+          Text(l10n.selectSeats, style: theme.textTheme.titleLarge),
+          _buildCircleBtn(Icons.more_vert, theme),
         ],
       ),
     );
   }
 
-  Widget _buildUniqueDateSelector() {
+  Widget _buildUniqueDateSelector(AppLocalizations l10n, ThemeData theme, String locale) {
+    final now = DateTime.now();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 24, bottom: 12),
-          child: Text("OCTOBER", style: TextStyle(color: Colors.white38, letterSpacing: 3, fontSize: 10, fontWeight: FontWeight.bold)),
+        Padding(
+          padding: const EdgeInsets.only(left: 24, right: 24, bottom: 12),
+          child: Text(
+            DateFormat.MMMM(locale).format(now).toUpperCase(),
+            style: theme.textTheme.labelSmall?.copyWith(letterSpacing: 3, fontWeight: FontWeight.bold),
+          ),
         ),
         SizedBox(
           height: 110,
@@ -122,6 +125,7 @@ class _SeatSelectionPageState extends State<SeatSelectionPage>{
             padding: const EdgeInsets.symmetric(horizontal: 20),
             itemCount: 14,
             itemBuilder: (context, index) {
+              final date = now.add(Duration(days: index));
               bool isSelected = index == _selectedDateIndex;
               return GestureDetector(
                 onTap: () => setState(() => _selectedDateIndex = index),
@@ -130,11 +134,11 @@ class _SeatSelectionPageState extends State<SeatSelectionPage>{
                   width: 75,
                   margin: const EdgeInsets.only(right: 15),
                   decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFFFF4500) : const Color(0xFF1A1A1A),
+                    color: isSelected ? theme.colorScheme.primary : theme.colorScheme.surface,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: isSelected ? [
                       BoxShadow(
-                        color: const Color(0xFFFF4500).withOpacity(0.3),
+                        color: theme.colorScheme.primary.withOpacity(0.3),
                         blurRadius: 15,
                         spreadRadius: 2,
                       )
@@ -142,25 +146,25 @@ class _SeatSelectionPageState extends State<SeatSelectionPage>{
                   ),
                   child: Stack(
                     children: [
-                      _buildFilmHoles(),
+                      _buildFilmHoles(theme),
                       Align(
                         alignment: Alignment.center,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              _getDayName(index),
+                              DateFormat.E(locale).format(date).toUpperCase(),
                               style: TextStyle(
-                                color: isSelected ? Colors.white70 : Colors.white24,
+                                color: isSelected ? Colors.white70 : theme.colorScheme.onSurface.withOpacity(0.3),
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              "${15 + index}",
-                              style: const TextStyle(
-                                color: Colors.white,
+                              date.day.toString(),
+                              style: TextStyle(
+                                color: isSelected ? Colors.white : theme.colorScheme.onSurface,
                                 fontSize: 24,
                                 fontWeight: FontWeight.w900,
                                 letterSpacing: -1,
@@ -181,7 +185,8 @@ class _SeatSelectionPageState extends State<SeatSelectionPage>{
     );
   }
 
-  Widget _buildFilmHoles() {
+  Widget _buildFilmHoles(ThemeData theme) {
+    final holeColor = theme.brightness == Brightness.dark ? Colors.black26 : Colors.white24;
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -189,21 +194,21 @@ class _SeatSelectionPageState extends State<SeatSelectionPage>{
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(3, (i) => Container(width: 6, height: 6, decoration: BoxDecoration(color: Colors.black26, borderRadius: BorderRadius.circular(2)))),
+            children: List.generate(3, (i) => Container(width: 6, height: 6, decoration: BoxDecoration(color: holeColor, borderRadius: BorderRadius.circular(2)))),
           ),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(3, (i) => Container(width: 6, height: 6, decoration: BoxDecoration(color: Colors.black26, borderRadius: BorderRadius.circular(2)))),
+            children: List.generate(3, (i) => Container(width: 6, height: 6, decoration: BoxDecoration(color: holeColor, borderRadius: BorderRadius.circular(2)))),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildUniqueTimeSelector() {
+  Widget _buildUniqueTimeSelector(ThemeData theme) {
     List<String> times = ["08:00", "10:30", "14:00", "18:45"];
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -217,17 +222,17 @@ class _SeatSelectionPageState extends State<SeatSelectionPage>{
             margin: const EdgeInsets.symmetric(horizontal: 6),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
-              color: isSelected ? Colors.white.withOpacity(0.1) : Colors.transparent,
+              color: isSelected ? theme.colorScheme.primary.withOpacity(0.1) : Colors.transparent,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isSelected ? const Color(0xFFFF4500) : Colors.white10,
+                color: isSelected ? theme.colorScheme.primary : theme.dividerColor.withOpacity(0.1),
                 width: isSelected ? 2 : 1,
               ),
             ),
             child: Text(
               entry.value,
               style: TextStyle(
-                color: isSelected ? Colors.white : Colors.white38,
+                color: isSelected ? theme.colorScheme.onBackground : theme.colorScheme.onBackground.withOpacity(0.3),
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 fontSize: 14,
               ),
@@ -238,7 +243,7 @@ class _SeatSelectionPageState extends State<SeatSelectionPage>{
     );
   }
 
-  Widget _buildSeatLayout() {
+  Widget _buildSeatLayout(ThemeData theme) {
     return Column(
       children: List.generate(7, (row) {
         int seatsInRow = 8 + (row % 2); 
@@ -251,9 +256,9 @@ class _SeatSelectionPageState extends State<SeatSelectionPage>{
               bool isSelected = _selectedSeats.contains(seatId);
               bool isReserved = (row == 2 && col == 3) || (row == 4 && col == 4);
               
-              Color seatColor = Colors.white24;
-              if (isReserved) seatColor = const Color(0xFF00C853);
-              if (isSelected) seatColor = const Color(0xFFFFD600);
+              Color seatColor = theme.colorScheme.onSurface.withOpacity(0.1);
+              if (isReserved) seatColor = Colors.amber; // Yellow/Amber for reserved
+              if (isSelected) seatColor = const Color(0xFF4CAF50); // Green for selected
               
               return GestureDetector(
                 onTap: isReserved ? null : () {
@@ -274,7 +279,7 @@ class _SeatSelectionPageState extends State<SeatSelectionPage>{
     );
   }
 
-  Widget _buildBottomAction() {
+  Widget _buildBottomAction(AppLocalizations l10n, ThemeData theme) {
     double total = _selectedSeats.length * _pricePerSeat;
     return Padding(
       padding: const EdgeInsets.all(20.0),
@@ -283,27 +288,25 @@ class _SeatSelectionPageState extends State<SeatSelectionPage>{
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            decoration: BoxDecoration(color: const Color(0xFF1A1A1A), borderRadius: BorderRadius.circular(30)),
+            decoration: BoxDecoration(color: theme.colorScheme.surface, borderRadius: BorderRadius.circular(30)),
             child: Text(
               "${_selectedSeats.length}", 
-              style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)
+              style: theme.textTheme.titleLarge
             ),
           ),
           GestureDetector(
-            onTap: _selectedSeats.isEmpty ? null : () {
-              // أكشن الحجز
-            },
+            onTap: _selectedSeats.isEmpty ? null : () {},
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 18),
               decoration: BoxDecoration(
-                color: _selectedSeats.isEmpty ? Colors.white10 : const Color(0xFFFF4500), 
+                color: _selectedSeats.isEmpty ? theme.dividerColor.withOpacity(0.1) : theme.colorScheme.primary, 
                 borderRadius: BorderRadius.circular(30)
               ),
               child: Text(
-                "Buy For ${total.toStringAsFixed(2)}", 
+                l10n.buyFor(total.toStringAsFixed(0)), 
                 style: TextStyle(
-                  color: _selectedSeats.isEmpty ? Colors.white24 : Colors.white, 
+                  color: _selectedSeats.isEmpty ? theme.colorScheme.onSurface.withOpacity(0.2) : Colors.white, 
                   fontWeight: FontWeight.bold, 
                   fontSize: 16
                 )
@@ -315,44 +318,39 @@ class _SeatSelectionPageState extends State<SeatSelectionPage>{
     );
   }
 
-  Widget _buildLegend() {
+  Widget _buildLegend(AppLocalizations l10n, ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _legendItem("Available", Colors.white24),
-          _legendItem("Selected", const Color(0xFFFFD600)),
-          _legendItem("Reserved", const Color(0xFF00C853)),
+          _legendItem(l10n.available, theme.colorScheme.onSurface.withOpacity(0.1), theme),
+          _legendItem(l10n.selected, const Color(0xFF4CAF50), theme),
+          _legendItem(l10n.occupied, Colors.amber, theme),
         ],
       ),
     );
   }
 
-  Widget _legendItem(String label, Color color) {
+  Widget _legendItem(String label, Color color, ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Row(
         children: [
           CircleAvatar(radius: 5, backgroundColor: color),
           const SizedBox(width: 5),
-          Text(label, style: const TextStyle(color: Colors.white38, fontSize: 12)),
+          Text(label, style: theme.textTheme.bodySmall),
         ],
       ),
     );
   }
 
-  Widget _buildCircleBtn(IconData icon) {
+  Widget _buildCircleBtn(IconData icon, ThemeData theme) {
     return Container(
       padding: const EdgeInsets.all(10),
-      decoration: const BoxDecoration(color: Color(0xFF1A1A1A), shape: BoxShape.circle),
-      child: Icon(icon, color: Colors.white, size: 20),
+      decoration: BoxDecoration(color: theme.colorScheme.surface, shape: BoxShape.circle),
+      child: Icon(icon, color: theme.colorScheme.onSurface, size: 20),
     );
-  }
-
-  String _getDayName(int index) {
-    const days = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
-    return days[index % 7];
   }
 }
 
@@ -369,7 +367,6 @@ class _CinemaSeat extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Backrest
           Positioned(
             top: 0,
             child: AnimatedContainer(
@@ -385,7 +382,6 @@ class _CinemaSeat extends StatelessWidget {
               ),
             ),
           ),
-          // Seat Base
           Positioned(
             bottom: 0,
             child: AnimatedContainer(
@@ -398,7 +394,6 @@ class _CinemaSeat extends StatelessWidget {
               ),
             ),
           ),
-          // Subtle details
           Positioned(
             top: 4,
             child: Container(
@@ -417,10 +412,13 @@ class _CinemaSeat extends StatelessWidget {
 }
 
 class ScreenAndPerspectivePainter extends CustomPainter {
+  final Color color;
+  ScreenAndPerspectivePainter({required this.color});
+
   @override
   void paint(Canvas canvas, Size size) {
     var paint = Paint()
-      ..color = const Color(0xFFFF4500)
+      ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 5
       ..strokeCap = StrokeCap.round;
@@ -434,14 +432,14 @@ class ScreenAndPerspectivePainter extends CustomPainter {
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [const Color(0xFFFF4500).withOpacity(0.3), Colors.transparent],
-      ).createShader(Rect.fromLTWH(0, 35, size.width, 300));
+        colors: [color.withOpacity(0.3), Colors.transparent],
+      ).createShader(Rect.fromLTWH(0, 35, size.width, size.height));
 
     var shadowPath = Path();
     shadowPath.moveTo(size.width * 0.05, 35);
     shadowPath.quadraticBezierTo(size.width * 0.5, -15, size.width * 0.95, 35);
-    shadowPath.lineTo(size.width * 1.1, 300); 
-    shadowPath.lineTo(size.width * -0.1, 300);
+    shadowPath.lineTo(size.width * 1.1, size.height); 
+    shadowPath.lineTo(size.width * -0.1, size.height);
     shadowPath.close();
     canvas.drawPath(shadowPath, shadowPaint);
   }

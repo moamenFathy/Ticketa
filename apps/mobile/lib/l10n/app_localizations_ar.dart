@@ -90,4 +90,81 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get backToHome => 'العودة للرئيسية';
+
+  @override
+  String get offers => 'العروض';
+
+  @override
+  String get account => 'الحساب';
+
+  @override
+  String get now => 'الآن';
+
+  @override
+  String get searchMovies => 'ابحث عن أفلام...';
+
+  @override
+  String get watchTrailer => 'شاهد الإعلان';
+
+  @override
+  String get appSettings => 'إعدادات التطبيق';
+
+  @override
+  String get darkMode => 'الوضع الداكن';
+
+  @override
+  String get toggleDarkLight => 'التبديل بين الوضع الداكن والفاتح';
+
+  @override
+  String get notifications => 'الإشعارات';
+
+  @override
+  String get manageNotifications => 'إدارة التنبيهات والتذكيرات';
+
+  @override
+  String get privacySecurity => 'الخصوصية والأمان';
+
+  @override
+  String get privacyPolicy => 'إعدادات الأمان وسياسة الخصوصية';
+
+  @override
+  String get signOut => 'تسجيل الخروج';
+
+  @override
+  String get standard => 'عادي';
+
+  @override
+  String get imax => 'ايماكس';
+
+  @override
+  String get price => 'السعر';
+
+  @override
+  String get bookTickets => 'حجز التذاكر';
+
+  @override
+  String buyFor(Object price) {
+    return 'اشتري بـ $price';
+  }
+
+  @override
+  String get cast => 'طاقم العمل';
+
+  @override
+  String get reviews => 'المراجعات';
+
+  @override
+  String get editProfile => 'تعديل الملف الشخصي';
+
+  @override
+  String get myTickets => 'تذاكري';
+
+  @override
+  String get loyaltyPoints => 'نقاط الولاء';
+
+  @override
+  String get totalTickets => 'إجمالي التذاكر';
+
+  @override
+  String get points => 'نقطة';
 }

@@ -90,4 +90,81 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backToHome => 'Back to Home';
+
+  @override
+  String get offers => 'Offers';
+
+  @override
+  String get account => 'Account';
+
+  @override
+  String get now => 'Now';
+
+  @override
+  String get searchMovies => 'Search movies...';
+
+  @override
+  String get watchTrailer => 'Watch Trailer';
+
+  @override
+  String get appSettings => 'App Settings';
+
+  @override
+  String get darkMode => 'Dark Mode';
+
+  @override
+  String get toggleDarkLight => 'Toggle between dark and light themes';
+
+  @override
+  String get notifications => 'Notifications';
+
+  @override
+  String get manageNotifications => 'Manage your alerts and reminders';
+
+  @override
+  String get privacySecurity => 'Privacy & Security';
+
+  @override
+  String get privacyPolicy => 'Security settings and privacy policy';
+
+  @override
+  String get signOut => 'Sign Out';
+
+  @override
+  String get standard => 'STANDARD';
+
+  @override
+  String get imax => 'IMAX';
+
+  @override
+  String get price => 'Price';
+
+  @override
+  String get bookTickets => 'Book Tickets';
+
+  @override
+  String buyFor(Object price) {
+    return 'Buy For $price';
+  }
+
+  @override
+  String get cast => 'Cast';
+
+  @override
+  String get reviews => 'Reviews';
+
+  @override
+  String get editProfile => 'Edit Profile';
+
+  @override
+  String get myTickets => 'My Tickets';
+
+  @override
+  String get loyaltyPoints => 'Loyalty Points';
+
+  @override
+  String get totalTickets => 'Total Tickets';
+
+  @override
+  String get points => 'Points';
 }

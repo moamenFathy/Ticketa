@@ -2,9 +2,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:ticketa/core/models/movie.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
-import 'package:ticketa/core/widgets/glass_card.dart';
 import 'package:ticketa/features/home/presentation/pages/seat_selection_page.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 
 class MovieDetailPage extends StatelessWidget {
   final Movie movie;
@@ -19,48 +19,17 @@ class MovieDetailPage extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          // Background Poster (Full Screen)
-          Hero(
-            tag: 'poster_${movie.id}',
-            child: SizedBox(
-              height: size.height,
-              width: double.infinity,
-              child: Image.network(
-                movie.posterUrl,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return const Center(child: CircularProgressIndicator());
-                },
-                errorBuilder: (context, error, stackTrace) =>
-                    const Center(child: Icon(Icons.error)),
-              ),
-            ),
-          ),
-          // Gradient Overlay (Darker at bottom for text readability)
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: const [0.0, 0.3, 0.6, 1.0],
-                  colors: [
-                    Colors.black.withOpacity(0.4),
-                    Colors.black.withOpacity(0.1),
-                    Colors.black.withOpacity(0.6),
-                    Colors.black.withOpacity(0.9),
-                  ],
-                ),
-              ),
-            ),
-          ),
           // Content
           CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
+              // Parallax Header
               SliverAppBar(
-                backgroundColor: Colors.transparent,
+                expandedHeight: size.height * 0.6,
+                backgroundColor: theme.scaffoldBackgroundColor,
+                elevation: 0,
+                pinned: true,
+                stretch: true,
                 leading: Container(
                   margin: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
@@ -73,143 +42,232 @@ class MovieDetailPage extends StatelessWidget {
                     onPressed: () => Navigator.pop(context),
                   ),
                 ),
-                expandedHeight: 50,
+                flexibleSpace: FlexibleSpaceBar(
+                  stretchModes: const [
+                    StretchMode.zoomBackground,
+                    StretchMode.blurBackground,
+                  ],
+                  background: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Hero(
+                        tag: 'poster_${movie.id}',
+                        child: Image.network(
+                          movie.posterUrl,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      // Play Button Overlay
+                      Center(
+                        child: ClipOval(
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                            child: Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white30),
+                              ),
+                              child: const Icon(Icons.play_arrow_rounded,
+                                  color: Colors.white, size: 40),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Bottom Gradient
+                      Positioned.fill(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              stops: const [0.5, 1.0],
+                              colors: [
+                                Colors.transparent,
+                                theme.scaffoldBackgroundColor,
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
+              // Movie Details
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: size.height * 0.45),
-                      // Movie Title & Info
+                      const SizedBox(height: 10),
+                      // Title
                       Text(
                         movie.title,
-                        style: theme.textTheme.displaySmall?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          _MovieInfoTag(
-                              label: "${movie.rating}/10",
-                              icon: Icons.star_rounded,
-                              color: Colors.amber),
-                          const SizedBox(width: 12),
-                          _MovieInfoTag(
-                              label: "${movie.duration} min",
-                              icon: Icons.timer_outlined,
-                              color: Colors.white),
-                          const SizedBox(width: 12),
-                          _MovieInfoTag(
-                              label: movie.genre.split('|')[0].trim(),
-                              icon: Icons.movie_outlined,
-                              color: Colors.white),
-                        ],
-                      ),
-                      const SizedBox(height: 32),
-                      // Storyline
-                      Text(
-                        "Storyline",
-                        style: theme.textTheme.titleLarge?.copyWith(
+                        style: theme.textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          letterSpacing: 0.5,
                         ),
                       ),
                       const SizedBox(height: 12),
+                      // Info Tags
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _MovieInfoTag(
+                                label: "${movie.rating}",
+                                icon: Icons.star_rounded,
+                                color: Colors.amber),
+                            const SizedBox(width: 10),
+                            _MovieInfoTag(
+                                label: movie.genre.split('|')[0],
+                                icon: Icons.movie_filter_outlined,
+                                color: theme.colorScheme.primary),
+                            const SizedBox(width: 10),
+                            _MovieInfoTag(
+                                label: "${movie.duration}m",
+                                icon: Icons.timer_outlined,
+                                color: Colors.grey),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      // Storyline Section
+                      _SectionHeader(title: l10n.storyLine),
+                      const SizedBox(height: 12),
                       Text(
-                        "Follow the epic journey of characters facing immense challenges in a breathtaking cinematic experience. This film brings together top-tier acting and stunning visual effects to tell a story like no other.",
+                        "An immersive journey through time and space, where every decision shapes the future. Experience breathtaking visuals and a story that will keep you on the edge of your seat until the very last moment.",
                         style: theme.textTheme.bodyLarge?.copyWith(
-                          color: Colors.white.withOpacity(0.7),
+                          color: theme.textTheme.bodyLarge?.color?.withOpacity(0.7),
                           height: 1.6,
                         ),
                       ),
                       const SizedBox(height: 32),
-                      Text(
-                        "Select Date",
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
+                      // Cast Section
+                      _SectionHeader(title: l10n.cast),
+                      const SizedBox(height: 16),
+                      const _CastList(),
+                      const SizedBox(height: 32),
+                      // Date Selector
+                      _SectionHeader(title: l10n.selectDate),
                       const SizedBox(height: 16),
                       _DateSelector(showTimes: movie.showTimes),
-                      const SizedBox(height: 120),
+                      const SizedBox(height: 140),
                     ],
                   ),
                 ),
               ),
             ],
           ),
-          // Bottom CTA (Fixed)
+          // Floating Bottom CTA
           Positioned(
-            bottom: 30,
-            left: 24,
-            right: 24,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: Colors.white.withOpacity(0.2)),
-                  ),
-                  child: Row(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 30),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    theme.scaffoldBackgroundColor.withOpacity(0),
+                    theme.scaffoldBackgroundColor.withOpacity(0.9),
+                    theme.scaffoldBackgroundColor,
+                  ],
+                ),
+              ),
+              child: Row(
+                children: [
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Price",
-                            style: TextStyle(color: Colors.white.withOpacity(0.5)),
-                          ),
-                          const Text(
-                            "EGP 120.00",
-                            style: TextStyle(
-                              color: AppColors.warmOrange,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        l10n.price,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.textTheme.bodySmall?.color?.withOpacity(0.6),
+                        ),
                       ),
-                      const SizedBox(width: 32),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => SeatSelectionPage(),
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            backgroundColor: AppColors.warmOrange,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16)),
-                          ),
-                          child: const Text(
-                            "Book Tickets",
-                            style: TextStyle(
-                                color: Colors.white, fontWeight: FontWeight.bold),
-                          ),
+                      Text(
+                        "EGP 120.00",
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          color: AppColors.warmOrange,
+                          fontWeight: FontWeight.w900,
                         ),
                       ),
                     ],
                   ),
-                ),
+                  const SizedBox(width: 24),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.warmOrange.withOpacity(0.3),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SeatSelectionPage(),
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          backgroundColor: AppColors.warmOrange,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                          elevation: 0,
+                        ),
+                        child: Text(
+                          l10n.bookTickets,
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  const _SectionHeader({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        Text(
+          "See All",
+          style: theme.textTheme.labelLarge?.copyWith(
+            color: AppColors.warmOrange,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -224,21 +282,61 @@ class _MovieInfoTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: color.withOpacity(0.2)),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: color, size: 16),
+          Icon(icon, color: color, size: 18),
           const SizedBox(width: 6),
           Text(
             label,
-            style: const TextStyle(color: Colors.white, fontSize: 12),
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: color.withOpacity(0.8),
+            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CastList extends StatelessWidget {
+  const _CastList();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 100,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: 6,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Colors.grey.withOpacity(0.2),
+                  child: const Icon(Icons.person, color: Colors.grey),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "Actor ${index + 1}",
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -257,10 +355,14 @@ class _DateSelectorState extends State<_DateSelector> {
 
   @override
   Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
+    final theme = Theme.of(context);
+    
     return SizedBox(
-      height: 80,
+      height: 90,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
         itemCount: widget.showTimes.length,
         itemBuilder: (context, index) {
           final date = widget.showTimes[index];
@@ -272,29 +374,37 @@ class _DateSelectorState extends State<_DateSelector> {
               width: 70,
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.warmOrange : Colors.white.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20),
+                color: isSelected ? AppColors.warmOrange : theme.colorScheme.surface,
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: isSelected ? [
+                  BoxShadow(
+                    color: AppColors.warmOrange.withOpacity(0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  )
+                ] : [],
                 border: Border.all(
-                  color: isSelected ? AppColors.warmOrange : Colors.white.withOpacity(0.2),
+                  color: isSelected ? AppColors.warmOrange : theme.dividerColor.withOpacity(0.1),
                 ),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    _getMonthName(date.month),
+                    DateFormat.MMM(locale).format(date),
                     style: TextStyle(
-                      color: isSelected ? Colors.white70 : Colors.white54,
+                      color: isSelected ? Colors.white70 : theme.textTheme.bodySmall?.color?.withOpacity(0.5),
                       fontSize: 12,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     date.day.toString(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : theme.textTheme.titleMedium?.color,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 20,
                     ),
                   ),
                 ],
@@ -304,13 +414,5 @@ class _DateSelectorState extends State<_DateSelector> {
         },
       ),
     );
-  }
-
-  String _getMonthName(int month) {
-    const names = [
-      "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-    ];
-    return names[month - 1];
   }
 }

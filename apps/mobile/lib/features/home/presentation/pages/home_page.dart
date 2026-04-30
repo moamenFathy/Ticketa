@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ticketa/core/data/dummy_data.dart';
 import 'package:ticketa/core/models/movie.dart';
 import 'package:ticketa/features/home/presentation/pages/movie_detail_page.dart';
+import 'package:ticketa/l10n/app_localizations.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,9 +18,10 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final movies = DummyData.movies;
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF000000),
       body: SafeArea(
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
@@ -28,17 +30,17 @@ class _HomePageState extends State<HomePage> {
             SliverAppBar(
               pinned: true,
               floating: true,
-              backgroundColor: Colors.black.withOpacity(0.9),
+              backgroundColor: theme.scaffoldBackgroundColor.withOpacity(0.9),
               elevation: 0,
               expandedHeight: 90,
               flexibleSpace: FlexibleSpaceBar(
-                background: _buildSearchBar(),
+                background: _buildSearchBar(l10n, theme),
               ),
               bottom: PreferredSize(
                 preferredSize: const Size.fromHeight(0),
-                child: Container(
+                child: Divider(
                   height: 1,
-                  color: Colors.white.withOpacity(0.05),
+                  color: theme.dividerColor.withOpacity(0.05),
                 ),
               ),
             ),
@@ -84,7 +86,7 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 10),
                   Text(
                     movies[_currentPage].showTimes[0].year.toString(),
-                    style: const TextStyle(color: Colors.white38, fontSize: 14),
+                    style: theme.textTheme.bodySmall,
                   ),
                   const SizedBox(height: 4),
                   Padding(
@@ -92,11 +94,9 @@ class _HomePageState extends State<HomePage> {
                     child: Text(
                       movies[_currentPage].title.toUpperCase(),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white, 
-                        fontSize: 24, 
-                        fontWeight: FontWeight.bold, 
-                        letterSpacing: 1.2
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
                       ),
                     ),
                   ),
@@ -105,9 +105,9 @@ class _HomePageState extends State<HomePage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildTag(movies[_currentPage].genre.split('|')[0]),
-                      _buildTag("${movies[_currentPage].duration}m"),
-                      _buildTag("⭐ ${movies[_currentPage].rating}", color: Colors.orange.withOpacity(0.2)),
+                      _buildTag(movies[_currentPage].genre.split('|')[0], theme),
+                      _buildTag("${movies[_currentPage].duration}m", theme),
+                      _buildTag("⭐ ${movies[_currentPage].rating}", theme, color: Colors.orange.withOpacity(0.2)),
                     ],
                   ),
                 ],
@@ -119,8 +119,8 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 children: [
                   const SizedBox(height: 20),
-                  _buildHorizontalList("Now Showing", movies),
-                  _buildHorizontalList("Coming Soon", movies.reversed.toList(), showRating: false),
+                  _buildHorizontalList(l10n.nowShowing, movies, l10n, theme),
+                  _buildHorizontalList(l10n.comingSoon, movies.reversed.toList(), l10n, theme, showRating: false),
                   const SizedBox(height: 40),
                 ],
               ),
@@ -160,7 +160,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar(AppLocalizations l10n, ThemeData theme) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
       color: Colors.transparent,
@@ -170,28 +170,29 @@ class _HomePageState extends State<HomePage> {
             child: Container(
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.08), 
-                borderRadius: BorderRadius.circular(25)
+                color: theme.colorScheme.surface, 
+                borderRadius: BorderRadius.circular(25),
+                border: Border.all(color: theme.dividerColor.withOpacity(0.1)),
               ),
-              child: const TextField(
-                style: TextStyle(color: Colors.white),
+              child: TextField(
+                style: TextStyle(color: theme.colorScheme.onSurface),
                 decoration: InputDecoration(
-                  hintText: "Search movies...", 
-                  hintStyle: TextStyle(color: Colors.white30), 
-                  prefixIcon: Icon(Icons.search, color: Colors.white30), 
+                  hintText: l10n.searchMovies, 
+                  hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.3)), 
+                  prefixIcon: Icon(Icons.search, color: theme.colorScheme.onSurface.withOpacity(0.3)), 
                   border: InputBorder.none
                 ),
               ),
             ),
           ),
           const SizedBox(width: 15),
-          _buildCircleIcon(Icons.tune),
+          _buildCircleIcon(Icons.tune, theme),
         ],
       ),
     );
   }
 
-  Widget _buildHorizontalList(String title, List<Movie> movies, {bool showRating = true}) {
+  Widget _buildHorizontalList(String title, List<Movie> movies, AppLocalizations l10n, ThemeData theme, {bool showRating = true}) {
     return Column(
       children: [
         Padding(
@@ -199,8 +200,8 @@ class _HomePageState extends State<HomePage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-              const Text("See All", style: TextStyle(color: Colors.white30, fontSize: 12)),
+              Text(title, style: theme.textTheme.titleLarge),
+              Text(l10n.seeAll, style: theme.textTheme.bodySmall),
             ],
           ),
         ),
@@ -217,27 +218,27 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildTag(String label, {Color? color}) {
+  Widget _buildTag(String label, ThemeData theme, {Color? color}) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: color ?? Colors.white.withOpacity(0.08), 
+        color: color ?? theme.colorScheme.surface, 
         borderRadius: BorderRadius.circular(15)
       ),
-      child: Text(label, style: const TextStyle(color: Colors.white70, fontSize: 11)),
+      child: Text(label, style: theme.textTheme.labelSmall),
     );
   }
 
-  Widget _buildCircleIcon(IconData icon, {double size = 45}) {
+  Widget _buildCircleIcon(IconData icon, ThemeData theme, {double size = 45}) {
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle, 
-        border: Border.all(color: Colors.white10)
+        border: Border.all(color: theme.dividerColor.withOpacity(0.1))
       ),
-      child: Icon(icon, color: Colors.white30, size: size * 0.5),
+      child: Icon(icon, color: theme.colorScheme.onSurface.withOpacity(0.3), size: size * 0.5),
     );
   }
 }
@@ -256,6 +257,7 @@ class _SmallMovieCardState extends State<_SmallMovieCard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return GestureDetector(
       onTapDown: (_) => setState(() => _isPressed = true),
       onTapUp: (_) => setState(() => _isPressed = false),
@@ -325,18 +327,14 @@ class _SmallMovieCardState extends State<_SmallMovieCard> {
                   widget.movie.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Colors.white, 
-                    fontSize: 14, 
-                    fontWeight: FontWeight.bold
-                  ),
+                  style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: Text(
                   widget.movie.genre.split('|')[0],
-                  style: const TextStyle(color: Colors.white38, fontSize: 11),
+                  style: theme.textTheme.bodySmall,
                 ),
               ),
             ],
