@@ -77,9 +77,16 @@ namespace Ticketa.Infrastructure.Service
       return null;
     }
 
+    public async Task<Showtime?> GetByIdAsync(int id)
+    {
+      var spec = new ShowtimeByIdSpecification(id);
+      var showtimes = await _uow.Showtimes.GetAllWithSpecAsync(spec);
+      return showtimes.FirstOrDefault();
+    }
+
     public async Task<ShowtimeUpsertDto?> GetForUpsertAsync(int id)
     {
-      var showtime = await _uow.Showtimes.GetAsync(s => s.Id == id);
+      var showtime = await GetByIdAsync(id);
       if (showtime == null) return null;
 
       return new ShowtimeUpsertDto
@@ -154,6 +161,22 @@ namespace Ticketa.Infrastructure.Service
       showtime.Status = status;
 
       await _uow.Showtimes.UpdateAsync(showtime);
+      await _uow.SaveAsync();
+
+      return true;
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+      var showtime = await _uow.Showtimes.GetAsync(s => s.Id == id);
+
+      if (showtime is null)
+        return false;
+
+      if (showtime.Status != ShowtimeStatus.Completed)
+        return false;
+
+      _uow.Showtimes.Delete(showtime);
       await _uow.SaveAsync();
 
       return true;
