@@ -1,4 +1,4 @@
-﻿using Ticketa.Core.Entities;
+using Ticketa.Core.Entities;
 using Ticketa.Core.Enums;
 
 namespace Ticketa.Core.Specifications

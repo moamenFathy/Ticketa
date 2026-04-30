@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Enums;
@@ -45,7 +45,8 @@ namespace Ticketa.Infrastructure.Repositories
         Price = s.Price,
         Status = s.Status,
         TrailerKey = s.Movie.TrailerKey,
-        TmdbId = s.Movie.TmdbId
+        TmdbId = s.Movie.TmdbId,
+        HallId = s.HallId
       }).ToListAsync();
     }
   }

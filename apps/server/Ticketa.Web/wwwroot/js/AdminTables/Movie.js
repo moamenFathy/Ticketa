@@ -363,8 +363,11 @@ if (dataTableElement) {
                                     </svg>
                                  </button>
                             </div>
-                            <div class="tooltip" data-tip="Delete">
-                                 <button type="button" class="btn btn-ghost btn-sm text-red-400 hover:bg-red-50" onclick="openModal('deleteForm', '/Admin/Movies/DeleteConfirmation/${id}', 'movie')">
+                            <div class="tooltip" data-tip="${row.hasShowtimes ? 'Cannot delete: Movie has active showtimes' : 'Delete'}">
+                                 <button type="button" 
+                                         class="btn btn-ghost btn-sm text-red-400 hover:bg-red-50 ${row.hasShowtimes ? 'btn-disabled opacity-30' : ''}" 
+                                         ${row.hasShowtimes ? 'disabled' : ''}
+                                         onclick="openModal('deleteForm', '/Admin/Movies/DeleteConfirmation/${id}', 'movie')">
                                             <svg xmlns="http://www.w3.org/2000/svg"
                                                 height="18" width="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

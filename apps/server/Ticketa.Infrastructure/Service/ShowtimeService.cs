@@ -1,4 +1,4 @@
-﻿using Ticketa.Core.DTOs;
+using Ticketa.Core.DTOs;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Enums;
 using Ticketa.Core.Interfaces;
@@ -140,7 +140,9 @@ namespace Ticketa.Infrastructure.Service
       {
         Id = h.Id,
         Name = h.Name,
-        TotalSeats = h.TotalSeats,
+        Type = h.Type,
+        TotalRows = h.TotalRows,
+        SeatsPerRow = h.SeatsPerRow,
       });
     }
 

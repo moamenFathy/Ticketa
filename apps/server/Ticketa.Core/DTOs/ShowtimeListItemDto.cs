@@ -1,4 +1,4 @@
-﻿using Ticketa.Core.Enums;
+using Ticketa.Core.Enums;
 
 namespace Ticketa.Core.DTOs
 {
@@ -15,5 +15,6 @@ namespace Ticketa.Core.DTOs
     public ShowtimeStatus Status { get; set; } = ShowtimeStatus.Scheduled;
     public string? TrailerKey { get; set; }
     public int TmdbId { get; set; }
+    public int HallId { get; set; }
   }
 }

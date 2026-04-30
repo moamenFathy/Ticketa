@@ -371,6 +371,13 @@ if (dataTableElement) {
 
                 return `
                 <div class="flex flex-row justify-center items-center gap-2">
+                    <div class="tooltip" data-tip="View Hall Map">
+                         <button type="button" class="btn btn-ghost btn-sm text-blue-500 hover:bg-blue-50" onclick="openModal('viewMapForm', '/admin/hall/ViewMap/${row.hallId}', 'seat map')">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-grid-2x2">
+                                <rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 12h18"/><path d="M12 3v18"/>
+                             </svg>
+                         </button>
+                    </div>
                     <div class="tooltip" data-tip="Trailer">
                          <button type="button" class="btn btn-ghost btn-sm hover:bg-blue-50 text-bold" onclick="openMovieTrailer(this, '${(row.movieTitle ?? "Movie").replace(/'/g, "&#39;")}', '${row.trailerKey ?? ""}', '${row.tmdbId ?? ""}')">
                             <svg xmlns="http://www.w3.org/2000/svg" height="18" width="18" fill="currentColor" viewBox="0 0 24 24" stroke="none" class="file-current text-indigo-600">

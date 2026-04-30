@@ -1,16 +1,26 @@
-﻿import { initDataTable } from "../DataTables.js";
+import { initDataTable } from "../DataTables.js";
 
 initDataTable("/Admin/Hall/GetAll", [
     { data: 'rowNumber' },
     { data: 'name' },
     {
-        data: 'totalSeats',
+        data: 'hallType',
         render: (data) => {
+            let color = "bg-base-200 text-base-content";
+            if (data === "Standard") color = "bg-blue-100 text-blue-800";
+            else if (data === "IMAX") color = "bg-purple-100 text-purple-800";
+            else if (data === "Gold") color = "bg-amber-100 text-amber-800";
+
+            return `<div class="flex justify-center"><span class="badge badge-sm font-medium border-0 ${color}">${data}</span></div>`;
+        }
+    },
+    {
+        data: null,
+        render: (data, type, row) => {
             return `
-                <div class="flex justify-center">
-                    <span class="badge" style="background-color: #EDE9FA; color: #5B21B6; border: none;">
-                        ${data} Seats
-                    </span>
+                <div class="flex flex-col items-center justify-center">
+                    <span class="text-xs font-semibold">${row.totalRows} × ${row.seatsPerRow}</span>
+                    <span class="text-[10px] text-base-content/50">${row.totalSeats} seats</span>
                 </div>
             `;
         }
@@ -19,6 +29,15 @@ initDataTable("/Admin/Hall/GetAll", [
         data: 'id',
         orderable: false,
         render: (id, type, row) => `
+                        <!-- View Map Action -->
+                        <div class="tooltip" data-tip="View Map">
+                             <button type="button" class="btn btn-ghost btn-sm text-blue-500 hover:bg-blue-50" onclick="openModal('viewMapForm', '/admin/hall/ViewMap/${id}', 'seat map')">
+                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-grid-2x2">
+                                    <rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 12h18"/><path d="M12 3v18"/>
+                                 </svg>
+                             </button>
+                        </div>
+                        <!-- Edit Action -->
                         <div class="tooltip" data-tip="Edit">
                              <button type="button" class="btn btn-ghost btn-sm text-violet-500 hover:bg-violet-50" onclick="openModal('editForm', '/admin/hall/Upsert/${id}', 'hall')">
                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-icon lucide-pencil">
@@ -26,8 +45,12 @@ initDataTable("/Admin/Hall/GetAll", [
                                  </svg>
                              </button>
                         </div>
-                        <div class="tooltip" data-tip="Delete">
-                             <button type="button" class="btn btn-ghost btn-sm text-red-400 hover:bg-red-50" onclick="openModal('deleteForm', '/admin/hall/DeleteConfirmation/${id}', 'hall')">
+                        <!-- Delete Action -->
+                        <div class="tooltip" data-tip="${row.hasShowtimes ? 'Cannot delete: Hall has active showtimes' : 'Delete'}">
+                             <button type="button" 
+                                     class="btn btn-ghost btn-sm text-red-400 hover:bg-red-50 ${row.hasShowtimes ? 'btn-disabled opacity-30' : ''}" 
+                                     ${row.hasShowtimes ? 'disabled' : ''}
+                                     onclick="openModal('deleteForm', '/admin/hall/DeleteConfirmation/${id}', 'hall')">
                                         <svg xmlns="http://www.w3.org/2000/svg"
                                             height="16" width="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -38,8 +61,26 @@ initDataTable("/Admin/Hall/GetAll", [
                     `
     }
 ], {
-    order: [[0, 'des']],
+    order: [[0, 'asc']], // Ordered by ID asc makes more sense for halls (Hall 1, Hall 2...)
     columnDefs: [
-        { className: "flex justify-center gap-1", targets: 3 }
+        { className: "flex justify-center gap-1", targets: 4 } // Actions column is now index 4
     ]
+});
+
+// Handle Hall Type change in the Create Modal
+document.addEventListener('change', function(e) {
+    if (e.target && e.target.id === 'hallTypeSelect') {
+        const templates = {
+            '0': { rows: 12, seats: 16, categories: 'Rows 1–9: Regular | Rows 10–12: VIP' },          // Standard
+            '1': { rows: 14, seats: 16, categories: 'Rows 1–10: Regular | Rows 11–14: Premium' },     // IMAX
+            '2': { rows: 6,  seats: 8,  categories: 'All rows: Regular' }                             // Gold
+        };
+        const t = templates[e.target.value];
+        if(t) {
+            document.getElementById('previewRows').textContent   = t.rows;
+            document.getElementById('previewSeats').textContent  = t.seats;
+            document.getElementById('previewTotal').textContent  = t.rows * t.seats;
+            document.getElementById('previewCategories').textContent = t.categories;
+        }
+    }
 });

@@ -1,72 +1,78 @@
-﻿@model Hall
+@model Ticketa.Core.DTOs.HallUpsertDto
+@using Ticketa.Core.Enums
 
-    <!-- Header -->
-    <div class="flex items-center justify-between pb-3 border-b border-base-300">
-        <h3 class="text-xl font-bold">Create Hall</h3>
+<!-- Header -->
+<div class="flex items-center justify-between pb-3 border-b border-base-300">
+    <h3 class="text-xl font-bold">Create Hall</h3>
+    <label for="modal" class="btn btn-sm btn-ghost btn-circle hover:bg-base-300">✕</label>
+</div>
 
-        <label for="modal" class="btn btn-sm btn-ghost btn-circle hover:bg-base-300">
-            ✕
-        </label>
+<!-- Form -->
+<form class="flex flex-col gap-4 mt-4"
+      id="createForm"
+      method="post"
+      asp-area="Admin"
+      asp-controller="Hall"
+      asp-action="Upsert"
+      data-submit-url="/Admin/Hall/Upsert">
+
+    @Html.AntiForgeryToken()
+
+    <!-- Validation -->
+    <div asp-validation-summary="ModelOnly"
+         class="text-error text-sm bg-error/10 p-2 rounded-lg"></div>
+
+    <!-- Name -->
+    <label class="form-control w-full">
+        <span class="label-text font-medium">Hall Name</span>
+        <input asp-for="Name"
+               type="text"
+               class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary"
+               placeholder="e.g. Hall 1, IMAX Hall"
+               autofocus />
+        <span asp-validation-for="Name" class="text-error mt-1 text-sm font-bold"></span>
+    </label>
+
+    <!-- Hall Type -->
+    <label class="form-control w-full">
+        <span class="label-text font-medium">Hall Type</span>
+        <select asp-for="Type"
+                id="hallTypeSelect"
+                class="select select-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary">
+            <option value="@((int)HallType.Standard)">🎬 Standard</option>
+            <option value="@((int)HallType.IMAX)">🔭 IMAX</option>
+            <option value="@((int)HallType.Gold)">⭐ Gold</option>
+        </select>
+        <span asp-validation-for="Type" class="text-error mt-1 text-sm font-bold"></span>
+    </label>
+
+    <!-- Template Preview -->
+    <div id="templatePreview" class="rounded-xl border border-base-300 bg-base-200/50 p-3 text-sm">
+        <p class="font-semibold mb-2 text-base-content/70">📐 Auto-generated layout:</p>
+        <div class="grid grid-cols-3 gap-2 text-center">
+            <div class="bg-base-100 rounded-lg p-2 border border-base-300">
+                <div id="previewRows" class="text-lg font-bold text-primary">12</div>
+                <div class="text-xs text-base-content/50">Rows</div>
+            </div>
+            <div class="bg-base-100 rounded-lg p-2 border border-base-300">
+                <div id="previewSeats" class="text-lg font-bold text-primary">16</div>
+                <div class="text-xs text-base-content/50">Seats / Row</div>
+            </div>
+            <div class="bg-base-100 rounded-lg p-2 border border-base-300">
+                <div id="previewTotal" class="text-lg font-bold text-primary">192</div>
+                <div class="text-xs text-base-content/50">Total Seats</div>
+            </div>
+        </div>
+        <p id="previewCategories" class="mt-2 text-xs text-base-content/50">
+            Rows 1–9: Regular &nbsp;|&nbsp; Rows 10–12: VIP
+        </p>
     </div>
 
-    <!-- Form -->
-    <form class="flex flex-col gap-4 mt-4"
-          id="createForm"
-          method="post"
-          asp-area="Admin"
-          asp-controller="Hall"
-          asp-action="Upsert"
-          data-submit-url="/Admin/Hall/Upsert">
+    <!-- Actions -->
+    <div class="modal-action mt-2 flex justify-end gap-3">
+        <label for="modal" class="btn btn-ghost border border-base-300 hover:bg-base-200">Cancel</label>
+        <button class="btn btn-primary px-5 hover:brightness-110" type="submit">Create Hall</button>
+    </div>
+</form>
 
-        @Html.AntiForgeryToken()
 
-        <!-- Validation -->
-        <div asp-validation-summary="ModelOnly"
-             class="text-error text-sm bg-error/10 p-2 rounded-lg">
-        </div>
-
-        <input asp-for="Id" type="hidden" />
-
-        <!-- Name -->
-        <label class="form-control w-full">
-            <span class="label-text font-medium">Hall Name</span>
-            <input asp-for="Name"
-                   type="text"
-                   class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary validator"
-                   placeholder="Enter hall name"
-                   autofocus />
-            <span asp-validation-for="Name" class="text-error mt-1 text-sm font-bold"></span>
-        </label>
-
-        <!-- Total Seats -->
-        <label class="form-control w-full">
-            <span class="label-text font-medium">Total Seats</span>
-            <input asp-for="TotalSeats"
-                   type="text"
-                   min="1"
-                   class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary validator"
-                   placeholder="Enter number of seats" />
-            <span asp-validation-for="TotalSeats" class="text-error mt-1 text-sm font-bold"></span>
-        </label>
-
-        <!-- Helper Text -->
-        <p class="text-xs text-gray-500">
-            Make sure the total seats reflect the actual hall capacity.
-        </p>
-
-        <!-- Actions -->
-        <div class="modal-action mt-2 flex justify-end gap-3">
-
-            <label for="modal"
-                   class="btn btn-ghost border border-base-300 hover:bg-base-200">
-                Cancel
-            </label>
-
-            <button class="btn btn-primary px-5 hover:brightness-110"
-                    type="submit">
-                Create Hall
-            </button>
-
-        </div>
-
-    </form>

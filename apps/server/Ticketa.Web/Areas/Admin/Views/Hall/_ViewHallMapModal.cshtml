@@ -1,0 +1,127 @@
+@model Ticketa.Core.Entities.Hall
+@using Ticketa.Core.Enums
+@using Ticketa.Core.Helpers
+
+@{
+    var template = HallTypeHelper.GetTemplate(Model.Type);
+    
+    // Map SeatCategory to CSS classes for visual representation
+    string GetSeatColor(SeatCategory cat) => cat switch
+    {
+        SeatCategory.Regular => "bg-blue-100 text-blue-700 border-blue-200",
+        SeatCategory.VIP     => "bg-purple-100 text-purple-700 border-purple-200",
+        SeatCategory.Premium => "bg-cyan-100 text-cyan-700 border-cyan-200",
+        _                    => "bg-base-200 text-base-content border-base-300"
+    };
+
+    var allowedCategories = HallTypeHelper.GetAllowedCategories(Model.Type);
+}
+
+<!-- Header -->
+<div class="flex items-center justify-between pb-3 border-b border-base-300">
+    <div>
+        <h3 class="text-xl font-bold">@Model.Name</h3>
+        <p class="text-sm text-base-content/60 mt-1">
+            @Model.Type Hall &nbsp;•&nbsp; @template.Rows Rows &nbsp;•&nbsp; @(template.Rows * template.SeatsPerRow) Seats Total
+        </p>
+    </div>
+    <label for="modal" class="btn btn-sm btn-ghost btn-circle hover:bg-base-300">✕</label>
+</div>
+
+<!-- Seat Map Container -->
+<div class="mt-8 flex flex-col items-center select-none" style="zoom: 0.6">
+    
+    <!-- Premium Theater Screen -->
+    <div class="relative w-full max-w-2xl mb-12 px-4">
+        <!-- Screen Reflection/Glow -->
+        <div class="absolute -top-4 left-1/2 -translate-x-1/2 w-full h-16 bg-blue-400/10 blur-3xl rounded-full"></div>
+        
+        <!-- Curved Screen -->
+        <div class="relative h-12 w-full bg-[#1a1a1a] rounded-[100%/20%] shadow-[0_10px_30px_rgba(0,0,0,0.5)] border-b border-white/5 flex items-center justify-center overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-transparent"></div>
+            <h4 class="text-white text-[10px] tracking-[0.5em] font-black uppercase opacity-80 z-10">SCREEN</h4>
+            
+            <!-- Reflection Text -->
+            <h4 class="absolute top-8 text-white text-[10px] tracking-[0.5em] font-black uppercase opacity-10 z-0 scale-y-[-1] blur-[1px]">SCREEN</h4>
+        </div>
+    </div>
+
+    <!-- Seat Grid (Scroll removed, centered) -->
+    <div class="flex flex-col gap-2.5 pb-6">
+        @for (int row = 1; row <= template.Rows; row++)
+        {
+            var category = template.RowCategoryMap[row];
+            var colorClass = category switch
+            {
+                SeatCategory.Regular => "bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500 hover:text-white hover:shadow-[0_0_15px_rgba(59,130,246,0.5)]",
+                SeatCategory.VIP     => "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_15px_rgba(16,185,129,0.5)]",
+                SeatCategory.Premium => "bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500 hover:text-white hover:shadow-[0_0_15px_rgba(245,158,11,0.5)]",
+                _                    => "bg-slate-500/10 text-slate-400 border-slate-500/20"
+            };
+            
+            <div class="flex items-center gap-4">
+                <!-- Row Label (Left) -->
+                <div class="w-8 text-right text-[11px] font-bold text-base-content/30 uppercase">
+                    @Convert.ToChar(64 + row)
+                </div>
+
+                <!-- Seats -->
+                <div class="flex gap-2">
+                    @for (int seat = 1; seat <= template.SeatsPerRow; seat++)
+                    {
+                        // Calculate if this seat should be "empty" to create the shape in image 1
+                        bool isHidden = false;
+                        if (row == 1 && (seat <= 3 || seat >= 14)) isHidden = true; // Top row shorter
+                        if (row == template.Rows && (seat <= 2 || seat >= 15)) isHidden = true; // Bottom row shorter
+                        
+                        if (isHidden)
+                        {
+                            <div class="w-9 h-9"></div>
+                        }
+                        else
+                        {
+                            <div class="w-9 h-9 rounded-t-xl rounded-b-lg border shadow-sm flex items-center justify-center text-[11px] font-bold @colorClass cursor-default transition-all duration-300 ease-out tooltip tooltip-top"
+                                 data-tip="Row @Convert.ToChar(64 + row) - Seat @seat (@category)">
+                                @seat
+                            </div>
+                        }
+                        
+                        // Add an aisle down the middle
+                        if (seat == template.SeatsPerRow / 2)
+                        {
+                            <div class="w-8"></div>
+                        }
+                    }
+                </div>
+
+                <!-- Row Label (Right) -->
+                <div class="w-8 text-left text-[11px] font-bold text-base-content/30 uppercase">
+                    @Convert.ToChar(64 + row)
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Legend -->
+<div class="mt-4 pt-6 border-t border-base-300/50 flex flex-wrap justify-center gap-6">
+    @foreach (var cat in allowedCategories)
+    {
+        var legendColor = cat switch
+        {
+            SeatCategory.Regular => "bg-blue-500 border-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.3)]",
+            SeatCategory.VIP     => "bg-emerald-500 border-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.3)]",
+            SeatCategory.Premium => "bg-amber-500 border-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.3)]",
+            _                    => "bg-slate-500 border-slate-400"
+        };
+        <div class="flex items-center gap-2.5 group cursor-default">
+            <div class="w-3.5 h-3.5 rounded-sm border @legendColor transition-transform group-hover:scale-110"></div>
+            <span class="text-[11px] font-semibold text-base-content/60 tracking-wide uppercase">@cat</span>
+        </div>
+    }
+</div>
+
+<!-- Actions -->
+<div class="modal-action mt-8">
+    <label for="modal" class="btn btn-md px-8 rounded-xl border-base-300 hover:bg-base-200 transition-all active:scale-95">Close</label>
+</div>
