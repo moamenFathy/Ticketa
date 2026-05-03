@@ -219,6 +219,7 @@ namespace Ticketa.Infrastructure.Service
       // Pass 'true' to include genres, and set status to Active
       var spec = new MovieSpecification(MovieStatus.Active, null, includeGenres: true);
       var movies = await _uow.Movies.GetAllWithSpecAsync(spec, ct);
+
       return movies.Select(m => new ActiveMovieWithDetailsDto
       {
         Id = m.Id,
@@ -234,7 +235,9 @@ namespace Ticketa.Infrastructure.Service
     {
       var spec = new MovieSpecification(id, includeGenres: true);
       var movie = await _uow.Movies.GetEntityWithSpecAsync(spec, ct);
+
       if (movie == null) return null;
+
       return new ActiveMovieWithDetailsDto
       {
         Id = movie.Id,

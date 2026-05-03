@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Net;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Interfaces.IServices;
 
@@ -21,10 +20,14 @@ namespace Ticketa.API.Controllers
         var movies = await _moviesService.GetAllActiveWithDetailsAsync(ct);
         return Ok(movies);
       }
+      catch (OperationCanceledException)
+      {
+        return StatusCode(StatusCodes.Status499ClientClosedRequest, "The request was canceled.");
+      }
       catch (Exception ex)
       {
         // Log the exception (not implemented here)
-        return StatusCode((int)HttpStatusCode.InternalServerError, $"An error occurred while retrieving movies: {ex.Message}");
+        return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred while retrieving movies: {ex.Message}");
       }
     }
 
@@ -47,9 +50,13 @@ namespace Ticketa.API.Controllers
 
         return Ok(movie);
       }
+      catch (OperationCanceledException)
+      {
+        return StatusCode(StatusCodes.Status499ClientClosedRequest, "The request was canceled.");
+      }
       catch (Exception ex)
       {
-        return StatusCode((int)HttpStatusCode.InternalServerError, $"An error occurred while retrieving the movie: {ex.Message}");
+        return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred while retrieving the movie: {ex.Message}");
       }
     }
   }

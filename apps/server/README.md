@@ -10,8 +10,11 @@
 Ticketa.sln
 ├── Ticketa.Core           → Entities, Enums, Interfaces, DTOs, Helpers
 ├── Ticketa.Infrastructure → EF Core, Repositories, UoW, Services
-└── Ticketa.Web            → Controllers, ViewModels, Views
+├── Ticketa.Web            → Controllers, ViewModels, Views
+└── Ticketa.Api            → API Controllers, minimal setup — بيشارك نفس Core و Infrastructure
 ```
+
+> **ملاحظة**: الـ `Ticketa.Api` project اتضاف عشان يخدم الـ customer-facing endpoints (movie listing، seat selection، booking). بيشارك نفس `Ticketa.Core` و`Ticketa.Infrastructure` مع الـ MVC project — مفيش code duplication.
 
 ---
 
@@ -53,6 +56,8 @@ public enum SeatCategory
     Regular,
     VIP,
     Premium,
+    GoldLounge,
+    GoldRecliner
 }
 ```
 
@@ -62,7 +67,7 @@ public enum SeatCategory
 |-----------|-------------------------------|
 | Standard  | Regular, VIP                  |
 | IMAX      | Regular, Premium              |
-| Gold      | Regular                       |
+| Gold      | GoldLounge, GoldRecliner      |
 
 ---
 
@@ -110,7 +115,7 @@ public static class HallTypeHelper
     {
         HallType.Standard => [SeatCategory.Regular, SeatCategory.VIP],
         HallType.IMAX     => [SeatCategory.Regular, SeatCategory.Premium],
-        HallType.Gold     => [SeatCategory.Regular],
+        HallType.Gold     => [SeatCategory.GoldLounge, SeatCategory.GoldRecliner],
         _                 => []
     };
 
@@ -211,6 +216,123 @@ public async Task<string?> CreateAsync(HallCreateDto dto)
 
 ---
 
+## 🎬 Movies Service — API Methods
+
+الـ methods دي اتضافت على `IMoviesService` عشان يخدموا الـ `Ticketa.Api` project. بياخدوا `CancellationToken` عشان لو الـ client قطع الـ connection، الـ DB query تتوقف فوراً.
+
+### IMoviesService — الـ Methods الجديدة (Core)
+
+```csharp
+// Ticketa.Core/Interfaces/IMoviesService.cs
+Task<IEnumerable<ActiveMovieWithDetailsDto>> GetAllActiveWithDetailsAsync(CancellationToken ct = default);
+Task<ActiveMovieWithDetailsDto?> GetActiveMovieWithDetailsByIdAsync(int id, CancellationToken ct = default);
+```
+
+> `= default` معناها إن الـ callers الموجودين (زي الـ admin MVC controllers) مش محتاجين يتغيروا — بياخدوا `CancellationToken.None` تلقائياً.
+
+### MoviesService — Implementation (Infrastructure)
+
+```csharp
+// Ticketa.Infrastructure/Services/MoviesService.cs
+public async Task<IEnumerable<ActiveMovieWithDetailsDto>> GetAllActiveWithDetailsAsync(
+    CancellationToken ct = default)
+{
+    var spec = new MovieSpecification(MovieStatus.Active, null, includeGenres: true);
+    var movies = await _uow.Movies.GetAllWithSpecAsync(spec, ct);
+
+    return movies.Select(m => new ActiveMovieWithDetailsDto
+    {
+        Id          = m.Id,
+        Title       = m.Title,
+        PosterPath  = m.PosterPath,
+        VoteAverage = m.VoteAverage,
+        Runtime     = m.RuntimeMinutes,
+        Genres      = m.Genres.Select(g => g.Name).ToList()
+    });
+}
+
+public async Task<ActiveMovieWithDetailsDto?> GetActiveMovieWithDetailsByIdAsync(
+    int id, CancellationToken ct = default)
+{
+    var spec = new MovieSpecification(id, includeGenres: true);
+    var movie = await _uow.Movies.GetEntityWithSpecAsync(spec, ct);
+
+    if (movie == null) return null;
+
+    return new ActiveMovieWithDetailsDto
+    {
+        Id          = movie.Id,
+        Title       = movie.Title,
+        PosterPath  = movie.PosterPath,
+        VoteAverage = movie.VoteAverage,
+        Runtime     = movie.RuntimeMinutes,
+        Genres      = movie.Genres.Select(g => g.Name).ToList()
+    };
+}
+```
+
+> **ليه مفيش AutoMapper هنا؟** الـ DTO بتختلف عن الـ entity في حاجتين: `RuntimeMinutes` → `Runtime` (rename) و`Genres` من `ICollection<Genre>` → `List<string>` (flatten). الـ manual `Select` أوضح من AutoMapper profile بـ `ForMember` overrides.
+
+### MoviesController — API (Ticketa.Api)
+
+```csharp
+// Ticketa.Api/Controllers/MoviesController.cs
+[HttpGet]
+[ProducesResponseType(typeof(IEnumerable<ActiveMovieWithDetailsDto>), StatusCodes.Status200OK)]
+[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+public async Task<IActionResult> GetAll(CancellationToken ct)
+{
+    try
+    {
+        var movies = await _moviesService.GetAllActiveWithDetailsAsync(ct);
+        return Ok(movies);
+    }
+    catch (OperationCanceledException)
+    {
+        return StatusCode(499, "The request was canceled.");
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(StatusCodes.Status500InternalServerError,
+            $"An error occurred while retrieving movies: {ex.Message}");
+    }
+}
+
+[HttpGet("{id:int}")]
+[ProducesResponseType(typeof(ActiveMovieWithDetailsDto), StatusCodes.Status200OK)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
+[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+public async Task<IActionResult> Get(int id, CancellationToken ct)
+{
+    try
+    {
+        if (id <= 0)
+            return BadRequest("The id must be greater than 0.");
+
+        var movie = await _moviesService.GetActiveMovieWithDetailsByIdAsync(id, ct);
+
+        if (movie == null)
+            return NotFound($"No movie found with id {id}.");
+
+        return Ok(movie);
+    }
+    catch (OperationCanceledException)
+    {
+        return StatusCode(499, "The request was canceled.");
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(StatusCodes.Status500InternalServerError,
+            $"An error occurred while retrieving the movie: {ex.Message}");
+    }
+}
+```
+
+> **ملاحظة**: `StatusCodes.Status499ClientClosedRequest` مش موجود في ASP.NET Core — 499 كود Nginx غير رسمي. بنستخدم الرقم مباشرة `499`.
+
+---
+
 ## 💰 SeatCategoryPrice (اختياري — للـ Booking Phase)
 
 ```csharp
@@ -252,6 +374,19 @@ public class HallDto
 }
 ```
 
+```csharp
+// Ticketa.Core/DTOs/Movies/ActiveMovieWithDetailsDto.cs
+public class ActiveMovieWithDetailsDto
+{
+    public int Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string? PosterPath { get; set; }
+    public double VoteAverage { get; set; }
+    public int Runtime { get; set; }        // mapped from RuntimeMinutes
+    public List<string> Genres { get; set; } = [];
+}
+```
+
 ---
 
 ## 🔄 Admin Flow
@@ -276,6 +411,7 @@ Create Hall
 - [x] Hall Module — HallType enum، Fixed Template، Seat auto-generation
 - [x] Hall CRUD — Create + Index + Delete. الـ Seat entity اتشالت واتعوضت بـ predefined templates جوا `HallTypeHelper` — مفيش seat rows في الـ DB، الـ layout بيتولد on-demand من الـ template وقت الـ booking
 - [x] User Authentication — ASP.NET Identity، custom `AppUser`، email verification بـ 6-digit code، Gmail SMTP عبر MailKit
+- [x] Ticketa.Api project — بيشارك Core و Infrastructure مع الـ MVC project، Movies endpoints (GetAll + GetById) مع CancellationToken support
 - [ ] Movie Management (Edit / Archive)
 - [ ] Seat Selection UI — customer بيختار كرسيه من الـ map وقت الـ booking (layout بيتجيب من الـ template مش من الـ DB)
 - [ ] Booking Flow
@@ -292,7 +428,8 @@ Create Hall
 - الـ `SeatCategoryPrice` بيتبنى في الـ Booking phase — مش محتاجه دلوقتي
 - الـ seat generation بتحصل مرة واحدة وقت الـ create — مش on-the-fly
 - الـ `Seat.Row` و`Seat.Number` كلهم 1-based — consistent مع الـ UI اللي هيعرضهم للـ customer
+- الـ API controllers مش عندها global exception middleware دلوقتي — كل action بتتعامل مع الـ exceptions بنفسها. لو الـ endpoints اتكبرت → نضيف `ExceptionHandlingMiddleware` في `Ticketa.Api` عشان نشيل الـ try/catch repetition
 
 ---
 
-*آخر تحديث: April 2026 — Hall & Seat module design decisions added*
+*آخر تحديث: May 2026 — Ticketa.Api project added، Movies API endpoints + CancellationToken*
