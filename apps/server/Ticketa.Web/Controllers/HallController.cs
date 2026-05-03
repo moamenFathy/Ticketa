@@ -6,9 +6,8 @@ using Ticketa.Core.Helpers;
 using Ticketa.Core.Interfaces;
 using Ticketa.Core.Specifications;
 
-namespace Ticketa.Web.Areas.Admin.Controllers
+namespace Ticketa.Web.Controllers
 {
-  [Area("Admin")]
   public class HallController : Controller
   {
     private readonly IUnitOfWork _uow;

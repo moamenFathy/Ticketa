@@ -266,7 +266,7 @@ const dataTableElement = document.getElementById("DataTable");
 
 if (dataTableElement) {
     let currentFilter = "all";
-    initDataTable("/Admin/Movies/GetAll", [
+    initDataTable("/Movies/GetAll", [
         {
             data: "posterPath",
             orderable: false,

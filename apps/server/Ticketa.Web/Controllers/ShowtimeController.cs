@@ -4,9 +4,8 @@ using Ticketa.Core.DTOs;
 using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Web.ViewModels;
 
-namespace Ticketa.Web.Areas.Admin.Controllers
+namespace Ticketa.Web.Controllers
 {
-  [Area("Admin")]
   [Authorize]
   public class ShowtimeController : Controller
   {
@@ -85,7 +84,7 @@ namespace Ticketa.Web.Areas.Admin.Controllers
     }
 
     [HttpPost]
-    public async Task<IActionResult> UpdateStatus(int id, Ticketa.Core.Enums.ShowtimeStatus status)
+    public async Task<IActionResult> UpdateStatus(int id, Core.Enums.ShowtimeStatus status)
     {
       var success = await _showtimeService.UpdateStatusAsync(id, status);
       return Json(new { success });

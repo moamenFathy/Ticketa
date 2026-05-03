@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Ticketa.Web.Areas.Admin.Controllers
+namespace Ticketa.Web.Controllers
 {
-  [Area("Admin")]
   [Authorize]
   public class DashboardController : Controller
   {

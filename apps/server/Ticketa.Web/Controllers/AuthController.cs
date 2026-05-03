@@ -109,7 +109,7 @@ public class AuthController : Controller
   {
     await _signInManger.SignOutAsync();
     Response.Cookies.Delete("theme");
-    return RedirectToAction("Index", "Home");
+    return RedirectToAction(nameof(Login));
   }
 
   public IActionResult VerifyEmail(string email)

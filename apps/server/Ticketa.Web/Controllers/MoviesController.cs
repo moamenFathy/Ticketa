@@ -6,9 +6,8 @@ using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Core.Interfaces.Services;
 using Ticketa.Web.ViewModels;
 
-namespace Ticketa.Web.Areas.Admin.Controllers
+namespace Ticketa.Web.Controllers
 {
-  [Area("Admin")]
   [Authorize]
   public class MoviesController : Controller
   {

@@ -56,7 +56,7 @@ async function resolveTrailerKey(initialKey, tmdbId) {
     if (!tmdbId) return "";
     if (trailerKeyCache.has(tmdbId)) return trailerKeyCache.get(tmdbId);
 
-    const response = await fetch(`/Admin/Movies/GetTrailerKey?tmdbId=${encodeURIComponent(tmdbId)}`);
+    const response = await fetch(`/Movies/GetTrailerKey?tmdbId=${encodeURIComponent(tmdbId)}`);
     if (!response.ok) return "";
 
     const payload = await response.json();
@@ -269,7 +269,7 @@ observeModalForTomSelect();
 
 if (dataTableElement) {
     let currentFilter = "all";
-    initDataTable("/Admin/Showtime/GetAll", [
+    initDataTable("/Showtime/GetAll", [
         {
             data: "moviePoster",
             orderable: false,
