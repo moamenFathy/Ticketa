@@ -24,5 +24,8 @@ namespace Ticketa.Core.Interfaces.IServices
         string? segmentedFilter);
 
     Task<IEnumerable<MovieDropdownDto>> GetAllActiveAsync();
+
+    Task<IEnumerable<ActiveMovieWithDetailsDto>> GetAllActiveWithDetailsAsync();
+    Task<ActiveMovieWithDetailsDto?> GetActiveMovieWithDetailsByIdAsync(int id);
   }
 }

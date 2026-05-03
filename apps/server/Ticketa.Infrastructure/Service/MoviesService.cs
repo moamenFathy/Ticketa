@@ -70,22 +70,22 @@ namespace Ticketa.Infrastructure.Service
       var dataList = new List<object>();
       foreach (var m in movies)
       {
-          bool hasShowtimes = await _uow.Showtimes.AnyAsync(s => s.MovieId == m.Id);
-          dataList.Add(new
-          {
-              m.Id,
-              m.Title,
-              m.Status,
-              m.PosterPath,
-              m.Overview,
-              m.ReleaseDate,
-              m.VoteAverage,
-              m.ImportedAt,
-              m.RuntimeMinutes,
-              m.TmdbId,
-              m.TrailerKey,
-              hasShowtimes
-          });
+        bool hasShowtimes = await _uow.Showtimes.AnyAsync(s => s.MovieId == m.Id);
+        dataList.Add(new
+        {
+          m.Id,
+          m.Title,
+          m.Status,
+          m.PosterPath,
+          m.Overview,
+          m.ReleaseDate,
+          m.VoteAverage,
+          m.ImportedAt,
+          m.RuntimeMinutes,
+          m.TmdbId,
+          m.TrailerKey,
+          hasShowtimes
+        });
       }
 
       // 4. DataTables response
@@ -212,6 +212,39 @@ namespace Ticketa.Infrastructure.Service
         Runtime = m.RuntimeMinutes,
         PosterPath = m.PosterPath,     // for the modal dropdown card
       });
+    }
+
+    public async Task<IEnumerable<ActiveMovieWithDetailsDto>> GetAllActiveWithDetailsAsync()
+    {
+      // Pass 'true' to include genres, and set status to Active
+      var spec = new MovieSpecification(MovieStatus.Active, null, includeGenres: true);
+      var movies = await _uow.Movies.GetAllWithSpecAsync(spec);
+
+      return movies.Select(m => new ActiveMovieWithDetailsDto
+      {
+        Id = m.Id,
+        Title = m.Title,
+        PosterPath = m.PosterPath,
+        VoteAverage = m.VoteAverage,
+        Runtime = m.RuntimeMinutes,
+        Genres = m.Genres.Select(g => g.Name).ToList()
+      });
+    }
+
+    public async Task<ActiveMovieWithDetailsDto?> GetActiveMovieWithDetailsByIdAsync(int id)
+    {
+      var spec = new MovieSpecification(id, includeGenres: true);
+      var movie = await _uow.Movies.GetEntityWithSpecAsync(spec);
+      if (movie == null) return null;
+      return new ActiveMovieWithDetailsDto
+      {
+        Id = movie.Id,
+        Title = movie.Title,
+        PosterPath = movie.PosterPath,
+        Runtime = movie.RuntimeMinutes,
+        VoteAverage = movie.VoteAverage,
+        Genres = movie.Genres.Select(g => g.Name).ToList()
+      };
     }
 
     private static MovieStatus? MapStatus(string? segmentedFilter)

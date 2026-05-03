@@ -13,5 +13,6 @@ namespace Ticketa.Core.Interfaces.IRepositories
     void Delete(T entity);
     Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
     Task<IReadOnlyList<T>> GetAllWithSpecAsync(BaseSpecification<T> spec);
+    Task<T?> GetEntityWithSpecAsync(BaseSpecification<T> spec);
   }
 }

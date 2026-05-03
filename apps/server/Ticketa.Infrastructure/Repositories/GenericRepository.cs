@@ -38,6 +38,11 @@ namespace Ticketa.Infrastructure.Repositories
               .GetQuery(_dbSet, spec)
               .ToListAsync();
 
+    public async Task<T?> GetEntityWithSpecAsync(BaseSpecification<T> spec) =>
+      await SpecificationEvaluator<T>
+              .GetQuery(_dbSet, spec)
+              .FirstOrDefaultAsync();
+
     public async Task CreateAsync(T entity) => await _dbSet.AddAsync(entity);
     public async Task CreateRangeAsync(IEnumerable<T> entities) => await _dbSet.AddRangeAsync(entities);
 
