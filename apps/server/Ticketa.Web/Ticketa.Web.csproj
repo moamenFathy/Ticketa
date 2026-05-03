@@ -24,12 +24,4 @@
     <ProjectReference Include="..\Ticketa.Infrastructure\Ticketa.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="Areas\Admin\Views\_ViewStart.cshtml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Areas\Admin\Controllers\" />
-  </ItemGroup>
-
 </Project>
