@@ -214,12 +214,11 @@ namespace Ticketa.Infrastructure.Service
       });
     }
 
-    public async Task<IEnumerable<ActiveMovieWithDetailsDto>> GetAllActiveWithDetailsAsync()
+    public async Task<IEnumerable<ActiveMovieWithDetailsDto>> GetAllActiveWithDetailsAsync(CancellationToken ct = default)
     {
       // Pass 'true' to include genres, and set status to Active
       var spec = new MovieSpecification(MovieStatus.Active, null, includeGenres: true);
-      var movies = await _uow.Movies.GetAllWithSpecAsync(spec);
-
+      var movies = await _uow.Movies.GetAllWithSpecAsync(spec, ct);
       return movies.Select(m => new ActiveMovieWithDetailsDto
       {
         Id = m.Id,
@@ -231,10 +230,10 @@ namespace Ticketa.Infrastructure.Service
       });
     }
 
-    public async Task<ActiveMovieWithDetailsDto?> GetActiveMovieWithDetailsByIdAsync(int id)
+    public async Task<ActiveMovieWithDetailsDto?> GetActiveMovieWithDetailsByIdAsync(int id, CancellationToken ct = default)
     {
       var spec = new MovieSpecification(id, includeGenres: true);
-      var movie = await _uow.Movies.GetEntityWithSpecAsync(spec);
+      var movie = await _uow.Movies.GetEntityWithSpecAsync(spec, ct);
       if (movie == null) return null;
       return new ActiveMovieWithDetailsDto
       {

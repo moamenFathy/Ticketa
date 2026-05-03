@@ -33,15 +33,15 @@ namespace Ticketa.Infrastructure.Repositories
       return await query.FirstOrDefaultAsync(filter);
     }
 
-    public async Task<IReadOnlyList<T>> GetAllWithSpecAsync(BaseSpecification<T> spec) =>
+    public async Task<IReadOnlyList<T>> GetAllWithSpecAsync(BaseSpecification<T> spec, CancellationToken ct = default) =>
       await SpecificationEvaluator<T>
               .GetQuery(_dbSet, spec)
-              .ToListAsync();
+              .ToListAsync(ct);
 
-    public async Task<T?> GetEntityWithSpecAsync(BaseSpecification<T> spec) =>
+    public async Task<T?> GetEntityWithSpecAsync(BaseSpecification<T> spec, CancellationToken ct = default) =>
       await SpecificationEvaluator<T>
               .GetQuery(_dbSet, spec)
-              .FirstOrDefaultAsync();
+              .FirstOrDefaultAsync(ct);
 
     public async Task CreateAsync(T entity) => await _dbSet.AddAsync(entity);
     public async Task CreateRangeAsync(IEnumerable<T> entities) => await _dbSet.AddRangeAsync(entities);
