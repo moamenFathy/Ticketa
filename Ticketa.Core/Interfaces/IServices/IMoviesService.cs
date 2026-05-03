@@ -25,7 +25,7 @@ namespace Ticketa.Core.Interfaces.IServices
 
     Task<IEnumerable<MovieDropdownDto>> GetAllActiveAsync();
 
-    Task<IEnumerable<ActiveMovieWithDetailsDto>> GetAllActiveWithDetailsAsync();
-    Task<ActiveMovieWithDetailsDto?> GetActiveMovieWithDetailsByIdAsync(int id);
+    Task<IEnumerable<ActiveMovieWithDetailsDto>> GetAllActiveWithDetailsAsync(CancellationToken ct = default);
+    Task<ActiveMovieWithDetailsDto?> GetActiveMovieWithDetailsByIdAsync(int id, CancellationToken ct = default);
   }
 }

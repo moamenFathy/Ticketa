@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using Ticketa.Core.DTOs;
 using Ticketa.Core.Interfaces.IServices;
 
 namespace Ticketa.API.Controllers
@@ -10,20 +12,45 @@ namespace Ticketa.API.Controllers
     private readonly IMoviesService _moviesService = moviesService;
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    [ProducesResponseType(typeof(ActiveMovieWithDetailsDto), statusCode: StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ActiveMovieWithDetailsDto), statusCode: StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetAll(CancellationToken ct)
     {
-      var movies = await _moviesService.GetAllActiveWithDetailsAsync();
-      return Ok(movies);
+      try
+      {
+        var movies = await _moviesService.GetAllActiveWithDetailsAsync(ct);
+        return Ok(movies);
+      }
+      catch (Exception ex)
+      {
+        // Log the exception (not implemented here)
+        return StatusCode((int)HttpStatusCode.InternalServerError, $"An error occurred while retrieving movies: {ex.Message}");
+      }
     }
 
     [HttpGet("{id:int}")]
-    public async Task<IActionResult> Get(int id)
+    [ProducesResponseType(typeof(ActiveMovieWithDetailsDto), statusCode: StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ActiveMovieWithDetailsDto), statusCode: StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ActiveMovieWithDetailsDto), statusCode: StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ActiveMovieWithDetailsDto), statusCode: StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Get(int id, CancellationToken ct)
     {
-      var movie = await _moviesService.GetActiveMovieWithDetailsByIdAsync(id);
+      try
+      {
+        if (id <= 0)
+          return BadRequest("The id must be greater than 0");
 
-      if (movie == null)
-        return NotFound();
-      return Ok(movie);
+        var movie = await _moviesService.GetActiveMovieWithDetailsByIdAsync(id, ct);
+
+        if (movie == null)
+          return NotFound("The movie with this id not exist");
+
+        return Ok(movie);
+      }
+      catch (Exception ex)
+      {
+        return StatusCode((int)HttpStatusCode.InternalServerError, $"An error occurred while retrieving the movie: {ex.Message}");
+      }
     }
   }
 }

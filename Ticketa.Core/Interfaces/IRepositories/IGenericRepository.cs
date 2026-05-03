@@ -12,7 +12,7 @@ namespace Ticketa.Core.Interfaces.IRepositories
     Task<int> CountAsync(BaseSpecification<T> spec);
     void Delete(T entity);
     Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
-    Task<IReadOnlyList<T>> GetAllWithSpecAsync(BaseSpecification<T> spec);
-    Task<T?> GetEntityWithSpecAsync(BaseSpecification<T> spec);
+    Task<IReadOnlyList<T>> GetAllWithSpecAsync(BaseSpecification<T> spec, CancellationToken ct = default);
+    Task<T?> GetEntityWithSpecAsync(BaseSpecification<T> spec, CancellationToken ct = default);
   }
 }
