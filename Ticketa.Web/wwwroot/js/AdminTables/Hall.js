@@ -1,6 +1,6 @@
 import { initDataTable } from "../DataTables.js";
 
-initDataTable("/Admin/Hall/GetAll", [
+initDataTable("/Hall/GetAll", [
     { data: 'rowNumber' },
     { data: 'name' },
     {

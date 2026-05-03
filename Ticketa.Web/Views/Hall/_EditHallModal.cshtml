@@ -26,10 +26,9 @@ else
     <form class="flex flex-col gap-4 mt-4"
           id="editForm"
           method="post"
-          asp-area="Admin"
           asp-controller="Hall"
           asp-action="Upsert"
-          data-submit-url="/Admin/Hall/Upsert?id=@Model.Id">
+          data-submit-url="/Hall/Upsert?id=@Model.Id">
 
         @Html.AntiForgeryToken()
 

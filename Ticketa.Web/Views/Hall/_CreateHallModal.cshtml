@@ -11,10 +11,9 @@
 <form class="flex flex-col gap-4 mt-4"
       id="createForm"
       method="post"
-      asp-area="Admin"
       asp-controller="Hall"
       asp-action="Upsert"
-      data-submit-url="/Admin/Hall/Upsert">
+      data-submit-url="/Hall/Upsert">
 
     @Html.AntiForgeryToken()
 
