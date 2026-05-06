@@ -8,7 +8,7 @@ export function MovieListSkeleton() {
           key={i}
           className="basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 shrink-0 space-y-4"
         >
-          <div className="relative aspect-[2/3] overflow-hidden rounded-2xl border border-white/5">
+          <div className="relative aspect-2/3 overflow-hidden rounded-2xl border border-white/5">
             <Skeleton className="h-full w-full" />
 
             {/* Genre Badge Skeleton */}

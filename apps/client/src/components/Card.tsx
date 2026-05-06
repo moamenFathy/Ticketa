@@ -19,7 +19,7 @@ const Card = ({ movie }: Props) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Image Container with Title Overlay */}
-      <div className="relative aspect-[2/3] overflow-hidden">
+      <div className="relative aspect-2/3 overflow-hidden">
         <motion.img
           src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`}
           alt={movie.title}
