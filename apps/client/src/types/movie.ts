@@ -6,7 +6,3 @@ export type Movie = {
   runtime: string,
   genres: string[]
 }
-
-export type MovieListResponse = {
-    data: Movie[]
-}

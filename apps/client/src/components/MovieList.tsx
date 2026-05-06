@@ -5,15 +5,20 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import type { Movie } from "@/types/movie";
 
-export function MovieList() {
+interface MovieListProps {
+  movies: Movie[];
+}
+
+export function MovieList({ movies }: MovieListProps) {
   return (
-    <Carousel className="w-lg">
+    <Carousel className="w-full">
       <CarouselContent>
-        {Array.from({ length: 20 }).map((_, index) => (
-          <CarouselItem key={index} className="basis-1/2">
+        {movies.map((movie) => (
+          <CarouselItem key={movie.id} className="basis-1/5">
             <div className="p-1">
-              <span>{index + 1}</span>
+              <span>{movie.title}</span>
             </div>
           </CarouselItem>
         ))}
