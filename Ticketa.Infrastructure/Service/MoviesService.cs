@@ -226,6 +226,7 @@ namespace Ticketa.Infrastructure.Service
         Title = m.Title,
         PosterPath = m.PosterPath,
         VoteAverage = m.VoteAverage,
+        TrailerKey = m.TrailerKey,
         Runtime = m.RuntimeMinutes,
         Genres = m.Genres.Select(g => g.Name).ToList()
       });
@@ -244,6 +245,7 @@ namespace Ticketa.Infrastructure.Service
         Title = movie.Title,
         PosterPath = movie.PosterPath,
         Runtime = movie.RuntimeMinutes,
+        TrailerKey = movie.TrailerKey,
         VoteAverage = movie.VoteAverage,
         Genres = movie.Genres.Select(g => g.Name).ToList()
       };

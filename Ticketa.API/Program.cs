@@ -13,23 +13,21 @@ builder.Services.AddTicketaInfrastructure(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.SetIsOriginAllowed(_ => true)
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
-    });
+  options.AddPolicy("AllowAll", policy =>
+  {
+    policy.SetIsOriginAllowed(_ => true)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+  });
 });
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-  app.MapOpenApi();
-  app.MapScalarApiReference();
-}
+app.MapOpenApi();
+app.MapScalarApiReference();
+app.MapGet("/", () => Results.Redirect("/scalar/v1")).ExcludeFromDescription();
 
 app.UseHttpsRedirection();
 

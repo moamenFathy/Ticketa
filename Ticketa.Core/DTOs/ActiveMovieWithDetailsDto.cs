@@ -5,6 +5,7 @@ namespace Ticketa.Core.DTOs
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
     public string? PosterPath { get; set; }
+    public string? TrailerKey { get; set; }
     public double VoteAverage { get; set; }
     public int Runtime { get; set; }
     public List<string> Genres { get; set; } = new();
