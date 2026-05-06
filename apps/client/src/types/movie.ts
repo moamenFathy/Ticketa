@@ -2,7 +2,7 @@ export type Movie = {
   id: string,
   title: string,
   posterPath: null,
-  voteAverage: string,
+  voteAverage: number,
   runtime: string,
   genres: string[]
 }

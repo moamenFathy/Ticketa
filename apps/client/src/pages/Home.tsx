@@ -1,5 +1,6 @@
 import HeroSection from "@/components/HeroSection";
 import MovieList from "@/components/MovieList";
+import { MovieListSkeleton } from "@/components/MovieListSkeleton";
 import { Button } from "@/components/ui/button";
 import { useNowPlayingMovies } from "@/hooks/useMovies";
 import { Link } from "react-router-dom";
@@ -10,14 +11,14 @@ const Home = () => {
 
   if (isError) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] p-6 text-center">
+      <div className="flex flex-col items-center justify-center min-h-100 p-6 text-center">
         <div className="bg-destructive/10 p-4 rounded-full mb-4">
           <AlertCircle className="w-10 h-10 text-destructive" />
         </div>
         <h2 className="text-2xl font-bold tracking-tight mb-2">
           Something went wrong
         </h2>
-        <p className="text-muted-foreground max-w-[400px] mb-6">
+        <p className="text-muted-foreground max-w-100 mb-6">
           We couldn't load the movies. Please check your internet connection and
           try again.
         </p>
@@ -34,13 +35,22 @@ const Home = () => {
       <HeroSection />
       <section>
         <div className="flex justify-between items-center px-6">
-          <h1 className="text-2xl font-bold mb-4">Popular Movies</h1>
-          <Link to="/movies" className="">
-            <Button variant="ghost">See All</Button>
+          <h1 className="text-2xl font-bold">Popular Movies</h1>
+          <Link to="/movies">
+            <Button
+              variant="ghost"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              See All
+            </Button>
           </Link>
         </div>
         <div className="p-6 mx-auto">
-          <MovieList movies={movies || []} />
+          {isLoading ? (
+            <MovieListSkeleton />
+          ) : (
+            <MovieList movies={movies || []} />
+          )}
         </div>
       </section>
     </>
