@@ -26,16 +26,7 @@ export default function Navbar() {
 
         {/* Nav links */}
         <nav className="flex items-center gap-6 text-sm font-medium">
-          <NavLink
-            to="/movies"
-            // className={({ isActive }) =>
-            //   isActive
-            //     ? "text-primary"
-            //     : "text-muted-foreground hover:text-foreground transition-colors"
-            // }
-          >
-            Movies
-          </NavLink>
+          <NavLink to="/movies">Movies</NavLink>
         </nav>
 
         {/* Right side */}
