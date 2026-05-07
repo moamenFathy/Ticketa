@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 interface Props {
   movie: Movie;
@@ -85,10 +86,12 @@ const Card = ({ movie }: Props) => {
             animate={{ opacity: isHovered ? 1 : 0 }}
             transition={{ duration: 0.2 }}
           >
-            <Button className="w-full bg-primary hover:bg-primary/90 text-white font-bold rounded-xl py-3 transition-all active:scale-95 shadow-lg shadow-primary/25 gap-2">
-              <Ticket className="w-4 h-4" />
-              Book Now
-            </Button>
+            <Link to={`/movies/${movie.id}`}>
+              <Button className="w-full bg-primary hover:bg-primary/90 text-white font-bold rounded-xl py-3 transition-all active:scale-95 shadow-lg shadow-primary/25 gap-2">
+                <Ticket className="w-4 h-4" />
+                Book Now
+              </Button>
+            </Link>
           </motion.div>
         </motion.div>
       </div>
