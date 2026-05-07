@@ -1,73 +1,85 @@
-# React + TypeScript + Vite
+# Ticketa Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modernized movie application client built with React 19, TypeScript, and Vite. 
 
-Currently, two official plugins are available:
+## Tech Stack & Architecture
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Framework:** React 19 + TypeScript 6.0
+- **Build Tool:** Vite 8 
+- **Routing:** React Router 7
+- **Styling:** Tailwind CSS 4 + shadcn/ui components (Radix UI) 
+- **Data Fetching:** TanStack Query (React Query v5) + Axios
+- **Animations:** Framer Motion
 
-## React Compiler
+## Detailed Implementation & Folder Structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```text
+src/
+├── api/             # API layer setup
+│   ├── client.ts    # Axios instance with timeout and interceptors for API errors
+│   ├── movies.api.ts# Typed movie API endpoints functions
+│   ├── queryKeys.ts # React Query key factory pattern (e.g. queryKeys.movies.nowPlaying)
+│   └── errors.ts    # Custom error typing and handling
+├── assets/          # Static assets (images, fonts, etc.)
+├── components/      # Reusable React components
+│   ├── ui/          # Generic shadcn UI components (badge, button, carousel, skeleton)
+│   ├── Card.tsx     # Reusable movie card with Framer Motion hover effects and TMDB images
+│   ├── HeroSection.tsx # Application main hero banner UI
+│   ├── MovieList.tsx   # Displays a grid/carousel of Movie cards
+│   ├── MovieListSkeleton.tsx # Loading skeleton state for the movie list
+│   └── Navbar.tsx   # Top navigation component
+├── hooks/           # Custom React hooks
+│   └── useMovies.ts # React Query wrappers (e.g. useNowPlayingMovies) bundling API calls
+├── lib/             # Utility functions
+│   └── utils.ts     # generic utilities (e.g., `cn()` for Tailwind class conditional merging)
+├── pages/           # Application route pages
+│   ├── Home.tsx     # Homepage consuming the useMovies hook & UI components
+│   └── layout/      
+│       └── RootLayout.tsx # Global layout housing the Navbar and React Router `<Outlet />`
+├── providers/       # Global context providers
+│   └── QueryProvider.tsx # TanStack QueryClient setup and wrapper
+├── types/           # TypeScript generic models
+│   ├── api.ts       # API response & error data shapes
+│   └── movie.ts     # Domain models for movies
+├── App.tsx          # Application router configuration and nested route definitions
+├── main.tsx         # Application entry point, wraps the app closely with providers
+└── index.css        # Global CSS setup, Tailwind initialization, and Dark Theme variables
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Data Fetching & Query Management
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+We use a layered architecture for data fetching to enforce strict separation of concerns, utilizing **TanStack Query (React Query)** combined with **Axios**:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. **Query Key Factory Pattern (`src/api/queryKeys.ts`)**:
+   To prevent cache key typos and ensure consistent cache invalidation across the app, we centralize our query keys into query key factories.
+   ```typescript
+   export const queryKeys = {
+     movies: {
+       all: ['movies'] as const,
+       nowPlaying: () => [...queryKeys.movies.all, 'nowPlaying'] as const,
+       details: (id: string) => [...queryKeys.movies.all, 'detail', id] as const,
+     }
+   };
+   ```
+
+2. **API Endpoints (`src/api/movies.api.ts`)**:
+   We define pure asynchronous functions that fetch data using our configured Axios client (`client.ts`). These functions are dedicated solely to communication and data typing, lacking any knowledge of React context.
+
+3. **Custom React Hooks (`src/hooks/useMovies.ts`)**:
+   We encapsulate `useQuery` and `useMutation` logic into reusable custom hooks that bind the query keys and API fetchers securely together. UI components, like specific pages in `/src/pages/`, simply consume our custom hooks (`useNowPlayingMovies()`), beautifully abstracting away caching, refetching, and network state semantics from UI markup.
+
+## Setup & Scripts
+
+Ensure you have a `.env` file at the root of the project pointing to your backend:
+
+```env
+VITE_API_URL=http://localhost:3000/api
 ```
+
+In the project directory, you can run:
+
+- `npm run dev` - Starts the Vite development server with HMR.
+- `npm run build` - Type-checks the workspace and builds the optimal production React app.
+- `npm run lint` - Validates code against ESLint recommendations.
+- `npm run preview` - Bootstraps a local server to preview the production build.
+
