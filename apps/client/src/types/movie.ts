@@ -1,8 +1,12 @@
 export type Movie = {
-  id: string,
-  title: string,
-  posterPath: null,
-  voteAverage: number,
-  runtime: string,
-  genres: string[]
-}
+  id: string;
+  title: string;
+  posterPath: string | null;
+  backdropPath?: string | null;
+  voteAverage: number;
+  runtime?: number;
+  language?: string;
+  genres: string[];
+  overview?: string;
+  releaseDate?: string;
+};
