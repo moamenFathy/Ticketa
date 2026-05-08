@@ -10,7 +10,7 @@ namespace Ticketa.Core.DTOs
     public string Name { get; set; } = string.Empty;
     [JsonPropertyName("character")]
     public string Character { get; set; } = string.Empty;
-    [JsonPropertyName("profilePath")]
+    [JsonPropertyName("profile_path")]
     public string? ProfilePath { get; set; }
     [JsonPropertyName("order")]
     public int Order { get; set; }
