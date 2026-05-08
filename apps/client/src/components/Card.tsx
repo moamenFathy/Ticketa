@@ -33,13 +33,22 @@ const Card = ({ movie }: Props) => {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-all duration-500" />
 
         {/* Top Badges (Genre and Rating) */}
-        <div className="absolute top-3 left-3">
-          {movie.genres[0] && (
-            <Badge className="bg-orange-600 hover:bg-orange-700 text-[10px] font-black uppercase tracking-wider px-3 py-1 border-none shadow-xl">
-              {movie.genres[0]}
-            </Badge>
+        <AnimatePresence>
+          {isHovered && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="absolute top-3 left-3"
+            >
+              {movie.genres[0] && (
+                <Badge className="bg-orange-600 hover:bg-orange-700 text-[10px] font-black uppercase tracking-wider px-3 py-1 border-none shadow-xl">
+                  {movie.genres[0]}
+                </Badge>
+              )}
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
 
         {/* Rating - Hidden by default, appears on Hover */}
         <AnimatePresence>
@@ -68,17 +77,8 @@ const Card = ({ movie }: Props) => {
             <h3 className="text-2xl font-black text-white leading-tight drop-shadow-lg">
               {movie.title}
             </h3>
-            <div className="flex items-center gap-2 text-[11px] font-bold text-gray-300 uppercase tracking-widest">
-              {movie.genres.slice(0, 3).map((genre, i) => (
-                <span key={genre} className="flex items-center gap-2">
-                  {genre}
-                  {i < Math.min(movie.genres.length, 3) - 1 && (
-                    <span className="text-gray-500 text-[8px] opacity-50">
-                      •
-                    </span>
-                  )}
-                </span>
-              ))}
+            <div className="flex items-center gap-2 text-[8px] font-bold text-gray-300 uppercase tracking-widest">
+              {movie.genres.slice(0, 3).join(" • ")}
             </div>
           </div>
 
