@@ -19,6 +19,6 @@ namespace Ticketa.Core.Entities
     public DateTime ImportedAt { get; set; } = DateTime.UtcNow;
 
     public ICollection<Genre> Genres { get; set; } = new List<Genre>();
-    public ICollection<Cast> Casts { get; set; } = new List<Cast>();
+    public ICollection<CastMember> Cast { get; set; } = new List<CastMember>();
   }
 }

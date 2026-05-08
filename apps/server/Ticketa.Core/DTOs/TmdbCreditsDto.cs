@@ -5,6 +5,6 @@ namespace Ticketa.Core.DTOs
   public class TmdbCreditsDto
   {
     [JsonPropertyName("cast")]
-    public List<TmdbCastMember> Cast { get; set; } = [];
+    public List<TmdbCastMemberDto> Cast { get; set; } = [];
   }
 }

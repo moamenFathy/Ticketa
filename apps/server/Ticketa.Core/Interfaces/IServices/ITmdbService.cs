@@ -9,5 +9,6 @@ namespace Ticketa.Core.Interfaces.Services
     Task<string?> GetTrailerKeyAsync(int tmdbId, CancellationToken ct = default);
     Task<IReadOnlyList<TmdbMovieDto>> SearchMoviesAsync(string query, CancellationToken ct = default);
     Task<TmdbMovieDetailDto> GetMovieDetailAsync(int tmdbId, CancellationToken ct = default);
+    Task<TmdbCreditsDto?> GetCreditsAsync(int tmdbId, CancellationToken ct = default);
   }
 }

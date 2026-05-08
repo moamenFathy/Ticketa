@@ -11,6 +11,7 @@ using Ticketa.Core.Interfaces.Services;
 using Ticketa.Core.Mapping;
 using Ticketa.Core.Settings;
 using Ticketa.Infrastructure.Data;
+using Ticketa.Infrastructure.ExternalService;
 using Ticketa.Infrastructure.Repositories;
 using Ticketa.Infrastructure.Service;
 
