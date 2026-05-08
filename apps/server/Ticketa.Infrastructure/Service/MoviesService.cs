@@ -224,10 +224,14 @@ namespace Ticketa.Infrastructure.Service
       {
         Id = m.Id,
         Title = m.Title,
+        Overview = m.Overview,
         PosterPath = m.PosterPath,
+        BackdropPath = m.BackdropPath,
         VoteAverage = m.VoteAverage,
         TrailerKey = m.TrailerKey,
         Runtime = m.RuntimeMinutes,
+        ReleaseDate = DateOnly.FromDateTime(m.ReleaseDate),
+        Language = m.Language,
         Genres = m.Genres.Select(g => g.Name).ToList()
       });
     }
@@ -243,10 +247,14 @@ namespace Ticketa.Infrastructure.Service
       {
         Id = movie.Id,
         Title = movie.Title,
+        Overview = movie.Overview,
         PosterPath = movie.PosterPath,
-        Runtime = movie.RuntimeMinutes,
-        TrailerKey = movie.TrailerKey,
+        BackdropPath = movie.BackdropPath,
         VoteAverage = movie.VoteAverage,
+        TrailerKey = movie.TrailerKey,
+        Runtime = movie.RuntimeMinutes,
+        ReleaseDate = DateOnly.FromDateTime(movie.ReleaseDate),
+        Language = movie.Language,
         Genres = movie.Genres.Select(g => g.Name).ToList()
       };
     }

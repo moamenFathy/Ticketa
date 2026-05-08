@@ -27,7 +27,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.MapOpenApi();
 app.MapScalarApiReference();
-app.MapGet("/", () => Results.Redirect("/scalar/v1")).ExcludeFromDescription();
+app.MapGet("/", () => Results.Redirect("/scalar")).ExcludeFromDescription();
 
 app.UseHttpsRedirection();
 
