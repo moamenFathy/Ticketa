@@ -116,6 +116,7 @@ namespace Ticketa.Infrastructure.Service
       foreach (var tmdbId in idsToImport)
       {
         var movieDetails = await _tmdbService.GetMovieDetailAsync(tmdbId, cancellationToken);
+        var credits = await _tmdbService.GetCreditsAsync(tmdbId, cancellationToken);
 
         if (movieDetails == null || movieDetails.TmdbId == 0)
         {
@@ -126,6 +127,21 @@ namespace Ticketa.Infrastructure.Service
         var movie = _mapper.Map<Movie>(movieDetails);
         movie.TrailerKey = await _tmdbService.GetTrailerKeyAsync(tmdbId, cancellationToken);
         movie.RuntimeMinutes = movieDetails.Runtime;
+
+        if (credits is not null)
+        {
+          movie.Cast = credits.Cast
+              .OrderBy(c => c.Order)
+              .Take(10)
+              .Select(c => new CastMember
+              {
+                Name = c.Name,
+                Character = c.Character,
+                ProfilePath = c.ProfilePath,
+                Order = c.Order
+              })
+              .ToList();
+        }
 
         movieGenrePairs.Add((movie, movieDetails.Genres));
       }

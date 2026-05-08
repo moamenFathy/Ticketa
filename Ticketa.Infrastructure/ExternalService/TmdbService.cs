@@ -5,7 +5,7 @@ using System.Net.Http.Json;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Interfaces.Services;
 
-namespace Ticketa.Infrastructure.Service
+namespace Ticketa.Infrastructure.ExternalService
 {
   public class TmdbService : ITmdbService
   {
@@ -117,6 +117,17 @@ namespace Ticketa.Infrastructure.Service
         _logger.LogError(ex, $"error searching tmdb for query: {query}");
         return [];
       }
+    }
+
+    public async Task<TmdbCreditsDto?> GetCreditsAsync(int tmdbId, CancellationToken ct = default)
+    {
+      var response = await _httpClient.GetAsync($"movie/{tmdbId}/credits", ct);
+      if (!response.IsSuccessStatusCode)
+      {
+        _logger.LogError($"Failed to fetch credits for movie {tmdbId}. Status code: {response.StatusCode}");
+        return null;
+      }
+      return await response.Content.ReadFromJsonAsync<TmdbCreditsDto>();
     }
 
     private bool IsArabic(string text)

@@ -13,5 +13,6 @@ namespace Ticketa.Core.DTOs
     public DateOnly? ReleaseDate { get; set; }
     public string Language { get; set; } = string.Empty;
     public List<string> Genres { get; set; } = new();
+    public List<TmdbCastMemberDto> Cast { get; set; } = new();
   }
 }
