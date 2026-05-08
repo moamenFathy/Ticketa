@@ -31,7 +31,7 @@ initDataTable("/Hall/GetAll", [
         render: (id, type, row) => `
                         <!-- View Map Action -->
                         <div class="tooltip" data-tip="View Map">
-                             <button type="button" class="btn btn-ghost btn-sm text-blue-500 hover:bg-blue-50" onclick="openModal('viewMapForm', '/admin/hall/ViewMap/${id}', 'seat map')">
+                             <button type="button" class="btn btn-ghost btn-sm text-blue-500 hover:bg-blue-50" onclick="openModal('viewMapForm', '/hall/ViewMap/${id}', 'seat map')">
                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-grid-2x2">
                                     <rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 12h18"/><path d="M12 3v18"/>
                                  </svg>
@@ -39,7 +39,7 @@ initDataTable("/Hall/GetAll", [
                         </div>
                         <!-- Edit Action -->
                         <div class="tooltip" data-tip="Edit">
-                             <button type="button" class="btn btn-ghost btn-sm text-violet-500 hover:bg-violet-50" onclick="openModal('editForm', '/admin/hall/Upsert/${id}', 'hall')">
+                             <button type="button" class="btn btn-ghost btn-sm text-violet-500 hover:bg-violet-50" onclick="openModal('editForm', '/hall/Upsert/${id}', 'hall')">
                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-icon lucide-pencil">
                                     <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>
                                  </svg>
@@ -50,7 +50,7 @@ initDataTable("/Hall/GetAll", [
                              <button type="button" 
                                      class="btn btn-ghost btn-sm text-red-400 hover:bg-red-50 ${row.hasShowtimes ? 'btn-disabled opacity-30' : ''}" 
                                      ${row.hasShowtimes ? 'disabled' : ''}
-                                     onclick="openModal('deleteForm', '/admin/hall/DeleteConfirmation/${id}', 'hall')">
+                                     onclick="openModal('deleteForm', '/hall/DeleteConfirmation/${id}', 'hall')">
                                         <svg xmlns="http://www.w3.org/2000/svg"
                                             height="16" width="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

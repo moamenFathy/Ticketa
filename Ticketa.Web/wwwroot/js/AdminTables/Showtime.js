@@ -355,7 +355,7 @@ if (dataTableElement) {
 
                 const editButton = canEdit
                     ? `<div class="tooltip" data-tip="${tooltipMsg}">
-                         <button type="button" class="btn btn-ghost btn-sm text-violet-500 hover:bg-violet-50" onclick="openModal('createForm', '/admin/showtime/Upsert/' + ${id}, 'showtime')">
+                         <button type="button" class="btn btn-ghost btn-sm text-violet-500 hover:bg-violet-50" onclick="openModal('createForm', '/showtime/Upsert/' + ${id}, 'showtime')">
                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-icon lucide-pencil">
                                 <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>
                              </svg>
@@ -372,7 +372,7 @@ if (dataTableElement) {
                 const canDelete = row.status === 2;
                 const deleteTooltipMsg = canDelete ? "Delete" : "Cannot delete incomplete showtimes";
                 const deleteBtnClass = canDelete ? "btn-ghost text-red-400 hover:bg-red-50" : "btn-ghost text-gray-400 opacity-50 cursor-not-allowed";
-                const deleteOnclick = canDelete ? `onclick="openModal('deleteForm', '/Admin/Showtime/DeleteConfirmation/${id}', 'showtime')"` : "disabled";
+                const deleteOnclick = canDelete ? `onclick="openModal('deleteForm', '/Showtime/DeleteConfirmation/${id}', 'showtime')"` : "disabled";
 
                 const deleteButton = `
                     <div class="tooltip" data-tip="${deleteTooltipMsg}">
@@ -388,7 +388,7 @@ if (dataTableElement) {
                 return `
                 <div class="flex flex-row justify-center items-center gap-2">
                     <div class="tooltip" data-tip="View Hall Map">
-                         <button type="button" class="btn btn-ghost btn-sm text-blue-500 hover:bg-blue-50" onclick="openModal('viewMapForm', '/admin/hall/ViewMap/${row.hallId}', 'seat map')">
+                         <button type="button" class="btn btn-ghost btn-sm text-blue-500 hover:bg-blue-50" onclick="openModal('viewMapForm', '/hall/ViewMap/${row.hallId}', 'seat map')">
                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-grid-2x2">
                                 <rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 12h18"/><path d="M12 3v18"/>
                              </svg>
@@ -448,7 +448,7 @@ window.updateShowtimeStatus = async function (id, selectEl) {
         formData.append('id', id);
         formData.append('status', newStatus);
 
-        const response = await fetch('/Admin/Showtime/UpdateStatus', {
+        const response = await fetch('/Showtime/UpdateStatus', {
             method: 'POST',
             body: formData
         });
