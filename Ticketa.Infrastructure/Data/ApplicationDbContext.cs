@@ -5,15 +5,13 @@ using Ticketa.Core.Entities;
 
 namespace Ticketa.Infrastructure.Data
 {
-  public class ApplicationDbContext : IdentityDbContext<AppUser>
+  public class ApplicationDbContext(DbContextOptions options) : IdentityDbContext<AppUser>(options)
   {
     public DbSet<Hall> Halls { get; set; }
     public DbSet<Movie> Movies { get; set; }
     public DbSet<Genre> Genres { get; set; }
-    public DbSet<Cast> Casts { get; set; }
+    public DbSet<CastMember> Casts { get; set; }
     public DbSet<Showtime> Showtimes { get; set; }
-
-    public ApplicationDbContext(DbContextOptions options) : base(options) { }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

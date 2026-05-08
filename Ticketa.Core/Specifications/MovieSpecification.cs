@@ -14,21 +14,19 @@ namespace Ticketa.Core.Specifications
       ApplyFilters(status, search);
     }
 
-    public MovieSpecification(MovieStatus? status, string? search, bool includeGenres) : this(status, search)
+    public MovieSpecification(MovieStatus? status, string? search, bool includeGenres, bool includeCast) : this(status, search)
     {
       if (includeGenres)
-      {
         AddInclude(m => m.Genres);
-      }
     }
 
-    public MovieSpecification(int id, bool includeGenres) : this()
+    public MovieSpecification(int id, bool includeGenres, bool includeCast = false) : this()
     {
       AddCriteria(m => m.Id == id);
       if (includeGenres)
-      {
         AddInclude(m => m.Genres);
-      }
+      if (includeCast)
+        AddInclude(m => m.Cast);
     }
 
     public MovieSpecification(MovieStatus? status, string? search, int orderColumn, string orderDir, int skip, int take) : this(status, search)

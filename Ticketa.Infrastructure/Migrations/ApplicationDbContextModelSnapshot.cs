@@ -277,7 +277,7 @@ namespace Ticketa.Infrastructure.Migrations
 
                     b.HasIndex("MovieId");
 
-                    b.ToTable("Casts");
+                    b.ToTable("Casts", (string)null);
                 });
 
             modelBuilder.Entity("Ticketa.Core.Entities.Genre", b =>
@@ -301,7 +301,7 @@ namespace Ticketa.Infrastructure.Migrations
                     b.HasIndex("TmdbId")
                         .IsUnique();
 
-                    b.ToTable("Genres");
+                    b.ToTable("Genres", (string)null);
                 });
 
             modelBuilder.Entity("Ticketa.Core.Entities.Hall", b =>
@@ -327,7 +327,7 @@ namespace Ticketa.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Halls");
+                    b.ToTable("Halls", (string)null);
 
                     b.HasData(
                         new
@@ -408,7 +408,7 @@ namespace Ticketa.Infrastructure.Migrations
                     b.HasIndex("TmdbId")
                         .IsUnique();
 
-                    b.ToTable("Movies");
+                    b.ToTable("Movies", (string)null);
                 });
 
             modelBuilder.Entity("Ticketa.Core.Entities.Showtime", b =>
@@ -443,7 +443,7 @@ namespace Ticketa.Infrastructure.Migrations
 
                     b.HasIndex("MovieId");
 
-                    b.ToTable("Showtimes");
+                    b.ToTable("Showtimes", (string)null);
                 });
 
             modelBuilder.Entity("GenreMovie", b =>

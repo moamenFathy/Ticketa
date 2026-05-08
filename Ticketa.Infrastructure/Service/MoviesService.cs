@@ -233,7 +233,7 @@ namespace Ticketa.Infrastructure.Service
     public async Task<IEnumerable<ActiveMovieWithDetailsDto>> GetAllActiveWithDetailsAsync(CancellationToken ct = default)
     {
       // Pass 'true' to include genres, and set status to Active
-      var spec = new MovieSpecification(MovieStatus.Active, null, includeGenres: true);
+      var spec = new MovieSpecification(MovieStatus.Active, null, includeGenres: true, includeCast: false);
       var movies = await _uow.Movies.GetAllWithSpecAsync(spec, ct);
 
       return movies.Select(m => new ActiveMovieWithDetailsDto
@@ -254,7 +254,7 @@ namespace Ticketa.Infrastructure.Service
 
     public async Task<ActiveMovieWithDetailsDto?> GetActiveMovieWithDetailsByIdAsync(int id, CancellationToken ct = default)
     {
-      var spec = new MovieSpecification(id, includeGenres: true);
+      var spec = new MovieSpecification(id, includeGenres: true, includeCast: true);
       var movie = await _uow.Movies.GetEntityWithSpecAsync(spec, ct);
 
       if (movie == null) return null;
@@ -271,7 +271,16 @@ namespace Ticketa.Infrastructure.Service
         Runtime = movie.RuntimeMinutes,
         ReleaseDate = DateOnly.FromDateTime(movie.ReleaseDate),
         Language = movie.Language,
-        Genres = movie.Genres.Select(g => g.Name).ToList()
+        Genres = movie.Genres.Select(g => g.Name).ToList(),
+        Cast = movie.Cast
+        .OrderBy(c => c.Order)
+        .Select(c => new TmdbCastMemberDto
+        {
+          Name = c.Name,
+          Character = c.Character,
+          ProfilePath = c.ProfilePath,
+          Order = c.Order
+        }).ToList()
       };
     }
 
