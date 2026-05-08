@@ -63,7 +63,7 @@ async function resolveTrailerKey(initialKey, tmdbId) {
         return trailerKeyCache.get(tmdbId);
     }
 
-    const response = await fetch(`/Admin/Movies/GetTrailerKey?tmdbId=${encodeURIComponent(tmdbId)}`);
+    const response = await fetch(`/Movies/GetTrailerKey?tmdbId=${encodeURIComponent(tmdbId)}`);
     if (!response.ok) {
         return "";
     }
@@ -360,7 +360,7 @@ if (dataTableElement) {
                                  <button type="button" 
                                          class="btn btn-ghost btn-sm text-red-400 hover:bg-red-50 ${row.hasShowtimes ? 'btn-disabled opacity-30' : ''}" 
                                          ${row.hasShowtimes ? 'disabled' : ''}
-                                         onclick="openModal('deleteForm', '/Admin/Movies/DeleteConfirmation/${id}', 'movie')">
+                                         onclick="openModal('deleteForm', '/Movies/DeleteConfirmation/${id}', 'movie')">
                                             <svg xmlns="http://www.w3.org/2000/svg"
                                                 height="18" width="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -477,7 +477,7 @@ function initMovieImportPage() {
             return trailerKeyCache.get(tmdbId);
         }
 
-        const response = await fetch(`/Admin/Movies/GetTrailerKey?tmdbId=${encodeURIComponent(tmdbId)}`);
+        const response = await fetch(`/Movies/GetTrailerKey?tmdbId=${encodeURIComponent(tmdbId)}`);
         if (!response.ok) {
             return "";
         }
@@ -643,7 +643,7 @@ function initMovieImportPage() {
         searchAbortController = new AbortController();
         setSelectLoading(true);
 
-        fetch(`/Admin/Movies/SearchMovies?query=${encodeURIComponent(query)}`, {
+        fetch(`/Movies/SearchMovies?query=${encodeURIComponent(query)}`, {
             signal: searchAbortController.signal
         })
             .then(res => res.json())
@@ -813,7 +813,7 @@ window.updateMovieStatus = async function (id, selectEl) {
         formData.append('id', id);
         formData.append('status', newStatus);
 
-        const response = await fetch('/Admin/Movies/UpdateStatus', {
+        const response = await fetch('/Movies/UpdateStatus', {
             method: 'POST',
             body: formData
         });
