@@ -14,7 +14,10 @@ export default function Navbar() {
   }, [dark]);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-16 border-b border-border bg-background/80 backdrop-blur-md">
+    <header
+      className="fixed top-0 left-0 right-0 z-50 h-16 border-b border-border bg-background/80 backdrop-blur-md"
+      style={{ zIndex: 100 }}
+    >
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 font-bold text-xl">

@@ -127,7 +127,7 @@ const HeroSection = ({ movies }: HeroSectionProps) => {
                       Book Ticket
                     </Button>
                   </Link>
-                  <Link to={`/movie/${currentMovie.id}`}>
+                  <Link to={`/movies/${currentMovie.id}`}>
                     <Button
                       size="icon"
                       variant="outline"

@@ -79,7 +79,7 @@ const MovieDetailsPage = () => {
             <Button
               variant="ghost"
               onClick={() => navigate(-1)}
-              className="group flex items-center gap-3 px-6 py-6 rounded-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 backdrop-blur-3xl hover:bg-black/10 dark:hover:bg-white/10 text-black dark:text-white"
+              className="group -z-50 flex items-center gap-3 px-6 py-6 rounded-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 backdrop-blur-3xl hover:bg-black/10 dark:hover:bg-white/10 text-black dark:text-white"
             >
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 text-primary" />
               <span className="text-sm font-bold tracking-widest uppercase">
