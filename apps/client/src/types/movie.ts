@@ -4,9 +4,25 @@ export type Movie = {
   posterPath: string | null;
   backdropPath?: string | null;
   voteAverage: number;
-  runtime?: number;
-  language?: string;
-  genres: string[];
-  overview?: string;
-  releaseDate?: string;
+  runtime: number;
+  language: string;
+  genres: Genre[];
+  overview: string;
+  releaseDate: string;
+};
+
+export type MovieDetails = Movie & {
+  cast: cast[];
+};
+
+type cast = {
+  name: string;
+  character: string;
+  profile_path: string | null;
+  order: number;
+};
+
+export type Genre = {
+  id: number;
+  name: string;
 };
