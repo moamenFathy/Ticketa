@@ -93,8 +93,6 @@ const HeroSection = ({ movies }: HeroSectionProps) => {
                       {currentMovie.releaseDate?.split("-")[0] || "2026"}
                     </span>
                     <span>•</span>
-                    <span>18+</span>
-                    <span>•</span>
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
                       <span>

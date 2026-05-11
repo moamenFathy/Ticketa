@@ -4,6 +4,8 @@ export type Movie = {
   posterPath: string | null;
   voteAverage: number;
   runtime: number;
+  backdropPath?: string | null;
+  overview: string;
   language: string;
   genres: string[];
   releaseDate: string;
