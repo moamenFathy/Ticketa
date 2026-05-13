@@ -36,8 +36,6 @@ namespace Ticketa.Infrastructure.Repositories
       .Select(s => new ShowtimeListItemDto
       {
         Id = s.Id,
-        MovieTitle = s.Movie.Title,
-        MoviePoster = s.Movie.PosterPath,
         HallName = s.Hall.Name,
         TotalSeats = s.Hall.TotalSeats,
         StartTime = s.StartTime,
@@ -45,7 +43,6 @@ namespace Ticketa.Infrastructure.Repositories
         Price = s.Price,
         Status = s.Status,
         TrailerKey = s.Movie.TrailerKey,
-        TmdbId = s.Movie.TmdbId,
         HallId = s.HallId
       }).ToListAsync();
     }

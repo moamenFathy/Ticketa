@@ -271,157 +271,170 @@ if (dataTableElement) {
     let currentFilter = "all";
     initDataTable("/Showtime/GetAll", [
         {
-            data: "moviePoster",
+            data: null,
             orderable: false,
-            className: "align-middle text-center w-24",
-            render: (data) => {
-                if (data) return `<img src="${imageBase}${data}" alt="Poster" class="w-16 rounded shadow-sm mx-auto" />`;
-                return `<div class="w-16 h-24 bg-base-300 rounded flex items-center justify-center text-xs text-base-content/50 mx-auto">No Image</div>`;
-            }
-        },
-        {
-            data: "movieTitle",
-            className: "align-middle font-semibold",
-            render: (data) => (data && data.length > 40) ? data.substring(0, 30) + "..." : data
-        },
-        {
-            data: "hallName",
-            orderable: false,
-            className: "align-middle",
-            render: (data, type, row) => `<div class="font-semibold">${data}</div><div class="text-xs text-gray-500">${row.totalSeats} seats</div>`
-        },
-        {
-            data: "startTime",
-            className: "align-middle text-center whitespace-nowrap",
-            render: (data) => toDataTableDate(data)
-        },
-        {
-            data: "endTime",
-            className: "align-middle text-center whitespace-nowrap",
-            render: (data) => toDataTableDate(data)
-        },
-        {
-            data: "price",
-            className: "align-middle text-center whitespace-nowrap",
-            render: (data) => `$${parseFloat(data).toFixed(2)}`
-        },
-        {
-            data: "status",
-            orderable: false,
-            className: "align-middle text-center whitespace-nowrap",
-            render: (data, _type, row) => {
-                const scheduledSel = data === 0 ? "selected" : "";
-                const soldOutSel = data === 1 ? "selected" : "";
-                const completedSel = data === 2 ? "selected" : "";
+            className: "p-0 border-0 bg-transparent align-top",
+            render: function (data, type, row) {
+                if (type === 'display') {
+                    const poster = row.posterPath ? `<img src="${imageBase}${row.posterPath}" alt="Poster" class="w-12 h-16 object-cover rounded shadow-sm shrink-0" />` : `<div class="w-12 h-16 bg-base-300 rounded flex items-center justify-center text-[10px] text-base-content/50 shrink-0 border border-base-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-30"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                    </div>`;
 
-                let colorClass = "";
-                if (data === 0) colorClass = "text-blue-700 bg-blue-100 border-blue-200";
-                else if (data === 1) colorClass = "text-yellow-700 bg-yellow-100 border-yellow-200";
-                else if (data === 2) colorClass = "text-green-700 bg-green-100 border-green-200";
+                    const initials = row.title.substring(0, 2).toUpperCase();
 
-                return `
-                    <div class="relative inline-block">
-                        <select class="select select-sm select-bordered w-32 font-semibold focus:outline-none transition-all duration-200 ${colorClass}" onchange="updateShowtimeStatus(${row.id}, this)">
-                            <option value="0" ${scheduledSel}>✓ Scheduled</option>
-                            <option value="1" ${soldOutSel}>🎟️ Sold Out</option>
-                            <option value="2" ${completedSel}>✅ Completed</option>
-                        </select>
-                        <span class="status-indicator absolute -right-1 -top-1 hidden"></span>
-                    </div>
-                `;
-            }
-        },
-        {
-            data: "id",
-            orderable: false,
-            className: "align-middle text-center whitespace-nowrap",
-            render: (id, _type, row) => {
-                const startTime = new Date(row.startTime);
-                const fiveHoursFromNow = new Date(new Date().getTime() + (5 * 60 * 60 * 1000));
+                    let showtimesHtml = '';
+                    if (row.showtimes && row.showtimes.length > 0) {
+                        showtimesHtml = row.showtimes.map(st => {
+                            const start = new Date(st.startTime);
+                            const startDate = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                            const startTimeStr = start.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-                const canEditTime = startTime > fiveHoursFromNow;
-                const canEditStatus = row.status !== 2 && row.status !== 1;
+                            const end = new Date(st.endTime);
+                            const endDate = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                            const endTimeStr = end.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-                let canEdit = true;
-                let tooltipMsg = "Edit";
+                            const priceFormatted = `${st.price.toFixed(2)} $`;
 
-                if (!canEditStatus) {
-                    canEdit = false;
-                    tooltipMsg = "Cannot edit this status right now";
-                } else if (!canEditTime) {
-                    canEdit = false;
-                    tooltipMsg = "Cannot edit within 5 hours of starting";
+                            const scheduledSel = st.status === 0 ? "selected" : "";
+                            const soldOutSel = st.status === 1 ? "selected" : "";
+                            const completedSel = st.status === 2 ? "selected" : "";
+
+                            let colorClass = "";
+                            if (st.status === 0) colorClass = "text-blue-700 bg-blue-100 border-blue-200";
+                            else if (st.status === 1) colorClass = "text-yellow-700 bg-yellow-100 border-yellow-200";
+                            else if (st.status === 2) colorClass = "text-green-700 bg-green-100 border-green-200";
+
+                            const statusHtml = `
+                                <div class="relative inline-flex items-center">
+                                    <select class="select select-sm select-bordered w-36 rounded-full font-semibold focus:outline-none transition-all duration-200 ${colorClass}" onchange="updateShowtimeStatus(${st.id}, this)">
+                                        <option value="0" ${scheduledSel}>• Scheduled</option>
+                                        <option value="1" ${soldOutSel}>• Sold Out</option>
+                                        <option value="2" ${completedSel}>• Completed</option>
+                                    </select>
+                                    <span class="status-indicator absolute -right-1 -top-1 hidden"></span>
+                                </div>
+                            `;
+
+                            const fiveHoursFromNow = new Date(new Date().getTime() + (5 * 60 * 60 * 1000));
+                            const canEditTime = start > fiveHoursFromNow;
+                            const canEditStatus = st.status !== 2 && st.status !== 1;
+                            let canEdit = true;
+                            let tooltipMsg = "Edit";
+                            if (!canEditStatus) {
+                                canEdit = false;
+                                tooltipMsg = "Cannot edit this status right now";
+                            } else if (!canEditTime) {
+                                canEdit = false;
+                                tooltipMsg = "Cannot edit within 5 hours of starting";
+                            }
+
+                            const editButton = canEdit
+                                ? `<button type="button" class="btn btn-square btn-outline btn-sm border-base-300 text-violet-500 hover:bg-violet-50 hover:bg-base-200 hover:border-base-400 tooltip" data-tip="${tooltipMsg}" onclick="openModal('createForm', '/showtime/Upsert/' + ${st.id}, 'showtime')">
+                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+                                   </button>`
+                                : `<button type="button" class="btn btn-square btn-outline btn-sm border-base-300 text-base-content/30 cursor-not-allowed tooltip" data-tip="${tooltipMsg}" disabled>
+                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+                                   </button>`;
+
+                            const canDelete = st.status === 2;
+                            const deleteTooltipMsg = canDelete ? "Delete" : "Cannot delete incomplete showtimes";
+                            const deleteBtnClass = canDelete ? "btn-square btn-outline btn-sm border-base-300 text-red-500 hover:bg-red-50 hover:border-red-200" : "btn-square btn-outline btn-sm border-base-300 text-base-content/30 cursor-not-allowed";
+                            const deleteOnclick = canDelete ? `onclick="openModal('deleteForm', '/Showtime/DeleteConfirmation/${st.id}', 'showtime')"` : "disabled";
+
+                            const deleteButton = `
+                                <button type="button" class="btn ${deleteBtnClass} tooltip" data-tip="${deleteTooltipMsg}" ${deleteOnclick}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16" /></svg>
+                                </button>`;
+
+                            const trailerButton = `
+                                <button type="button" class="btn btn-square btn-outline btn-sm border-base-300 text-indigo-600 hover:bg-blue-50 hover:border-base-400 tooltip" data-tip="Trailer" onclick="openMovieTrailer(this, '${(row.title ?? "Movie").replace(/'/g, "&#39;")}', '${st.trailerKey ?? ""}', '${row.tmdbId ?? ""}')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polygon points="5 3 19 12 5 21 5 3"/>
+                                    </svg>
+                                </button>`;
+
+                            const mapButton = `
+                                <button type="button" class="btn btn-square btn-outline btn-sm border-base-300 text-blue-500 hover:bg-blue-50 hover:border-base-400 tooltip" data-tip="View Hall Map" onclick="openModal('viewMapForm', '/hall/ViewMap/${st.hallId}', 'seat map')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 12h18"/><path d="M12 3v18"/></svg>
+                                </button>`;
+
+                            return `
+                                <div class="flex p-10 items-center flex-wrap md:flex-nowrap gap-6 p-5 border-b border-base-300 last:border-b-0 hover:bg-base-200/30 transition-colors">
+                                    <div class="flex flex-col min-w-[120px]">
+                                        <span class="text-[10px] font-bold text-base-content/60 uppercase tracking-wider mb-1">Hall</span>
+                                        <span class="font-bold text-base">${st.hallName}</span>
+                                        <span class="text-xs text-base-content/60 mt-0.5">${st.totalSeats} seats</span>
+                                    </div>
+                                    
+                                    <div class="flex flex-col min-w-[140px]">
+                                        <span class="text-[10px] font-bold text-base-content/60 uppercase tracking-wider mb-1">Start</span>
+                                        <span class="font-bold text-base">${startDate}</span>
+                                        <span class="text-xs text-base-content/60 mt-0.5">${startTimeStr}</span>
+                                    </div>
+                                    
+                                    <div class="flex flex-col min-w-[140px]">
+                                        <span class="text-[10px] font-bold text-base-content/60 uppercase tracking-wider mb-1">End</span>
+                                        <span class="font-bold text-base">${endDate}</span>
+                                        <span class="text-xs text-base-content/60 mt-0.5">${endTimeStr}</span>
+                                    </div>
+                                    
+                                    <div class="flex flex-col min-w-[80px]">
+                                        <span class="text-[10px] font-bold text-base-content/60 uppercase tracking-wider mb-1">Price</span>
+                                        <span class="font-bold text-base">${priceFormatted}</span>
+                                    </div>
+                                    
+                                    <div class="flex-1 flex justify-center min-w-[150px]">
+                                        ${statusHtml}
+                                    </div>
+                                    
+                                    <div class="flex items-center gap-2 justify-end">
+                                        ${editButton}
+                                        ${trailerButton}
+                                        ${mapButton}
+                                        ${deleteButton}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+
+                    return `
+                    <details class="group border border-base-300 bg-base-100 rounded-xl overflow-hidden [&_summary::-webkit-details-marker]:hidden mb-4 shadow-sm w-full block">
+                        <summary class="flex items-center gap-4 p-4 cursor-pointer hover:bg-base-200/50 transition-colors list-none outline-none">
+                            ${poster}
+                            <div class="flex-1 font-semibold text-xl truncate">${row.title}</div>
+                            <div class="badge badge-outline border-base-300 bg-base-200/50 text-sm whitespace-nowrap px-3 py-3">${row.showtimeCount} showtimes</div>
+                            <div class="text-base-content/50 transition-transform duration-200 group-open:-rotate-180">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                            </div>
+                        </summary>
+                        <div class="border-t border-base-300 flex flex-col">
+                            ${showtimesHtml}
+                        </div>
+                    </details>
+                    `;
                 }
 
-                const editButton = canEdit
-                    ? `<div class="tooltip" data-tip="${tooltipMsg}">
-                         <button type="button" class="btn btn-ghost btn-sm text-violet-500 hover:bg-violet-50" onclick="openModal('createForm', '/showtime/Upsert/' + ${id}, 'showtime')">
-                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-icon lucide-pencil">
-                                <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>
-                             </svg>
-                         </button>
-                    </div>`
-                    : `<div class="tooltip" data-tip="${tooltipMsg}">
-                         <button type="button" class="btn btn-ghost btn-sm text-gray-400 cursor-not-allowed" disabled>
-                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-icon lucide-pencil">
-                                <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>
-                             </svg>
-                         </button>
-                    </div>`;
-
-                const canDelete = row.status === 2;
-                const deleteTooltipMsg = canDelete ? "Delete" : "Cannot delete incomplete showtimes";
-                const deleteBtnClass = canDelete ? "btn-ghost text-red-400 hover:bg-red-50" : "btn-ghost text-gray-400 opacity-50 cursor-not-allowed";
-                const deleteOnclick = canDelete ? `onclick="openModal('deleteForm', '/Showtime/DeleteConfirmation/${id}', 'showtime')"` : "disabled";
-
-                const deleteButton = `
-                    <div class="tooltip" data-tip="${deleteTooltipMsg}">
-                         <button type="button" class="btn btn-sm ${deleteBtnClass}" ${deleteOnclick}>
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                        height="18" width="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16" />
-                                    </svg>
-                         </button>
-                    </div>`;
-
-                return `
-                <div class="flex flex-row justify-center items-center gap-2">
-                    <div class="tooltip" data-tip="View Hall Map">
-                         <button type="button" class="btn btn-ghost btn-sm text-blue-500 hover:bg-blue-50" onclick="openModal('viewMapForm', '/hall/ViewMap/${row.hallId}', 'seat map')">
-                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-grid-2x2">
-                                <rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 12h18"/><path d="M12 3v18"/>
-                             </svg>
-                         </button>
-                    </div>
-                    ${deleteButton}
-                    ${editButton}
-                    <div class="tooltip" data-tip="Trailer">
-                         <button type="button" class="btn btn-ghost btn-sm hover:bg-blue-50 text-bold" onclick="openMovieTrailer(this, '${(row.movieTitle ?? "Movie").replace(/'/g, "&#39;")}', '${row.trailerKey ?? ""}', '${row.tmdbId ?? ""}')">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="18" width="18" fill="currentColor" viewBox="0 0 24 24" stroke="none" class="file-current text-indigo-600">
-                                <path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/>
-                            </svg>
-                         </button>
-                    </div>
-                </div>
-            `;
+                // For filter/search
+                return row.title + " " + (row.showtimes || []).map(st => st.hallName).join(" ");
             }
         }
     ], {
-        order: [[3, "desc"]],
         ajaxData: function () {
             return { segmentedFilter: currentFilter };
         },
-    initComplete: function () {
-        const api = this.api();
-        initSegmentedFilter((filter) => {
-            currentFilter = filter;
-            api.ajax.reload();
-        });
-    },
-    serverSide: true,
-        responsive: true
-});
+        initComplete: function () {
+            const api = this.api();
+            initSegmentedFilter((filter) => {
+                currentFilter = filter;
+                api.ajax.reload();
+            });
+        },
+        serverSide: false,
+        responsive: false,
+        ordering: false,
+        bSort: false
+    });
 }
 
 window.updateShowtimeStatus = async function (id, selectEl) {
@@ -434,7 +447,7 @@ window.updateShowtimeStatus = async function (id, selectEl) {
     else if (newStatus === 1) colorClass = "text-yellow-700 bg-yellow-100 border-yellow-200";
     else if (newStatus === 2) colorClass = "text-green-700 bg-green-100 border-green-200";
 
-    selectEl.className = "select select-sm select-bordered w-36 font-semibold focus:outline-none transition-all duration-200 " + colorClass;
+    selectEl.className = "select select-sm select-bordered w-36 rounded-full font-semibold focus:outline-none transition-all duration-200 " + colorClass;
 
     selectEl.disabled = true;
     selectEl.style.opacity = '0.7';

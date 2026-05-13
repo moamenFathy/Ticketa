@@ -5,12 +5,9 @@ namespace Ticketa.Core.Interfaces.IServices
 {
   public interface IShowtimeService
   {
-    Task<object> GetAllAsync(
-    DataTableRequestsDto request,
-    string? search,
-    int orderColumn,
-    string orderDir,
-    string? segmentedFilter);
+    public Task<IEnumerable<MovieShowtimeDto>> GetAllAsync(
+            string? search,
+            string? segmentedFilter);
 
     Task<string?> CreateAsync(ShowtimeUpsertDto dto);
     Task<string?> UpdateAsync(ShowtimeUpsertDto dto);
