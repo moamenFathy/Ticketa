@@ -17,11 +17,8 @@ namespace Ticketa.Infrastructure.Service
 
     // ── DataTables ───────────────────────────────────────────────
 
-    public async Task<object> GetAllAsync(
-        DataTableRequestsDto request,
+    public async Task<IEnumerable<MovieShowtimeDto>> GetAllAsync(
         string? search,
-        int orderColumn,
-        string orderDir,
         string? segmentedFilter)
     {
       ShowtimeStatus? status = segmentedFilter?.ToLower() switch
@@ -34,14 +31,32 @@ namespace Ticketa.Infrastructure.Service
 
       var query = string.IsNullOrWhiteSpace(search) ? null : search;
 
-      var total = await _uow.Showtimes.CountAsync(new ShowtimeSpecification());
-      var filtered = await _uow.Showtimes.CountAsync(new ShowtimeSpecification(status, query));
-      var data = await _uow.Showtimes.GetShowtimeListAsync(
-                         new ShowtimeSpecification(status, query, orderColumn, orderDir, request.Start, request.Length));
+      var showtimes = await _uow.Showtimes.GetAllWithSpecAsync(
+          new ShowtimeSpecification(status, query));
 
-      return new { draw = request.Draw, recordsTotal = total, recordsFiltered = filtered, data };
+      return showtimes
+          .GroupBy(s => s.Movie)
+          .Select(g => new MovieShowtimeDto
+          {
+            MovieId = g.Key.Id,
+            TmdbId = g.Key.TmdbId,
+            Title = g.Key.Title,
+            PosterPath = g.Key.PosterPath,
+            Showtimes = g.Select(s => new ShowtimeListItemDto
+            {
+              Id = s.Id,
+              HallName = s.Hall.Name,
+              TotalSeats = s.Hall.TotalSeats,
+              StartTime = s.StartTime,
+              EndTime = s.EndTime,
+              Price = s.Price,
+              Status = s.Status,
+              TrailerKey = s.Movie.TrailerKey,
+              HallId = s.HallId
+            }).OrderBy(s => s.StartTime).ToList()
+          })
+          .OrderBy(m => m.Title);
     }
-
     // ── Create & Update ───────────────────────────────────────────────────
 
     public async Task<string?> CreateAsync(ShowtimeUpsertDto dto)

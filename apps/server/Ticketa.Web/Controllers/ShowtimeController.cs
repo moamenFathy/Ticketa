@@ -22,16 +22,13 @@ namespace Ticketa.Web.Controllers
 
     [HttpGet]
     public async Task<IActionResult> GetAll(
-        [FromQuery] DataTableRequestsDto request,
-        [FromQuery(Name = "search[value]")] string? search,
-        [FromQuery(Name = "order[0][column]")] int orderColumn = 0,
-        [FromQuery(Name = "order[0][dir]")] string orderDir = "asc",
+        string? search,
         string? segmentedFilter = null)
     {
       var result = await _showtimeService.GetAllAsync(
-          request, search, orderColumn, orderDir, segmentedFilter);
+          search, segmentedFilter);
 
-      return Json(result);
+      return Json(new { data = result });
     }
 
     [HttpGet]
