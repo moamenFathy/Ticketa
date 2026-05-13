@@ -13,10 +13,9 @@
 <form class="flex flex-col gap-4 mt-4"
       id="createForm"
       method="post"
-      asp-area="Admin"
       asp-controller="Showtime"
       asp-action="Upsert"
-      data-submit-url="/Admin/Showtime/Upsert">
+      data-submit-url="/Showtime/Upsert">
 
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Form.Id" />

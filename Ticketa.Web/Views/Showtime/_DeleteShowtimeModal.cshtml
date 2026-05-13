@@ -21,10 +21,9 @@
 <form class="flex flex-col gap-4 mt-4"
       id="deleteForm"
       method="post"
-      asp-area="Admin"
       asp-controller="Showtime"
       asp-action="Delete"
-      data-submit-url="/Admin/Showtime/Delete/@Model.Id">
+      data-submit-url="/Showtime/Delete/@Model.Id">
 
     @Html.AntiForgeryToken()
     <input asp-for="Id" type="hidden" />

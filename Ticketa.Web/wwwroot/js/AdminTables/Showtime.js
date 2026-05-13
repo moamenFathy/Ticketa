@@ -48,7 +48,7 @@ function setModalPanelRect(panel, rect) {
 }
 
 function buildTrailerEmbedUrl(videoId) {
-    return `https://www.youtube.com/embed/${encodeURIComponent(videoId)}`;
+    return `https://www.youtube.com/embed/${encodeURIComponent(videoId)}?autoplay=1`;
 }
 
 async function resolveTrailerKey(initialKey, tmdbId) {
