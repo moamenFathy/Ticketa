@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Ticketa.Core.DTOs;
 using Ticketa.Core.Interfaces.IServices;
 
 namespace Ticketa.API.Controllers
@@ -10,10 +11,22 @@ namespace Ticketa.API.Controllers
     private readonly IShowtimeService _showtimeService = showtimeService;
 
     [HttpGet]
-    public async Task<IActionResult> Get()
+    [ProducesResponseType(typeof(MovieShowtimeDto), statusCode: StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ActiveMovieWithDetailsDto), statusCode: StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetAll()
     {
-      var showtimes = await _showtimeService.GetScheduledGroupedAsync();
-      return Ok(showtimes);
+      try
+      {
+        var showtimes = await _showtimeService.GetScheduledGroupedAsync();
+        return Ok(showtimes);
+      }
+      catch (OperationCanceledException ex)
+      {
+        return StatusCode(StatusCodes.Status503ServiceUnavailable, "The request was canceled. Please try again later.");
+      }
+      catch (Exception ex)
+      {
+        return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred while retrieving showtimes: {ex.Message}");)
+      }
     }
   }
-}
