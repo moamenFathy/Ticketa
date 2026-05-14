@@ -1,5 +1,14 @@
+import { useGetShowtimes } from "@/hooks/useShowtimes";
+
 const Showtimes = () => {
-  return <div>Showtimes</div>;
+  const { data: showtimes } = useGetShowtimes();
+  return (
+    <div>
+      {showtimes?.map((showtime) => (
+        <div key={showtime.movieId}>{showtime.title}</div>
+      ))}
+    </div>
+  );
 };
 
 export default Showtimes;
