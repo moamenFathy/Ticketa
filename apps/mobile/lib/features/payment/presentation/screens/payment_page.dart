@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/core/widgets/glass_card.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
-import 'package:ticketa/features/payment/presentation/pages/booking_success_page.dart';
+import 'package:ticketa/features/payment/presentation/screens/booking_success_page.dart';
 
 class PaymentPage extends StatefulWidget {
   final double totalAmount;

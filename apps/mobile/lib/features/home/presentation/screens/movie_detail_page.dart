@@ -1,8 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:ticketa/core/models/movie.dart';
+import 'package:ticketa/features/home/models/movie.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
-import 'package:ticketa/features/home/presentation/pages/seat_selection_page.dart';
+import 'package:ticketa/features/home/presentation/screens/seat_selection_page.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 

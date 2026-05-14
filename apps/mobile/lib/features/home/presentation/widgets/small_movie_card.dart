@@ -1,8 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:ticketa/core/models/movie.dart';
+import 'package:ticketa/features/home/models/movie.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
-import 'package:ticketa/features/home/presentation/pages/movie_detail_page.dart';
+import 'package:ticketa/features/home/presentation/screens/movie_detail_page.dart';
 
 class SmallMovieCard extends StatefulWidget {
   final Movie movie;

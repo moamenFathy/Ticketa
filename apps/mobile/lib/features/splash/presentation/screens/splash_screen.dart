@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:ticketa/core/theme/app_colors.dart';
-import 'package:ticketa/features/main/presentation/pages/main_page.dart';
+import 'package:ticketa/features/main/presentation/screens/main_page.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

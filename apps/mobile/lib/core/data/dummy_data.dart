@@ -1,5 +1,5 @@
-import 'package:ticketa/core/models/movie.dart';
-import 'package:ticketa/core/models/seat.dart';
+import 'package:ticketa/features/home/models/movie.dart';
+import 'package:ticketa/features/home/models/seat.dart';
 
 class DummyData {
   static final List<Movie> movies = [

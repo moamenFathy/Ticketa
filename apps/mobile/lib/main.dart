@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ticketa/core/theme/app_theme.dart';
-import 'package:ticketa/features/main/presentation/pages/main_page.dart';
-import 'package:ticketa/features/settings/presentation/pages/settings_page.dart';
-import 'package:ticketa/features/splash/presentation/pages/splash_screen.dart';
+import 'package:ticketa/features/main/presentation/screens/main_page.dart';
+import 'package:ticketa/features/settings/presentation/screens/settings_page.dart';
+import 'package:ticketa/features/splash/presentation/screens/splash_screen.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';

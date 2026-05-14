@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:cupertino_native/cupertino_native.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
-import 'package:ticketa/features/home/presentation/pages/home_page.dart';
-import 'package:ticketa/features/now_showing/presentation/pages/now_showing_page.dart';
-import 'package:ticketa/features/offers/presentation/pages/offers_page.dart';
-import 'package:ticketa/features/settings/presentation/pages/settings_page.dart';
+import 'package:ticketa/features/home/presentation/screens/home_page.dart';
+import 'package:ticketa/features/now_showing/presentation/screens/now_showing_page.dart';
+import 'package:ticketa/features/offers/presentation/screens/offers_page.dart';
+import 'package:ticketa/features/settings/presentation/screens/settings_page.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 
 class MainPage extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-import 'package:ticketa/features/payment/presentation/pages/payment_page.dart';
+import 'package:ticketa/features/payment/presentation/screens/payment_page.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 
