@@ -2,13 +2,13 @@ import { useGetShowtimes } from "@/hooks/useShowtimes";
 import { Calendar, Clock, Ticket } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MovieListSkeleton } from "@/components/MovieListSkeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { format } from "date-fns";
 import ErrorState from "@/components/ErrorState";
 import HeroShowtimes from "@/components/HeroShowtimes";
+import TrailerDialog from "@/components/TrailerDialog";
 
 const Showtimes = () => {
   const {
@@ -212,35 +212,10 @@ const Showtimes = () => {
       {/* Video Modal */}
       <AnimatePresence>
         {isVideoVisible && selectedMovie?.trailerKey && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-4 lg:p-20"
-            onClick={() => setIsVideoVisible(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-6xl aspect-video rounded-[2rem] overflow-hidden shadow-2xl border border-white/10"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <iframe
-                className="w-full h-full"
-                src={`https://www.youtube.com/embed/${selectedMovie?.trailerKey}?autoplay=1`}
-                title="Movie Trailer"
-                allow="autoplay; encrypted-media"
-                frameBorder="0"
-              />
-              <Button
-                onClick={() => setIsVideoVisible(false)}
-                className="absolute top-10 right-6 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 backdrop-blur-xl p-0 text-white"
-              >
-                ✕
-              </Button>
-            </motion.div>
-          </motion.div>
+          <TrailerDialog
+            trailerKey={selectedMovie.trailerKey}
+            setIsVideoVisible={setIsVideoVisible}
+          />
         )}
       </AnimatePresence>
     </div>
