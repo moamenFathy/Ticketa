@@ -1,13 +1,5 @@
 import { useGetShowtimes } from "@/hooks/useShowtimes";
-import {
-  Calendar,
-  Clock,
-  Ticket,
-  Film,
-  PlayCircle,
-  Loader2,
-  AlertCircle,
-} from "lucide-react";
+import { Calendar, Clock, Ticket, Film, PlayCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { MovieListSkeleton } from "@/components/MovieListSkeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { format } from "date-fns";
+import ErrorState from "@/components/ErrorState";
 
 const Showtimes = () => {
   const {
@@ -30,8 +23,6 @@ const Showtimes = () => {
   const selectedMovie =
     moviesWithShowtimes?.find((m) => m.movieId === selectedMovieId) ||
     moviesWithShowtimes?.[0];
-
-  console.log(selectedMovie);
 
   const hallNames = useMemo(
     () => [
@@ -57,24 +48,7 @@ const Showtimes = () => {
   }
 
   if (isError) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center">
-        <div className="bg-destructive/10 p-4 rounded-full mb-4">
-          <AlertCircle className="w-12 h-12 text-destructive" />
-        </div>
-        <h2 className="text-3xl font-bold tracking-tight mb-2">
-          Oops! Something went wrong
-        </h2>
-        <p className="text-muted-foreground max-w-md mb-8">
-          We couldn't fetch the showtimes. It might be a temporary connection
-          issue.
-        </p>
-        <Button onClick={() => refetch()} variant="outline" className="gap-2">
-          <Loader2 className="w-4 h-4 animate-spin" />
-          Try Refreshing
-        </Button>
-      </div>
-    );
+    return <ErrorState refetch={refetch} />;
   }
 
   return (
