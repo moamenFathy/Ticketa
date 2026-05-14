@@ -13,11 +13,11 @@ namespace Ticketa.API.Controllers
     [HttpGet]
     [ProducesResponseType(typeof(MovieShowtimeDto), statusCode: StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ActiveMovieWithDetailsDto), statusCode: StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(CancellationToken ct)
     {
       try
       {
-        var showtimes = await _showtimeService.GetScheduledGroupedAsync();
+        var showtimes = await _showtimeService.GetScheduledGroupedAsync(ct);
         return Ok(showtimes);
       }
       catch (OperationCanceledException ex)
@@ -26,7 +26,7 @@ namespace Ticketa.API.Controllers
       }
       catch (Exception ex)
       {
-        return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred while retrieving showtimes: {ex.Message}");)
+        return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred while retrieving showtimes: {ex.Message}");
       }
     }
   }
