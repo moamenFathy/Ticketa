@@ -181,6 +181,11 @@ namespace Ticketa.Infrastructure.Service
       return true;
     }
 
+    public async Task<IEnumerable<MovieShowtimeDto>> GetScheduledGroupedAsync(CancellationToken ct = default)
+    {
+      return await GetAllAsync(search: null, segmentedFilter: "scheduled");
+    }
+
     public async Task<bool> DeleteAsync(int id)
     {
       var showtime = await _uow.Showtimes.GetAsync(s => s.Id == id);
