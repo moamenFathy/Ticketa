@@ -32,11 +32,12 @@ class _PaymentPageState extends State<PaymentPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(l10n.paymentMethod, style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(l10n.paymentMethod, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
@@ -46,27 +47,27 @@ class _PaymentPageState extends State<PaymentPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildOrderSummary(l10n, theme),
+            _buildOrderSummary(l10n, theme, isDark),
             const SizedBox(height: 32),
             
             Text(
               l10n.paymentMethod,
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
             ),
             const SizedBox(height: 16),
             
-            _buildPaymentMethod(0, l10n.creditCard, Icons.credit_card_rounded, theme),
+            _buildPaymentMethod(0, l10n.creditCard, Icons.credit_card_rounded, theme, isDark),
             
             // Card Input Form (Animated)
             AnimatedCrossFade(
               firstChild: const SizedBox(width: double.infinity),
-              secondChild: _buildCardForm(theme),
+              secondChild: _buildCardForm(theme, isDark),
               crossFadeState: _selectedMethod == 0 ? CrossFadeState.showSecond : CrossFadeState.showFirst,
               duration: const Duration(milliseconds: 300),
             ),
             
             const SizedBox(height: 12),
-            _buildPaymentMethod(1, "Apple Pay", Icons.apple_rounded, theme),
+            _buildPaymentMethod(1, "Apple Pay", Icons.apple_rounded, theme, isDark),
             
             const SizedBox(height: 40),
             _buildPayButton(l10n, theme),
@@ -77,34 +78,41 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 
-  Widget _buildCardForm(ThemeData theme) {
+  Widget _buildCardForm(ThemeData theme, bool isDark) {
     return Container(
       margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface.withOpacity(0.5),
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: theme.dividerColor.withOpacity(0.05)),
+        border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.05)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          _buildTextField(theme, "Card Number", "XXXX XXXX XXXX XXXX", Icons.payment_rounded),
+          _buildTextField(theme, "Card Number", "XXXX XXXX XXXX XXXX", Icons.payment_rounded, isDark),
           const SizedBox(height: 16),
           Row(
             children: [
-              Expanded(child: _buildTextField(theme, "Expiry Date", "MM/YY", Icons.calendar_today_rounded)),
+              Expanded(child: _buildTextField(theme, "Expiry Date", "MM/YY", Icons.calendar_today_rounded, isDark)),
               const SizedBox(width: 16),
-              Expanded(child: _buildTextField(theme, "CVV", "XXX", Icons.lock_outline_rounded)),
+              Expanded(child: _buildTextField(theme, "CVV", "XXX", Icons.lock_outline_rounded, isDark)),
             ],
           ),
           const SizedBox(height: 16),
-          _buildTextField(theme, "Card Holder", "FULL NAME", Icons.person_outline_rounded),
+          _buildTextField(theme, "Card Holder", "FULL NAME", Icons.person_outline_rounded, isDark),
         ],
       ),
     );
   }
 
-  Widget _buildOrderSummary(AppLocalizations l10n, ThemeData theme) {
+  Widget _buildOrderSummary(AppLocalizations l10n, ThemeData theme, bool isDark) {
     return GlassCard(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -117,24 +125,24 @@ class _PaymentPageState extends State<PaymentPage> {
                 l10n.orderSummary,
                 style: theme.textTheme.labelMedium?.copyWith(
                   color: AppColors.warmOrange,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w900,
                   letterSpacing: 1.2,
                 ),
               ),
               const Icon(Icons.receipt_long_rounded, color: AppColors.warmOrange, size: 18),
             ],
           ),
-          const Divider(height: 30, color: Colors.white12),
+          Divider(height: 30, color: theme.colorScheme.onSurface.withOpacity(0.1)),
           _summaryRow(l10n.movie, widget.movieTitle, theme),
           const SizedBox(height: 12),
           _summaryRow(l10n.date, "${widget.date} | ${widget.time}", theme),
           const SizedBox(height: 12),
           _summaryRow(l10n.seats, widget.selectedSeats.join(", "), theme),
-          const Divider(height: 30, color: Colors.white12),
+          Divider(height: 30, color: theme.colorScheme.onSurface.withOpacity(0.1)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(l10n.total, style: theme.textTheme.titleMedium),
+              Text(l10n.total, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
               Text(
                 "${widget.totalAmount.toStringAsFixed(0)} EGP",
                 style: theme.textTheme.titleLarge?.copyWith(
@@ -153,32 +161,32 @@ class _PaymentPageState extends State<PaymentPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: theme.textTheme.bodySmall?.copyWith(color: Colors.white38)),
+        Text(label, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.5), fontWeight: FontWeight.w600)),
         Flexible(
           child: Text(
             value,
             textAlign: TextAlign.right,
-            style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+            style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w900, color: theme.colorScheme.onSurface),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildTextField(ThemeData theme, String label, String hint, IconData icon) {
+  Widget _buildTextField(ThemeData theme, String label, String hint, IconData icon, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: theme.textTheme.labelSmall?.copyWith(color: Colors.white38)),
+        Text(label, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.5), fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         TextField(
-          style: const TextStyle(fontSize: 14),
+          style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: Colors.white10),
+            hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.1)),
             prefixIcon: Icon(icon, size: 18, color: AppColors.warmOrange.withOpacity(0.5)),
             filled: true,
-            fillColor: Colors.black26,
+            fillColor: theme.colorScheme.onSurface.withOpacity(0.05),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
           ),
@@ -187,7 +195,7 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 
-  Widget _buildPaymentMethod(int index, String title, IconData icon, ThemeData theme) {
+  Widget _buildPaymentMethod(int index, String title, IconData icon, ThemeData theme, bool isDark) {
     bool isSelected = _selectedMethod == index;
     return GestureDetector(
       onTap: () => setState(() => _selectedMethod = index),
@@ -198,19 +206,19 @@ class _PaymentPageState extends State<PaymentPage> {
           color: isSelected ? AppColors.warmOrange.withOpacity(0.1) : theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppColors.warmOrange : theme.dividerColor.withOpacity(0.05),
+            color: isSelected ? AppColors.warmOrange : theme.colorScheme.onSurface.withOpacity(0.1),
             width: 1.5,
           ),
         ),
         child: Row(
           children: [
-            Icon(icon, color: isSelected ? AppColors.warmOrange : Colors.white24),
+            Icon(icon, color: isSelected ? AppColors.warmOrange : theme.colorScheme.onSurface.withOpacity(0.3)),
             const SizedBox(width: 16),
             Text(
               title,
               style: TextStyle(
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? Colors.white : Colors.white38,
+                fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
+                color: isSelected ? theme.colorScheme.onSurface : theme.colorScheme.onSurface.withOpacity(0.5),
               ),
             ),
             const Spacer(),
@@ -223,6 +231,7 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   void _simulateApplePay(BuildContext context, AppLocalizations l10n, ThemeData theme) {
+    final isDark = theme.brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -236,19 +245,19 @@ class _PaymentPageState extends State<PaymentPage> {
         child: Column(
           children: [
             const SizedBox(height: 12),
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(2))),
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: theme.colorScheme.onSurface.withOpacity(0.1), borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 32),
-            const Icon(Icons.apple_rounded, size: 48, color: Colors.white),
+            Icon(Icons.apple_rounded, size: 48, color: theme.colorScheme.onSurface),
             const SizedBox(height: 16),
-            const Text("Apple Pay", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text("Apple Pay", style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900)),
             const Spacer(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text("Total", style: TextStyle(color: Colors.white38)),
-                  Text("${widget.totalAmount.toStringAsFixed(0)} EGP", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  Text("Total", style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.5), fontWeight: FontWeight.bold)),
+                  Text("${widget.totalAmount.toStringAsFixed(0)} EGP", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: theme.colorScheme.onSurface)),
                 ],
               ),
             ),
@@ -263,13 +272,17 @@ class _PaymentPageState extends State<PaymentPage> {
                     Navigator.pop(context);
                     _handlePaymentSuccess();
                   },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isDark ? Colors.white : Colors.black, 
+                    foregroundColor: isDark ? Colors.black : Colors.white, 
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.face_unlock_rounded),
-                      SizedBox(width: 12),
-                      Text("Pay with Face ID", style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Icon(Icons.face_unlock_rounded),
+                      const SizedBox(width: 12),
+                      const Text("Pay with Face ID", style: TextStyle(fontWeight: FontWeight.w900)),
                     ],
                   ),
                 ),

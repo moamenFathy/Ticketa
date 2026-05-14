@@ -15,8 +15,10 @@ class MovieDetailPage extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Content
@@ -33,12 +35,13 @@ class MovieDetailPage extends StatelessWidget {
                 leading: Container(
                   margin: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.3),
+                    color: (isDark ? Colors.black : Colors.white).withOpacity(0.3),
                     shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white.withOpacity(0.1)),
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                        color: Colors.white, size: 20),
+                    icon: Icon(Icons.arrow_back_ios_new_rounded,
+                        color: isDark ? Colors.white : Colors.black87, size: 20),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ),
@@ -107,8 +110,9 @@ class MovieDetailPage extends StatelessWidget {
                       Text(
                         movie.title,
                         style: theme.textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w900,
                           letterSpacing: 0.5,
+                          color: theme.colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -125,7 +129,7 @@ class MovieDetailPage extends StatelessWidget {
                             _MovieInfoTag(
                                 label: movie.genre.split('|')[0],
                                 icon: Icons.movie_filter_outlined,
-                                color: theme.colorScheme.primary),
+                                color: AppColors.warmOrange),
                             const SizedBox(width: 10),
                             _MovieInfoTag(
                                 label: "${movie.duration}m",
@@ -141,8 +145,9 @@ class MovieDetailPage extends StatelessWidget {
                       Text(
                         "An immersive journey through time and space, where every decision shapes the future. Experience breathtaking visuals and a story that will keep you on the edge of your seat until the very last moment.",
                         style: theme.textTheme.bodyLarge?.copyWith(
-                          color: theme.textTheme.bodyLarge?.color?.withOpacity(0.7),
+                          color: theme.colorScheme.onSurface.withOpacity(0.7),
                           height: 1.6,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       const SizedBox(height: 32),
@@ -189,7 +194,8 @@ class MovieDetailPage extends StatelessWidget {
                       Text(
                         l10n.price,
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.textTheme.bodySmall?.color?.withOpacity(0.6),
+                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
@@ -231,7 +237,7 @@ class MovieDetailPage extends StatelessWidget {
                         child: Text(
                           l10n.bookTickets,
                           style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
+                              fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1),
                         ),
                       ),
                     ),
@@ -258,13 +264,16 @@ class _SectionHeader extends StatelessWidget {
       children: [
         Text(
           title,
-          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
         ),
-        Text(
-          "See All",
-          style: theme.textTheme.labelLarge?.copyWith(
-            color: AppColors.warmOrange,
-            fontWeight: FontWeight.bold,
+        TextButton(
+          onPressed: () {},
+          child: Text(
+            "See All",
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: AppColors.warmOrange,
+              fontWeight: FontWeight.w900,
+            ),
           ),
         ),
       ],
@@ -298,8 +307,8 @@ class _MovieInfoTag extends StatelessWidget {
           Text(
             label,
             style: theme.textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: color.withOpacity(0.8),
+              fontWeight: FontWeight.w900,
+              color: color.withOpacity(0.9),
             ),
           ),
         ],
@@ -313,6 +322,7 @@ class _CastList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return SizedBox(
       height: 100,
       child: ListView.builder(
@@ -325,13 +335,13 @@ class _CastList extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundColor: Colors.grey.withOpacity(0.2),
-                  child: const Icon(Icons.person, color: Colors.grey),
+                  backgroundColor: theme.colorScheme.onSurface.withOpacity(0.1),
+                  child: Icon(Icons.person, color: theme.colorScheme.onSurface.withOpacity(0.3)),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   "Actor ${index + 1}",
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                  style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
             ),

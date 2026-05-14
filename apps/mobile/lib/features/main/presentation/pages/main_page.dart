@@ -1,9 +1,11 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:cupertino_native/cupertino_native.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/features/home/presentation/pages/home_page.dart';
 import 'package:ticketa/features/now_showing/presentation/pages/now_showing_page.dart';
+import 'package:ticketa/features/offers/presentation/pages/offers_page.dart';
 import 'package:ticketa/features/settings/presentation/pages/settings_page.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 
@@ -39,28 +41,27 @@ class _MainPageState extends State<MainPage> {
     final List<Widget> _pages = [
       const HomePage(),
       const NowShowingPage(),
-      Scaffold(body: Center(child: Text(l10n.offers))),
+      const OffersPage(),
       const SettingsPage(),
     ];
 
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       extendBody: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
-          MediaQuery.removePadding(
-            context: context,
-            removeBottom: true,
-            child: PageView(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentIndex = index;
-                });
-              },
-              children: _pages,
-            ),
+          PageView(
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+            children: _pages,
           ),
+          
           if (isIOS)
             Positioned(
               left: 20,
@@ -93,63 +94,80 @@ class _MainPageState extends State<MainPage> {
                   _pageController.jumpToPage(index);
                 },
               ),
-            ),
-        ],
-      ),
-      bottomNavigationBar: isIOS
-          ? null
-          : Container(
-              decoration: BoxDecoration(
-                color: theme.scaffoldBackgroundColor.withOpacity(0.95),
-                boxShadow: [
-                  BoxShadow(
-                    blurRadius: 20,
-                    color: Colors.black.withOpacity(.1),
-                  )
-                ],
-              ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8),
-                  child: GNav(
-                    rippleColor: AppColors.warmOrange.withOpacity(0.1),
-                    hoverColor: AppColors.warmOrange.withOpacity(0.1),
-                    gap: 8,
-                    activeColor: AppColors.warmOrange,
-                    iconSize: 24,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    duration: const Duration(milliseconds: 400),
-                    tabBackgroundColor: AppColors.warmOrange.withOpacity(0.1),
-                    color: theme.iconTheme.color?.withOpacity(0.5),
-                    tabs: [
-                      GButton(
-                        icon: Icons.movie_filter_rounded,
-                        text: l10n.home,
+            )
+          else
+            // Floating Premium Bottom Bar for Non-iOS
+            Positioned(
+              left: 20,
+              right: 20,
+              bottom: 30,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(
+                        color: isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.05),
                       ),
-                      GButton(
-                        icon: Icons.local_play_rounded,
-                        text: l10n.now,
-                      ),
-                      GButton(
-                        icon: Icons.confirmation_number_rounded,
-                        text: l10n.offers,
-                      ),
-                      GButton(
-                        icon: Icons.person_rounded,
-                        text: l10n.account,
-                      ),
-                    ],
-                    selectedIndex: _currentIndex,
-                    onTabChange: (index) {
-                      setState(() {
-                        _currentIndex = index;
-                      });
-                      _pageController.jumpToPage(index);
-                    },
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: GNav(
+                      rippleColor: AppColors.warmOrange.withOpacity(0.1),
+                      hoverColor: AppColors.warmOrange.withOpacity(0.1),
+                      gap: 8,
+                      activeColor: AppColors.warmOrange,
+                      iconSize: 24,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      duration: const Duration(milliseconds: 400),
+                      tabBackgroundColor: AppColors.warmOrange.withOpacity(0.1),
+                      color: isDark ? Colors.white.withOpacity(0.4) : Colors.black.withOpacity(0.4),
+                      tabs: [
+                        GButton(
+                          icon: Icons.movie_filter_rounded,
+                          text: l10n.home,
+                        ),
+                        GButton(
+                          icon: Icons.local_play_rounded,
+                          text: l10n.now,
+                        ),
+                        GButton(
+                          icon: Icons.confirmation_number_rounded,
+                          text: l10n.offers,
+                        ),
+                        GButton(
+                          icon: Icons.person_rounded,
+                          text: l10n.account,
+                        ),
+                      ],
+                      selectedIndex: _currentIndex,
+                      onTabChange: (index) {
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                        _pageController.animateToPage(
+                          index,
+                          duration: const Duration(milliseconds: 400),
+                          curve: Curves.easeInOut,
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
             ),
+        ],
+      ),
     );
   }
 }
+

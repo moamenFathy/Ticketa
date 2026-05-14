@@ -19,9 +19,9 @@ class SettingsPage extends StatelessWidget {
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // Premium Header
+          // Premium Cinematic Header
           SliverAppBar(
-            expandedHeight: 280,
+            expandedHeight: size.height * 0.45,
             pinned: true,
             stretch: true,
             backgroundColor: theme.scaffoldBackgroundColor,
@@ -30,77 +30,86 @@ class SettingsPage extends StatelessWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // Background Image/Gradient
+                  // Background with Blur Overlay
                   Image.network(
-                    "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&q=80&w=1000",
+                    "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=2670&auto=format&fit=crop",
                     fit: BoxFit.cover,
+                  ),
+                  BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                    child: Container(color: (isDark ? Colors.black : Colors.white).withOpacity(0.3)),
                   ),
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
+                        stops: const [0.2, 0.9, 1.0],
                         colors: [
-                          Colors.transparent,
-                          theme.scaffoldBackgroundColor.withOpacity(0.8),
+                          (isDark ? Colors.black : Colors.white).withOpacity(0.4),
+                          (isDark ? Colors.black : Colors.white).withOpacity(0.8),
                           theme.scaffoldBackgroundColor,
                         ],
                       ),
                     ),
                   ),
-                  // Profile Content
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        _buildAnimatedAvatar(theme),
-                        const SizedBox(height: 12),
-                        Text(
-                          "Mohamed Ahmed",
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                          ),
+                  // Profile Details
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      _buildAnimatedAvatar(theme, isDark),
+                      const SizedBox(height: 20),
+                      Text(
+                        "MOHAMED AHMED",
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          color: theme.colorScheme.onSurface,
+                          letterSpacing: 2,
                         ),
-                        Text(
-                          "mohamed@ticketa.com",
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.textTheme.bodyMedium?.color?.withOpacity(0.6),
-                          ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        "mohamed@ticketa.com",
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurface.withOpacity(0.5),
+                          fontWeight: FontWeight.w500,
                         ),
-                        const SizedBox(height: 40),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 25),
+                      _buildEditProfileButton(l10n, theme, isDark),
+                      const SizedBox(height: 50),
+                    ],
                   ),
                 ],
               ),
             ),
           ),
 
-          // Main Content
+          // Main Account Dashboard
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Stats Section
-                  _buildPremiumStats(theme, l10n),
-                  const SizedBox(height: 32),
+                  // Dashboard Stats
+                  _buildPremiumStats(theme, l10n, isDark),
+                  const SizedBox(height: 40),
 
-                  // App Settings Section
-                  _buildSectionTitle(l10n.appSettings, theme),
+                  // Section: Preferences
+                  _buildSectionHeader(l10n.appSettings, Icons.tune_rounded, theme),
                   const SizedBox(height: 16),
-                  _buildGlassTile(
+                  _buildPremiumTile(
                     theme: theme,
-                    icon: Icons.translate_rounded,
+                    isDark: isDark,
+                    icon: Icons.language_rounded,
                     title: l10n.language,
                     subtitle: l10n.changeLanguage,
-                    trailing: _buildLanguageSelector(context, theme, l10n),
+                    trailing: _buildLanguageSelector(context, theme, l10n, isDark),
                   ),
-                  const SizedBox(height: 12),
-                  _buildGlassTile(
+                  _buildPremiumTile(
                     theme: theme,
+                    isDark: isDark,
                     icon: isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
                     title: l10n.darkMode,
                     subtitle: l10n.toggleDarkLight,
@@ -113,35 +122,55 @@ class SettingsPage extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 32),
-                  // Account Section
-                  _buildSectionTitle(l10n.account, theme),
+                  const SizedBox(height: 40),
+                  // Section: My Activity
+                  _buildSectionHeader(l10n.account, Icons.person_outline_rounded, theme),
                   const SizedBox(height: 16),
-                  _buildGlassTile(
+                  _buildPremiumTile(
                     theme: theme,
+                    isDark: isDark,
                     icon: Icons.confirmation_number_outlined,
                     title: l10n.myTickets,
-                    subtitle: "12 active bookings",
+                    subtitle: "8 upcoming • 4 past",
                   ),
-                  const SizedBox(height: 12),
-                  _buildGlassTile(
+                  _buildPremiumTile(
                     theme: theme,
+                    isDark: isDark,
+                    icon: Icons.favorite_border_rounded,
+                    title: "Watchlist",
+                    subtitle: "15 movies saved",
+                  ),
+                  _buildPremiumTile(
+                    theme: theme,
+                    isDark: isDark,
                     icon: Icons.notifications_none_rounded,
                     title: l10n.notifications,
                     subtitle: l10n.manageNotifications,
                   ),
-                  const SizedBox(height: 12),
-                  _buildGlassTile(
+
+                  const SizedBox(height: 40),
+                  // Section: Security & Legal
+                  _buildSectionHeader("Security & Legal", Icons.security_rounded, theme),
+                  const SizedBox(height: 16),
+                  _buildPremiumTile(
                     theme: theme,
-                    icon: Icons.security_rounded,
-                    title: l10n.privacySecurity,
-                    subtitle: l10n.privacyPolicy,
+                    isDark: isDark,
+                    icon: Icons.lock_outline_rounded,
+                    title: "Password",
+                    subtitle: "Update your credentials",
+                  ),
+                  _buildPremiumTile(
+                    theme: theme,
+                    isDark: isDark,
+                    icon: Icons.description_outlined,
+                    title: l10n.privacyPolicy,
+                    subtitle: "Read our terms of service",
                   ),
 
                   const SizedBox(height: 48),
                   // Logout Button
-                  _buildPremiumLogout(theme, l10n),
-                  const SizedBox(height: 60),
+                  _buildElegantLogout(theme, l10n, isDark),
+                  const SizedBox(height: 120),
                 ],
               ),
             ),
@@ -151,9 +180,9 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildAnimatedAvatar(ThemeData theme) {
+  Widget _buildAnimatedAvatar(ThemeData theme, bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: const LinearGradient(
@@ -162,115 +191,165 @@ class SettingsPage extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: AppColors.warmOrange.withOpacity(0.3),
-            blurRadius: 20,
+            blurRadius: 25,
             spreadRadius: 5,
           ),
         ],
       ),
-      child: const CircleAvatar(
-        radius: 45,
-        backgroundColor: Colors.white10,
-        backgroundImage: NetworkImage("https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"),
-      ),
-    );
-  }
-
-  Widget _buildPremiumStats(ThemeData theme, AppLocalizations l10n) {
-    return Row(
-      children: [
-        Expanded(child: _buildStatItem(theme, "12", l10n.totalTickets, Icons.local_activity_outlined)),
-        const SizedBox(width: 16),
-        Expanded(child: _buildStatItem(theme, "850", "Points", Icons.stars_rounded)),
-      ],
-    );
-  }
-
-  Widget _buildStatItem(ThemeData theme, String val, String label, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: theme.dividerColor.withOpacity(0.05)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: theme.scaffoldBackgroundColor,
+          shape: BoxShape.circle,
+        ),
+        child: CircleAvatar(
+          radius: 55,
+          backgroundColor: theme.colorScheme.onSurface.withOpacity(0.05),
+          child: Icon(
+            Icons.person_rounded,
+            size: 60,
+            color: theme.colorScheme.onSurface.withOpacity(0.2),
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: AppColors.warmOrange, size: 24),
-          const SizedBox(height: 8),
-          Text(
-            val,
-            style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
-          ),
-          Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: theme.textTheme.labelSmall?.color?.withOpacity(0.5),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title, ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4),
-      child: Text(
-        title,
-        style: theme.textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.bold,
-          color: AppColors.warmOrange,
         ),
       ),
     );
   }
 
-  Widget _buildGlassTile({
+  Widget _buildEditProfileButton(AppLocalizations l10n, ThemeData theme, bool isDark) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.1)),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.edit_rounded, color: theme.colorScheme.onSurface, size: 14),
+                const SizedBox(width: 8),
+                Text(
+                  "EDIT PROFILE",
+                  style: TextStyle(
+                    color: theme.colorScheme.onSurface,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPremiumStats(ThemeData theme, AppLocalizations l10n, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 10),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.onSurface.withOpacity(0.03),
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.05)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildStatCircle("12", l10n.totalTickets, AppColors.warmOrange, theme),
+          Container(width: 1, height: 40, color: theme.colorScheme.onSurface.withOpacity(0.1)),
+          _buildStatCircle("850", "Points", Colors.blueAccent, theme),
+          Container(width: 1, height: 40, color: theme.colorScheme.onSurface.withOpacity(0.1)),
+          _buildStatCircle("4", "Reviews", Colors.greenAccent, theme),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatCircle(String val, String label, Color color, ThemeData theme) {
+    return Column(
+      children: [
+        Text(
+          val,
+          style: TextStyle(
+            color: theme.colorScheme.onSurface,
+            fontSize: 22,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label.toUpperCase(),
+          style: TextStyle(
+            color: theme.colorScheme.onSurface.withOpacity(0.3),
+            fontSize: 9,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionHeader(String title, IconData icon, ThemeData theme) {
+    return Row(
+      children: [
+        Icon(icon, color: AppColors.warmOrange, size: 20),
+        const SizedBox(width: 12),
+        Text(
+          title.toUpperCase(),
+          style: TextStyle(
+            color: theme.colorScheme.onSurface,
+            fontSize: 14,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPremiumTile({
     required ThemeData theme,
+    required bool isDark,
     required IconData icon,
     required String title,
     required String subtitle,
     Widget? trailing,
   }) {
     return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface.withOpacity(0.6),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: theme.dividerColor.withOpacity(0.05)),
-      ),
+      margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
         leading: Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppColors.warmOrange.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(16),
+            color: theme.colorScheme.onSurface.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(15),
           ),
-          child: Icon(icon, color: AppColors.warmOrange, size: 22),
+          child: Icon(icon, color: theme.colorScheme.onSurface.withOpacity(0.7), size: 22),
         ),
         title: Text(
           title,
-          style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface, fontSize: 15),
         ),
         subtitle: Text(
           subtitle,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.textTheme.bodySmall?.color?.withOpacity(0.5),
+          style: TextStyle(
+            color: theme.colorScheme.onSurface.withOpacity(0.4),
+            fontSize: 12,
           ),
         ),
-        trailing: trailing ?? const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+        trailing: trailing ?? Icon(Icons.chevron_right_rounded, color: theme.colorScheme.onSurface.withOpacity(0.2)),
       ),
     );
   }
 
-  Widget _buildLanguageSelector(BuildContext context, ThemeData theme, AppLocalizations l10n) {
+  Widget _buildLanguageSelector(BuildContext context, ThemeData theme, AppLocalizations l10n, bool isDark) {
     final currentLocale = Localizations.localeOf(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -281,8 +360,9 @@ class SettingsPage extends StatelessWidget {
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: currentLocale.languageCode,
+          dropdownColor: theme.scaffoldBackgroundColor,
           icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: AppColors.warmOrange),
-          style: const TextStyle(color: AppColors.warmOrange, fontWeight: FontWeight.bold, fontSize: 13),
+          style: const TextStyle(color: AppColors.warmOrange, fontWeight: FontWeight.bold, fontSize: 12),
           onChanged: (String? newValue) {
             if (newValue != null) {
               MyApp.setLocale(context, Locale(newValue));
@@ -299,26 +379,25 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildPremiumLogout(ThemeData theme, AppLocalizations l10n) {
+  Widget _buildElegantLogout(ThemeData theme, AppLocalizations l10n, bool isDark) {
     return Container(
       width: double.infinity,
-      height: 60,
+      padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
-          colors: [Colors.red.shade900.withOpacity(0.1), Colors.red.shade400.withOpacity(0.05)],
-        ),
-        border: Border.all(color: Colors.red.withOpacity(0.2)),
+        border: Border.all(color: Colors.redAccent.withOpacity(0.2)),
       ),
-      child: TextButton.icon(
-        onPressed: () {},
-        icon: const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 22),
-        label: Text(
-          l10n.signOut,
-          style: const TextStyle(
-            color: Colors.redAccent,
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
+      child: InkWell(
+        onTap: () {},
+        child: Center(
+          child: Text(
+            l10n.signOut.toUpperCase(),
+            style: const TextStyle(
+              color: Colors.redAccent,
+              fontWeight: FontWeight.w900,
+              fontSize: 14,
+              letterSpacing: 2,
+            ),
           ),
         ),
       ),

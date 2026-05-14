@@ -23,6 +23,7 @@ class BookingSuccessPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -48,12 +49,15 @@ class BookingSuccessPage extends StatelessWidget {
                     const SizedBox(height: 24),
                     Text(
                       l10n.bookingSuccess,
-                      style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                      style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, color: theme.colorScheme.onSurface),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       "Enjoy your movie!",
-                      style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white38),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurface.withOpacity(0.5),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -64,7 +68,7 @@ class BookingSuccessPage extends StatelessWidget {
               // Ticket Card
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: _buildTicketCard(l10n, theme),
+                child: _buildTicketCard(l10n, theme, isDark),
               ),
               
               const SizedBox(height: 40),
@@ -86,7 +90,7 @@ class BookingSuccessPage extends StatelessWidget {
                       l10n.backToHome,
                       null,
                       theme.colorScheme.surface,
-                      Colors.white60,
+                      theme.colorScheme.onSurface.withOpacity(0.6),
                       () => Navigator.of(context).popUntil((route) => route.isFirst),
                     ),
                   ],
@@ -99,7 +103,7 @@ class BookingSuccessPage extends StatelessWidget {
     );
   }
 
-  Widget _buildTicketCard(AppLocalizations l10n, ThemeData theme) {
+  Widget _buildTicketCard(AppLocalizations l10n, ThemeData theme, bool isDark) {
     return GlassCard(
       padding: EdgeInsets.zero,
       child: Column(
@@ -135,7 +139,7 @@ class BookingSuccessPage extends StatelessWidget {
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 4),
                   height: 1,
-                  color: Colors.white10,
+                  color: theme.colorScheme.onSurface.withOpacity(0.1),
                 ),
               ),
             ),
@@ -153,6 +157,13 @@ class BookingSuccessPage extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      )
+                    ],
                   ),
                   child: Image.network(
                     "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TICKETA-${DateTime.now().millisecondsSinceEpoch}",
@@ -162,7 +173,11 @@ class BookingSuccessPage extends StatelessWidget {
                 const SizedBox(height: 16),
                 Text(
                   "TICKET ID: #${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}",
-                  style: theme.textTheme.labelSmall?.copyWith(color: Colors.white24, letterSpacing: 2),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurface.withOpacity(0.2), 
+                    letterSpacing: 2,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -176,9 +191,9 @@ class BookingSuccessPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: theme.textTheme.labelSmall?.copyWith(color: Colors.white38)),
+        Text(label, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.5), fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
-        Text(value, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
+        Text(value, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w900, color: theme.colorScheme.onSurface)),
       ],
     );
   }
