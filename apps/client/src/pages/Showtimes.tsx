@@ -1,15 +1,16 @@
 import { useGetShowtimes } from "@/hooks/useShowtimes";
-import { Calendar, Clock, Ticket } from "lucide-react";
+import { Calendar, Ticket } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { MovieListSkeleton } from "@/components/MovieListSkeleton";
 import { Card, CardContent } from "@/components/ui/card";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import ErrorState from "@/components/ErrorState";
 import HeroShowtimes from "@/components/HeroShowtimes";
 import TrailerDialog from "@/components/TrailerDialog";
 import ShowtimesCards from "@/components/ShowtimesCards";
+import { Separator } from "@/components/ui/separator";
 
 const Showtimes = () => {
   const {
@@ -26,13 +27,28 @@ const Showtimes = () => {
     moviesWithShowtimes?.find((m) => m.movieId === selectedMovieId) ||
     moviesWithShowtimes?.[0];
 
+  const groupedShowtimes = useMemo(() => {
+    if (!selectedMovie?.showtimes) return {};
+    return selectedMovie.showtimes.reduce(
+      (acc, showtime) => {
+        const date = format(parseISO(showtime.startTime), "yyyy-MM-dd");
+        if (!acc[date]) {
+          acc[date] = [];
+        }
+        acc[date].push(showtime);
+        return acc;
+      },
+      {} as Record<string, typeof selectedMovie.showtimes>,
+    );
+  }, [selectedMovie]);
+
   const hallNames = useMemo(
     () => [
       ...new Set(
         selectedMovie?.showtimes.map((showtime) => showtime.hallName) ?? [],
       ),
     ],
-    [selectedMovie?.showtimes],
+    [selectedMovie],
   );
 
   if (isLoading) {
@@ -154,13 +170,33 @@ const Showtimes = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-12">
                 <AnimatePresence mode="popLayout">
-                  {selectedMovie?.showtimes.map((showtime, index) => (
-                    <ShowtimesCards showtime={showtime} index={index} />
-                  )) || (
+                  {Object.entries(groupedShowtimes).length > 0 ? (
+                    Object.entries(groupedShowtimes).map(
+                      ([date, showtimes]) => (
+                        <div key={date} className="space-y-6">
+                          <div className="flex items-center gap-4">
+                            <h4 className="text-lg font-semibold whitespace-nowrap">
+                              {format(parseISO(date), "EEEE, MMMM do")}
+                            </h4>
+                            <Separator className="flex-1" />
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {showtimes.map((showtime, index) => (
+                              <ShowtimesCards
+                                key={showtime.id}
+                                showtime={showtime}
+                                index={index}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      ),
+                    )
+                  ) : (
                     <div className="col-span-full py-12 text-center text-muted-foreground border-2 border-dashed rounded-3xl">
-                      No more showtimes available for today.
+                      No more showtimes available.
                     </div>
                   )}
                 </AnimatePresence>

@@ -17,7 +17,7 @@ const ShowtimesCards = ({ showtime, index }: Props) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
     >
-      <button className="w-full group">
+      <button className="w-full group cursor-pointer">
         <div className="flex items-center justify-between p-4 rounded-2xl bg-accent/50 group-hover:bg-primary transition-all duration-300 border border-white/5 group-hover:border-primary">
           <div className="flex items-center gap-4">
             <div className="bg-background group-hover:bg-white/20 p-3 rounded-xl transition-colors">

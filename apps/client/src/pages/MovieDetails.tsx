@@ -50,7 +50,7 @@ const MovieDetailsPage = () => {
   return (
     <div
       ref={containerRef}
-      className="min-h-screen bg-white dark:bg-[#080a0f] text-black dark:text-[#e8e4dd] overflow-x-hidden selection:bg-primary selection:text-white"
+      className="min-h-screen bg-white dark:bg-[#080a0f] text-black dark:text-[#e8e4dd] overflow-x-hidden"
     >
       {/* Cinematic Background Particles */}
       <div className="fixed inset-0 pointer-events-none z-0">
