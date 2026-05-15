@@ -59,11 +59,11 @@ const MovieDetailsPage = () => {
       </div>
 
       {/* 1. Immersive Hero Stage */}
-      <section className="relative h-[95vh] w-full flex items-center justify-center">
+      <section className="relative min-h-[95vh] lg:h-[95vh] w-full flex items-center justify-center py-20 lg:py-0">
         {/* Cinematic Background */}
         <motion.div
           style={{ scale: backdropScale, filter: `blur(${backdropBlur}px)` }}
-          className="absolute inset-0 w-full h-full"
+          className="absolute inset-0 w-full h-[60vh] lg:h-full"
         >
           <img
             src={`${TMDB_IMG}/original${movie.backdropPath}`}
@@ -75,7 +75,7 @@ const MovieDetailsPage = () => {
         </motion.div>
 
         {/* Global Navigation Overlay */}
-        <div className="absolute top-0 left-0 right-0 p-8 flex justify-between items-center z-50">
+        <div className="absolute top-0 left-0 right-0 p-4 lg:p-8 flex justify-between items-center z-50">
           <motion.div whileHover={{ x: -5 }}>
             <Button
               variant="ghost"
@@ -129,7 +129,7 @@ const MovieDetailsPage = () => {
               style={{ y: titleY, opacity: titleOpacity }}
               className="space-y-4"
             >
-              <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] text-black dark:text-white italic italic-outline-bold">
+              <h1 className="text-4xl md:text-8xl font-black tracking-tighter leading-[0.9] text-black dark:text-white italic italic-outline-bold">
                 {movie.title}
               </h1>
             </motion.div>
@@ -161,13 +161,13 @@ const MovieDetailsPage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="flex flex-wrap gap-6 pt-4"
+              className="flex flex-col sm:flex-row flex-wrap gap-4 lg:gap-6 pt-4"
             >
               <Button
                 size="lg"
-                className="h-16 px-10 rounded-2xl bg-primary text-white font-black uppercase tracking-widest gap-3 shadow-[0_20px_40px_-10px_rgba(234,88,12,0.4)] hover:bg-primary/90 hover:scale-[1.02] active:scale-95 transition-all outline-none border-none"
+                className="h-14 lg:h-16 px-8 lg:px-10 rounded-2xl bg-primary text-white font-black uppercase tracking-widest gap-3 shadow-[0_20px_40px_-10px_rgba(234,88,12,0.4)] hover:bg-primary/90 hover:scale-[1.02] active:scale-95 transition-all outline-none border-none"
               >
-                <Ticket className="w-6 h-6" />
+                <Ticket className="w-5 h-5 lg:w-6 lg:h-6" />
                 Book Tickets Now
               </Button>
 
@@ -176,9 +176,9 @@ const MovieDetailsPage = () => {
                   variant="outline"
                   size="lg"
                   onClick={() => setIsVideoVisible(true)}
-                  className="h-16 px-10 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-black dark:text-white font-black uppercase tracking-widest gap-3 backdrop-blur-xl hover:bg-black/10 dark:hover:bg-white/10 transition-all shadow-none"
+                  className="h-14 lg:h-16 px-8 lg:px-10 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-black dark:text-white font-black uppercase tracking-widest gap-3 backdrop-blur-xl hover:bg-black/10 dark:hover:bg-white/10 transition-all shadow-none"
                 >
-                  <Play className="w-6 h-6 fill-primary text-primary" />
+                  <Play className="w-5 h-5 lg:w-6 lg:h-6 fill-primary text-primary" />
                   Watch Trailer
                 </Button>
               )}
