@@ -18,7 +18,7 @@ const Home = () => {
       <HeroSection movies={movies?.slice(0, 6) || []} />
       <section className="pt-12">
         <div className="flex justify-between items-center px-6">
-          <h1 className="text-2xl font-bold">Popular Movies</h1>
+          <h1 className="text-2xl font-bold">Now showing</h1>
           <Link to="/movies">
             <Button
               variant="ghost"

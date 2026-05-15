@@ -20,7 +20,7 @@ const HeroSection = ({ movies }: HeroSectionProps) => {
       setActiveIndex((prev) => (prev + 1) % Math.min(movies.length, 6));
     }, 10000);
     return () => clearInterval(timer);
-  }, [movies.length]);
+  }, [movies]);
 
   if (!movies || movies.length === 0) return null;
 
@@ -131,7 +131,7 @@ const HeroSection = ({ movies }: HeroSectionProps) => {
                     <Button
                       size="icon"
                       variant="outline"
-                      className="h-16 w-16 rounded-2xl border-white/20 bg-white/5 backdrop-blur-md hover:bg-white/10 text-white transition-all hover:scale-105"
+                      className="h-16 w-16 rounded-2xl border-white/20 bg-white/5 backdrop-blur-md hover:bg-white/10 hover:text-primary text-white transition-all hover:scale-105"
                     >
                       <Info className="h-7 w-7" />
                     </Button>
