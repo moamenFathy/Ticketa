@@ -69,12 +69,12 @@ const HeroShowtimes = ({ selectedMovie, setIsVideoVisible }: Props) => {
               {selectedMovie.trailerKey && (
                 <Button
                   variant="secondary"
-                  size="sm"
-                  className="rounded-full gap-2"
+                  size="default"
+                  className="rounded-full gap-2 bg-white/10 hover:bg-primary hover:text-primary-foreground backdrop-blur-md border border-white/20 transition-all duration-500 group shadow-lg shadow-primary"
                   onClick={() => setIsVideoVisible(true)}
                 >
-                  <PlayCircle className="w-4 h-4" />
-                  Watch Trailer
+                  <PlayCircle className="w-5 h-5 transition-transform group-hover:scale-110" />
+                  <span className="font-semibold">Watch Trailer</span>
                 </Button>
               )}
             </motion.div>
