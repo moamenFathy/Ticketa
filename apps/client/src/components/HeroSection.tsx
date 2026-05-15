@@ -118,7 +118,7 @@ const HeroSection = ({ movies }: HeroSectionProps) => {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4 pt-4">
-                  <Link to={`/movie/${currentMovie.id}`}>
+                  <Link to={`/showtimes?movieId=${currentMovie.id}`}>
                     <Button
                       size="lg"
                       className="h-16 px-10 text-xl font-bold bg-primary hover:bg-primary/90 text-white rounded-2xl shadow-2xl transition-all hover:scale-105 active:scale-95"

@@ -11,6 +11,7 @@ import TrailerDialog from "@/components/TrailerDialog";
 import ShowtimesCards from "@/components/ShowtimesCards";
 import { Separator } from "@/components/ui/separator";
 import ShowtimeSkeleton from "@/components/skeletons/ShowtimeSkeleton";
+import { useSearchParams } from "react-router-dom";
 
 const Showtimes = () => {
   const {
@@ -20,12 +21,22 @@ const Showtimes = () => {
     refetch,
   } = useGetShowtimes();
 
-  const [selectedMovieId, setSelectedMovieId] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedMovieId = searchParams.get("movieId");
   const [isVideoVisible, setIsVideoVisible] = useState(false);
 
+  const handleMovieSelect = (movieId: string | number) => {
+    setSearchParams((prev) => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set("movieId", String(movieId));
+      return newParams;
+    });
+  };
+
   const selectedMovie =
-    moviesWithShowtimes?.find((m) => m.movieId === selectedMovieId) ||
-    moviesWithShowtimes?.[0];
+    moviesWithShowtimes?.find(
+      (m) => String(m.movieId) === String(selectedMovieId),
+    ) || moviesWithShowtimes?.[0];
 
   const groupedShowtimes = useMemo(() => {
     if (!selectedMovie?.showtimes) return {};
@@ -94,13 +105,14 @@ const Showtimes = () => {
                 >
                   <Card
                     className={`cursor-pointer transition-all duration-300 border-none overflow-hidden ${
-                      selectedMovieId === movie.movieId ||
+                      String(selectedMovieId) === String(movie.movieId) ||
                       (!selectedMovieId &&
-                        moviesWithShowtimes?.[0]?.movieId === movie.movieId)
+                        String(moviesWithShowtimes?.[0]?.movieId) ===
+                          String(movie.movieId))
                         ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 ring-1 ring-primary"
                         : "bg-card hover:bg-accent"
                     }`}
-                    onClick={() => setSelectedMovieId(movie.movieId)}
+                    onClick={() => handleMovieSelect(movie.movieId)}
                   >
                     <CardContent className="p-3">
                       <div className="flex gap-4 items-center">
@@ -117,10 +129,11 @@ const Showtimes = () => {
                           </h3>
                           <p
                             className={`text-xs ${
-                              selectedMovieId === movie.movieId ||
+                              String(selectedMovieId) ===
+                                String(movie.movieId) ||
                               (!selectedMovieId &&
-                                moviesWithShowtimes?.[0]?.movieId ===
-                                  movie.movieId)
+                                String(moviesWithShowtimes?.[0]?.movieId) ===
+                                  String(movie.movieId))
                                 ? "text-primary-foreground/80"
                                 : "text-muted-foreground"
                             }`}

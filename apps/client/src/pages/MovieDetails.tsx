@@ -166,6 +166,7 @@ const MovieDetailsPage = () => {
               <Button
                 size="lg"
                 className="h-14 lg:h-16 px-8 lg:px-10 rounded-2xl bg-primary text-white font-black uppercase tracking-widest gap-3 shadow-[0_20px_40px_-10px_rgba(234,88,12,0.4)] hover:bg-primary/90 hover:scale-[1.02] active:scale-95 transition-all outline-none border-none"
+                onClick={() => navigate(`/showtimes?movieId=${movie.id}`)}
               >
                 <Ticket className="w-5 h-5 lg:w-6 lg:h-6" />
                 Book Tickets Now
