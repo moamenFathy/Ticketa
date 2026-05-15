@@ -10,7 +10,7 @@ interface Props {
   movie: Movie;
 }
 
-const Card = ({ movie }: Props) => {
+const MovieCard = ({ movie }: Props) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -99,4 +99,4 @@ const Card = ({ movie }: Props) => {
   );
 };
 
-export default Card;
+export default MovieCard;

@@ -6,8 +6,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import type { Movie } from "@/types/movie";
-import Card from "./Card";
 import { Link } from "react-router";
+import MovieCard from "./MovieCard";
 
 interface MovieListProps {
   movies: Movie[];
@@ -27,7 +27,7 @@ export function MovieList({ movies }: MovieListProps) {
               className="pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 shrink-0"
             >
               <Link to={`/movies/${movie.id}`} className="block w-full h-full">
-                <Card movie={movie} />
+                <MovieCard movie={movie} />
               </Link>
             </CarouselItem>
           ))}

@@ -13,6 +13,7 @@ import { MovieStats } from "@/components/MovieStats";
 import { CastSection } from "@/components/CastSection";
 import ErrorState from "@/components/ErrorState";
 import MovieDetailsSkeleton from "@/components/MovieDetailsSkeleton";
+import TrailerDialog from "@/components/TrailerDialog";
 
 // ─── Constants & Helpers ───────────────────────────────────────────────────
 const TMDB_IMG = "https://image.tmdb.org/t/p";
@@ -49,7 +50,7 @@ const MovieDetailsPage = () => {
   return (
     <div
       ref={containerRef}
-      className="min-h-screen bg-white dark:bg-[#080a0f] text-black dark:text-[#e8e4dd] overflow-x-hidden selection:bg-primary selection:text-white"
+      className="min-h-screen bg-white dark:bg-[#080a0f] text-black dark:text-[#e8e4dd] overflow-x-hidden"
     >
       {/* Cinematic Background Particles */}
       <div className="fixed inset-0 pointer-events-none z-0">
@@ -194,35 +195,10 @@ const MovieDetailsPage = () => {
       {/* Video Modal */}
       <AnimatePresence>
         {isVideoVisible && movie.trailerKey && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-4 lg:p-20"
-            onClick={() => setIsVideoVisible(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-6xl aspect-video rounded-[2rem] overflow-hidden shadow-2xl border border-white/10"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <iframe
-                className="w-full h-full"
-                src={`https://www.youtube.com/embed/${movie.trailerKey}?autoplay=1`}
-                title="Movie Trailer"
-                allow="autoplay; encrypted-media"
-                frameBorder="0"
-              />
-              <Button
-                onClick={() => setIsVideoVisible(false)}
-                className="absolute top-10 right-6 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 backdrop-blur-xl p-0 text-white"
-              >
-                ✕
-              </Button>
-            </motion.div>
-          </motion.div>
+          <TrailerDialog
+            trailerKey={movie.trailerKey}
+            setIsVideoVisible={setIsVideoVisible}
+          />
         )}
       </AnimatePresence>
 
