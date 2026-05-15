@@ -202,15 +202,6 @@ const MovieDetailsPage = () => {
           />
         )}
       </AnimatePresence>
-
-      <style>{`
-        .italic-outline-bold {
-          -webkit-text-stroke: 2px currentColor;
-        }
-        .preserve-3d {
-          transform-style: preserve-3d;
-        }
-      `}</style>
     </div>
   );
 };
