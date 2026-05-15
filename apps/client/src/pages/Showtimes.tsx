@@ -142,10 +142,6 @@ const Showtimes = () => {
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div className="space-y-1">
                   <h3 className="text-2xl font-bold">Available Sessions</h3>
-                  <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                    <Calendar className="w-4 h-4" />
-                    <span>{format(new Date(), "EEEE, MMMM do")}</span>
-                  </div>
                 </div>
                 <div className="flex gap-2">
                   {hallNames.map((hall) => (
