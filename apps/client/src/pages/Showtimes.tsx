@@ -1,5 +1,5 @@
 import { useGetShowtimes } from "@/hooks/useShowtimes";
-import { Calendar, Ticket } from "lucide-react";
+import { Ticket } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
