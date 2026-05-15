@@ -12,8 +12,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { MovieStats } from "@/components/MovieStats";
 import { CastSection } from "@/components/CastSection";
 import ErrorState from "@/components/ErrorState";
-import MovieDetailsSkeleton from "@/components/MovieDetailsSkeleton";
 import TrailerDialog from "@/components/TrailerDialog";
+import MovieDetailsSkeleton from "@/components/skeletons/MovieDetailsSkeleton";
 
 // ─── Constants & Helpers ───────────────────────────────────────────────────
 const TMDB_IMG = "https://image.tmdb.org/t/p";
