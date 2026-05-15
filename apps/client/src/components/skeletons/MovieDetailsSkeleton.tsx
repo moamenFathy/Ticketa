@@ -1,4 +1,4 @@
-import { Skeleton } from "./ui/skeleton";
+import { Skeleton } from "../ui/skeleton";
 
 const MovieDetailsSkeleton = () => (
   <div className="min-h-screen bg-white dark:bg-[#080a0f] overflow-hidden">

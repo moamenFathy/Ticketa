@@ -1,6 +1,6 @@
 import HeroSection from "@/components/HeroSection";
 import MovieList from "@/components/MovieList";
-import { MovieListSkeleton } from "@/components/MovieListSkeleton";
+import { MovieListSkeleton } from "@/components/skeletons/MovieListSkeleton";
 import { Button } from "@/components/ui/button";
 import { useNowPlayingMovies } from "@/hooks/useMovies";
 import { Link } from "react-router-dom";

@@ -3,7 +3,6 @@ import { Calendar, Ticket } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { MovieListSkeleton } from "@/components/MovieListSkeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { format, parseISO } from "date-fns";
 import ErrorState from "@/components/ErrorState";
@@ -11,6 +10,7 @@ import HeroShowtimes from "@/components/HeroShowtimes";
 import TrailerDialog from "@/components/TrailerDialog";
 import ShowtimesCards from "@/components/ShowtimesCards";
 import { Separator } from "@/components/ui/separator";
+import ShowtimeSkeleton from "@/components/skeletons/ShowtimeSkeleton";
 
 const Showtimes = () => {
   const {
@@ -52,17 +52,7 @@ const Showtimes = () => {
   );
 
   if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-12">
-        <div className="flex flex-col gap-8">
-          <div className="space-y-4">
-            <div className="h-10 w-64 bg-muted animate-pulse rounded-lg" />
-            <div className="h-4 w-96 bg-muted animate-pulse rounded-lg" />
-          </div>
-          <MovieListSkeleton />
-        </div>
-      </div>
-    );
+    return <ShowtimeSkeleton />;
   }
 
   if (isError) {
