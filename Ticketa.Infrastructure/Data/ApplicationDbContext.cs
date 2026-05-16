@@ -12,6 +12,8 @@ namespace Ticketa.Infrastructure.Data
     public DbSet<Genre> Genres { get; set; }
     public DbSet<CastMember> Casts { get; set; }
     public DbSet<Showtime> Showtimes { get; set; }
+    public DbSet<Booking> Bookings { get; set; }
+    public DbSet<BookedSeat> BookedSeats { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
