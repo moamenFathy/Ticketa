@@ -1,4 +1,5 @@
 using Ticketa.Core.DTOs;
+using Ticketa.Core.Entities;
 using Ticketa.Core.Enums;
 
 namespace Ticketa.Core.Interfaces.IServices
@@ -17,7 +18,9 @@ namespace Ticketa.Core.Interfaces.IServices
 
     Task<bool> UpdateStatusAsync(int id, ShowtimeStatus status);
 
-    public Task<Ticketa.Core.Entities.Showtime?> GetByIdAsync(int id);
+    public Task<Showtime?> GetByIdAsync(int id);
+    Task<IEnumerable<MovieShowtimeDto>> GetScheduledGroupedAsync(CancellationToken ct = default);
+
     public Task<bool> DeleteAsync(int id);
   }
 }
