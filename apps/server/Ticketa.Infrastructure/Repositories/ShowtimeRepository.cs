@@ -42,7 +42,6 @@ namespace Ticketa.Infrastructure.Repositories
         EndTime = s.EndTime,
         Price = s.Price,
         Status = s.Status,
-        TrailerKey = s.Movie.TrailerKey,
         HallId = s.HallId
       }).ToListAsync();
     }
