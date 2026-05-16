@@ -24,9 +24,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-app.MapOpenApi();
 app.MapScalarApiReference();
+app.MapOpenApi();
 app.MapGet("/", () => Results.Redirect("/scalar")).ExcludeFromDescription();
 
 app.UseHttpsRedirection();
