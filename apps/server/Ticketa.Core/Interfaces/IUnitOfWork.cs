@@ -8,6 +8,7 @@ namespace Ticketa.Core.Interfaces
     IMovieRepository Movies { get; }
     IGenreRepository Genres { get; }
     IShowtimeRepository Showtimes { get; }
+    IBookedSeatRepository BookedSeats { get; }
     Task SaveAsync();
   }
 }

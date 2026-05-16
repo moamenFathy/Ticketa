@@ -11,7 +11,7 @@ namespace Ticketa.Infrastructure.Repositories
     public async Task<IEnumerable<BookedSeat>> GetByShowtimeIdAsync(int showtimeId, CancellationToken ct = default)
       => await _context.BookedSeats.Where(s => s.ShowtimeId == showtimeId).ToListAsync(ct);
 
-    public async Task<IEnumerable<BookedSeat>> GetConflictAsync(int showtimeId, IEnumerable<SeatSelectionDto> seats, CancellationToken ct = default)
+    public async Task<IEnumerable<BookedSeat>> GetConflictAsync(int showtimeId, IEnumerable<SeatDto> seats, CancellationToken ct = default)
     {
       var rowNumbers = seats.Select(s => s.Row).ToList();
       var seatNumbers = seats.Select(s => s.SeatNumber).ToList();
