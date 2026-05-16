@@ -42,6 +42,7 @@ namespace Ticketa.Infrastructure.Service
             TmdbId = g.Key.TmdbId,
             Title = g.Key.Title,
             PosterPath = g.Key.PosterPath,
+            trailerKey = g.Key.TrailerKey,
             Showtimes = g.Select(s => new ShowtimeListItemDto
             {
               Id = s.Id,
@@ -51,7 +52,6 @@ namespace Ticketa.Infrastructure.Service
               EndTime = s.EndTime,
               Price = s.Price,
               Status = s.Status,
-              TrailerKey = s.Movie.TrailerKey,
               HallId = s.HallId
             }).OrderBy(s => s.StartTime).ToList()
           })
