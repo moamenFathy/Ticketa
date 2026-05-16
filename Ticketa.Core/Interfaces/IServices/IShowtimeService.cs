@@ -21,6 +21,8 @@ namespace Ticketa.Core.Interfaces.IServices
     public Task<Showtime?> GetByIdAsync(int id);
     Task<IEnumerable<MovieShowtimeDto>> GetScheduledGroupedAsync(CancellationToken ct = default);
 
+    Task<ShowtimeSeatDto?> GetSeatMapAsync(int showtimeId, CancellationToken ct = default);
+
     public Task<bool> DeleteAsync(int id);
   }
 }
