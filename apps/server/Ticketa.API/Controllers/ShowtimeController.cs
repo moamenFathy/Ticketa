@@ -12,7 +12,8 @@ namespace Ticketa.API.Controllers
 
     [HttpGet]
     [ProducesResponseType(typeof(MovieShowtimeDto), statusCode: StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ActiveMovieWithDetailsDto), statusCode: StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(MovieShowtimeDto), statusCode: StatusCodes.Status499ClientClosedRequest)]
+    [ProducesResponseType(typeof(MovieShowtimeDto), statusCode: StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAll(CancellationToken ct)
     {
       try
@@ -22,11 +23,35 @@ namespace Ticketa.API.Controllers
       }
       catch (OperationCanceledException ex)
       {
-        return StatusCode(StatusCodes.Status503ServiceUnavailable, "The request was canceled. Please try again later.");
+        return StatusCode(StatusCodes.Status499ClientClosedRequest, $"The request was canceled. Please try again later: {ex.Message}");
       }
       catch (Exception ex)
       {
         return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred while retrieving showtimes: {ex.Message}");
+      }
+    }
+
+    [HttpGet("{showtimeId:int}")]
+    [ProducesResponseType(typeof(ShowtimeSeatDto), statusCode: StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ShowtimeSeatDto), statusCode: StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MovieShowtimeDto), statusCode: StatusCodes.Status499ClientClosedRequest)]
+    [ProducesResponseType(typeof(ShowtimeSeatDto), statusCode: StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetSeatMap(int showtimeId, CancellationToken ct)
+    {
+      try
+      {
+        var seatMap = await _showtimeService.GetSeatMapAsync(showtimeId, ct);
+        if (seatMap == null)
+          return NotFound($"No showtime found with id {showtimeId}");
+        return Ok(seatMap);
+      }
+      catch (OperationCanceledException ex)
+      {
+        return StatusCode(StatusCodes.Status499ClientClosedRequest, $"The request was canceled. Please try again later: {ex.Message}");
+      }
+      catch (Exception ex)
+      {
+        return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred while retrieving the seat map: {ex.Message}");
       }
     }
   }

@@ -11,6 +11,7 @@ namespace Ticketa.Infrastructure.Repositories
     private IMovieRepository? _movies;
     private IGenreRepository? _genres;
     private IShowtimeRepository? _showtimes;
+    private IBookedSeatRepository? _bookedseat;
 
     public UnitOfWork(ApplicationDbContext context)
     {
@@ -24,6 +25,8 @@ namespace Ticketa.Infrastructure.Repositories
     public IGenreRepository Genres => _genres ??= new GenreRepository(_context);
 
     public IShowtimeRepository Showtimes => _showtimes ??= new ShowtimeRepository(_context);
+
+    public IBookedSeatRepository BookedSeats => _bookedseat ??= new BookedSeatRepository(_context);
 
     public async Task SaveAsync()
     {
