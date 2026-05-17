@@ -5,6 +5,7 @@ export const queryKeys = {
     },
 
     showtimes: {
-        getAll: ["showtimes"] as const
+        getAll: ["showtimes"] as const,
+        getSeats: (showtimeId: string) => ["showtimes", "seats", showtimeId] as const
     }
 }

@@ -13,3 +13,21 @@ export type Showtime = {
 	startTime: string;
 	price: string;
 }
+
+type BookedSeat = {
+	row: number;
+	seatNumber: number;
+}
+
+export type ShowtimeSeats = {
+	showtimeId: string;
+	movieTitle: string;
+	moviePosterPath?: string;
+	hallName: string;
+	hallType: string;
+	startTime: string;
+	rows: number;
+	seatsPerRow: number;
+	rowCategoryMap: Record<number, string>;
+	bookedSeats: BookedSeat[];
+}
