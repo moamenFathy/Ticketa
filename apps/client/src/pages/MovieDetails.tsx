@@ -14,9 +14,9 @@ import { CastSection } from "@/components/CastSection";
 import ErrorState from "@/components/ErrorState";
 import TrailerDialog from "@/components/TrailerDialog";
 import MovieDetailsSkeleton from "@/components/skeletons/MovieDetailsSkeleton";
+import { TMDB_IMAGE_BASE_URL, TMDB_IMAGE_ORIGINAL_URL } from "@/api/constants";
 
 // ─── Constants & Helpers ───────────────────────────────────────────────────
-const TMDB_IMG = "https://image.tmdb.org/t/p";
 
 // @ts-expect-error - Reserved for future use
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -66,7 +66,7 @@ const MovieDetailsPage = () => {
           className="absolute inset-0 w-full h-[60vh] lg:h-full"
         >
           <img
-            src={`${TMDB_IMG}/original${movie.backdropPath}`}
+            src={`${TMDB_IMAGE_ORIGINAL_URL}${movie.backdropPath}`}
             alt={movie.title}
             className="w-full h-full object-cover opacity-30 dark:opacity-50 contrast-125"
           />
@@ -100,7 +100,7 @@ const MovieDetailsPage = () => {
               className="relative aspect-[2/3] rounded-[3rem] overflow-hidden shadow-[0_40px_80px_-15px_rgba(0,0,0,0.4)] dark:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.8)] border border-black/10 dark:border-white/10 preserve-3d"
             >
               <img
-                src={`${TMDB_IMG}/w780${movie.posterPath}`}
+                src={`${TMDB_IMAGE_BASE_URL}/w780${movie.posterPath}`}
                 alt={movie.title}
                 className="w-full h-full object-cover"
               />

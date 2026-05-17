@@ -13,6 +13,7 @@ import ShowtimesCards from "@/components/ShowtimesCards";
 import { Separator } from "@/components/ui/separator";
 import ShowtimeSkeleton from "@/components/skeletons/ShowtimeSkeleton";
 import { useSearchParams } from "react-router-dom";
+import { TMDB_IMAGE_BASE_URL } from "@/api/constants";
 
 const Showtimes = () => {
   const {
@@ -119,7 +120,7 @@ const Showtimes = () => {
                       <div className="flex gap-4 items-center">
                         <div className="w-12 h-18 rounded-md overflow-hidden shrink-0">
                           <img
-                            src={`https://image.tmdb.org/t/p/w200${movie.posterPath}`}
+                            src={`${TMDB_IMAGE_BASE_URL}w200${movie.posterPath}`}
                             alt={movie.title}
                             className="w-full h-full object-cover"
                           />

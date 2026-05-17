@@ -3,6 +3,10 @@ import { Badge } from "./ui/badge";
 import { Film, PlayCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import type { MoviesShowtimes } from "@/types/showtimes";
+import {
+  TMDB_IMAGE_ORIGINAL_URL,
+  TMDB_IMAGE_POSTER_URL,
+} from "@/api/constants";
 
 interface Props {
   selectedMovie: MoviesShowtimes;
@@ -20,7 +24,7 @@ const HeroShowtimes = ({ selectedMovie, setIsVideoVisible }: Props) => {
     >
       <div className="absolute inset-0">
         <img
-          src={`https://image.tmdb.org/t/p/original${selectedMovie.posterPath}`}
+          src={`${TMDB_IMAGE_ORIGINAL_URL}${selectedMovie.posterPath}`}
           alt={selectedMovie.title}
           className="w-full h-full object-cover object-top opacity-30 blur-sm scale-105"
         />
@@ -35,7 +39,7 @@ const HeroShowtimes = ({ selectedMovie, setIsVideoVisible }: Props) => {
             className="hidden md:block w-48 aspect-2/3 rounded-2xl overflow-hidden shadow-2xl border border-white/10"
           >
             <img
-              src={`https://image.tmdb.org/t/p/w500${selectedMovie.posterPath}`}
+              src={`${TMDB_IMAGE_POSTER_URL}${selectedMovie.posterPath}`}
               alt={selectedMovie.title}
               className="w-full h-full object-cover"
             />
