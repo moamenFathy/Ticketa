@@ -1,0 +1,73 @@
+@model Ticketa.Web.ViewModels.ShowtimeUpsertVM
+
+<!-- Header -->
+<div class="flex items-center justify-between pb-3 border-b border-base-300">
+    <h3 class="text-xl font-bold">Edit Showtime</h3>
+
+    <label for="modal" class="btn btn-sm btn-ghost btn-circle hover:bg-base-300">
+        ✕
+    </label>
+</div>
+
+<!-- Form -->
+<form class="flex flex-col gap-4 mt-4"
+      id="createForm"
+      method="post"
+      asp-controller="Showtime"
+      asp-action="Upsert"
+      data-submit-url="/Showtime/Upsert">
+
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Form.Id" />
+
+    <div id="errorBanner" class="hidden text-error text-sm bg-error/10 p-2 rounded-lg mb-2"></div>
+    <div asp-validation-summary="ModelOnly" class="text-error text-sm bg-error/10 p-2 rounded-lg"></div>
+
+    <label class="form-control w-full">
+        <span class="label-text font-medium">Select Movie</span>
+        <select asp-for="Form.MovieId" id="movie-select-dropdown" class="select select-bordered w-full">
+            <option value="">Select a movie...</option>
+            @foreach (var movie in Model.Movies)
+            {
+                <option value="@movie.Id" data-poster="@movie.PosterPath">@movie.Title</option>
+            }
+        </select>
+        <span asp-validation-for="Form.MovieId" class="text-error mt-1 text-sm font-bold"></span>
+    </label>
+
+    <label class="form-control w-full">
+        <span class="label-text font-medium">Select Hall</span>
+        <select asp-for="Form.HallId" class="select select-bordered w-full">
+            <option value="">Select a hall...</option>
+            @foreach (var hall in Model.Halls)
+            {
+                <option value="@hall.Id">@hall.Name (@hall.TotalSeats seats)</option>
+            }
+        </select>
+        <span asp-validation-for="Form.HallId" class="text-error mt-1 text-sm font-bold"></span>
+    </label>
+
+    <div class="flex gap-4">
+        <label class="form-control w-full">
+            <span class="label-text font-medium">Start Time</span>
+            <input asp-for="Form.StartTime" type="datetime-local" class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary validator" />
+            <span asp-validation-for="Form.StartTime" class="text-error mt-1 text-sm font-bold"></span>
+        </label>
+
+        <label class="form-control w-full">
+            <span class="label-text font-medium">Price ($)</span>
+            <input asp-for="Form.Price" type="text" min="1" class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary validator" placeholder="10.00" />
+            <span asp-validation-for="Form.Price" class="text-error mt-1 text-sm font-bold"></span>
+        </label>
+    </div>
+
+    <!-- Actions -->
+    <div class="modal-action mt-2 flex justify-end gap-3">
+        <label for="modal" class="btn btn-ghost border border-base-300 hover:bg-base-200">
+            Cancel
+        </label>
+        <button class="btn btn-primary px-5 hover:brightness-110" type="submit">
+            Save Changes
+        </button>
+    </div>
+</form>

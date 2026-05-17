@@ -1,0 +1,185 @@
+<!DOCTYPE HTML>
+<html lang="en" data-theme="@(Context.Request.Cookies["theme"] ?? "light")">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Ticketa.Web</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/Ticketa.Web.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.7/css/dataTables.dataTables.css" />
+    <link rel="stylesheet" href="~/css/output.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="">
+    <nav class="navbar w-full bg-base-300 flex justify-between">
+        <div>
+            <label id="drawerToggleBtn" for="my-drawer-4" aria-label="open sidebar" class="btn btn-square btn-ghost swap swap-rotate">
+                <input id="drawerSwapState" type="checkbox" class="hidden" />
+                <svg class="swap-off my-1.5 inline-block size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18" /><path d="M3 6h18" /><path d="M3 18h18" /></svg>
+                <svg class="swap-on my-1.5 inline-block size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+            </label>
+        </div>
+        <a class="btn btn-ghost text-xl" asp-area="Admin" asp-controller="Hall" asp-action="Index">
+            Admin Dashboard
+        </a>
+        <div class="px-4 flex gap-2">
+            <label class="btn btn-ghost btn-circle swap swap-rotate">
+                <!-- this hidden checkbox controls the state -->
+                <input id="themeToggle" type="checkbox" @(Context.Request.Cookies["theme"] == "dark" ? "checked" : "") />
+
+                <!-- sun icon -->
+                <svg class="swap-on h-5 w-5 fill-current"
+                     xmlns="http://www.w3.org/2000/svg"
+                     viewBox="0 0 24 24">
+                    <path d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,18.36l.71.71a1,1,0,0,0,1.41,0,1,1,0,0,0,0-1.41ZM12,6.5A5.5,5.5,0,1,0,17.5,12,5.51,5.51,0,0,0,12,6.5Zm0,9A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z" />
+                </svg>
+
+                <!-- moon icon -->
+                <svg class="swap-off h-5 w-5 fill-current"
+                     xmlns="http://www.w3.org/2000/svg"
+                     viewBox="0 0 24 24">
+                    <path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z" />
+                </svg>
+            </label>
+
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <div class="hidden lg:flex gap-3">
+                    <div class="dropdown dropdown-end">
+                        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar" aria-label="User menu">
+                            <div class="w-10 rounded-full">
+                                <img alt="User avatar" src="https://ui-avatars.com/api/?name=@(Uri.EscapeDataString(User.Identity?.Name!) ?? "User")&background=random" />
+                            </div>
+                        </div>
+                        <ul tabindex="-1" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow truncate">
+                            <span class="menu-title" style="font-size: 10px">@User.Identity?.Name</span>
+                            <li><a asp-controller="Auth" asp-action="Logout">Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="hidden lg:flex gap-2">
+                    <a asp-controller="Auth" asp-action="Login" class="btn btn-ghost btn-sm px-4">Log in</a>
+                    <a asp-controller="Auth" asp-action="Register" class="btn btn-primary btn-sm px-4 shadow-sm hover:-translate-y-0.5 transition-all">Sign up</a>
+                </div>
+            }
+
+        </div>
+    </nav>
+
+    <div class="drawer lg:drawer-open h-[calc(100vh-4rem)]">
+        <input id="my-drawer-4" type="checkbox" class="drawer-toggle" />
+        <div class="drawer-content h-full overflow-y-auto">
+            <div class="p-4">
+                <main role="main" class="pb-3">
+                    @RenderBody()
+                </main>
+            </div>
+        </div>
+
+        <div class="drawer-side is-drawer-close:overflow-visible lg:sticky lg:top-0 lg:h-[calc(100vh-4rem)]">
+            <label for="my-drawer-4" aria-label="close sidebar" class="drawer-overlay"></label>
+            <div class="flex h-full flex-col items-start bg-base-200 is-drawer-close:w-14 is-drawer-open:w-64">
+                <!-- Sidebar content here -->
+                <ul class="menu w-full grow">
+                    <!-- List Dashboard item -->
+                    <li>
+                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Homepage" asp-controller="Dashboard" asp-action="Index">
+                            <!-- Home icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="my-1.5 inline-block size-4">
+                                <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+                                <path d="M7 11.207a.5.5 0 0 1 .146-.353l2-2a.5.5 0 0 1 .708 0l3.292 3.292a.5.5 0 0 0 .708 0l4.292-4.292a.5.5 0 0 1 .854.353V16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1z" />
+                            </svg>
+                            <span class="is-drawer-close:hidden">Homepage</span>
+                        </a>
+                    </li>
+
+                    <!-- List Hall item -->
+                    <li>
+                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Hall" asp-controller="Hall" asp-action="Index">
+                            <!-- Hall icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="my-1.5 inline-block size-4">
+                                <path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3" />
+                                <path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z" />
+                                <path d="M5 18v2" />
+                                <path d="M19 18v2" />
+                            </svg>
+                            <span class="is-drawer-close:hidden">Halls</span>
+                        </a>
+                    </li>
+
+                    <!-- List Movies item -->
+                    <li>
+                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Movies" asp-controller="Movies" asp-action="Index">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="my-1.5 inline-block size-4"><path d="m12.296 3.464 3.02 3.956" /><path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3z" /><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="m6.18 5.276 3.1 3.899" /></svg>
+                            <span class="is-drawer-close:hidden">Movies</span>
+                        </a>
+                    </li>
+
+                    <!-- List Showtimes item -->
+                    <li>
+                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Showtime" asp-controller="Showtime" asp-action="Index">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="my-1.5 inline-block size-4">
+                                <path d="M18 8a2 2 0 0 0 0-4 2 2 0 0 0-4 0 2 2 0 0 0-4 0 2 2 0 0 0-4 0 2 2 0 0 0 0 4" />
+                                <path d="M10 22 9 8" />
+                                <path d="m14 22 1-14" />
+                                <path d="M20 8c.5 0 .9.4.8 1l-2.6 12c-.1.5-.7 1-1.2 1H7c-.6 0-1.1-.4-1.2-1L3.2 9c-.1-.6.3-1 .8-1Z" />
+                            </svg>
+                            <span class="is-drawer-close:hidden">Showtimes</span>
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["Success"] is string success)
+    {
+        <div role="alert" class="alert alert-success shadow-lg" data-toast data-toast-duration="4000">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>@success</span>
+        </div>
+    }
+
+    @if (TempData["Error"] is string error)
+    {
+        <div role="alert" class="alert alert-error shadow-lg" data-toast data-toast-duration="5000">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>@error</span>
+        </div>
+    }
+
+    @if (TempData["Warning"] is string Warning)
+    {
+        <div role="alert" class="alert alert-warning shadow-lg" data-toast data-toast-duration="5000">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-triangle-alert-icon lucide-triangle-alert"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
+            <span>@Warning</span>
+        </div>
+    }
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/themeToggle.js" asp-append-version="true"></script>
+    <script src="~/js/Modals.js" asp-append-version="true"></script>
+    <script src="https://cdn.datatables.net/2.3.7/js/dataTables.js"></script>
+    <script>
+        const drawerToggle = document.getElementById("my-drawer-4");
+        const drawerSwapState = document.getElementById("drawerSwapState");
+
+        const syncDrawerSwap = () => {
+        drawerSwapState.checked = drawerToggle.checked;
+        };
+
+        drawerToggle.addEventListener("change", syncDrawerSwap);
+        syncDrawerSwap();
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

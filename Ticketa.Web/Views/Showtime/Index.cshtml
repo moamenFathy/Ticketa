@@ -1,0 +1,71 @@
+@model IEnumerable<Showtime>
+<div class="card bg-base-100 border border-base-300 shadow-sm">
+    <div class="card-body gap-4">
+        <div class="flex items-center justify-between border-b border-base-300 pb-3">
+            <h2 class="card-title">Showtimes</h2>
+            <button onclick="openModal('createForm', '/showtime/upsert')" class="btn btn-primary">Create New +</button>
+        </div>
+
+        <div class="">
+            <table id="DataTable" class="w-full border-separate border-spacing-y-4">
+                <thead class="hidden">
+                    <tr>
+                        <th>Showtimes</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<input type="checkbox" id="modal" class="modal-toggle" />
+
+<div class="modal shadow-2xl" id="modal-wrapper" role="dialog" aria-modal="true">
+    <div class="modal-box w-11/12 max-w-5xl" id="modalContent">
+        <!-- Modal content will be loaded here via JavaScript -->
+    </div>
+    <label class="modal-backdrop" for="modal">Close</label>
+</div>
+
+<div id="trailer-modal" class="trailer-modal" hidden aria-hidden="true">
+    <div class="trailer-modal__backdrop" data-modal-close></div>
+    <section id="trailer-modal-panel"
+             class="trailer-modal__panel"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="trailer-modal-title">
+        <div class="flex items-center justify-between border-b border-base-300/60 px-4 py-3 bg-base-200/70">
+            <h3 id="trailer-modal-title" class="font-semibold truncate pr-3">Movie trailer</h3>
+            <button id="trailer-modal-close"
+                    type="button"
+                    class="btn btn-ghost btn-sm btn-circle"
+                    aria-label="Close trailer">
+                ✕
+            </button>
+        </div>
+        <div class="h-[calc(100%-3.25rem)] bg-black">
+            <iframe id="trailer-modal-iframe"
+                    class="w-full h-full"
+                    src=""
+                    title="Movie trailer"
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    allowfullscreen></iframe>
+        </div>
+    </section>
+</div>
+
+<div id="mySegmentedFilter" style="display: none;">
+    <div class="msf-track" role="tablist" aria-label="Movie filters">
+        <span class="msf-pill" aria-hidden="true"></span>
+        <button type="button" class="msf-btn is-active" role="tab" aria-selected="true" data-segment="all">All</button>
+        <button type="button" class="msf-btn" role="tab" aria-selected="false" data-segment="scheduled">Scheduled</button>
+        <button type="button" class="msf-btn" role="tab" aria-selected="false" data-segment="soldout">Sold Out</button>
+        <button type="button" class="msf-btn" role="tab" aria-selected="false" data-segment="completed">Completed</button>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script type="module" src="~/js/AdminTables/Showtime.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,61 @@
+@model IEnumerable<Hall>
+<div class="card bg-base-100 border border-base-300 shadow-sm">
+    <div class="card-body gap-4">
+        <div class="flex items-center justify-between border-b border-base-300 pb-3">
+            <h2 class="card-title">Halls</h2>
+            <button onclick="openModal('createForm', '/hall/Upsert')" class="btn btn-primary">Create New +</button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table id="DataTable" class="table cell-border hover stripe compact">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Layout</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<input type="checkbox" id="modal" class="modal-toggle" />
+
+<div class="modal shadow-2xl" id="modal-wrapper" role="dialog" aria-modal="true">
+    <div class="modal-box w-11/12 max-w-5xl overflow-y-auto" id="modalContent">
+        <!-- Modal content will be loaded here via JavaScript -->
+    </div>
+    <label class="modal-backdrop" for="modal">Close</label>
+</div>
+
+@if (TempData["Success"] is string success)
+{
+    <div class="toast toast-end toast-top">
+        <div role="alert" class="alert alert-success shadow-lg" data-toast data-toast-duration="4000">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>@success</span>
+        </div>
+    </div>
+}
+
+@if (TempData["Error"] is string error)
+{
+    <div class="toast toast-end toast-top">
+        <div role="alert" class="alert alert-error shadow-lg" data-toast data-toast-duration="5000">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>@error</span>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script type="module" src="~/js/AdminTables/Hall.js" asp-append-version="true"></script>
+}

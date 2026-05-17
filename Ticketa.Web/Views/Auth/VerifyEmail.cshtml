@@ -1,0 +1,73 @@
+﻿@model Ticketa.Web.ViewModels.VerifyEmailVM
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Verify Your Email";
+}
+
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Ticketa</title>
+    <link rel="stylesheet" href="~/css/output.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="hero min-h-screen bg-base-200">
+        <div class="hero-content flex-col lg:flex-row-reverse w-full max-w-4xl">
+            <div class="text-center lg:text-left lg:pl-10">
+                <h1 class="text-5xl font-bold">One last step!</h1>
+                <p class="py-6">We've sent a 6-digit verification code to your email address. Please check your inbox and enter the code to complete your registration. This helps us keep your account secure.</p>
+            </div>
+            <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+                <form id="verify-form" class="card-body" asp-controller="Auth" asp-action="VerifyEmail" method="post">
+
+                    @if (TempData["StatusMessage"] != null)
+                    {
+                        <div role="alert" class="alert alert-success shadow-sm text-sm p-3 mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <span>@TempData["StatusMessage"]</span>
+                        </div>
+                    }
+
+                    <h3 class="text-2xl font-bold text-center">Verify Your Account</h3>
+                    <p class="text-center text-sm">
+                        Enter the code sent to <br /><strong>@Model.Email</strong>
+                    </p>
+                    <div asp-validation-summary="All" class="text-error text-center text-sm"></div>
+                    <input type="hidden" asp-for="Email" />
+                    <input type="hidden" asp-for="Code" />
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Verification Code</span>
+                        </label>
+                        <div id="otp-inputs" class="flex justify-center gap-2" dir="ltr">
+                            @for (int i = 0; i < 6; i++)
+                            {
+                                <input type="text"
+                                       maxlength="1"
+                                       class="input input-bordered w-12 text-center text-xl font-mono"
+                                       pattern="[0-9]"
+                                       inputmode="numeric" />
+                            }
+                        </div>
+                    </div>
+
+                    <div class="form-control mt-6">
+                        <button type="submit" class="btn btn-primary">Verify</button>
+                    </div>
+                    <div class="text-center mt-4">
+                        <p class="text-sm">
+                            Didn't receive the code?
+                            <a asp-action="ResendVerificationCode" asp-controller="Auth" asp-route-email="@Model.Email" class="link link-primary">Resend Code</a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="~/js/verify.js" asp-append-version="true" defer></script>
+</body>
+</html>
