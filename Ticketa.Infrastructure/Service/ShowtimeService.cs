@@ -1,6 +1,7 @@
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Enums;
+using Ticketa.Core.Helpers;
 using Ticketa.Core.Interfaces;
 using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Core.Specifications;
@@ -184,6 +185,35 @@ namespace Ticketa.Infrastructure.Service
     public async Task<IEnumerable<MovieShowtimeDto>> GetScheduledGroupedAsync(CancellationToken ct = default)
     {
       return await GetAllAsync(search: null, segmentedFilter: "scheduled");
+    }
+
+    public async Task<ShowtimeSeatDto?> GetSeatMapAsync(
+    int showtimeId, CancellationToken ct = default)
+    {
+      var spec = new ShowtimeByIdSpecification(showtimeId);
+      var showtime = await _uow.Showtimes.GetEntityWithSpecAsync(spec);
+
+      if (showtime is null) return null;
+
+      var template = HallTypeHelper.GetTemplate(showtime.Hall.Type);
+      var bookedSeats = await _uow.BookedSeats.GetByShowtimeIdAsync(showtimeId, ct);
+
+      return new ShowtimeSeatDto
+      {
+        ShowtimeId = showtime.Id,
+        MovieTitle = showtime.Movie.Title,
+        MoviePosterPath = showtime.Movie.PosterPath,
+        HallName = showtime.Hall.Name,
+        HallType = showtime.Hall.Type.ToString(),
+        StartsAt = showtime.StartTime,
+        Rows = template.Rows,
+        SeatsPerRow = template.SeatsPerRow,
+        RowCategoryMap = template.RowCategoryMap
+                                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString()),
+        BookedSeats = bookedSeats
+                                .Select(b => new SeatDto { Row = b.Row, SeatNumber = b.SeatNumber })
+                                .ToList()
+      };
     }
 
     public async Task<bool> DeleteAsync(int id)
