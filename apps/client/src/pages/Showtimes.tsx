@@ -1,5 +1,6 @@
 import { useGetShowtimes } from "@/hooks/useShowtimes";
 import { Ticket } from "lucide-react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -183,11 +184,16 @@ const Showtimes = () => {
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {showtimes.map((showtime, index) => (
-                              <ShowtimesCards
+                              <Link
+                                to={`/showtimes/${showtime.id}`}
                                 key={showtime.id}
-                                showtime={showtime}
-                                index={index}
-                              />
+                              >
+                                <ShowtimesCards
+                                  key={showtime.id}
+                                  showtime={showtime}
+                                  index={index}
+                                />
+                              </Link>
                             ))}
                           </div>
                         </div>

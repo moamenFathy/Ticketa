@@ -25,7 +25,7 @@ export type ShowtimeSeats = {
 	moviePosterPath?: string;
 	hallName: string;
 	hallType: string;
-	startTime: string;
+	startsAt: string;
 	rows: number;
 	seatsPerRow: number;
 	rowCategoryMap: Record<number, string>;
