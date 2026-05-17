@@ -18,22 +18,8 @@ import { useNavigate } from "react-router-dom";
 import ErrorState from "@/components/ErrorState";
 import Confirmation from "@/components/Confirmation";
 import HeroSeat from "@/components/HeroSeat";
-import { CATEGORY_COLORS } from "@/static/StaticData";
 import { TMDB_IMAGE_POSTER_URL } from "@/api/constants";
-
-function getCategoryStyle(category: string) {
-  return CATEGORY_COLORS[category] ?? CATEGORY_COLORS["Default"];
-}
-
-// ─── Seat Key helper ─────────────────────────────────────────────────────────
-function seatKey(row: number, seat: number) {
-  return `${row}-${seat}`;
-}
-
-// ─── Row label helper (A, B, C …) ───────────────────────────────────────────
-function rowLabel(rowIndex: number) {
-  return String.fromCharCode(65 + rowIndex);
-}
+import { getCategoryStyle, rowLabel, seatKey } from "@/lib/utils";
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 const ShowtimeSeats = () => {
