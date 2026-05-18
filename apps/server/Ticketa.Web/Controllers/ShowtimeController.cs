@@ -81,6 +81,7 @@ namespace Ticketa.Web.Controllers
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateStatus(int id, Core.Enums.ShowtimeStatus status)
     {
       var success = await _showtimeService.UpdateStatusAsync(id, status);

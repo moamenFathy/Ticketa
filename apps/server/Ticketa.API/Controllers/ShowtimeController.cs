@@ -31,7 +31,7 @@ namespace Ticketa.API.Controllers
       }
     }
 
-    [HttpGet("{showtimeId:int}")]
+    [HttpGet("{showtimeId:int}/seats")]
     [ProducesResponseType(typeof(ShowtimeSeatDto), statusCode: StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ShowtimeSeatDto), statusCode: StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(MovieShowtimeDto), statusCode: StatusCodes.Status499ClientClosedRequest)]
