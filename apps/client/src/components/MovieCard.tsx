@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { TMDB_IMAGE_POSTER_URL } from "@/api/constants";
 
 interface Props {
   movie: Movie;
@@ -22,7 +23,7 @@ const MovieCard = ({ movie }: Props) => {
       {/* Image Container with Title Overlay */}
       <div className="relative aspect-2/3 overflow-hidden">
         <motion.img
-          src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`}
+          src={`${TMDB_IMAGE_POSTER_URL}${movie.posterPath}`}
           alt={movie.title}
           animate={{ scale: isHovered ? 1.05 : 1 }}
           transition={{ duration: 0.8, ease: [0.33, 1, 0.68, 1] }}

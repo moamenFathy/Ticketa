@@ -9,13 +9,11 @@ import ErrorState from "@/components/ErrorState";
 const Home = () => {
   const { data: movies, isLoading, isError, refetch } = useNowPlayingMovies();
 
-  if (isError) {
-    return <ErrorState refetch={refetch} />;
-  }
+  if (isError || !movies) return <ErrorState refetch={refetch} />;
 
   return (
     <>
-      <HeroSection movies={movies?.slice(0, 6) || []} />
+      <HeroSection movies={movies.slice(0, 6) || []} />
       <section className="pt-12">
         <div className="flex justify-between items-center px-6">
           <h1 className="text-2xl font-bold">Now showing</h1>

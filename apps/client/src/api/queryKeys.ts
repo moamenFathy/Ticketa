@@ -1,3 +1,4 @@
+
 export const queryKeys = {
     movies: {
         nowPlaying: ["movies", "nowPlaying"] as const,
@@ -5,6 +6,7 @@ export const queryKeys = {
     },
 
     showtimes: {
-        getAll: ["showtimes"] as const
+        getAll: ["showtimes"] as const,
+        getSeatsForShowtime: (showtimeId: string) => ["showtimes", "seats", showtimeId] as const
     }
 }

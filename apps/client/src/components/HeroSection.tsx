@@ -5,6 +5,10 @@ import { Button } from "@/components/ui/button";
 import type { Movie } from "@/types/movie";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import {
+  TMDB_IMAGE_ORIGINAL_URL,
+  TMDB_IMAGE_POSTER_URL,
+} from "@/api/constants";
 
 interface HeroSectionProps {
   movies: Movie[];
@@ -27,10 +31,10 @@ const HeroSection = ({ movies }: HeroSectionProps) => {
   const currentMovie = movies[activeIndex];
 
   const backdropUrl = currentMovie.backdropPath
-    ? `https://image.tmdb.org/t/p/original${currentMovie.backdropPath}`
-    : `https://image.tmdb.org/t/p/original${currentMovie.posterPath}`;
+    ? `${TMDB_IMAGE_ORIGINAL_URL}${currentMovie.backdropPath}`
+    : `${TMDB_IMAGE_ORIGINAL_URL}${currentMovie.posterPath}`;
 
-  const posterUrl = `https://image.tmdb.org/t/p/w500${currentMovie.posterPath}`;
+  const posterUrl = `${TMDB_IMAGE_POSTER_URL}${currentMovie.posterPath}`;
 
   return (
     <section className="relative h-[85vh] w-full overflow-hidden bg-black text-white">
