@@ -64,13 +64,9 @@ const Showtimes = () => {
     [selectedMovie],
   );
 
-  if (isLoading) {
-    return <ShowtimeSkeleton />;
-  }
+  if (isLoading) return <ShowtimeSkeleton />;
 
-  if (isError) {
-    return <ErrorState refetch={refetch} />;
-  }
+  if (isError || !moviesWithShowtimes) return <ErrorState refetch={refetch} />;
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-20">
@@ -94,12 +90,12 @@ const Showtimes = () => {
                 Select Movie
               </h2>
               <span className="text-xs text-muted-foreground uppercase font-semibold">
-                {moviesWithShowtimes?.length} Titles
+                {moviesWithShowtimes.length} Titles
               </span>
             </div>
 
             <div className="flex flex-col gap-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-              {moviesWithShowtimes?.map((movie) => (
+              {moviesWithShowtimes.map((movie) => (
                 <motion.div
                   key={movie.movieId}
                   whileHover={{ x: 5 }}
@@ -109,7 +105,7 @@ const Showtimes = () => {
                     className={`cursor-pointer transition-all duration-300 border-none overflow-hidden ${
                       String(selectedMovieId) === String(movie.movieId) ||
                       (!selectedMovieId &&
-                        String(moviesWithShowtimes?.[0]?.movieId) ===
+                        String(moviesWithShowtimes[0]?.movieId) ===
                           String(movie.movieId))
                         ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 ring-1 ring-primary"
                         : "bg-card hover:bg-accent"
@@ -120,7 +116,7 @@ const Showtimes = () => {
                       <div className="flex gap-4 items-center">
                         <div className="w-12 h-18 rounded-md overflow-hidden shrink-0">
                           <img
-                            src={`${TMDB_IMAGE_BASE_URL}w200${movie.posterPath}`}
+                            src={`${TMDB_IMAGE_BASE_URL}/w200${movie.posterPath}`}
                             alt={movie.title}
                             className="w-full h-full object-cover"
                           />
@@ -134,7 +130,7 @@ const Showtimes = () => {
                               String(selectedMovieId) ===
                                 String(movie.movieId) ||
                               (!selectedMovieId &&
-                                String(moviesWithShowtimes?.[0]?.movieId) ===
+                                String(moviesWithShowtimes[0]?.movieId) ===
                                   String(movie.movieId))
                                 ? "text-primary-foreground/80"
                                 : "text-muted-foreground"
