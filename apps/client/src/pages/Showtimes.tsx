@@ -74,7 +74,10 @@ const Showtimes = () => {
       <AnimatePresence mode="wait">
         {selectedMovie && (
           <HeroShowtimes
-            selectedMovie={selectedMovie}
+            movieId={selectedMovie.movieId}
+            title={selectedMovie.title}
+            posterPath={selectedMovie.posterPath || ""}
+            trailerKey={selectedMovie.trailerKey || ""}
             setIsVideoVisible={setIsVideoVisible}
           />
         )}
@@ -94,7 +97,7 @@ const Showtimes = () => {
               </span>
             </div>
 
-            <div className="flex flex-col gap-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="flex flex-col gap-3 max-h-[70vh] overflow-y-auto pr-3 custom-scrollbar">
               {moviesWithShowtimes.map((movie) => (
                 <motion.div
                   key={movie.movieId}

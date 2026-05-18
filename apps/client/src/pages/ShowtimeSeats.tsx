@@ -1,6 +1,6 @@
 import { useGetSeatsForShowtime } from "@/hooks/useShowtimes";
 import { useParams } from "react-router-dom";
-import ShowtimeSkeleton from "@/components/skeletons/ShowtimeSkeleton";
+import ShowtimeSeatsSkeleton from "@/components/skeletons/ShowtimeSeatsSkeleton";
 import { motion } from "framer-motion";
 import { useState, useMemo } from "react";
 import { ChevronLeft } from "lucide-react";
@@ -63,7 +63,7 @@ const ShowtimeSeats = () => {
 
   const selectedList = useMemo(() => Array.from(selected), [selected]);
 
-  if (isLoading) return <ShowtimeSkeleton />;
+  if (isLoading) return <ShowtimeSeatsSkeleton />;
 
   if (isError || !seatsData) return <ErrorState refetch={refetch} />;
 

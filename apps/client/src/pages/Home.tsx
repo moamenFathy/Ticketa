@@ -5,10 +5,18 @@ import { Button } from "@/components/ui/button";
 import { useNowPlayingMovies } from "@/hooks/useMovies";
 import { Link } from "react-router-dom";
 import ErrorState from "@/components/ErrorState";
+import HeroSectionSkeleton from "@/components/skeletons/HeroSectionSkeleton";
 
 const Home = () => {
   const { data: movies, isLoading, isError, refetch } = useNowPlayingMovies();
 
+  if (isLoading)
+    return (
+      <>
+        <HeroSectionSkeleton />
+        <MovieListSkeleton />
+      </>
+    );
   if (isError || !movies) return <ErrorState refetch={refetch} />;
 
   return (
@@ -27,11 +35,7 @@ const Home = () => {
           </Link>
         </div>
         <div className="p-6 mx-auto">
-          {isLoading ? (
-            <MovieListSkeleton />
-          ) : (
-            <MovieList movies={movies || []} />
-          )}
+          <MovieList movies={movies || []} />
         </div>
       </section>
     </>

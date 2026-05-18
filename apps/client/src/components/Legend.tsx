@@ -37,8 +37,8 @@ const Legend = ({ categories }: Props) => {
       </div>
       {/* Booked */}
       <div className="flex items-center gap-2 text-xs">
-        <div className="w-5 h-5 rounded-sm border border-white/8 bg-white/4 flex items-center justify-center">
-          <Armchair className="w-3 h-3 text-white/15" />
+        <div className="w-5 h-5 rounded-sm border border-muted/50 bg-muted/30 flex items-center justify-center">
+          <Armchair className="w-3 h-3 text-muted-foreground/40" />
         </div>
         <span className="text-muted-foreground">Booked</span>
       </div>

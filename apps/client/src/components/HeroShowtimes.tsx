@@ -2,21 +2,29 @@ import { motion } from "framer-motion";
 import { Badge } from "./ui/badge";
 import { Film, PlayCircle } from "lucide-react";
 import { Button } from "./ui/button";
-import type { MoviesShowtimes } from "@/types/showtimes";
 import {
   TMDB_IMAGE_ORIGINAL_URL,
   TMDB_IMAGE_POSTER_URL,
 } from "@/api/constants";
+import { Link } from "react-router-dom";
 
 interface Props {
-  selectedMovie: MoviesShowtimes;
+  movieId: string;
+  title: string;
+  posterPath: string;
+  trailerKey: string;
   setIsVideoVisible: (visible: boolean) => void;
 }
 
-const HeroShowtimes = ({ selectedMovie, setIsVideoVisible }: Props) => {
+const HeroShowtimes = ({
+  movieId,
+  title,
+  posterPath,
+  trailerKey,
+  setIsVideoVisible,
+}: Props) => {
   return (
     <motion.div
-      key={selectedMovie.movieId}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -24,8 +32,8 @@ const HeroShowtimes = ({ selectedMovie, setIsVideoVisible }: Props) => {
     >
       <div className="absolute inset-0">
         <img
-          src={`${TMDB_IMAGE_ORIGINAL_URL}${selectedMovie.posterPath}`}
-          alt={selectedMovie.title}
+          src={`${TMDB_IMAGE_ORIGINAL_URL}${posterPath}`}
+          alt={title}
           className="w-full h-full object-cover object-top opacity-30 blur-sm scale-105"
         />
         <div className="absolute inset-0 bg-linear-to-t from-background via-background/60 to-transparent" />
@@ -33,17 +41,19 @@ const HeroShowtimes = ({ selectedMovie, setIsVideoVisible }: Props) => {
 
       <div className="container mx-auto px-4 h-full flex items-end pb-12 relative z-10">
         <div className="flex flex-col md:flex-row gap-8 items-end w-full">
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="hidden md:block w-48 aspect-2/3 rounded-2xl overflow-hidden shadow-2xl border border-white/10"
-          >
-            <img
-              src={`${TMDB_IMAGE_POSTER_URL}${selectedMovie.posterPath}`}
-              alt={selectedMovie.title}
-              className="w-full h-full object-cover"
-            />
-          </motion.div>
+          <Link to={`/movies/${movieId}`}>
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              className="hidden md:block w-48 aspect-2/3 rounded-2xl overflow-hidden shadow-2xl border border-white/10"
+            >
+              <img
+                src={`${TMDB_IMAGE_POSTER_URL}${posterPath}`}
+                alt={title}
+                className="w-full h-full object-cover"
+              />
+            </motion.div>
+          </Link>
           <div className="flex-1 space-y-4">
             <motion.div
               initial={{ x: -20, opacity: 0 }}
@@ -56,9 +66,11 @@ const HeroShowtimes = ({ selectedMovie, setIsVideoVisible }: Props) => {
               >
                 Now Showing
               </Badge>
-              <h1 className="text-4xl md:text-6xl font-black tracking-tighter">
-                {selectedMovie.title}
-              </h1>
+              <Link to={`/movies/${movieId}`}>
+                <h1 className="text-4xl md:text-6xl font-black tracking-tighter">
+                  {title}
+                </h1>
+              </Link>
             </motion.div>
             <motion.div
               initial={{ y: 10, opacity: 0 }}
@@ -70,7 +82,7 @@ const HeroShowtimes = ({ selectedMovie, setIsVideoVisible }: Props) => {
                 <Film className="w-5 h-5 text-primary" />
                 <span className="font-medium">Premium Experience</span>
               </div>
-              {selectedMovie.trailerKey && (
+              {trailerKey && (
                 <Button
                   variant="secondary"
                   size="default"

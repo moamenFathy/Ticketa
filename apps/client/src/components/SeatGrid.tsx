@@ -57,9 +57,9 @@ const SeatGrid = ({
                 <div
                   key={key}
                   title="Booked"
-                  className="w-7 h-7 rounded-md bg-white/4 border border-white/8 flex items-center justify-center cursor-not-allowed"
+                  className="w-7 h-7 rounded-md bg-muted/30 border border-muted/50 flex items-center justify-center cursor-not-allowed"
                 >
-                  <Armchair className="w-3.5 h-3.5 text-white/15" />
+                  <Armchair className="w-3.5 h-3.5 text-muted-foreground/40" />
                 </div>
               );
             }
