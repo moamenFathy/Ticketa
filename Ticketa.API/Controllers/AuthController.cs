@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Entities;
@@ -21,7 +22,7 @@ namespace Ticketa.API.Controllers
     {
       var user = await _userManager.FindByEmailAsync(dto.Email);
 
-      if (user == null || !await _userManager.CheckPasswordAsync(user, dto.Password))
+      if (user is null || !await _userManager.CheckPasswordAsync(user, dto.Password))
         return Unauthorized(new { message = "Invalid email or password" });
       if (!user.EmailConfirmed)
         return Unauthorized(new { message = "Please confirm your email before logging in" });
@@ -43,6 +44,26 @@ namespace Ticketa.API.Controllers
       });
 
       // Here you would typically save the refresh token in the database associated with the user
+      return Ok(new { accessToken });
+    }
+
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh()
+    {
+      var refreshToken = Request.Cookies["refreshToken"];
+      if (string.IsNullOrEmpty(refreshToken))
+        return Unauthorized();
+
+      var user = await _userManager.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+
+      if (user is null || user.RefreshTokenExpiry <= DateTime.UtcNow)
+        return Unauthorized("Refresh token expired.");
+
+      var roles = await _userManager.GetRolesAsync(user);
+      var accessToken = _tokenService.GenerateAccessToken(user, roles);
+      user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(_jwt.RefreshTokenExpiryDate);
+      await _userManager.UpdateAsync(user);
+
       return Ok(new { accessToken });
     }
   }
