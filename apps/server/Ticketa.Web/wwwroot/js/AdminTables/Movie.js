@@ -584,31 +584,84 @@ function initMovieImportPage() {
         const safeYear = escapeHtml(movie.year || "N/A");
         const safeRating = escapeHtml(movie.rating || "0.0");
 
-        card.innerHTML = `
-            <div class="w-20 sm:w-24 shrink-0 overflow-hidden rounded-l-2xl bg-base-300">
-                ${poster
-                ? `<img src="${poster}" alt="${safeTitle}" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />`
-                : `<div class="h-full w-full"></div>`}
-            </div>
-            <div class="flex flex-1 items-center justify-between gap-3 p-3">
-                <div class="min-w-0 flex-1">
-                    <div class="mb-1 flex flex-wrap items-center gap-2">
-                        <h3 class="truncate text-sm font-semibold" title="${safeTitle}">${safeTitle}</h3>
-                        <span class="badge badge-xs">${safeYear}</span>
-                        <span class="badge badge-xs badge-warning badge-outline">⭐ ${safeRating}</span>
-                    </div>
-                    <p class="line-clamp-2 text-xs text-base-content/60">${safeOverview}</p>
-                </div>
-                <button type="button"
-                        class="trailer-squircle btn btn-primary btn-sm h-9 w-9 min-h-0 p-0"
-                        data-trailer-title="${safeTitle} ${safeYear}"
-                        data-tmdb-id="${movie.value}"
-                        title="Watch trailer">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M7 6v12l10-6z" />
-                    </svg>
-                </button>
-            </div>`;
+        // ✅ Replace the entire card.innerHTML = `...` block with this
+
+        // --- Poster panel ---
+        const posterPanel = document.createElement("div");
+        posterPanel.className = "w-20 sm:w-24 shrink-0 overflow-hidden rounded-l-2xl bg-base-300";
+
+        if (movie.poster) {
+            const img = document.createElement("img");
+            img.src = movie.poster;                          // browser encodes src automatically
+            img.alt = movie.title || "";                     // textual context — safe
+            img.className = "h-full w-full object-cover transition-transform duration-500 group-hover:scale-105";
+            posterPanel.appendChild(img);
+        } else {
+            const placeholder = document.createElement("div");
+            placeholder.className = "h-full w-full";
+            posterPanel.appendChild(placeholder);
+        }
+
+        // --- Content panel ---
+        const contentPanel = document.createElement("div");
+        contentPanel.className = "flex flex-1 items-center justify-between gap-3 p-3";
+
+        // Left side: title + badges + overview
+        const leftSide = document.createElement("div");
+        leftSide.className = "min-w-0 flex-1";
+
+        const badgeRow = document.createElement("div");
+        badgeRow.className = "mb-1 flex flex-wrap items-center gap-2";
+
+        const h3 = document.createElement("h3");
+        h3.className = "truncate text-sm font-semibold";
+        h3.title = movie.title || "";          // setAttribute handles encoding
+        h3.textContent = movie.title || "";    // textContent never parses as HTML
+
+        const yearBadge = document.createElement("span");
+        yearBadge.className = "badge badge-xs";
+        yearBadge.textContent = movie.year || "N/A";
+
+        const ratingBadge = document.createElement("span");
+        ratingBadge.className = "badge badge-xs badge-warning badge-outline";
+        ratingBadge.textContent = `⭐ ${movie.rating || "0.0"}`;
+
+        badgeRow.appendChild(h3);
+        badgeRow.appendChild(yearBadge);
+        badgeRow.appendChild(ratingBadge);
+
+        const overview = document.createElement("p");
+        overview.className = "line-clamp-2 text-xs text-base-content/60";
+        overview.textContent = movie.overview || "";   // ← textContent, never innerHTML
+
+        leftSide.appendChild(badgeRow);
+        leftSide.appendChild(overview);
+
+        // Right side: trailer button
+        const rightSide = document.createElement("div");
+
+        const trailerBtn = document.createElement("button");
+        trailerBtn.type = "button";
+        trailerBtn.className = "trailer-squircle btn btn-primary btn-sm h-9 w-9 min-h-0 p-0";
+        trailerBtn.title = "Watch trailer";
+        trailerBtn.setAttribute("data-trailer-title", `${movie.title || ""} ${movie.year || ""}`);
+        trailerBtn.setAttribute("data-tmdb-id", String(movie.value ?? ""));   // setAttribute encodes
+
+        // SVG — this is your own static markup, not data-driven → innerHTML is fine here
+        trailerBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24"
+                 fill="currentColor" aria-hidden="true">
+                <path d="M7 6v12l10-6z" />
+            </svg>`;
+
+        rightSide.appendChild(trailerBtn);
+
+        contentPanel.appendChild(leftSide);
+        contentPanel.appendChild(rightSide);
+
+        // --- Assemble card ---
+        card.appendChild(posterPanel);
+        card.appendChild(contentPanel);
 
         previewList.appendChild(card);
         requestAnimationFrame(() => {
@@ -815,7 +868,10 @@ window.updateMovieStatus = async function (id, selectEl) {
 
         const response = await fetch('/Movies/UpdateStatus', {
             method: 'POST',
-            body: formData
+            body: formData,
+            headers: {
+                "RequestVerificationToken": window.csrfToken
+            }
         });
 
         if (response.ok) {

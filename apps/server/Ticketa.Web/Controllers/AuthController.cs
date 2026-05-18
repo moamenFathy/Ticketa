@@ -92,7 +92,7 @@ public class AuthController : Controller
       if (user != null && !string.IsNullOrEmpty(user.Theme))
       {
         Response.Cookies.Append("theme", user.Theme,
-            new CookieOptions { MaxAge = TimeSpan.FromDays(365), Path = "/" });
+            new CookieOptions { MaxAge = TimeSpan.FromDays(365), Path = "/", Secure = true, HttpOnly = false, SameSite = SameSiteMode.Lax });
       }
 
       if (Url.IsLocalUrl(returnUrl))

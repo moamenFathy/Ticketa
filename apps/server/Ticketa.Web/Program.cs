@@ -13,14 +13,10 @@ builder.Services.ConfigureApplicationCookie(opt =>
   opt.LoginPath = "/Auth/Login";
 });
 
-builder.Services.AddCors(options =>
+builder.Services.Configure<CookiePolicyOptions>(options =>
 {
-  options.AddPolicy("AllowAll", policy =>
-  {
-    policy.AllowAnyOrigin()
-          .AllowAnyMethod()
-          .AllowAnyHeader();
-  });
+  options.Secure = CookieSecurePolicy.Always;  // forces Secure on all cookies
+  options.MinimumSameSitePolicy = SameSiteMode.Lax;
 });
 
 var app = builder.Build();
@@ -38,6 +34,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseCookiePolicy();
 app.UseAuthentication();
 app.UseAuthorization();
 

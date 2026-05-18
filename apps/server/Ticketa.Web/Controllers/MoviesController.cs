@@ -67,6 +67,7 @@ namespace Ticketa.Web.Controllers
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateStatus(int id, int status)
     {
       var success = await _movieService.UpdateStatusAsync(id, (MovieStatus)status);
