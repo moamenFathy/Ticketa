@@ -463,7 +463,10 @@ window.updateShowtimeStatus = async function (id, selectEl) {
 
         const response = await fetch('/Showtime/UpdateStatus', {
             method: 'POST',
-            body: formData
+            body: formData,
+            headers: {
+                "RequestVerificationToken": window.csrfToken
+            }
         });
 
         if (response.ok) {

@@ -65,7 +65,15 @@
         <button type="button" class="msf-btn" role="tab" aria-selected="false" data-segment="completed">Completed</button>
     </div>
 </div>
+
+@Html.AntiForgeryToken();
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        window.csrfToken = document.querySelector(
+            'input[name="__RequestVerificationToken"]'
+        ).value;
+    </script>
     <script type="module" src="~/js/AdminTables/Showtime.js" asp-append-version="true"></script>
 }
