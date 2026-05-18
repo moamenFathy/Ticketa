@@ -114,7 +114,8 @@ namespace Ticketa.Infrastructure.ExternalService
       }
       catch (Exception ex)
       {
-        _logger.LogError(ex, $"error searching tmdb for query: {query}");
+        var safeQuery = query.Replace("\n", " ").Replace("\r", " ");
+        _logger.LogError(ex, $"error searching tmdb for query: {safeQuery}");
         return [];
       }
     }
