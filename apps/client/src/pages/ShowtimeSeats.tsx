@@ -1,7 +1,6 @@
 import { useGetSeatsForShowtime } from "@/hooks/useShowtimes";
 import { useParams } from "react-router-dom";
 import ShowtimeSkeleton from "@/components/skeletons/ShowtimeSkeleton";
-import { format, parseISO } from "date-fns";
 import { motion } from "framer-motion";
 import { useState, useMemo } from "react";
 import { ChevronLeft } from "lucide-react";
@@ -74,15 +73,11 @@ const ShowtimeSeats = () => {
     ? `${TMDB_IMAGE_POSTER_URL}${seatsData.moviePosterPath}`
     : "/poster-placeholder.png";
 
-  const formattedDate = seatsData?.startsAt
-    ? format(parseISO(seatsData.startsAt), "EEE, MMM d • h:mm a")
-    : "";
-
   // ── Confirmation overlay ─────────────────────────────────────────────────
   if (confirmed) {
     return (
       <Confirmation
-        movieTitle={seatsData?.movieTitle || ""}
+        movieTitle={seatsData.movieTitle}
         rowLabel={rowLabel}
         selectedList={selectedList}
         onClick={() => {
@@ -124,10 +119,10 @@ const ShowtimeSeats = () => {
         {/* ── Hero card ── */}
         <HeroSeat
           posterUrl={posterUrl}
-          movieTitle={seatsData?.movieTitle || ""}
-          hallName={seatsData?.hallName || ""}
-          hallType={seatsData?.hallType || ""}
-          formattedDate={formattedDate}
+          movieTitle={seatsData.movieTitle}
+          hallName={seatsData.hallName}
+          hallType={seatsData.hallType}
+          startAt={seatsData.startsAt}
           availableSeats={rows * seatsPerRow - bookedSet.size}
         />
 
@@ -162,7 +157,7 @@ const ShowtimeSeats = () => {
               seatsPerRow={seatsPerRow}
               selected={selected}
               toggleSeat={toggleSeat}
-              seatsData={seatsData!}
+              seatsData={seatsData}
             />
             {/* Legend */}
             <Legend categories={categories} />

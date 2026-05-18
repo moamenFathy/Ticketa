@@ -8,13 +8,14 @@ import {
   Ticket,
 } from "lucide-react";
 import { Badge } from "./ui/badge";
+import { format, parseISO } from "date-fns";
 
 interface Props {
   posterUrl: string;
   movieTitle: string;
   hallName: string;
   hallType: string;
-  formattedDate: string;
+  startAt: string;
   availableSeats: number;
 }
 
@@ -23,9 +24,12 @@ const HeroSeat = ({
   movieTitle,
   hallName,
   hallType,
-  formattedDate,
+  startAt,
   availableSeats,
 }: Props) => {
+  const formattedDate = startAt
+    ? format(parseISO(startAt), "EEE, MMM d • h:mm a")
+    : "";
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
