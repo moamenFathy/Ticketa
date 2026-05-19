@@ -1,7 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
-import 'package:ticketa/main.dart';
+import 'package:provider/provider.dart';
+import 'package:ticketa/core/services/theme_service.dart';
+import 'package:ticketa/core/services/locale_service.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -116,7 +118,7 @@ class SettingsPage extends StatelessWidget {
                     trailing: Switch.adaptive(
                       value: isDark,
                       onChanged: (val) {
-                        MyApp.setTheme(context, val ? ThemeMode.dark : ThemeMode.light);
+                        context.read<ThemeService>().setTheme(val ? ThemeMode.dark : ThemeMode.light);
                       },
                       activeColor: AppColors.warmOrange,
                     ),
@@ -365,7 +367,7 @@ class SettingsPage extends StatelessWidget {
           style: const TextStyle(color: AppColors.warmOrange, fontWeight: FontWeight.bold, fontSize: 12),
           onChanged: (String? newValue) {
             if (newValue != null) {
-              MyApp.setLocale(context, Locale(newValue));
+              context.read<LocaleService>().setLocale(Locale(newValue));
             }
           },
           items: <String>['en', 'ar'].map<DropdownMenuItem<String>>((String value) {
