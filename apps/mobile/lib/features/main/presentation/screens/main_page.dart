@@ -18,19 +18,6 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
-  late PageController _pageController;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController(initialPage: _currentIndex);
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,14 +39,23 @@ class _MainPageState extends State<MainPage> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
-          PageView(
-            controller: _pageController,
-            onPageChanged: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: ScaleTransition(
+                  scale: Tween<double>(begin: 0.96, end: 1.0).animate(animation),
+                  child: child,
+                ),
+              );
             },
-            children: _pages,
+            child: KeyedSubtree(
+              key: ValueKey<int>(_currentIndex),
+              child: _pages[_currentIndex],
+            ),
           ),
           
           if (isIOS)
@@ -91,7 +87,6 @@ class _MainPageState extends State<MainPage> {
                   setState(() {
                     _currentIndex = index;
                   });
-                  _pageController.jumpToPage(index);
                 },
               ),
             )
@@ -154,11 +149,6 @@ class _MainPageState extends State<MainPage> {
                         setState(() {
                           _currentIndex = index;
                         });
-                        _pageController.animateToPage(
-                          index,
-                          duration: const Duration(milliseconds: 400),
-                          curve: Curves.easeInOut,
-                        );
                       },
                     ),
                   ),
