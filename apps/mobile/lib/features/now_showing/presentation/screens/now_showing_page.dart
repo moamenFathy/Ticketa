@@ -2,9 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:ticketa/core/data/dummy_data.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 import '../widgets/now_showing_card.dart';
+import '../widgets/now_showing_skeleton.dart' as ticketa_now_skeleton;
 
-class NowShowingPage extends StatelessWidget {
+class NowShowingPage extends StatefulWidget {
   const NowShowingPage({super.key});
+
+  @override
+  State<NowShowingPage> createState() => _NowShowingPageState();
+}
+
+class _NowShowingPageState extends State<NowShowingPage> {
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _simulateLoading();
+  }
+
+  Future<void> _simulateLoading() async {
+    await Future.delayed(const Duration(milliseconds: 1500));
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,14 +83,25 @@ class NowShowingPage extends StatelessWidget {
             ),
           ),
 
-          // Movie List
-          SliverPadding(
-            padding: const EdgeInsets.only(top: 10, bottom: 120),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => NowShowingCard(movie: movies[index]),
-                childCount: movies.length,
-              ),
+          // Movie List or Skeleton — with smooth fade
+          SliverFillRemaining(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 600),
+              switchInCurve: Curves.easeIn,
+              switchOutCurve: Curves.easeOut,
+              transitionBuilder: (child, animation) =>
+                  FadeTransition(opacity: animation, child: child),
+              child: _isLoading
+                  ? const ticketa_now_skeleton.NowShowingSkeleton(
+                      key: ValueKey('skeleton'))
+                  : ListView.builder(
+                      key: const ValueKey('content'),
+                      padding:
+                          const EdgeInsets.only(top: 10, bottom: 120),
+                      itemCount: movies.length,
+                      itemBuilder: (context, index) =>
+                          NowShowingCard(movie: movies[index]),
+                    ),
             ),
           ),
         ],

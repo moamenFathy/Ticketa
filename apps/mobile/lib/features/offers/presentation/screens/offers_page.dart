@@ -1,9 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 import '../widgets/offer_card.dart';
+import '../widgets/offer_skeleton.dart' as ticketa_offer_skeleton;
 
-class OffersPage extends StatelessWidget {
+class OffersPage extends StatefulWidget {
   const OffersPage({super.key});
+
+  @override
+  State<OffersPage> createState() => _OffersPageState();
+}
+
+class _OffersPageState extends State<OffersPage> {
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _simulateLoading();
+  }
+
+  Future<void> _simulateLoading() async {
+    await Future.delayed(const Duration(milliseconds: 1500));
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,12 +76,25 @@ class OffersPage extends StatelessWidget {
               ),
             ),
           ),
+          
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => OfferCard(index: index),
-                childCount: 5,
+            sliver: SliverFillRemaining(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 600),
+                switchInCurve: Curves.easeIn,
+                switchOutCurve: Curves.easeOut,
+                transitionBuilder: (child, animation) =>
+                    FadeTransition(opacity: animation, child: child),
+                child: _isLoading
+                    ? const ticketa_offer_skeleton.OfferSkeleton(
+                        key: ValueKey('skeleton'))
+                    : ListView.builder(
+                        key: const ValueKey('content'),
+                        itemCount: 5,
+                        itemBuilder: (context, index) =>
+                            OfferCard(index: index),
+                      ),
               ),
             ),
           ),
