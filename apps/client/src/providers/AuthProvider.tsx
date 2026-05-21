@@ -1,4 +1,5 @@
 import { authApi } from "@/api/auth.api";
+import { setClientToken } from "@/api/client";
 import type { AuthUserDto } from "@/types/auth";
 import { createContext, useCallback, useEffect, useState } from "react";
 
@@ -30,6 +31,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setIsInitializing(false);
       });
   }, []);
+
+  useEffect(() => {
+    setClientToken(accessToken);
+  }, [accessToken]);
 
   const login = useCallback((token: string, user: AuthUserDto) => {
     setAccessToken(token);
