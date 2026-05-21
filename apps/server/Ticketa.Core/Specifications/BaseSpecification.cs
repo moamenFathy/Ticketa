@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 
 namespace Ticketa.Core.Specifications
 {
@@ -6,6 +6,7 @@ namespace Ticketa.Core.Specifications
   {
     public Expression<Func<T, bool>>? Criteria { get; private set; }
     public List<Expression<Func<T, object>>> Includes { get; } = new List<Expression<Func<T, object>>>();
+    public List<string> IncludeStrings { get; } = new List<string>();
     public Expression<Func<T, object>>? OrderBy { get; private set; }
     public Expression<Func<T, object>>? OrderByDesc { get; private set; }
     public int Take { get; private set; }
@@ -15,6 +16,7 @@ namespace Ticketa.Core.Specifications
     protected void AddCriteria(Expression<Func<T, bool>> criteria) => Criteria = criteria;
 
     protected void AddInclude(Expression<Func<T, object>> includeExpression) => Includes.Add(includeExpression);
+    protected void AddInclude(string includeString) => IncludeStrings.Add(includeString);
 
     protected void AddOrderBy(Expression<Func<T, object>> orderBy) => OrderBy = orderBy;
 
