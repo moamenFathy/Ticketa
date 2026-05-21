@@ -201,6 +201,7 @@ namespace Ticketa.Infrastructure.Service
       return new ShowtimeSeatDto
       {
         ShowtimeId = showtime.Id,
+        MovieId = showtime.Id,
         MovieTitle = showtime.Movie.Title,
         MoviePosterPath = showtime.Movie.PosterPath,
         HallName = showtime.Hall.Name,
