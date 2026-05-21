@@ -1,4 +1,4 @@
-﻿namespace Ticketa.Core.DTOs
+namespace Ticketa.Core.DTOs
 {
   public class MovieShowtimeDto
   {
@@ -7,6 +7,9 @@
     public string Title { get; set; } = string.Empty;
     public string? PosterPath { get; set; }
     public string? trailerKey { get; set; }
+    public double Rate { get; set; }
+    public int Runtime { get; set; }
+    public List<string> Genres { get; set; } = [];
     public List<ShowtimeListItemDto> Showtimes { get; set; } = [];
     public int ShowtimeCount => Showtimes.Count;
   }

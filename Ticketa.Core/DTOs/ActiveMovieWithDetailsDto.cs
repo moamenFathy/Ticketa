@@ -14,5 +14,7 @@ namespace Ticketa.Core.DTOs
     public string Language { get; set; } = string.Empty;
     public List<string> Genres { get; set; } = new();
     public List<TmdbCastMemberDto> Cast { get; set; } = new();
+    public List<DateTime> Showtimes { get; set; } = new();
+    public string HallType { get; set; } = "Standard";
   }
 }
