@@ -1,18 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:ticketa/features/home/models/movie.dart';
 
 class MovieCastList extends StatelessWidget {
-  const MovieCastList({super.key});
+  final List<CastMember> cast;
+  const MovieCastList({super.key, this.cast = const []});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    if (cast.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return SizedBox(
-      height: 100,
+      height: 110,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
-        itemCount: 6,
+        itemCount: cast.length,
         itemBuilder: (context, index) {
+          final member = cast[index];
           return Padding(
             padding: const EdgeInsets.only(right: 16),
             child: Column(
@@ -20,12 +28,35 @@ class MovieCastList extends StatelessWidget {
                 CircleAvatar(
                   radius: 30,
                   backgroundColor: theme.colorScheme.onSurface.withOpacity(0.1),
-                  child: Icon(Icons.person, color: theme.colorScheme.onSurface.withOpacity(0.3)),
+                  backgroundImage: member.profilePath != null && member.profilePath!.isNotEmpty
+                      ? NetworkImage(member.profilePath!)
+                      : null,
+                  child: member.profilePath == null || member.profilePath!.isEmpty
+                      ? Icon(Icons.person, color: theme.colorScheme.onSurface.withOpacity(0.3))
+                      : null,
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  "Actor ${index + 1}",
-                  style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600),
+                const SizedBox(height: 6),
+                SizedBox(
+                  width: 64,
+                  child: Text(
+                    member.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ),
+                SizedBox(
+                  width: 64,
+                  child: Text(
+                    member.character,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurface.withOpacity(0.5),
+                    ),
+                  ),
                 ),
               ],
             ),

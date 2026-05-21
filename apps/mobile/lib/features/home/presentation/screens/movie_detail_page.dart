@@ -1,14 +1,22 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:ticketa/features/home/models/movie.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/features/home/presentation/screens/seat_selection_page.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'package:ticketa/core/utils/youtube_utils.dart';
+import 'package:ticketa/features/home/presentation/widgets/movie_date_selector.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 import 'package:ticketa/core/utils/app_responsive.dart';
 import 'package:ticketa/features/home/presentation/widgets/movie_detail_skeleton.dart' as ticketa_movie_skeleton;
 import '../widgets/movie_detail_header.dart';
 import '../widgets/movie_info_tag.dart';
 import '../widgets/movie_cast_list.dart';
-import '../widgets/movie_date_selector.dart';
+import '../widgets/trailer_play_button.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ticketa/core/di/injection.dart';
+import 'package:ticketa/features/home/presentation/cubit/movie_detail_cubit.dart';
+import 'package:ticketa/features/home/presentation/cubit/movie_detail_state.dart';
 
 class MovieDetailPage extends StatefulWidget {
   final Movie movie;
@@ -19,21 +27,11 @@ class MovieDetailPage extends StatefulWidget {
 }
 
 class _MovieDetailPageState extends State<MovieDetailPage> {
-  bool _isLoading = true;
+  bool _isPlayingTrailer = false;
 
   @override
   void initState() {
     super.initState();
-    _simulateLoading();
-  }
-
-  Future<void> _simulateLoading() async {
-    await Future.delayed(const Duration(milliseconds: 1500));
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
   }
 
   @override
@@ -42,14 +40,22 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     final l10n = AppLocalizations.of(context)!;
     final movie = widget.movie;
 
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 600),
-      switchInCurve: Curves.easeIn,
-      switchOutCurve: Curves.easeOut,
-      transitionBuilder: (child, animation) =>
-          FadeTransition(opacity: animation, child: child),
-      child: _isLoading
-          ? Scaffold(
+    return BlocProvider(
+      create: (context) => getIt<MovieDetailCubit>()..fetchMovieDetails(widget.movie.id),
+      child: BlocBuilder<MovieDetailCubit, MovieDetailState>(
+        builder: (context, state) {
+          final isLoaded = state is MovieDetailLoaded;
+          final displayMovie = isLoaded ? state.movie : widget.movie;
+          final isLoading = state is MovieDetailInitial || state is MovieDetailLoading;
+
+          return AnimatedSwitcher(
+            duration: const Duration(milliseconds: 600),
+            switchInCurve: Curves.easeIn,
+            switchOutCurve: Curves.easeOut,
+            transitionBuilder: (child, animation) =>
+                FadeTransition(opacity: animation, child: child),
+            child: isLoading
+                ? Scaffold(
               key: const ValueKey('skeleton'),
               backgroundColor: theme.scaffoldBackgroundColor,
               appBar: AppBar(
@@ -64,17 +70,21 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
               extendBodyBehindAppBar: true,
               body: const ticketa_movie_skeleton.MovieDetailSkeleton(),
             )
-          : Scaffold(
-              key: const ValueKey('content'),
-              backgroundColor: theme.scaffoldBackgroundColor,
-              body: Stack(
-                children: [
-                  // Content
-                  CustomScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    slivers: [
-                      // Parallax Header
-                      MovieDetailHeader(movie: movie),
+            : Scaffold(
+                key: const ValueKey('content'),
+                backgroundColor: theme.scaffoldBackgroundColor,
+                body: Stack(
+                  children: [
+                    CustomScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      slivers: [
+                        // Parallax Header with embedded Play button
+                        MovieDetailHeader(
+                          movie: displayMovie,
+                          onPlay: displayMovie.hasTrailer
+                              ? () => setState(() => _isPlayingTrailer = true)
+                              : null,
+                        ),
 
                       // Movie Details
                       SliverToBoxAdapter(
@@ -86,7 +96,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                               const SizedBox(height: 10),
                               // Title
                               Text(
-                                movie.title,
+                                displayMovie.title,
                                 style: theme.textTheme.headlineMedium?.copyWith(
                                   fontWeight: FontWeight.w900,
                                   letterSpacing: 0.5,
@@ -101,17 +111,19 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                 child: Row(
                                   children: [
                                     MovieInfoTag(
-                                        label: "${movie.rating}",
+                                        label: displayMovie.rating.toStringAsFixed(1),
                                         icon: Icons.star_rounded,
                                         color: Colors.amber),
                                     const SizedBox(width: 10),
                                     MovieInfoTag(
-                                        label: movie.genre.split('|')[0],
+                                        label: displayMovie.genre.isNotEmpty ? displayMovie.genre.split(', ')[0] : 'Action',
                                         icon: Icons.movie_filter_outlined,
                                         color: AppColors.warmOrange),
                                     const SizedBox(width: 10),
                                     MovieInfoTag(
-                                        label: "${movie.duration}m",
+                                        label: displayMovie.duration > 60 
+                                            ? "${displayMovie.duration ~/ 60}h ${displayMovie.duration % 60}m" 
+                                            : "${displayMovie.duration}m",
                                         icon: Icons.timer_outlined,
                                         color: Colors.grey),
                                   ],
@@ -123,7 +135,9 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                               _SectionHeader(title: l10n.storyLine),
                               const SizedBox(height: 12),
                               Text(
-                                "An immersive journey through time and space, where every decision shapes the future. Experience breathtaking visuals and a story that will keep you on the edge of your seat until the very last moment.",
+                                displayMovie.overview.isNotEmpty
+                                    ? displayMovie.overview
+                                    : l10n.storyLine,
                                 style: theme.textTheme.bodyLarge?.copyWith(
                                   color: theme.colorScheme.onSurface
                                       .withOpacity(0.7),
@@ -136,13 +150,19 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                               // Cast Section
                               _SectionHeader(title: l10n.cast),
                               const SizedBox(height: 16),
-                              const MovieCastList(),
+                              MovieCastList(cast: displayMovie.cast),
                               const SizedBox(height: 32),
 
                               // Date Selector
                               _SectionHeader(title: l10n.selectDate),
                               const SizedBox(height: 16),
-                              MovieDateSelector(showTimes: movie.showTimes),
+                              if (displayMovie.showTimes.isNotEmpty)
+                                MovieDateSelector(showTimes: displayMovie.showTimes)
+                              else
+                                const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text("No showtimes available yet."),
+                                ),
                               const SizedBox(height: 140),
                             ],
                           ),
@@ -151,7 +171,6 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                     ],
                   ),
 
-                  // Floating Bottom CTA
                   Positioned(
                     bottom: 0,
                     left: 0,
@@ -242,10 +261,41 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                       ),
                     ),
                   ),
+
+                  // Full Screen In-Page Overlay
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      ignoring: !_isPlayingTrailer,
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 600),
+                        reverseDuration: const Duration(milliseconds: 400),
+                        switchInCurve: Curves.easeOutCubic,
+                        switchOutCurve: Curves.easeInCubic,
+                        transitionBuilder: (child, animation) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                        child: _isPlayingTrailer && displayMovie.trailerKey != null
+                            ? _FullScreenInlinePlayer(
+                                key: const ValueKey('full_screen_player'),
+                                trailerKey: displayMovie.trailerKey!,
+                                posterUrl: displayMovie.posterUrl,
+                                onClose: () => setState(() => _isPlayingTrailer = false),
+                              )
+                            : const SizedBox.shrink(key: ValueKey('empty_player')),
+                      ),
+                    ),
+                  ),
                 ],
               ),
-            ),
-    );
+            )
+            );
+
+          },
+        ),
+      );
   }
 }
 
@@ -274,6 +324,103 @@ class _SectionHeader extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _FullScreenInlinePlayer extends StatefulWidget {
+  final String trailerKey;
+  final String posterUrl;
+  final VoidCallback onClose;
+
+  const _FullScreenInlinePlayer({
+    super.key, 
+    required this.trailerKey, 
+    required this.posterUrl,
+    required this.onClose,
+  });
+
+  @override
+  State<_FullScreenInlinePlayer> createState() => _FullScreenInlinePlayerState();
+}
+
+class _FullScreenInlinePlayerState extends State<_FullScreenInlinePlayer> {
+  late final YoutubePlayerController _controller;
+  bool _showVideo = true;
+
+  @override
+  void initState() {
+    super.initState();
+    final videoId = extractYoutubeVideoId(widget.trailerKey) ?? '';
+    _controller = YoutubePlayerController.fromVideoId(
+      videoId: videoId,
+      autoPlay: true,
+      params: const YoutubePlayerParams(
+        showControls: true,
+        showFullscreenButton: true,
+        playsInline: true,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.close();
+    super.dispose();
+  }
+
+  void _handleClose() {
+    setState(() {
+      _showVideo = false;
+    });
+    widget.onClose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          // Blurred Poster Background
+          Positioned.fill(
+            child: Image.network(
+              widget.posterUrl,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Positioned.fill(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+              child: Container(
+                color: Colors.black.withValues(alpha: 0.6),
+              ),
+            ),
+          ),
+          
+          SafeArea(
+            child: Stack(
+              children: [
+                if (_showVideo)
+                  Center(
+                    child: YoutubePlayer(
+                      controller: _controller,
+                      aspectRatio: 16 / 9,
+                    ),
+                  ),
+                Positioned(
+                  top: 16,
+                  left: 16,
+                  child: IconButton(
+                    icon: const Icon(Icons.close_rounded, color: Colors.white, size: 32),
+                    onPressed: _handleClose,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

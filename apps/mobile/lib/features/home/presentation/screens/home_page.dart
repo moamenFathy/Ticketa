@@ -1,12 +1,15 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:ticketa/core/data/dummy_data.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ticketa/features/home/presentation/widgets/home_category_list.dart';
-import 'package:ticketa/features/home/presentation/widgets/home_header.dart';
 import 'package:ticketa/features/home/presentation/widgets/home_hero_section.dart';
 import 'package:ticketa/features/home/presentation/widgets/movie_horizontal_list.dart';
 import 'package:ticketa/features/home/presentation/widgets/home_skeleton.dart' as ticketa_home_skeleton;
 import 'package:ticketa/l10n/app_localizations.dart';
+import 'package:ticketa/core/di/injection.dart';
+import 'package:ticketa/features/home/models/movie.dart';
+import 'package:ticketa/features/home/presentation/cubit/home_cubit.dart';
+import 'package:ticketa/features/home/presentation/cubit/home_state.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,83 +19,121 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _currentPage = 1;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _simulateLoading();
-  }
-
-  Future<void> _simulateLoading() async {
-    await Future.delayed(const Duration(seconds: 2));
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
+  int _currentPage = 0;
 
   @override
   Widget build(BuildContext context) {
-    final movies = DummyData.movies;
-    final l10n = AppLocalizations.of(context)!;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 600),
-        switchInCurve: Curves.easeIn,
-        switchOutCurve: Curves.easeOut,
-        transitionBuilder: (child, animation) =>
-            FadeTransition(opacity: animation, child: child),
-        child: _isLoading
-            ? const ticketa_home_skeleton.HomeSkeleton(key: ValueKey('skeleton'))
-            : KeyedSubtree(
+    return BlocProvider(
+      create: (context) => getIt<HomeCubit>()..fetchHomeData(),
+      child: Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        body: BlocBuilder<HomeCubit, HomeState>(
+          builder: (context, state) {
+            if (state is HomeInitial || state is HomeLoading) {
+              return const ticketa_home_skeleton.HomeSkeleton(key: ValueKey('skeleton'));
+            }
+
+            if (state is HomeError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      state.message,
+                      style: theme.textTheme.titleMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => context.read<HomeCubit>().fetchHomeData(),
+                      child: const Text("Retry"),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            List<Movie> nowShowing = [];
+            List<Movie> comingSoon = [];
+
+            if (state is HomeLoaded) {
+              nowShowing = state.nowShowing;
+              comingSoon = state.comingSoon;
+            }
+
+            // Get top 6 highest rated movies for Hero Section
+            final topRatedMovies = List<Movie>.from(nowShowing)..sort((a, b) => b.rating.compareTo(a.rating));
+            final heroMovies = topRatedMovies.take(6).toList();
+
+            final l10n = AppLocalizations.of(context)!;
+            final isDark = theme.brightness == Brightness.dark;
+            
+            // Ensure _currentPage is within bounds for hero section
+            final safePage = _currentPage < heroMovies.length ? _currentPage : 0;
+
+            return AnimatedSwitcher(
+              duration: const Duration(milliseconds: 600),
+              switchInCurve: Curves.easeIn,
+              switchOutCurve: Curves.easeOut,
+              transitionBuilder: (child, animation) =>
+                  FadeTransition(opacity: animation, child: child),
+              child: KeyedSubtree(
                 key: const ValueKey('content'),
                 child: Stack(
                   children: [
                     // Dynamic Blurred Background
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 500),
-                      child: Container(
-                        key: ValueKey<String>(movies[_currentPage].posterUrl),
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: NetworkImage(movies[_currentPage].posterUrl),
-                            fit: BoxFit.cover,
+                    if (heroMovies.isNotEmpty)
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 500),
+                        child: Container(
+                          key: ValueKey<String>(heroMovies[safePage].posterUrl),
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: NetworkImage(heroMovies[safePage].posterUrl),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                            child: Container(
+                              color: (isDark ? Colors.black : Colors.white)
+                                  .withOpacity(isDark ? 0.4 : 0.6),
+                            ),
                           ),
                         ),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                          child: Container(
-                            color: (isDark ? Colors.black : Colors.white)
-                                .withOpacity(isDark ? 0.4 : 0.6),
-                          ),
-                        ),
+                      )
+                    else
+                      Container(
+                        color: isDark ? Colors.black : Colors.white,
                       ),
-                    ),
 
                     SafeArea(
+                      top: false,
+                      bottom: false,
                       child: CustomScrollView(
                         physics: const BouncingScrollPhysics(),
                         slivers: [
-                          // Premium Header
-                          const SliverToBoxAdapter(child: HomeHeader()),
-
-                          // Hero Section
+                          // Status bar spacing
                           SliverToBoxAdapter(
-                            child: HomeHeroSection(
-                              movies: movies,
-                              onPageChanged: (index) {
-                                setState(() {
-                                  _currentPage = index;
-                                });
-                              },
+                            child: SizedBox(
+                              height: MediaQuery.of(context).padding.top + 10,
                             ),
                           ),
+
+                          // Hero Section
+                          if (heroMovies.isNotEmpty)
+                            SliverToBoxAdapter(
+                              child: HomeHeroSection(
+                                movies: heroMovies,
+                                onPageChanged: (index) {
+                                  setState(() {
+                                    _currentPage = index;
+                                  });
+                                },
+                              ),
+                            ),
 
                           // Category Chips
                           const SliverToBoxAdapter(child: HomeCategoryList()),
@@ -101,7 +142,7 @@ class _HomePageState extends State<HomePage> {
                           SliverToBoxAdapter(
                             child: MovieHorizontalList(
                               title: l10n.nowShowing,
-                              movies: movies,
+                              movies: nowShowing,
                             ),
                           ),
 
@@ -109,7 +150,7 @@ class _HomePageState extends State<HomePage> {
                           SliverToBoxAdapter(
                             child: MovieHorizontalList(
                               title: l10n.comingSoon,
-                              movies: movies.reversed.toList(),
+                              movies: comingSoon,
                               showRating: false,
                             ),
                           ),
@@ -121,6 +162,9 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
+            );
+          },
+        ),
       ),
     );
   }

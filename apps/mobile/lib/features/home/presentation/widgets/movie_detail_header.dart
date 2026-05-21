@@ -1,11 +1,12 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:ticketa/features/home/models/movie.dart';
+import 'package:ticketa/features/home/presentation/widgets/trailer_play_button.dart';
 
 class MovieDetailHeader extends StatelessWidget {
   final Movie movie;
+  final VoidCallback? onPlay;
 
-  const MovieDetailHeader({super.key, required this.movie});
+  const MovieDetailHeader({super.key, required this.movie, this.onPlay});
 
   @override
   Widget build(BuildContext context) {
@@ -47,40 +48,32 @@ class MovieDetailHeader extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
-            // Play Button Overlay
-            Center(
-              child: ClipOval(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white30),
-                    ),
-                    child: const Icon(Icons.play_arrow_rounded,
-                        color: Colors.white, size: 40),
-                  ),
-                ),
-              ),
-            ),
             // Bottom Gradient
             Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: const [0.5, 1.0],
-                    colors: [
-                      Colors.transparent,
-                      theme.scaffoldBackgroundColor,
-                    ],
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: const [0.5, 1.0],
+                      colors: [
+                        Colors.transparent,
+                        theme.scaffoldBackgroundColor,
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
+            // Play Button centered on the poster
+            if (movie.hasTrailer && onPlay != null)
+              Center(
+                child: TrailerPlayButton(
+                  movie: movie,
+                  onPlay: onPlay,
+                ),
+              ),
           ],
         ),
       ),

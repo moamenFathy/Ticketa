@@ -80,7 +80,7 @@ class _SmallMovieCardState extends State<SmallMovieCard> {
                                       const Icon(Icons.star_rounded, color: AppColors.warmOrange, size: 16),
                                       const SizedBox(width: 2),
                                       Text(
-                                        widget.movie.rating.toString(),
+                                        widget.movie.rating.toStringAsFixed(1),
                                         style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                                       ),
                                     ],
@@ -106,7 +106,7 @@ class _SmallMovieCardState extends State<SmallMovieCard> {
               ),
               const SizedBox(height: 4),
               Text(
-                widget.movie.genre.split('|')[0],
+                widget.movie.firstGenre,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurface.withOpacity(0.5),
                   fontWeight: FontWeight.bold,

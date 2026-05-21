@@ -1,10 +1,11 @@
 class ApiConstants {
-  static const String baseUrl = "https://api.example.com/"; // Replace with your base URL
-  static const String moviesEndpoint = "movies";
-  static const String nowShowingEndpoint = "movies/now-showing";
-  static const String upcomingEndpoint = "movies/upcoming";
+  static const String baseUrl = "http://ticketa.runasp.net/api/";
+  static const String moviesEndpoint = "Movies";
+  static const String nowShowingEndpoint = "Movies/NowShowing";
+  static const String upcomingEndpoint = "Movies/ComingSoon";
   
   // Headers
   static const String contentType = "application/json";
   static const String accept = "application/json";
 }
+  

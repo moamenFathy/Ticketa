@@ -3,7 +3,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
 import 'package:ticketa/core/constants/api_constants.dart';
 import 'package:ticketa/core/network/api_service.dart';
-
+import 'package:ticketa/features/home/data/movie_repository.dart';
+import 'package:ticketa/features/home/presentation/cubit/home_cubit.dart';
+import 'package:ticketa/features/home/presentation/cubit/movie_detail_cubit.dart';
+import 'package:ticketa/features/now_showing/presentation/cubit/now_showing_cubit.dart';
 final getIt = GetIt.instance;
 
 Future<void> initInjection() async {
@@ -28,6 +31,11 @@ Future<void> initInjection() async {
 
   getIt.registerLazySingleton(() => ApiService(getIt<Dio>()));
 
-  // Features - Home
-  // Example: getIt.registerLazySingleton(() => HomeRepository());
+  // Repositories
+  getIt.registerLazySingleton(() => MovieRepository(getIt<ApiService>()));
+
+  // Cubits
+  getIt.registerFactory(() => HomeCubit(getIt<MovieRepository>()));
+  getIt.registerFactory(() => MovieDetailCubit(getIt<MovieRepository>()));
+  getIt.registerFactory(() => NowShowingCubit(getIt<MovieRepository>()));
 }

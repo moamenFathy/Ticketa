@@ -55,12 +55,12 @@ class NowShowingCard extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildFormatBadge(index: movie.id.length % 2, l10n: l10n, theme: theme),
+                        _buildFormatBadge(hallType: movie.hallType, l10n: l10n, theme: theme),
                         Row(
                           children: [
                             const Icon(Icons.star_rounded, color: Colors.orange, size: 16),
                             const SizedBox(width: 4),
-                            Text(movie.rating.toString(), style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
+                            Text(movie.rating.toStringAsFixed(1), style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ],
@@ -74,7 +74,7 @@ class NowShowingCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      movie.genre.split('|')[0],
+                      movie.firstGenre,
                       style: theme.textTheme.bodySmall,
                     ),
                     const Spacer(),
@@ -106,9 +106,22 @@ class NowShowingCard extends StatelessWidget {
     );
   }
 
-  Widget _buildFormatBadge({required int index, required AppLocalizations l10n, required ThemeData theme}) {  
-    final format = index == 0 ? l10n.imax : l10n.standard;
-    final color = index == 0 ? const Color(0xFF00B0FF) : theme.colorScheme.onSurface.withOpacity(0.4);
+  Widget _buildFormatBadge({
+    required String hallType,
+    required AppLocalizations l10n,
+    required ThemeData theme,
+  }) {
+    final normalized = hallType.toLowerCase();
+    final format = switch (normalized) {
+      'imax' => l10n.imax,
+      'gold' => 'GOLD',
+      _ => l10n.standard,
+    };
+    final color = switch (normalized) {
+      'imax' => const Color(0xFF00B0FF),
+      'gold' => const Color(0xFFFFB300),
+      _ => theme.colorScheme.onSurface.withOpacity(0.4),
+    };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(

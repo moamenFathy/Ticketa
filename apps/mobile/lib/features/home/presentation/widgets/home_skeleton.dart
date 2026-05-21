@@ -10,44 +10,17 @@ class HomeSkeleton extends StatelessWidget {
     return ColoredBox(
       color: Theme.of(context).scaffoldBackgroundColor,
       child: SafeArea(
+          top: false,
+          bottom: false,
           child: SingleChildScrollView(
             physics: const NeverScrollableScrollPhysics(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ─── Header ───────────────────────────────────────────
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: const [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              AppShimmer(width: 100, height: 22, borderRadius: 6),
-                              SizedBox(height: 8),
-                              AppShimmer(width: 80, height: 14, borderRadius: 6),
-                            ],
-                          ),
-                          AppShimmer(width: 44, height: 44, borderRadius: 22),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        children: const [
-                          Expanded(
-                            child: AppShimmer(height: 50, borderRadius: 15),
-                          ),
-                          SizedBox(width: 12),
-                          AppShimmer(width: 50, height: 50, borderRadius: 15),
-                        ],
-                      ),
-                    ],
-                  ),
+                // Status bar spacing
+                SizedBox(
+                  height: MediaQuery.of(context).padding.top + 10,
                 ),
-
                 // ─── Hero: كارد كامل في النص + نص كارد يمين/شمال ───────
                 const SizedBox(height: 10),
                 const _HomeHeroSkeleton(),

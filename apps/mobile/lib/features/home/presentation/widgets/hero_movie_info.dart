@@ -32,12 +32,14 @@ class HeroMovieInfo extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 8,
+            runSpacing: 8,
             children: [
-              _buildTag(movie.genre.split('|')[0], theme),
-              _buildTag("${movie.duration}m", theme),
-              _buildTag("⭐ ${movie.rating}", theme, color: AppColors.warmOrange.withOpacity(0.2)),
+              _buildTag(movie.firstGenre, theme),
+              _buildTag(movie.duration > 60 ? "${movie.duration ~/ 60}h ${movie.duration % 60}m" : "${movie.duration}m", theme),
+              _buildTag("⭐ ${movie.rating.toStringAsFixed(1)}", theme, color: AppColors.warmOrange.withOpacity(0.2)),
             ],
           ),
         ],

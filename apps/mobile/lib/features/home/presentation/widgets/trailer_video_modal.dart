@@ -1,0 +1,92 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:ticketa/core/utils/youtube_utils.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+
+/// بيفتح التريلر في صفحة Full Screen
+Future<void> showTrailerVideoModal(BuildContext context, String trailerKey) async {
+  final videoId = extractYoutubeVideoId(trailerKey);
+  if (videoId == null || videoId.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('التريلر مش متاح')),
+    );
+    return;
+  }
+
+  await Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => _TrailerFullScreenPage(videoId: videoId),
+    ),
+  );
+}
+
+class _TrailerFullScreenPage extends StatefulWidget {
+  final String videoId;
+
+  const _TrailerFullScreenPage({required this.videoId});
+
+  @override
+  State<_TrailerFullScreenPage> createState() => _TrailerFullScreenPageState();
+}
+
+class _TrailerFullScreenPageState extends State<_TrailerFullScreenPage> {
+  late final YoutubePlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    _controller = YoutubePlayerController.fromVideoId(
+      videoId: widget.videoId,
+      autoPlay: true,
+      params: const YoutubePlayerParams(
+        showControls: true,
+        showFullscreenButton: true,
+        playsInline: false, // false to indicate it's meant to be full screen
+        mute: false,
+        enableCaption: false,
+        strictRelatedVideos: true,
+        pointerEvents: PointerEvents.auto,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Center(
+              child: YoutubePlayer(
+                controller: _controller,
+                aspectRatio: 16 / 9,
+              ),
+            ),
+            Positioned(
+              top: 16,
+              left: 16,
+              child: IconButton(
+                icon: const Icon(
+                  Icons.close_rounded,
+                  color: Colors.white,
+                  size: 32,
+                  shadows: [Shadow(color: Colors.black54, blurRadius: 10)],
+                ),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

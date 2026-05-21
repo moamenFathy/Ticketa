@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'app_colors.dart';
 
 class AppTheme {
@@ -29,6 +30,11 @@ class AppTheme {
           fontSize: 18,
           fontWeight: FontWeight.w900,
           letterSpacing: 1.5,
+        ),
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
         ),
       ),
       textTheme: const TextTheme(
@@ -69,6 +75,11 @@ class AppTheme {
           fontSize: 18,
           fontWeight: FontWeight.bold,
           letterSpacing: 1.2,
+        ),
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.dark,
         ),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
