@@ -125,6 +125,11 @@ namespace Ticketa.Infrastructure.Service
         }
 
         var movie = _mapper.Map<Movie>(movieDetails);
+        movie.BackdropPath ??= string.Empty;
+        movie.PosterPath ??= string.Empty;
+        movie.Overview ??= string.Empty;
+        movie.Title ??= string.Empty;
+
         movie.TrailerKey = await _tmdbService.GetTrailerKeyAsync(tmdbId, cancellationToken);
         movie.RuntimeMinutes = movieDetails.Runtime;
 
