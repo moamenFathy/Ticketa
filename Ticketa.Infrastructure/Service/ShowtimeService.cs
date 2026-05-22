@@ -44,6 +44,9 @@ namespace Ticketa.Infrastructure.Service
             Title = g.Key.Title,
             PosterPath = g.Key.PosterPath,
             trailerKey = g.Key.TrailerKey,
+            Rate = g.Key.VoteAverage,
+            Runtime = g.Key.RuntimeMinutes,
+            Genres = g.Key.Genres.Select(genre => genre.Name).ToList(),
             Showtimes = g.Select(s => new ShowtimeListItemDto
             {
               Id = s.Id,

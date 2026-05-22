@@ -6,30 +6,9 @@ namespace Ticketa.API.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
-  public class ShowtimeController(IShowtimeService showtimeService) : ControllerBase
+  public class ShowtimesController(IShowtimeService showtimeService) : ControllerBase
   {
     private readonly IShowtimeService _showtimeService = showtimeService;
-
-    [HttpGet]
-    [ProducesResponseType(typeof(MovieShowtimeDto), statusCode: StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(MovieShowtimeDto), statusCode: StatusCodes.Status499ClientClosedRequest)]
-    [ProducesResponseType(typeof(MovieShowtimeDto), statusCode: StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAll(CancellationToken ct)
-    {
-      try
-      {
-        var showtimes = await _showtimeService.GetScheduledGroupedAsync(ct);
-        return Ok(showtimes);
-      }
-      catch (OperationCanceledException ex)
-      {
-        return StatusCode(StatusCodes.Status499ClientClosedRequest, $"The request was canceled. Please try again later: {ex.Message}");
-      }
-      catch (Exception ex)
-      {
-        return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred while retrieving showtimes: {ex.Message}");
-      }
-    }
 
     [HttpGet("{showtimeId:int}/seats")]
     [ProducesResponseType(typeof(ShowtimeSeatDto), statusCode: StatusCodes.Status200OK)]
