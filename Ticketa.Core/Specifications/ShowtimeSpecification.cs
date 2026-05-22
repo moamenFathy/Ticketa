@@ -1,4 +1,4 @@
-﻿using Ticketa.Core.Entities;
+using Ticketa.Core.Entities;
 using Ticketa.Core.Enums;
 
 namespace Ticketa.Core.Specifications
@@ -9,6 +9,7 @@ namespace Ticketa.Core.Specifications
     {
       AddInclude(s => s.Movie);
       AddInclude(s => s.Hall);
+      AddInclude("Movie.Genres");
     }
 
     public ShowtimeSpecification(ShowtimeStatus? status, string? search) : this()

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Ticketa.Core.Specifications;
 
 namespace Ticketa.Infrastructure.Specification
@@ -11,6 +11,7 @@ namespace Ticketa.Infrastructure.Specification
         query = query.Where(spec.Criteria);
 
       query = spec.Includes.Aggregate(query, (current, include) => current.Include(include));
+      query = spec.IncludeStrings.Aggregate(query, (current, include) => current.Include(include));
 
       if (spec.OrderByDesc is not null)
         query = query.OrderByDescending(spec.OrderByDesc);
