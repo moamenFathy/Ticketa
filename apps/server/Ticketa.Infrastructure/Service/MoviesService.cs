@@ -125,6 +125,11 @@ namespace Ticketa.Infrastructure.Service
         }
 
         var movie = _mapper.Map<Movie>(movieDetails);
+        movie.BackdropPath ??= string.Empty;
+        movie.PosterPath ??= string.Empty;
+        movie.Overview ??= string.Empty;
+        movie.Title ??= string.Empty;
+
         movie.TrailerKey = await _tmdbService.GetTrailerKeyAsync(tmdbId, cancellationToken);
         movie.RuntimeMinutes = movieDetails.Runtime;
 
@@ -252,12 +257,65 @@ namespace Ticketa.Infrastructure.Service
       });
     }
 
+    public async Task<IEnumerable<ActiveMovieWithDetailsDto>> GetNowShowingMoviesAsync(CancellationToken ct = default)
+    {
+      var spec = new MovieSpecification(MovieStatus.Active, null, includeGenres: true, includeCast: false);
+      var movies = await _uow.Movies.GetAllWithSpecAsync(spec, ct);
+      var movieList = movies.ToList();
+
+      if (movieList.Count == 0)
+        return [];
+
+      var showtimeSpec = new UpcomingShowtimesForMoviesSpecification(movieList.Select(m => m.Id));
+      var showtimes = await _uow.Showtimes.GetAllWithSpecAsync(showtimeSpec, ct);
+      var showtimesByMovie = showtimes.GroupBy(s => s.MovieId).ToDictionary(g => g.Key, g => g.ToList());
+
+      return movieList
+          .Where(m => showtimesByMovie.ContainsKey(m.Id))
+          .Select(m => MapToActiveMovieDto(m, showtimesByMovie[m.Id]))
+          .OrderBy(m => m.Showtimes.FirstOrDefault());
+    }
+
+    public async Task<IEnumerable<ActiveMovieWithDetailsDto>> GetComingSoonMoviesAsync(CancellationToken ct = default)
+    {
+      var spec = new MovieSpecification(MovieStatus.ComingSoon, null, includeGenres: true, includeCast: false);
+      var movies = await _uow.Movies.GetAllWithSpecAsync(spec, ct);
+
+      return movies.Select(m => new ActiveMovieWithDetailsDto
+      {
+        Id = m.Id,
+        Title = m.Title,
+        Overview = m.Overview,
+        PosterPath = m.PosterPath,
+        BackdropPath = m.BackdropPath,
+        VoteAverage = m.VoteAverage,
+        TrailerKey = m.TrailerKey,
+        Runtime = m.RuntimeMinutes,
+        ReleaseDate = DateOnly.FromDateTime(m.ReleaseDate),
+        Language = m.Language,
+        Genres = m.Genres.Select(g => g.Name).ToList()
+      });
+    }
+
     public async Task<ActiveMovieWithDetailsDto?> GetActiveMovieWithDetailsByIdAsync(int id, CancellationToken ct = default)
     {
       var spec = new MovieSpecification(id, includeGenres: true, includeCast: true);
       var movie = await _uow.Movies.GetEntityWithSpecAsync(spec, ct);
 
       if (movie == null) return null;
+
+      var showtimeSpec = new ShowtimesForMovieSpecification(id);
+      var showtimes = await _uow.Showtimes.GetAllWithSpecAsync(showtimeSpec, ct);
+
+      return MapToActiveMovieDto(movie, showtimes, includeCast: true);
+    }
+
+    private static ActiveMovieWithDetailsDto MapToActiveMovieDto(
+        Movie movie,
+        IEnumerable<Showtime> showtimes,
+        bool includeCast = false)
+    {
+      var showtimeList = showtimes.ToList();
 
       return new ActiveMovieWithDetailsDto
       {
@@ -272,16 +330,28 @@ namespace Ticketa.Infrastructure.Service
         ReleaseDate = DateOnly.FromDateTime(movie.ReleaseDate),
         Language = movie.Language,
         Genres = movie.Genres.Select(g => g.Name).ToList(),
-        Cast = movie.Cast
-        .OrderBy(c => c.Order)
-        .Select(c => new TmdbCastMemberDto
-        {
-          Name = c.Name,
-          Character = c.Character,
-          ProfilePath = c.ProfilePath,
-          Order = c.Order
-        }).ToList()
+        Cast = includeCast
+            ? movie.Cast
+                .OrderBy(c => c.Order)
+                .Select(c => new TmdbCastMemberDto
+                {
+                  Name = c.Name,
+                  Character = c.Character,
+                  ProfilePath = c.ProfilePath,
+                  Order = c.Order
+                }).ToList()
+            : [],
+        Showtimes = showtimeList.Select(s => s.StartTime).OrderBy(t => t).ToList(),
+        HallType = ResolvePrimaryHallType(showtimeList).ToString()
       };
+    }
+
+    private static HallType ResolvePrimaryHallType(IEnumerable<Showtime> showtimes)
+    {
+      var types = showtimes.Select(s => s.Hall.Type).ToList();
+      if (types.Contains(HallType.IMAX)) return HallType.IMAX;
+      if (types.Contains(HallType.Gold)) return HallType.Gold;
+      return HallType.Standard;
     }
 
     private static MovieStatus? MapStatus(string? segmentedFilter)
