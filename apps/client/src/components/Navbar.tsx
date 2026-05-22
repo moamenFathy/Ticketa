@@ -19,12 +19,14 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [dark, setDark] = useState(
     () => localStorage.getItem("theme") === "dark",
   );
+  const { user, isLoggedIn } = useAuth();
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
@@ -79,7 +81,15 @@ export default function Navbar() {
           </button>
 
           <div className="hidden md:flex items-center gap-3">
-            <Link to="/login">
+            {isLoggedIn ? (
+              <Link to="/profile">
+                <Button variant="ghost" size="sm" className="font-semibold">
+                  {user?.name}
+                </Button>
+              </Link>
+            ) : (
+              <>
+              <Link to="/login">
               <Button variant="ghost" size="sm" className="font-semibold">
                 Login
               </Button>
@@ -89,6 +99,8 @@ export default function Navbar() {
                 Register
               </Button>
             </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu */}
