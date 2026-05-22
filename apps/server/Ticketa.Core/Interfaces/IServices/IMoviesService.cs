@@ -1,4 +1,4 @@
-﻿using Ticketa.Core.DTOs;
+using Ticketa.Core.DTOs;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Enums;
 
@@ -26,6 +26,8 @@ namespace Ticketa.Core.Interfaces.IServices
     Task<IEnumerable<MovieDropdownDto>> GetAllActiveAsync();
 
     Task<IEnumerable<ActiveMovieWithDetailsDto>> GetAllActiveWithDetailsAsync(CancellationToken ct = default);
+    Task<IEnumerable<ActiveMovieWithDetailsDto>> GetNowShowingMoviesAsync(CancellationToken ct = default);
+    Task<IEnumerable<ActiveMovieWithDetailsDto>> GetComingSoonMoviesAsync(CancellationToken ct = default);
     Task<ActiveMovieWithDetailsDto?> GetActiveMovieWithDetailsByIdAsync(int id, CancellationToken ct = default);
   }
 }
