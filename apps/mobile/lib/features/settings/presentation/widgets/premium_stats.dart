@@ -7,51 +7,92 @@ class PremiumStats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 10),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: theme.colorScheme.onSurface.withOpacity(0.03),
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.05)),
+        color: AppColors.warmOrange,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.warmOrange.withValues(alpha: 0.24),
+            blurRadius: 22,
+            offset: const Offset(0, 12),
+          ),
+        ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatCircle("12", l10n.totalTickets, AppColors.warmOrange, theme),
-          Container(width: 1, height: 40, color: theme.colorScheme.onSurface.withOpacity(0.1)),
-          _buildStatCircle("850", "Points", Colors.blueAccent, theme),
-          Container(width: 1, height: 40, color: theme.colorScheme.onSurface.withOpacity(0.1)),
-          _buildStatCircle("4", "Reviews", Colors.greenAccent, theme),
+          Expanded(
+            child: _buildStat(
+              icon: Icons.confirmation_number_rounded,
+              value: "12",
+              label: l10n.totalTickets,
+            ),
+          ),
+          _buildDivider(),
+          Expanded(
+            child: _buildStat(
+              icon: Icons.stars_rounded,
+              value: "850",
+              label: l10n.points,
+            ),
+          ),
+          _buildDivider(),
+          Expanded(
+            child: _buildStat(
+              icon: Icons.rate_review_rounded,
+              value: "4",
+              label: l10n.reviews,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildStatCircle(String val, String label, Color color, ThemeData theme) {
+  Widget _buildStat({
+    required IconData icon,
+    required String value,
+    required String label,
+  }) {
     return Column(
       children: [
+        Icon(icon, color: Colors.white.withValues(alpha: 0.9), size: 20),
+        const SizedBox(height: 8),
         Text(
-          val,
-          style: TextStyle(
-            color: theme.colorScheme.onSurface,
+          value,
+          style: const TextStyle(
+            color: Colors.white,
             fontSize: 22,
             fontWeight: FontWeight.w900,
+            letterSpacing: 0,
           ),
         ),
         const SizedBox(height: 4),
         Text(
-          label.toUpperCase(),
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
           style: TextStyle(
-            color: theme.colorScheme.onSurface.withOpacity(0.3),
-            fontSize: 9,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1,
+            color: Colors.white.withValues(alpha: 0.72),
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0,
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildDivider() {
+    return Container(
+      width: 1,
+      height: 58,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      color: Colors.white.withValues(alpha: 0.18),
     );
   }
 }

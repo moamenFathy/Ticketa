@@ -1,19 +1,9 @@
 import 'package:dio/dio.dart';
-import 'package:ticketa/core/constants/api_constants.dart';
 
 class ApiService {
   final Dio _dio;
 
   ApiService(this._dio);
-
-  void _addInterceptors() {
-    _dio.interceptors.add(
-      LogInterceptor(
-        requestBody: true,
-        responseBody: true,
-      ),
-    );
-  }
 
   // GET Request
   Future<Response> get(

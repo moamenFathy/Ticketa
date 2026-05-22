@@ -1,6 +1,6 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/l10n/app_localizations.dart';
 
 class ProfileHeader extends StatelessWidget {
   const ProfileHeader({super.key});
@@ -9,36 +9,65 @@ class ProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        _buildAnimatedAvatar(theme, isDark),
-        const SizedBox(height: 20),
-        Text(
-          "MOHAMED AHMED",
-          style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w900,
-            color: theme.colorScheme.onSurface,
-            letterSpacing: 2,
-          ),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.06),
         ),
-        const SizedBox(height: 5),
-        Text(
-          "mohamed@ticketa.com",
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurface.withOpacity(0.5),
-            fontWeight: FontWeight.w500,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.26 : 0.05),
+            blurRadius: 24,
+            offset: const Offset(0, 14),
           ),
-        ),
-        const SizedBox(height: 25),
-        _buildEditProfileButton(theme),
-        const SizedBox(height: 50),
-      ],
+        ],
+      ),
+      child: Row(
+        children: [
+          _buildAvatar(theme),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Mohamed Ahmed",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "mohamed@ticketa.com",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildMemberBadge(theme, l10n.loyaltyPoints),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          _buildEditProfileButton(context, theme, l10n.editProfile),
+        ],
+      ),
     );
   }
 
-  Widget _buildAnimatedAvatar(ThemeData theme, bool isDark) {
+  Widget _buildAvatar(ThemeData theme) {
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
@@ -48,58 +77,71 @@ class ProfileHeader extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.warmOrange.withOpacity(0.3),
+            color: AppColors.warmOrange.withValues(alpha: 0.3),
             blurRadius: 25,
             spreadRadius: 5,
           ),
         ],
       ),
       child: Container(
-        padding: const EdgeInsets.all(4),
+        width: 64,
+        height: 64,
         decoration: BoxDecoration(
           color: theme.scaffoldBackgroundColor,
           shape: BoxShape.circle,
         ),
-        child: CircleAvatar(
-          radius: 55,
-          backgroundColor: theme.colorScheme.onSurface.withOpacity(0.05),
+        child: Center(
           child: Icon(
             Icons.person_rounded,
-            size: 60,
-            color: theme.colorScheme.onSurface.withOpacity(0.2),
+            size: 36,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.35),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildEditProfileButton(ThemeData theme) {
+  Widget _buildMemberBadge(ThemeData theme, String label) {
     return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.1)),
+        color: AppColors.warmOrange.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(999),
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(15),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.edit_rounded, color: theme.colorScheme.onSurface, size: 14),
-                const SizedBox(width: 8),
-                Text(
-                  "EDIT PROFILE",
-                  style: TextStyle(
-                    color: theme.colorScheme.onSurface,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1,
-                  ),
-                ),
-              ],
+      child: Text(
+        label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(
+          color: AppColors.warmOrange,
+          fontSize: 11,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 0,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEditProfileButton(
+    BuildContext context,
+    ThemeData theme,
+    String label,
+  ) {
+    return Tooltip(
+      message: label,
+      child: Material(
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () => Navigator.of(context).pushNamed('/edit-profile'),
+          child: SizedBox(
+            width: 44,
+            height: 44,
+            child: Icon(
+              Icons.edit_rounded,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.72),
+              size: 20,
             ),
           ),
         ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
-import 'package:ticketa/core/widgets/glass_card.dart';
 
 class BookingConfirmationPage extends StatelessWidget {
   final Map<String, dynamic> bookingData;

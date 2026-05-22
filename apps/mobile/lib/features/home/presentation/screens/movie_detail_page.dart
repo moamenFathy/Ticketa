@@ -12,7 +12,6 @@ import 'package:ticketa/features/home/presentation/widgets/movie_detail_skeleton
 import '../widgets/movie_detail_header.dart';
 import '../widgets/movie_info_tag.dart';
 import '../widgets/movie_cast_list.dart';
-import '../widgets/trailer_play_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/features/home/presentation/cubit/movie_detail_cubit.dart';
