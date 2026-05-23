@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { useAuth, useLogout } from "@/hooks/useAuth";
 import UserDropdown from "./UserDropdown";
 import MobileMenu from "./MobileMenu";
-import logo from "@/assets/logo-Photoroom.png";
 
 const navLinks = [
   { to: "/", label: "Home", icon: Home },
