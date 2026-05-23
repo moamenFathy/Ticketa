@@ -202,8 +202,10 @@ export default function Login() {
               Back to home
             </Link>
             <h1 className="text-6xl lg:text-7xl font-black tracking-tighter uppercase italic leading-none">
-              <span className="italic-outline-adaptive">Sign</span>
-              <span className="text-primary not-italic">In</span>
+              <span className="italic-outline-adaptive text-foreground pr-3">
+                Sign
+              </span>
+              <span className="text-primary">In</span>
             </h1>
             <p className="text-muted-foreground font-medium text-base">
               Enter your account details below
@@ -333,7 +335,7 @@ export default function Login() {
                     <span>Processing...</span>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center gap-2">
+                  <div className="flex items-center justify-center gap-3">
                     <span>Sign In</span>
                     <ArrowRight className="h-6 w-6 group-hover:translate-x-1 transition-transform" />
                   </div>
@@ -355,7 +357,7 @@ export default function Login() {
                 type="button"
                 onClick={handleGoogleLogin}
                 variant="outline"
-                className="w-full h-14 border-border/60 bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 hover:border-primary/50 text-foreground font-bold text-sm rounded-2xl transition-all duration-300 active:scale-[0.98] group relative overflow-hidden shadow-xs"
+                className="w-full h-14 border-border/60 bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 dark:hover:border-primary/50 hover:border-primary/50 text-foreground font-bold text-sm rounded-2xl transition-all duration-300 active:scale-[0.98] group relative overflow-hidden shadow-xs"
                 disabled={isPending || isGooglePending}
               >
                 {isGooglePending ? (
