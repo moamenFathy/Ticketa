@@ -43,12 +43,12 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddCors(options =>
 {
-  options.AddPolicy("AllowAll", policy =>
+  options.AddPolicy("AllowFrontend", policy =>
   {
-    policy.SetIsOriginAllowed(_ => true)
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+    policy.WithOrigins("http://localhost:5173", "https://localhost:5173")
+          .AllowAnyHeader()
+          .AllowAnyMethod()
+          .AllowCredentials();
   });
 });
 
@@ -58,9 +58,9 @@ app.MapScalarApiReference();
 app.MapOpenApi();
 app.MapGet("/", () => Results.Redirect("/scalar")).ExcludeFromDescription();
 
-app.UseHttpsRedirection();
+app.UseCors("AllowFrontend");
 
-app.UseCors("AllowAll");
+app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
