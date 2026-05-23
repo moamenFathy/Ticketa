@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Ticketa.Core.DTOs;
-using Ticketa.Core.Entities;
 using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Core.Settings;
 
@@ -11,80 +8,84 @@ namespace Ticketa.API.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
-  public class AuthController(UserManager<AppUser> userManager, ITokenService tokenService, IOptions<JwtSettings> jwt) : ControllerBase
+  public class AuthController(IAuthApiService authService, IOptions<JwtSettings> jwt) : ControllerBase
   {
-    private readonly UserManager<AppUser> _userManager = userManager;
-    private readonly ITokenService _tokenService = tokenService;
-    private readonly JwtSettings _jwt = jwt.Value;
+    [HttpPost("register")]
+    public async Task<IActionResult> Register(RegisterDto dto, CancellationToken ct)
+    {
+      if (!ModelState.IsValid) return ValidationProblem(ModelState);
+
+      var (success, error) = await authService.RegisterAsync(dto, ct);
+      if (!success) return BadRequest(new { message = error });
+
+      return StatusCode(201, new { message = "Registration successful. Please check your email to confirm your account." });
+    }
+
+    [HttpPost("confirm-email")]
+    public async Task<IActionResult> ConfirmEmail(ConfirmEmailDto dto, CancellationToken ct)
+    {
+      if (!ModelState.IsValid) return ValidationProblem(ModelState);
+      var result = await authService.ConfirmEmailAsync(dto, ct);
+      if (!result.Succeeded) return BadRequest(new { message = result.Message });
+
+      AppendRefreshTokenCookie(result.RefreshToken!);
+      return Ok(new { accessToken = result.AccessToken });
+    }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginDto dto)
+    public async Task<IActionResult> Login(LoginDto dto, CancellationToken ct)
     {
-      var user = await _userManager.FindByEmailAsync(dto.Email);
+      if (!ModelState.IsValid) return ValidationProblem(ModelState);
 
-      if (user is null || !await _userManager.CheckPasswordAsync(user, dto.Password))
-        return Unauthorized(new { message = "Invalid email or password" });
-      if (!user.EmailConfirmed)
-        return Unauthorized(new { message = "Please confirm your email before logging in" });
+      var result = await authService.LoginAsync(dto, ct);
+      if (!result.Succeeded) return Unauthorized(new { message = result.Message });
 
-      var roles = await _userManager.GetRolesAsync(user);
-      var accessToken = _tokenService.GenerateAccessToken(user, roles);
-      var refreshToken = _tokenService.GenerateRefreshToken();
-
-      user.RefreshToken = refreshToken;
-      user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(_jwt.RefreshTokenExpiryDate);
-      await _userManager.UpdateAsync(user);
-
-      Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
-      {
-        HttpOnly = true,
-        Secure = true,
-        SameSite = SameSiteMode.Strict,
-        Expires = DateTimeOffset.UtcNow.AddDays(_jwt.RefreshTokenExpiryDate)
-      });
-
-      // Here you would typically save the refresh token in the database associated with the user
-      return Ok(new { accessToken });
+      AppendRefreshTokenCookie(result.RefreshToken!);
+      return Ok(new { accessToken = result.AccessToken });
     }
 
     [HttpPost("refresh")]
-    public async Task<IActionResult> Refresh()
+    public async Task<IActionResult> Refresh(CancellationToken ct)
     {
       var refreshToken = Request.Cookies["refreshToken"];
       if (string.IsNullOrEmpty(refreshToken))
         return Unauthorized();
 
-      var user = await _userManager.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+      var result = await authService.RefreshTokenAsync(refreshToken, ct);
+      if (!result.Succeeded) return Unauthorized(result.Message);
 
-      if (user is null || user.RefreshTokenExpiry <= DateTime.UtcNow)
-        return Unauthorized("Refresh token expired.");
+      AppendRefreshTokenCookie(result.RefreshToken!);
+      return Ok(new { accessToken = result.AccessToken });
+    }
 
-      var roles = await _userManager.GetRolesAsync(user);
-      var accessToken = _tokenService.GenerateAccessToken(user, roles);
-      user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(_jwt.RefreshTokenExpiryDate);
-      await _userManager.UpdateAsync(user);
+    [HttpPost("resend-confirmation")]
+    public async Task<IActionResult> ResendConfirmation(ResendConfirmDto dto, CancellationToken ct)
+    {
+      if (!ModelState.IsValid) return ValidationProblem(ModelState);
+      await authService.ResendEmailConfirmationAsync(dto.Email, ct);
 
-      return Ok(new { accessToken });
+      return Ok(new { message = "If that email is registered and unverified, a new code has been sent." });
     }
 
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout()
+    public async Task<IActionResult> Logout(CancellationToken ct)
     {
       var refreshToken = Request.Cookies["refreshToken"];
-      if (!string.IsNullOrEmpty(refreshToken))
-      {
-        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
-
-        if (user is not null)
-        {
-          user.RefreshToken = null;
-          user.RefreshTokenExpiry = null;
-          await _userManager.UpdateAsync(user);
-        }
-      }
+      await authService.LogoutAsync(refreshToken, ct);
 
       Response.Cookies.Delete("refreshToken");
       return NoContent();
+    }
+
+    private void AppendRefreshTokenCookie(string refreshToken)
+    {
+      Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+      {
+        HttpOnly = true,
+        Secure = true,
+        SameSite = SameSiteMode.Strict,
+        Expires = DateTimeOffset.UtcNow.AddDays(jwt.Value.RefreshTokenExpiryDate)
+      });
     }
   }
 }

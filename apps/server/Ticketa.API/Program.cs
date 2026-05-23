@@ -20,6 +20,7 @@ builder.Services.AddTicketaInfrastructure(builder.Configuration);
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 builder.Services.Configure<JwtSettings>(jwtSettings);
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IAuthApiService, AuthApiService>();
 
 builder.Services.AddAuthentication(options =>
 {
