@@ -2,7 +2,7 @@ import api from "./client";
 import type { MoviesShowtimes, ShowtimeSeats } from "@/types/showtimes";
 
 export async function getShowtimes({ signal }: { signal?: AbortSignal }) {
-    const { data } = await api.get<MoviesShowtimes[]>("showtime", { signal });
+    const { data } = await api.get<MoviesShowtimes[]>("movies/nowShowing", { signal });
     return data;
 }
 
