@@ -30,7 +30,6 @@ namespace Ticketa.Infrastructure.Service
       }.ToMessageBody();
 
       using var client = new SmtpClient();
-
       await client.ConnectAsync(_settings.Host, _settings.Port, SecureSocketOptions.StartTls);
       await client.AuthenticateAsync(_settings.Username, _settings.Password);
       await client.SendAsync(message);
