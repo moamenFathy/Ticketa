@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Entities;
@@ -29,7 +29,8 @@ namespace Ticketa.Infrastructure.Service
       user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpiryDate);
       await userManager.UpdateAsync(user);
 
-      return AuthResultDto.Success(token, refreshToken);
+      var userDto = new UserDto { Id = user.Id, Email = user.Email!, Name = user.UserName! };
+      return AuthResultDto.Success(token, refreshToken, userDto);
     }
 
     public async Task<AuthResultDto> LoginAsync(LoginDto dto, CancellationToken ct = default)
@@ -50,7 +51,8 @@ namespace Ticketa.Infrastructure.Service
       user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpiryDate);
       await userManager.UpdateAsync(user);
 
-      return AuthResultDto.Success(accessToken, refreshToken);
+      var userDto = new UserDto { Id = user.Id, Email = user.Email!, Name = user.UserName! };
+      return AuthResultDto.Success(accessToken, refreshToken, userDto);
     }
 
     public async Task LogoutAsync(string? refreshToken, CancellationToken ct = default)
@@ -115,7 +117,8 @@ namespace Ticketa.Infrastructure.Service
       user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpiryDate);
       await userManager.UpdateAsync(user);
 
-      return AuthResultDto.Success(newAccessToken, newRefreshToken);
+      var userDto = new UserDto { Id = user.Id, Email = user.Email!, Name = user.UserName! };
+      return AuthResultDto.Success(newAccessToken, newRefreshToken, userDto);
     }
 
     public async Task ResendEmailConfirmationAsync(string email, CancellationToken ct = default)

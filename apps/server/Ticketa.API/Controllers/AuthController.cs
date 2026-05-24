@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Interfaces.IServices;
@@ -29,7 +29,7 @@ namespace Ticketa.API.Controllers
       if (!result.Succeeded) return BadRequest(new { message = result.Message });
 
       AppendRefreshTokenCookie(result.RefreshToken!);
-      return Ok(new { accessToken = result.AccessToken });
+      return Ok(new { accessToken = result.AccessToken, user = result.User });
     }
 
     [HttpPost("login")]
@@ -41,7 +41,7 @@ namespace Ticketa.API.Controllers
       if (!result.Succeeded) return Unauthorized(new { message = result.Message });
 
       AppendRefreshTokenCookie(result.RefreshToken!);
-      return Ok(new { accessToken = result.AccessToken });
+      return Ok(new { accessToken = result.AccessToken, user = result.User });
     }
 
     [HttpPost("refresh")]
@@ -55,7 +55,7 @@ namespace Ticketa.API.Controllers
       if (!result.Succeeded) return Unauthorized(result.Message);
 
       AppendRefreshTokenCookie(result.RefreshToken!);
-      return Ok(new { accessToken = result.AccessToken });
+      return Ok(new { accessToken = result.AccessToken, user = result.User });
     }
 
     [HttpPost("resend-confirmation")]
