@@ -159,20 +159,6 @@ export default function Login() {
 
       {/* Right Side: Login Form */}
       <div className="flex flex-col justify-center items-center p-6 lg:p-10 relative bg-zinc-50/50 dark:bg-background overflow-y-auto lg:overflow-hidden">
-        {/* Mobile Header */}
-        <div className="absolute top-6 left-8 lg:hidden">
-          <Link to="/" className="flex items-center gap-3 group">
-            <img
-              src={logo}
-              alt="Ticketa"
-              className="h-10 w-10 object-contain"
-            />
-            <span className="text-2xl font-black tracking-tighter text-foreground">
-              TICKETA
-            </span>
-          </Link>
-        </div>
-
         <motion.div
           initial="hidden"
           animate="visible"
