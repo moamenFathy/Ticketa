@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 import '../widgets/offer_card.dart';
 import '../widgets/offer_skeleton.dart' as ticketa_offer_skeleton;
@@ -56,9 +57,11 @@ class _OffersPageState extends State<OffersPage> {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2625&auto=format&fit=crop",
+                  CachedNetworkImage(
+                    imageUrl: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2625&auto=format&fit=crop",
                     fit: BoxFit.cover,
+                    placeholder: (_, _) => Container(color: Colors.grey[900]),
+                    errorWidget: (_, _, _) => Container(color: Colors.grey[900]),
                   ),
                   Container(
                     decoration: BoxDecoration(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/core/utils/localization_helper.dart';
 
 class PrivacyPage extends StatefulWidget {
   const PrivacyPage({super.key});
@@ -28,7 +29,7 @@ class _PrivacyPageState extends State<PrivacyPage> {
             elevation: 0,
             surfaceTintColor: Colors.transparent,
             title: Text(
-              _copy(context, 'Privacy', 'الخصوصية'),
+              localeCopy(context, 'Privacy', 'الخصوصية'),
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w900,
                 letterSpacing: 0,
@@ -42,13 +43,13 @@ class _PrivacyPageState extends State<PrivacyPage> {
                 const _PrivacyHero(),
                 const SizedBox(height: 18),
                 _SectionTitle(
-                  title: _copy(context, 'Data controls', 'التحكم في البيانات'),
+                  title: localeCopy(context, 'Data controls', 'التحكم في البيانات'),
                 ),
                 const SizedBox(height: 12),
                 _SwitchTile(
                   icon: Icons.local_offer_rounded,
-                  title: _copy(context, 'Personalized offers', 'عروض مخصصة'),
-                  subtitle: _copy(
+                  title: localeCopy(context, 'Personalized offers', 'عروض مخصصة'),
+                  subtitle: localeCopy(
                     context,
                     'Use booking history to improve deals',
                     'استخدم سجل الحجز لتحسين العروض',
@@ -59,8 +60,8 @@ class _PrivacyPageState extends State<PrivacyPage> {
                 ),
                 _SwitchTile(
                   icon: Icons.history_rounded,
-                  title: _copy(context, 'Activity history', 'سجل النشاط'),
-                  subtitle: _copy(
+                  title: localeCopy(context, 'Activity history', 'سجل النشاط'),
+                  subtitle: localeCopy(
                     context,
                     'Keep recent movies and searches',
                     'احتفظ بآخر الأفلام وعمليات البحث',
@@ -70,8 +71,8 @@ class _PrivacyPageState extends State<PrivacyPage> {
                 ),
                 _SwitchTile(
                   icon: Icons.location_on_rounded,
-                  title: _copy(context, 'Location access', 'الوصول للموقع'),
-                  subtitle: _copy(
+                  title: localeCopy(context, 'Location access', 'الوصول للموقع'),
+                  subtitle: localeCopy(
                     context,
                     'Find nearby cinemas and offers',
                     'اعثر على سينمات وعروض قريبة',
@@ -80,12 +81,12 @@ class _PrivacyPageState extends State<PrivacyPage> {
                   onChanged: (value) => setState(() => locationAccess = value),
                 ),
                 const SizedBox(height: 22),
-                _SectionTitle(title: _copy(context, 'Your data', 'بياناتك')),
+                _SectionTitle(title: localeCopy(context, 'Your data', 'بياناتك')),
                 const SizedBox(height: 12),
                 _ActionTile(
                   icon: Icons.download_rounded,
-                  title: _copy(context, 'Download my data', 'تحميل بياناتي'),
-                  subtitle: _copy(
+                  title: localeCopy(context, 'Download my data', 'تحميل بياناتي'),
+                  subtitle: localeCopy(
                     context,
                     'Get a copy of your profile and bookings',
                     'احصل على نسخة من ملفك وحجوزاتك',
@@ -93,12 +94,12 @@ class _PrivacyPageState extends State<PrivacyPage> {
                 ),
                 _ActionTile(
                   icon: Icons.delete_outline_rounded,
-                  title: _copy(
+                  title: localeCopy(
                     context,
                     'Delete account data',
                     'حذف بيانات الحساب',
                   ),
-                  subtitle: _copy(
+                  subtitle: localeCopy(
                     context,
                     'Request permanent deletion',
                     'طلب حذف نهائي للبيانات',
@@ -106,11 +107,11 @@ class _PrivacyPageState extends State<PrivacyPage> {
                   danger: true,
                 ),
                 const SizedBox(height: 22),
-                _SectionTitle(title: _copy(context, 'Legal', 'القوانين')),
+                _SectionTitle(title: localeCopy(context, 'Legal', 'القوانين')),
                 const SizedBox(height: 12),
                 _PolicyCard(
-                  title: _copy(context, 'Privacy policy', 'سياسة الخصوصية'),
-                  subtitle: _copy(
+                  title: localeCopy(context, 'Privacy policy', 'سياسة الخصوصية'),
+                  subtitle: localeCopy(
                     context,
                     'How Ticketa collects and protects your data',
                     'كيف تجمع تيكيتا بياناتك وتحميها',
@@ -118,8 +119,8 @@ class _PrivacyPageState extends State<PrivacyPage> {
                   icon: Icons.privacy_tip_rounded,
                 ),
                 _PolicyCard(
-                  title: _copy(context, 'Terms of service', 'شروط الاستخدام'),
-                  subtitle: _copy(
+                  title: localeCopy(context, 'Terms of service', 'شروط الاستخدام'),
+                  subtitle: localeCopy(
                     context,
                     'Booking, refunds, and app usage rules',
                     'قواعد الحجز والاسترداد واستخدام التطبيق',
@@ -172,7 +173,7 @@ class _PrivacyHero extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _copy(
+                  localeCopy(
                     context,
                     'You control your data',
                     'أنت تتحكم في بياناتك',
@@ -184,7 +185,7 @@ class _PrivacyHero extends StatelessWidget {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  _copy(
+                  localeCopy(
                     context,
                     'Choose what Ticketa can use to personalize your experience.',
                     'اختر ما يمكن لتيكيتا استخدامه لتخصيص تجربتك.',
@@ -398,6 +399,3 @@ class _SectionTitle extends StatelessWidget {
   }
 }
 
-String _copy(BuildContext context, String en, String ar) {
-  return Localizations.localeOf(context).languageCode == 'ar' ? ar : en;
-}

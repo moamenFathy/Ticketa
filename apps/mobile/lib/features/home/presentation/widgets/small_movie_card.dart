@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ticketa/features/home/data/models/movie.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/features/home/presentation/screens/movie_detail_page.dart';
@@ -54,11 +55,13 @@ class _SmallMovieCardState extends State<SmallMovieCard> {
                     borderRadius: BorderRadius.circular(25),
                     child: Stack(
                       children: [
-                        Image.network(
-                          widget.movie.posterUrl,
+                        CachedNetworkImage(
+                          imageUrl: widget.movie.posterUrl,
                           fit: BoxFit.cover,
                           width: double.infinity,
                           height: double.infinity,
+                          placeholder: (_, _) => Container(color: Colors.grey[900]),
+                          errorWidget: (_, _, _) => Container(color: Colors.grey[900]),
                         ),
                         if (widget.showRating)
                           Positioned(

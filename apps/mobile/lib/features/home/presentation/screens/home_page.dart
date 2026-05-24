@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ticketa/features/home/presentation/widgets/home_category_list.dart';
 import 'package:ticketa/features/home/presentation/widgets/home_header.dart';
@@ -40,144 +41,133 @@ class _HomePageState extends State<HomePage> {
             }
 
             if (state is HomeError) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      state.message,
-                      style: theme.textTheme.titleMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () =>
-                          context.read<HomeCubit>().fetchHomeData(),
-                      child: const Text("Retry"),
-                    ),
-                  ],
-                ),
-              );
+              return _buildErrorState(theme, context, state.message);
             }
 
-            List<Movie> nowShowing = [];
-            List<Movie> comingSoon = [];
+            final nowShowing = state is HomeLoaded ? state.nowShowing : <Movie>[];
+            final comingSoon = state is HomeLoaded ? state.comingSoon : <Movie>[];
 
-            if (state is HomeLoaded) {
-              nowShowing = state.nowShowing;
-              comingSoon = state.comingSoon;
-            }
-
-            // Get top 6 highest rated movies for Hero Section
             final topRatedMovies = List<Movie>.from(nowShowing)
               ..sort((a, b) => b.rating.compareTo(a.rating));
             final heroMovies = topRatedMovies.take(6).toList();
 
             final l10n = AppLocalizations.of(context)!;
             final isDark = theme.brightness == Brightness.dark;
-
-            // Ensure _currentPage is within bounds for hero section
             final safePage = _currentPage < heroMovies.length
                 ? _currentPage
                 : 0;
 
-            return AnimatedSwitcher(
-              duration: const Duration(milliseconds: 600),
-              switchInCurve: Curves.easeIn,
-              switchOutCurve: Curves.easeOut,
-              transitionBuilder: (child, animation) =>
-                  FadeTransition(opacity: animation, child: child),
-              child: KeyedSubtree(
-                key: const ValueKey('content'),
-                child: Stack(
-                  children: [
-                    // Dynamic Blurred Background
-                    if (heroMovies.isNotEmpty)
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 500),
-                        child: Container(
-                          key: ValueKey<String>(heroMovies[safePage].posterUrl),
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: NetworkImage(
-                                heroMovies[safePage].posterUrl,
-                              ),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                            child: Container(
-                              color: (isDark ? Colors.black : Colors.white)
-                                  .withValues(alpha: isDark ? 0.4 : 0.6),
-                            ),
-                          ),
-                        ),
-                      )
-                    else
-                      Container(color: isDark ? Colors.black : Colors.white),
-
-                    SafeArea(
-                      top: false,
-                      bottom: false,
-                      child: CustomScrollView(
-                        physics: const BouncingScrollPhysics(),
-                        slivers: [
-                          // Status bar spacing
-                          SliverToBoxAdapter(
-                            child: SizedBox(
-                              height: MediaQuery.of(context).padding.top + 8,
-                            ),
-                          ),
-
-                          const SliverToBoxAdapter(child: HomeHeader()),
-
-                          // Hero Section
-                          if (heroMovies.isNotEmpty)
-                            SliverToBoxAdapter(
-                              child: HomeHeroSection(
-                                movies: heroMovies,
-                                onPageChanged: (index) {
-                                  setState(() {
-                                    _currentPage = index;
-                                  });
-                                },
-                              ),
-                            ),
-
-                          // Category Chips
-                          const SliverToBoxAdapter(child: HomeCategoryList()),
-
-                          // Now Showing
-                          SliverToBoxAdapter(
-                            child: MovieHorizontalList(
-                              title: l10n.nowShowing,
-                              movies: nowShowing,
-                            ),
-                          ),
-
-                          // Coming Soon
-                          SliverToBoxAdapter(
-                            child: MovieHorizontalList(
-                              title: l10n.comingSoon,
-                              movies: comingSoon,
-                              showRating: false,
-                            ),
-                          ),
-
-                          const SliverToBoxAdapter(
-                            child: SizedBox(height: 120),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
+            return _buildContent(theme, l10n, nowShowing, comingSoon, heroMovies, safePage, isDark, context);
           },
         ),
       ),
     );
+  }
+
+  Widget _buildErrorState(ThemeData theme, BuildContext context, String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            message,
+            style: theme.textTheme.titleMedium,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () =>
+                context.read<HomeCubit>().fetchHomeData(),
+            child: const Text("Retry"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContent(ThemeData theme, AppLocalizations l10n, List<Movie> nowShowing, List<Movie> comingSoon, List<Movie> heroMovies, int safePage, bool isDark, BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 600),
+      switchInCurve: Curves.easeIn,
+      switchOutCurve: Curves.easeOut,
+      transitionBuilder: (child, animation) =>
+          FadeTransition(opacity: animation, child: child),
+      child: KeyedSubtree(
+        key: const ValueKey('content'),
+        child: Stack(
+          children: [
+            _buildBackground(theme, heroMovies, safePage, isDark),
+            SafeArea(
+              top: false,
+              bottom: false,
+              child: CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: MediaQuery.of(context).padding.top + 8,
+                    ),
+                  ),
+                  const SliverToBoxAdapter(child: HomeHeader()),
+                  if (heroMovies.isNotEmpty)
+                    SliverToBoxAdapter(
+                      child: HomeHeroSection(
+                        movies: heroMovies,
+                        onPageChanged: (index) {
+                          setState(() {
+                            _currentPage = index;
+                          });
+                        },
+                      ),
+                    ),
+                  const SliverToBoxAdapter(child: HomeCategoryList()),
+                  SliverToBoxAdapter(
+                    child: MovieHorizontalList(
+                      title: l10n.nowShowing,
+                      movies: nowShowing,
+                    ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: MovieHorizontalList(
+                      title: l10n.comingSoon,
+                      movies: comingSoon,
+                      showRating: false,
+                    ),
+                  ),
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: 120),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBackground(ThemeData theme, List<Movie> heroMovies, int safePage, bool isDark) {
+    if (heroMovies.isNotEmpty) {
+      return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 500),
+        child: Container(
+          key: ValueKey<String>(heroMovies[safePage].posterUrl),
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: CachedNetworkImageProvider(heroMovies[safePage].posterUrl),
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Container(
+              color: (isDark ? Colors.black : Colors.white)
+                  .withValues(alpha: isDark ? 0.4 : 0.6),
+            ),
+          ),
+        ),
+      );
+    }
+    return Container(color: isDark ? Colors.black : Colors.white);
   }
 }

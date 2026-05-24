@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
+import 'package:ticketa/core/utils/localization_helper.dart';
 
 class MyTicketsPage extends StatefulWidget {
   const MyTicketsPage({super.key});
@@ -90,9 +91,9 @@ class _MyTicketsPageState extends State<MyTicketsPage> {
                 _FilterChips(
                   selectedIndex: _selectedFilter,
                   labels: [
-                    _copy(context, 'All', 'الكل'),
-                    _copy(context, 'Upcoming', 'القادمة'),
-                    _copy(context, 'Past', 'السابقة'),
+                    localeCopy(context, 'All', 'الكل'),
+                    localeCopy(context, 'Upcoming', 'القادمة'),
+                    localeCopy(context, 'Past', 'السابقة'),
                   ],
                   onChanged: (index) => setState(() => _selectedFilter = index),
                 ),
@@ -166,7 +167,7 @@ class _TicketsSummary extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _copy(context, 'Ready for movie night', 'جاهز لليلة السينما'),
+                  localeCopy(context, 'Ready for movie night', 'جاهز لليلة السينما'),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 17,
@@ -176,7 +177,7 @@ class _TicketsSummary extends StatelessWidget {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  _copy(
+                  localeCopy(
                     context,
                     '$upcoming upcoming • $past past',
                     '$upcoming قادمة • $past سابقة',
@@ -389,8 +390,8 @@ class _StatusPill extends StatelessWidget {
       ),
       child: Text(
         isPast
-            ? _copy(context, 'Past', 'سابقة')
-            : _copy(context, 'Upcoming', 'قادمة'),
+            ? localeCopy(context, 'Past', 'سابقة')
+            : localeCopy(context, 'Upcoming', 'قادمة'),
         style: TextStyle(
           color: color,
           fontSize: 10,
@@ -526,6 +527,3 @@ class _TicketItem {
   });
 }
 
-String _copy(BuildContext context, String en, String ar) {
-  return Localizations.localeOf(context).languageCode == 'ar' ? ar : en;
-}

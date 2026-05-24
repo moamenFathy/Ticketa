@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/core/utils/localization_helper.dart';
 
 class SecurityPage extends StatefulWidget {
   const SecurityPage({super.key});
@@ -28,7 +29,7 @@ class _SecurityPageState extends State<SecurityPage> {
             elevation: 0,
             surfaceTintColor: Colors.transparent,
             title: Text(
-              _copy(context, 'Security', 'الأمان'),
+              localeCopy(context, 'Security', 'الأمان'),
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w900,
                 letterSpacing: 0,
@@ -42,13 +43,13 @@ class _SecurityPageState extends State<SecurityPage> {
                 const _SecurityScoreCard(),
                 const SizedBox(height: 18),
                 _SectionTitle(
-                  title: _copy(context, 'Account access', 'الوصول للحساب'),
+                  title: localeCopy(context, 'Account access', 'الوصول للحساب'),
                 ),
                 const SizedBox(height: 12),
                 _ActionTile(
                   icon: Icons.lock_reset_rounded,
-                  title: _copy(context, 'Change password', 'تغيير كلمة السر'),
-                  subtitle: _copy(
+                  title: localeCopy(context, 'Change password', 'تغيير كلمة السر'),
+                  subtitle: localeCopy(
                     context,
                     'Last updated 3 months ago',
                     'آخر تحديث من 3 أشهر',
@@ -59,12 +60,12 @@ class _SecurityPageState extends State<SecurityPage> {
                 ),
                 _SwitchTile(
                   icon: Icons.verified_user_rounded,
-                  title: _copy(
+                  title: localeCopy(
                     context,
                     'Two-factor authentication',
                     'المصادقة الثنائية',
                   ),
-                  subtitle: _copy(
+                  subtitle: localeCopy(
                     context,
                     'Ask for a code when signing in',
                     'اطلب كود عند تسجيل الدخول',
@@ -75,12 +76,12 @@ class _SecurityPageState extends State<SecurityPage> {
                 ),
                 _SwitchTile(
                   icon: Icons.fingerprint_rounded,
-                  title: _copy(
+                  title: localeCopy(
                     context,
                     'Biometric login',
                     'تسجيل الدخول بالبصمة',
                   ),
-                  subtitle: _copy(
+                  subtitle: localeCopy(
                     context,
                     'Use Face ID or fingerprint',
                     'استخدم Face ID أو البصمة',
@@ -90,8 +91,8 @@ class _SecurityPageState extends State<SecurityPage> {
                 ),
                 _SwitchTile(
                   icon: Icons.notifications_active_rounded,
-                  title: _copy(context, 'Login alerts', 'تنبيهات تسجيل الدخول'),
-                  subtitle: _copy(
+                  title: localeCopy(context, 'Login alerts', 'تنبيهات تسجيل الدخول'),
+                  subtitle: localeCopy(
                     context,
                     'Notify me about new devices',
                     'نبهني عند دخول جهاز جديد',
@@ -101,13 +102,13 @@ class _SecurityPageState extends State<SecurityPage> {
                 ),
                 const SizedBox(height: 22),
                 _SectionTitle(
-                  title: _copy(context, 'Active sessions', 'الجلسات النشطة'),
+                  title: localeCopy(context, 'Active sessions', 'الجلسات النشطة'),
                 ),
                 const SizedBox(height: 12),
                 _SessionTile(
                   icon: Icons.phone_iphone_rounded,
-                  device: _copy(context, 'iPhone 15 Pro', 'iPhone 15 Pro'),
-                  location: _copy(
+                  device: localeCopy(context, 'iPhone 15 Pro', 'iPhone 15 Pro'),
+                  location: localeCopy(
                     context,
                     'Cairo, Egypt • Current device',
                     'القاهرة، مصر • الجهاز الحالي',
@@ -116,8 +117,8 @@ class _SecurityPageState extends State<SecurityPage> {
                 ),
                 _SessionTile(
                   icon: Icons.laptop_mac_rounded,
-                  device: _copy(context, 'MacBook Air', 'MacBook Air'),
-                  location: _copy(
+                  device: localeCopy(context, 'MacBook Air', 'MacBook Air'),
+                  location: localeCopy(
                     context,
                     'Giza, Egypt • 2 days ago',
                     'الجيزة، مصر • منذ يومين',
@@ -126,7 +127,7 @@ class _SecurityPageState extends State<SecurityPage> {
                 ),
                 const SizedBox(height: 10),
                 _DangerButton(
-                  label: _copy(
+                  label: localeCopy(
                     context,
                     'Sign out of all devices',
                     'تسجيل الخروج من كل الأجهزة',
@@ -182,7 +183,7 @@ class _SecurityScoreCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _copy(context, 'Strong protection', 'حماية قوية'),
+                  localeCopy(context, 'Strong protection', 'حماية قوية'),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -192,7 +193,7 @@ class _SecurityScoreCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  _copy(
+                  localeCopy(
                     context,
                     '2FA is on and login alerts are active',
                     'المصادقة الثنائية وتنبيهات الدخول مفعلة',
@@ -329,7 +330,7 @@ class _SessionTile extends StatelessWidget {
           ),
           if (!isCurrent)
             Text(
-              _copy(context, 'Remove', 'إزالة'),
+              localeCopy(context, 'Remove', 'إزالة'),
               style: const TextStyle(
                 color: Colors.redAccent,
                 fontSize: 12,
@@ -494,6 +495,3 @@ class _SectionTitle extends StatelessWidget {
   }
 }
 
-String _copy(BuildContext context, String en, String ar) {
-  return Localizations.localeOf(context).languageCode == 'ar' ? ar : en;
-}

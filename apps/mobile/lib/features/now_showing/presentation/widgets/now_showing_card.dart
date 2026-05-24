@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ticketa/features/home/data/models/movie.dart';
 import 'package:ticketa/features/home/presentation/screens/movie_detail_page.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
@@ -38,10 +39,10 @@ class NowShowingCard extends StatelessWidget {
                 width: 130,
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.horizontal(left: Radius.circular(24)),
-                  image: DecorationImage(
-                    image: NetworkImage(movie.posterUrl),
-                    fit: BoxFit.cover,
-                  ),
+                    image: DecorationImage(
+                      image: CachedNetworkImageProvider(movie.posterUrl),
+                      fit: BoxFit.cover,
+                    ),
                 ),
               ),
             ),

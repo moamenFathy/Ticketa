@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ticketa/features/home/data/models/movie.dart';
 import 'package:ticketa/features/home/presentation/screens/movie_detail_page.dart';
 
@@ -24,11 +25,13 @@ class HeroCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(40),
             child: Stack(
               children: [
-                Image.network(
-                  movie.posterUrl,
+                CachedNetworkImage(
+                  imageUrl: movie.posterUrl,
                   fit: BoxFit.cover,
                   width: double.infinity,
                   height: double.infinity,
+                  placeholder: (_, _) => Container(color: Colors.grey[900]),
+                  errorWidget: (_, _, _) => Container(color: Colors.grey[900]),
                 ),
                 Positioned.fill(
                   child: Container(

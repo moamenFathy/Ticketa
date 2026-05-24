@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 
 class BookingConfirmationPage extends StatelessWidget {
@@ -158,10 +159,12 @@ class BookingConfirmationPage extends StatelessWidget {
                       )
                     ],
                   ),
-                  child: Image.network(
-                    "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TICKETA-$movie-$seats",
+                  child: CachedNetworkImage(
+                    imageUrl: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TICKETA-$movie-$seats",
                     height: 150,
                     width: 150,
+                    placeholder: (_, _) => Icon(Icons.qr_code, size: 80, color: Colors.grey),
+                    errorWidget: (_, _, _) => Icon(Icons.qr_code, size: 80, color: Colors.grey),
                   ),
                 ),
               ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ticketa/features/home/data/models/movie.dart';
 
 class MovieCastList extends StatelessWidget {
@@ -29,7 +30,7 @@ class MovieCastList extends StatelessWidget {
                   radius: 30,
                   backgroundColor: theme.colorScheme.onSurface.withOpacity(0.1),
                   backgroundImage: member.profilePath != null && member.profilePath!.isNotEmpty
-                      ? NetworkImage(member.profilePath!)
+                      ? CachedNetworkImageProvider(member.profilePath!)
                       : null,
                   child: member.profilePath == null || member.profilePath!.isEmpty
                       ? Icon(Icons.person, color: theme.colorScheme.onSurface.withOpacity(0.3))

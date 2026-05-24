@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ticketa/core/widgets/glass_card.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 
@@ -84,9 +85,11 @@ class TicketCard extends StatelessWidget {
                       )
                     ],
                   ),
-                  child: Image.network(
-                    "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TICKETA-${DateTime.now().millisecondsSinceEpoch}",
+                  child: CachedNetworkImage(
+                    imageUrl: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TICKETA-${DateTime.now().millisecondsSinceEpoch}",
                     fit: BoxFit.contain,
+                    placeholder: (_, _) => Icon(Icons.qr_code, size: 60, color: Colors.grey),
+                    errorWidget: (_, _, _) => Icon(Icons.qr_code, size: 60, color: Colors.grey),
                   ),
                 ),
                 const SizedBox(height: 16),

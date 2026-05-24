@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ticketa/features/home/data/models/movie.dart';
 import 'package:ticketa/features/home/presentation/widgets/trailer_play_button.dart';
 
@@ -43,9 +44,11 @@ class MovieDetailHeader extends StatelessWidget {
           children: [
             Hero(
               tag: 'poster_${movie.id}',
-              child: Image.network(
-                movie.posterUrl,
+              child: CachedNetworkImage(
+                imageUrl: movie.posterUrl,
                 fit: BoxFit.cover,
+                placeholder: (_, _) => Container(color: Colors.grey[900]),
+                errorWidget: (_, _, _) => Container(color: Colors.grey[900]),
               ),
             ),
             // Bottom Gradient

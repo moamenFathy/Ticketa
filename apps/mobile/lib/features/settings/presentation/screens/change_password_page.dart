@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/core/utils/localization_helper.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -41,7 +42,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             elevation: 0,
             surfaceTintColor: Colors.transparent,
             title: Text(
-              _copy(context, 'Change password', 'تغيير كلمة السر'),
+              localeCopy(context, 'Change password', 'تغيير كلمة السر'),
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w900,
                 letterSpacing: 0,
@@ -60,7 +61,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                     children: [
                       _PasswordField(
                         controller: _currentPasswordController,
-                        label: _copy(
+                        label: localeCopy(
                           context,
                           'Current password',
                           'كلمة السر الحالية',
@@ -72,7 +73,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       ),
                       _PasswordField(
                         controller: _newPasswordController,
-                        label: _copy(
+                        label: localeCopy(
                           context,
                           'New password',
                           'كلمة السر الجديدة',
@@ -84,7 +85,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           final base = _requiredPassword(context, value);
                           if (base != null) return base;
                           if (value!.length < 8) {
-                            return _copy(
+                            return localeCopy(
                               context,
                               'Use at least 8 characters',
                               'استخدم 8 أحرف على الأقل',
@@ -97,7 +98,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       const SizedBox(height: 12),
                       _PasswordField(
                         controller: _confirmPasswordController,
-                        label: _copy(
+                        label: localeCopy(
                           context,
                           'Confirm new password',
                           'تأكيد كلمة السر الجديدة',
@@ -109,7 +110,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                           final base = _requiredPassword(context, value);
                           if (base != null) return base;
                           if (value != _newPasswordController.text) {
-                            return _copy(
+                            return localeCopy(
                               context,
                               'Passwords do not match',
                               'كلمات السر غير متطابقة',
@@ -120,7 +121,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       ),
                       const SizedBox(height: 18),
                       _SaveButton(
-                        label: _copy(
+                        label: localeCopy(
                           context,
                           'Update password',
                           'تحديث كلمة السر',
@@ -130,7 +131,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  _copy(
+                                  localeCopy(
                                     context,
                                     'Password updated successfully',
                                     'تم تحديث كلمة السر بنجاح',
@@ -154,7 +155,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
   String? _requiredPassword(BuildContext context, String? value) {
     if (value == null || value.trim().isEmpty) {
-      return _copy(context, 'Password is required', 'كلمة السر مطلوبة');
+      return localeCopy(context, 'Password is required', 'كلمة السر مطلوبة');
     }
     return null;
   }
@@ -201,7 +202,7 @@ class _PasswordHero extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _copy(
+                  localeCopy(
                     context,
                     'Keep your account secure',
                     'حافظ على أمان حسابك',
@@ -215,7 +216,7 @@ class _PasswordHero extends StatelessWidget {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  _copy(
+                  localeCopy(
                     context,
                     'Choose a strong password you do not use elsewhere.',
                     'اختر كلمة سر قوية وغير مستخدمة في مكان آخر.',
@@ -309,10 +310,10 @@ class _PasswordStrength extends StatelessWidget {
     final theme = Theme.of(context);
     final score = _scorePassword(password);
     final label = [
-      _copy(context, 'Too short', 'قصيرة جدًا'),
-      _copy(context, 'Weak', 'ضعيفة'),
-      _copy(context, 'Good', 'جيدة'),
-      _copy(context, 'Strong', 'قوية'),
+      localeCopy(context, 'Too short', 'قصيرة جدًا'),
+      localeCopy(context, 'Weak', 'ضعيفة'),
+      localeCopy(context, 'Good', 'جيدة'),
+      localeCopy(context, 'Strong', 'قوية'),
     ][score];
 
     return Container(
@@ -331,7 +332,7 @@ class _PasswordStrength extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  _copy(context, 'Password strength', 'قوة كلمة السر'),
+                  localeCopy(context, 'Password strength', 'قوة كلمة السر'),
                   style: theme.textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.w900,
                   ),
@@ -403,8 +404,4 @@ class _SaveButton extends StatelessWidget {
       ),
     );
   }
-}
-
-String _copy(BuildContext context, String en, String ar) {
-  return Localizations.localeOf(context).languageCode == 'ar' ? ar : en;
 }

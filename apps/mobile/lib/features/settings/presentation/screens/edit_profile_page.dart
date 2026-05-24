@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/core/utils/localization_helper.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -39,7 +40,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             elevation: 0,
             surfaceTintColor: Colors.transparent,
             title: Text(
-              _copy(context, 'Edit profile', 'تعديل الملف الشخصي'),
+              localeCopy(context, 'Edit profile', 'تعديل الملف الشخصي'),
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w900,
                 letterSpacing: 0,
@@ -58,13 +59,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     children: [
                       _ProfileField(
                         controller: _nameController,
-                        label: _copy(context, 'Full name', 'الاسم بالكامل'),
+                        label: localeCopy(context, 'Full name', 'الاسم بالكامل'),
                         icon: Icons.person_outline_rounded,
                         validator: (value) => _required(context, value),
                       ),
                       _ProfileField(
                         controller: _emailController,
-                        label: _copy(
+                        label: localeCopy(
                           context,
                           'Email address',
                           'البريد الإلكتروني',
@@ -75,7 +76,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           final base = _required(context, value);
                           if (base != null) return base;
                           if (!value!.contains('@')) {
-                            return _copy(
+                            return localeCopy(
                               context,
                               'Enter a valid email',
                               'ادخل بريد إلكتروني صحيح',
@@ -86,14 +87,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       ),
                       _ProfileField(
                         controller: _phoneController,
-                        label: _copy(context, 'Phone number', 'رقم الهاتف'),
+                        label: localeCopy(context, 'Phone number', 'رقم الهاتف'),
                         icon: Icons.phone_outlined,
                         keyboardType: TextInputType.phone,
                         validator: (value) => _required(context, value),
                       ),
                       _ProfileField(
                         controller: _cityController,
-                        label: _copy(context, 'City', 'المدينة'),
+                        label: localeCopy(context, 'City', 'المدينة'),
                         icon: Icons.location_city_rounded,
                         validator: (value) => _required(context, value),
                       ),
@@ -104,13 +105,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 _InfoCard(),
                 const SizedBox(height: 18),
                 _SaveButton(
-                  label: _copy(context, 'Save changes', 'حفظ التغييرات'),
+                  label: localeCopy(context, 'Save changes', 'حفظ التغييرات'),
                   onTap: () {
                     if (_formKey.currentState?.validate() ?? false) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            _copy(
+                            localeCopy(
                               context,
                               'Profile updated successfully',
                               'تم تحديث الملف الشخصي بنجاح',
@@ -131,7 +132,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   String? _required(BuildContext context, String? value) {
     if (value == null || value.trim().isEmpty) {
-      return _copy(context, 'This field is required', 'هذا الحقل مطلوب');
+      return localeCopy(context, 'This field is required', 'هذا الحقل مطلوب');
     }
     return null;
   }
@@ -211,7 +212,7 @@ class _ProfilePhotoCard extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            _copy(context, 'Mohamed Ahmed', 'محمد أحمد'),
+            localeCopy(context, 'Mohamed Ahmed', 'محمد أحمد'),
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w900,
               letterSpacing: 0,
@@ -219,7 +220,7 @@ class _ProfilePhotoCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            _copy(context, 'Ticketa loyalty member', 'عضو نقاط تيكيتا'),
+            localeCopy(context, 'Ticketa loyalty member', 'عضو نقاط تيكيتا'),
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.52),
               fontWeight: FontWeight.w700,
@@ -305,7 +306,7 @@ class _InfoCard extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              _copy(
+              localeCopy(
                 context,
                 'Your email is used for ticket receipts and account recovery.',
                 'يُستخدم البريد الإلكتروني لإيصالات التذاكر واسترجاع الحساب.',
@@ -348,8 +349,4 @@ class _SaveButton extends StatelessWidget {
       ),
     );
   }
-}
-
-String _copy(BuildContext context, String en, String ar) {
-  return Localizations.localeOf(context).languageCode == 'ar' ? ar : en;
 }

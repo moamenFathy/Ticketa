@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
+import 'package:ticketa/core/utils/localization_helper.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -84,7 +85,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
               Padding(
                 padding: const EdgeInsetsDirectional.only(end: 12),
                 child: IconButton(
-                  tooltip: _copy(context, 'Mark all read', 'تحديد الكل كمقروء'),
+                  tooltip: localeCopy(context, 'Mark all read', 'تحديد الكل كمقروء'),
                   onPressed: () {},
                   icon: const Icon(Icons.done_all_rounded),
                 ),
@@ -98,7 +99,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 _NotificationHero(unreadCount: unreadCount),
                 const SizedBox(height: 18),
                 _PreferenceCard(
-                  title: _copy(
+                  title: localeCopy(
                     context,
                     'Notification preferences',
                     'تفضيلات الإشعارات',
@@ -106,14 +107,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   children: [
                     _PreferenceSwitch(
                       icon: Icons.confirmation_number_rounded,
-                      title: _copy(context, 'Booking updates', 'تحديثات الحجز'),
+                      title: localeCopy(context, 'Booking updates', 'تحديثات الحجز'),
                       value: bookingAlerts,
                       onChanged: (value) =>
                           setState(() => bookingAlerts = value),
                     ),
                     _PreferenceSwitch(
                       icon: Icons.local_offer_rounded,
-                      title: _copy(
+                      title: localeCopy(
                         context,
                         'Offers and discounts',
                         'العروض والخصومات',
@@ -123,7 +124,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     ),
                     _PreferenceSwitch(
                       icon: Icons.schedule_rounded,
-                      title: _copy(
+                      title: localeCopy(
                         context,
                         'Showtime reminders',
                         'تذكير مواعيد العروض',
@@ -135,7 +136,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   ],
                 ),
                 const SizedBox(height: 22),
-                _SectionTitle(title: _copy(context, 'Recent', 'الأحدث')),
+                _SectionTitle(title: localeCopy(context, 'Recent', 'الأحدث')),
                 const SizedBox(height: 12),
                 ..._notifications.map((item) => _NotificationTile(item: item)),
               ]),
@@ -185,7 +186,7 @@ class _NotificationHero extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _copy(context, 'Stay in the loop', 'خليك متابع'),
+                  localeCopy(context, 'Stay in the loop', 'خليك متابع'),
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w900,
                     letterSpacing: 0,
@@ -193,7 +194,7 @@ class _NotificationHero extends StatelessWidget {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  _copy(
+                  localeCopy(
                     context,
                     '$unreadCount unread updates',
                     '$unreadCount إشعارات غير مقروءة',
@@ -380,7 +381,7 @@ class _NotificationTile extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        _copy(context, item.titleEn, item.titleAr),
+                        localeCopy(context, item.titleEn, item.titleAr),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.bodyMedium?.copyWith(
@@ -403,7 +404,7 @@ class _NotificationTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  _copy(context, item.bodyEn, item.bodyAr),
+                  localeCopy(context, item.bodyEn, item.bodyAr),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -456,6 +457,3 @@ class _NotificationItem {
   });
 }
 
-String _copy(BuildContext context, String en, String ar) {
-  return Localizations.localeOf(context).languageCode == 'ar' ? ar : en;
-}

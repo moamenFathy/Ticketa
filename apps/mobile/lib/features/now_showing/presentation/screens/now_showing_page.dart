@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/features/home/data/models/movie.dart';
@@ -54,9 +55,11 @@ class _NowShowingView extends StatelessWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    "https://images.unsplash.com/photo-1478720568477-152d9b164e26?q=80&w=2670&auto=format&fit=crop",
+                  CachedNetworkImage(
+                    imageUrl: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?q=80&w=2670&auto=format&fit=crop",
                     fit: BoxFit.cover,
+                    placeholder: (_, _) => Container(color: Colors.grey[900]),
+                    errorWidget: (_, _, _) => Container(color: Colors.grey[900]),
                   ),
                   Container(
                     decoration: BoxDecoration(
