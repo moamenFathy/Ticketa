@@ -24,7 +24,7 @@ class HeroMovieInfo extends StatelessWidget {
               letterSpacing: 1.5,
               shadows: isDark ? [
                 Shadow(
-                  color: Colors.black.withOpacity(0.5),
+                  color: Colors.black.withValues(alpha: 0.5),
                   offset: const Offset(0, 2),
                   blurRadius: 10,
                 ),
@@ -39,7 +39,7 @@ class HeroMovieInfo extends StatelessWidget {
             children: [
               _buildTag(movie.firstGenre, theme),
               _buildTag(movie.duration > 60 ? "${movie.duration ~/ 60}h ${movie.duration % 60}m" : "${movie.duration}m", theme),
-              _buildTag("⭐ ${movie.rating.toStringAsFixed(1)}", theme, color: AppColors.warmOrange.withOpacity(0.2)),
+              _buildTag("⭐ ${movie.rating.toStringAsFixed(1)}", theme, color: AppColors.warmOrange.withValues(alpha: 0.2)),
             ],
           ),
         ],
@@ -52,14 +52,14 @@ class HeroMovieInfo extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 5),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: color ?? theme.colorScheme.onSurface.withOpacity(0.05),
+        color: color ?? theme.colorScheme.onSurface.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.1)),
+        border: Border.all(color: theme.colorScheme.onSurface.withValues(alpha: 0.1)),
       ),
       child: Text(
         label,
         style: theme.textTheme.labelSmall?.copyWith(
-          color: color != null ? AppColors.warmOrange : theme.colorScheme.onSurface.withOpacity(0.8),
+          color: color != null ? AppColors.warmOrange : theme.colorScheme.onSurface.withValues(alpha: 0.8),
           fontWeight: FontWeight.w900,
         ),
       ),

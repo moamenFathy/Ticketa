@@ -47,7 +47,7 @@ class SeatDateSelector extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: isSelected ? [
                       BoxShadow(
-                        color: theme.colorScheme.primary.withOpacity(0.3),
+                        color: theme.colorScheme.primary.withValues(alpha: 0.3),
                         blurRadius: 15,
                         spreadRadius: 2,
                       )
@@ -64,7 +64,7 @@ class SeatDateSelector extends StatelessWidget {
                             Text(
                               DateFormat.E(locale).format(date).toUpperCase(),
                               style: TextStyle(
-                                color: isSelected ? Colors.white70 : theme.colorScheme.onSurface.withOpacity(0.3),
+                                color: isSelected ? Colors.white70 : theme.colorScheme.onSurface.withValues(alpha: 0.3),
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),

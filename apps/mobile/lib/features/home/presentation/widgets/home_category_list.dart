@@ -32,17 +32,17 @@ class _HomeCategoryListState extends State<HomeCategoryList> {
               margin: const EdgeInsets.only(right: 12),
               padding: const EdgeInsets.symmetric(horizontal: 20),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.warmOrange : theme.colorScheme.onSurface.withOpacity(0.05),
+                color: isSelected ? AppColors.warmOrange : theme.colorScheme.onSurface.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: isSelected ? Colors.transparent : theme.colorScheme.onSurface.withOpacity(0.1),
+                  color: isSelected ? Colors.transparent : theme.colorScheme.onSurface.withValues(alpha: 0.1),
                 ),
               ),
               alignment: Alignment.center,
               child: Text(
                 _categories[index],
                 style: theme.textTheme.labelLarge?.copyWith(
-                  color: isSelected ? Colors.white : theme.colorScheme.onSurface.withOpacity(0.6),
+                  color: isSelected ? Colors.white : theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
                 ),
               ),

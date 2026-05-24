@@ -1,22 +1,22 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:ticketa/features/home/data/models/movie.dart';
-import 'package:ticketa/core/theme/app_colors.dart';
-import 'package:ticketa/features/booking/presentation/screens/seat_selection_page.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
-import 'package:ticketa/core/utils/youtube_utils.dart';
-import 'package:ticketa/features/home/presentation/widgets/movie_date_selector.dart';
-import 'package:ticketa/l10n/app_localizations.dart';
-import 'package:ticketa/core/utils/app_responsive.dart';
-import 'package:ticketa/features/home/presentation/widgets/movie_detail_skeleton.dart' as ticketa_movie_skeleton;
-import '../widgets/movie_detail_header.dart';
-import '../widgets/movie_info_tag.dart';
-import '../widgets/movie_cast_list.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ticketa/core/di/injection.dart';
+import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/core/utils/app_responsive.dart';
+import 'package:ticketa/core/utils/youtube_utils.dart';
+import 'package:ticketa/features/booking/presentation/screens/seat_selection_page.dart';
+import 'package:ticketa/features/home/data/models/movie.dart';
 import 'package:ticketa/features/home/presentation/cubit/movie_detail_cubit.dart';
 import 'package:ticketa/features/home/presentation/cubit/movie_detail_state.dart';
+import 'package:ticketa/features/home/presentation/widgets/movie_cast_list.dart';
+import 'package:ticketa/features/home/presentation/widgets/movie_date_selector.dart';
+import 'package:ticketa/features/home/presentation/widgets/movie_detail_header.dart';
+import 'package:ticketa/features/home/presentation/widgets/movie_detail_skeleton.dart' as ticketa_movie_skeleton;
+import 'package:ticketa/features/home/presentation/widgets/movie_info_tag.dart';
+import 'package:ticketa/l10n/app_localizations.dart';
 
 class MovieDetailPage extends StatefulWidget {
   final Movie movie;
@@ -114,20 +114,20 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 10),
-            Text(
+            _staggeredSection(0.00, Text(
               displayMovie.title,
               style: theme.textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.w900,
                 letterSpacing: 0.5,
                 color: theme.colorScheme.onSurface,
               ),
-            ),
+            )),
             const SizedBox(height: 12),
-            _buildInfoTags(theme, displayMovie),
+            _staggeredSection(0.08, _buildInfoTags(theme, displayMovie)),
             const SizedBox(height: 32),
-            _SectionHeader(title: l10n.storyLine),
+            _staggeredSection(0.16, _SectionHeader(title: l10n.storyLine)),
             const SizedBox(height: 12),
-            Text(
+            _staggeredSection(0.16, Text(
               displayMovie.overview.isNotEmpty
                   ? displayMovie.overview
                   : l10n.storyLine,
@@ -136,25 +136,44 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                 height: 1.6,
                 fontWeight: FontWeight.w500,
               ),
+            )),
+            const SizedBox(height: 32),
+            _staggeredSection(0.24, _SectionHeader(title: l10n.cast)),
+            const SizedBox(height: 16),
+            _staggeredSection(0.24, MovieCastList(cast: displayMovie.cast)),
+            const SizedBox(height: 32),
+            _staggeredSection(0.32, _SectionHeader(title: l10n.selectDate)),
+            const SizedBox(height: 16),
+            _staggeredSection(0.32,
+              displayMovie.showTimes.isNotEmpty
+                  ? MovieDateSelector(showTimes: displayMovie.showTimes) as Widget
+                  : const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text("No showtimes available yet."),
+                  ),
             ),
-            const SizedBox(height: 32),
-            _SectionHeader(title: l10n.cast),
-            const SizedBox(height: 16),
-            MovieCastList(cast: displayMovie.cast),
-            const SizedBox(height: 32),
-            _SectionHeader(title: l10n.selectDate),
-            const SizedBox(height: 16),
-            if (displayMovie.showTimes.isNotEmpty)
-              MovieDateSelector(showTimes: displayMovie.showTimes)
-            else
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text("No showtimes available yet."),
-              ),
             const SizedBox(height: 140),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _staggeredSection(double delay, Widget child) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 600),
+      curve: Interval(delay, 1.0, curve: Curves.easeOutCubic),
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(0, 16 * (1 - value)),
+            child: child,
+          ),
+        );
+      },
+      child: child,
     );
   }
 
@@ -386,6 +405,7 @@ class _FullScreenInlinePlayerState extends State<_FullScreenInlinePlayer> {
             child: CachedNetworkImage(
               imageUrl: widget.posterUrl,
               fit: BoxFit.cover,
+              memCacheWidth: 1080,
               placeholder: (_, _) => Container(color: Colors.black),
               errorWidget: (_, _, _) => Container(color: Colors.black),
             ),

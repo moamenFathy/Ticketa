@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 import 'package:ticketa/features/payment/presentation/screens/booking_success_page.dart';
-import '../widgets/order_summary.dart';
-import '../widgets/card_input_form.dart';
-import '../widgets/payment_method_selector.dart';
+import 'package:ticketa/features/payment/presentation/widgets/order_summary.dart';
+import 'package:ticketa/features/payment/presentation/widgets/card_input_form.dart';
+import 'package:ticketa/features/payment/presentation/widgets/payment_method_selector.dart';
 
 class PaymentPage extends StatefulWidget {
   final double totalAmount;
@@ -112,7 +112,7 @@ class _PaymentPageState extends State<PaymentPage> {
         child: Column(
           children: [
             const SizedBox(height: 12),
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: theme.colorScheme.onSurface.withOpacity(0.1), borderRadius: BorderRadius.circular(2))),
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: theme.colorScheme.onSurface.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 32),
             Icon(Icons.apple_rounded, size: 48, color: theme.colorScheme.onSurface),
             const SizedBox(height: 16),
@@ -123,7 +123,7 @@ class _PaymentPageState extends State<PaymentPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Total", style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.5), fontWeight: FontWeight.bold)),
+                  Text("Total", style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.bold)),
                   Text("${widget.totalAmount.toStringAsFixed(0)} EGP", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: theme.colorScheme.onSurface)),
                 ],
               ),
@@ -192,7 +192,7 @@ class _PaymentPageState extends State<PaymentPage> {
           backgroundColor: AppColors.warmOrange,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           elevation: 10,
-          shadowColor: AppColors.warmOrange.withOpacity(0.5),
+          shadowColor: AppColors.warmOrange.withValues(alpha: 0.5),
         ),
         child: _isProcessing 
           ? const CircularProgressIndicator(color: Colors.white)

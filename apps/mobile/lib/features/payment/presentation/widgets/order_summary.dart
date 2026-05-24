@@ -43,13 +43,13 @@ class OrderSummary extends StatelessWidget {
               const Icon(Icons.receipt_long_rounded, color: AppColors.warmOrange, size: 18),
             ],
           ),
-          Divider(height: 30, color: theme.colorScheme.onSurface.withOpacity(0.1)),
+          Divider(height: 30, color: theme.colorScheme.onSurface.withValues(alpha: 0.1)),
           _summaryRow(l10n.movie, movieTitle, theme),
           const SizedBox(height: 12),
           _summaryRow(l10n.date, "$date | $time", theme),
           const SizedBox(height: 12),
           _summaryRow(l10n.seats, selectedSeats.join(", "), theme),
-          Divider(height: 30, color: theme.colorScheme.onSurface.withOpacity(0.1)),
+          Divider(height: 30, color: theme.colorScheme.onSurface.withValues(alpha: 0.1)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -72,7 +72,7 @@ class OrderSummary extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.5), fontWeight: FontWeight.w600)),
+        Text(label, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.w600)),
         Flexible(
           child: Text(
             value,

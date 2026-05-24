@@ -27,22 +27,22 @@ class PaymentMethodSelector extends StatelessWidget {
         duration: const Duration(milliseconds: 300),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.warmOrange.withOpacity(0.1) : theme.colorScheme.surface,
+          color: isSelected ? AppColors.warmOrange.withValues(alpha: 0.1) : theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppColors.warmOrange : theme.colorScheme.onSurface.withOpacity(0.1),
+            color: isSelected ? AppColors.warmOrange : theme.colorScheme.onSurface.withValues(alpha: 0.1),
             width: 1.5,
           ),
         ),
         child: Row(
           children: [
-            Icon(icon, color: isSelected ? AppColors.warmOrange : theme.colorScheme.onSurface.withOpacity(0.3)),
+            Icon(icon, color: isSelected ? AppColors.warmOrange : theme.colorScheme.onSurface.withValues(alpha: 0.3)),
             const SizedBox(width: 16),
             Text(
               title,
               style: TextStyle(
                 fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
-                color: isSelected ? theme.colorScheme.onSurface : theme.colorScheme.onSurface.withOpacity(0.5),
+                color: isSelected ? theme.colorScheme.onSurface : theme.colorScheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
             const Spacer(),

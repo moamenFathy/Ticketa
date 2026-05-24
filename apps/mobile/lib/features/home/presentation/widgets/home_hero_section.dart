@@ -75,7 +75,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection> {
               height: 6,
               width: _currentPage == index ? 20 : 6,
               decoration: BoxDecoration(
-                color: _currentPage == index ? AppColors.warmOrange : theme.colorScheme.onSurface.withOpacity(0.3),
+                color: _currentPage == index ? AppColors.warmOrange : theme.colorScheme.onSurface.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(3),
               ),
             ),

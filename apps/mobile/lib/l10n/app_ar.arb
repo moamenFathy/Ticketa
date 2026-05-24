@@ -61,5 +61,11 @@
   "confirmExitTitle": "تأكيد",
   "confirmExitMessage": "هل أنت متأكد؟ سيتم إزالة جميع المقاعد المحددة.",
   "confirmExitYes": "تأكيد",
-  "confirmExitNo": "إلغاء"
+  "confirmExitNo": "إلغاء",
+  "yourTicket": "تذكرتك",
+  "bookingConfirmed": "تم الحجز!",
+  "enjoyYourMovie": "استمتع بمشاهدة الفيلم!",
+  "time": "الوقت",
+  "totalPayment": "إجمالي الدفع",
+  "trailerNotAvailable": "التريلر مش متاح"
 }

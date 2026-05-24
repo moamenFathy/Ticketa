@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
-import '../widgets/ticket_card.dart';
+import 'package:ticketa/features/payment/presentation/widgets/ticket_card.dart';
 
 class BookingSuccessPage extends StatelessWidget {
   final String movieTitle;
@@ -40,7 +40,7 @@ class BookingSuccessPage extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.1),
+                        color: Colors.green.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.check_circle_rounded, color: Colors.green, size: 80),
@@ -52,9 +52,9 @@ class BookingSuccessPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      "Enjoy your movie!",
+                      l10n.enjoyYourMovie,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withOpacity(0.5),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -95,7 +95,7 @@ class BookingSuccessPage extends StatelessWidget {
                       l10n.backToHome,
                       null,
                       theme.colorScheme.surface,
-                      theme.colorScheme.onSurface.withOpacity(0.6),
+                      theme.colorScheme.onSurface.withValues(alpha: 0.6),
                       () => Navigator.of(context).popUntil((route) => route.isFirst),
                     ),
                   ],

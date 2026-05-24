@@ -15,10 +15,10 @@ class CardInputForm extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.05)),
+        border: Border.all(color: theme.colorScheme.onSurface.withValues(alpha: 0.05)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
             blurRadius: 15,
             offset: const Offset(0, 10),
           ),
@@ -46,16 +46,16 @@ class CardInputForm extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.5), fontWeight: FontWeight.bold)),
+        Text(label, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         TextField(
           style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.1)),
-            prefixIcon: Icon(icon, size: 18, color: AppColors.warmOrange.withOpacity(0.5)),
+            hintStyle: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.1)),
+            prefixIcon: Icon(icon, size: 18, color: AppColors.warmOrange.withValues(alpha: 0.5)),
             filled: true,
-            fillColor: theme.colorScheme.onSurface.withOpacity(0.05),
+            fillColor: theme.colorScheme.onSurface.withValues(alpha: 0.05),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
           ),

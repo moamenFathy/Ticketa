@@ -21,6 +21,24 @@ class HomeSkeleton extends StatelessWidget {
                 SizedBox(
                   height: MediaQuery.of(context).padding.top + 10,
                 ),
+                // ─── Header: app name + profile avatar skeleton ───────
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 2, 20, 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          AppShimmer(width: 120, height: 26, borderRadius: 6),
+                          SizedBox(height: 8),
+                          AppShimmer(width: 90, height: 14, borderRadius: 4),
+                        ],
+                      ),
+                      const AppShimmer(width: 48, height: 48, borderRadius: 24),
+                    ],
+                  ),
+                ),
                 // ─── Hero: كارد كامل في النص + نص كارد يمين/شمال ───────
                 const SizedBox(height: 10),
                 const _HomeHeroSkeleton(),
@@ -43,7 +61,7 @@ class HomeSkeleton extends StatelessWidget {
                               : Theme.of(context)
                                   .colorScheme
                                   .onSurface
-                                  .withOpacity(0.3),
+                                  .withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(3),
                         ),
                       );

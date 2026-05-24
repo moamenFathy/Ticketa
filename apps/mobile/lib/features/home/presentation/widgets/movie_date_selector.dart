@@ -39,13 +39,13 @@ class _MovieDateSelectorState extends State<MovieDateSelector> {
                 borderRadius: BorderRadius.circular(25),
                 boxShadow: isSelected ? [
                   BoxShadow(
-                    color: AppColors.warmOrange.withOpacity(0.3),
+                    color: AppColors.warmOrange.withValues(alpha: 0.3),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   )
                 ] : [],
                 border: Border.all(
-                  color: isSelected ? AppColors.warmOrange : theme.dividerColor.withOpacity(0.1),
+                  color: isSelected ? AppColors.warmOrange : theme.dividerColor.withValues(alpha: 0.1),
                 ),
               ),
               child: Column(
@@ -54,7 +54,7 @@ class _MovieDateSelectorState extends State<MovieDateSelector> {
                   Text(
                     DateFormat.MMM(locale).format(date),
                     style: TextStyle(
-                      color: isSelected ? Colors.white70 : theme.textTheme.bodySmall?.color?.withOpacity(0.5),
+                      color: isSelected ? Colors.white70 : theme.textTheme.bodySmall?.color?.withValues(alpha: 0.5),
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),

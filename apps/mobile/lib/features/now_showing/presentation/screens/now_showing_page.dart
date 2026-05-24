@@ -6,8 +6,8 @@ import 'package:ticketa/features/home/data/models/movie.dart';
 import 'package:ticketa/features/now_showing/presentation/cubit/now_showing_cubit.dart';
 import 'package:ticketa/features/now_showing/presentation/cubit/now_showing_state.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
-import '../widgets/now_showing_card.dart';
-import '../widgets/now_showing_skeleton.dart' as ticketa_now_skeleton;
+import 'package:ticketa/features/now_showing/presentation/widgets/now_showing_card.dart';
+import 'package:ticketa/features/now_showing/presentation/widgets/now_showing_skeleton.dart' as ticketa_now_skeleton;
 
 class NowShowingPage extends StatelessWidget {
   const NowShowingPage({super.key});
@@ -58,6 +58,7 @@ class _NowShowingView extends StatelessWidget {
                   CachedNetworkImage(
                     imageUrl: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?q=80&w=2670&auto=format&fit=crop",
                     fit: BoxFit.cover,
+                    memCacheWidth: 400,
                     placeholder: (_, _) => Container(color: Colors.grey[900]),
                     errorWidget: (_, _, _) => Container(color: Colors.grey[900]),
                   ),
@@ -68,8 +69,8 @@ class _NowShowingView extends StatelessWidget {
                         end: Alignment.bottomCenter,
                         colors: [
                           (isDark ? Colors.black : Colors.white)
-                              .withOpacity(0.2),
-                          theme.scaffoldBackgroundColor.withOpacity(0.8),
+                              .withValues(alpha: 0.2),
+                          theme.scaffoldBackgroundColor.withValues(alpha: 0.8),
                           theme.scaffoldBackgroundColor,
                         ],
                       ),
@@ -83,11 +84,19 @@ class _NowShowingView extends StatelessWidget {
             child: BlocBuilder<NowShowingCubit, NowShowingState>(
               builder: (context, state) {
                 return AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 600),
-                  switchInCurve: Curves.easeIn,
-                  switchOutCurve: Curves.easeOut,
-                  transitionBuilder: (child, animation) =>
-                      FadeTransition(opacity: animation, child: child),
+                  duration: const Duration(milliseconds: 700),
+                  switchInCurve: Curves.easeOutCubic,
+                  switchOutCurve: Curves.easeInCubic,
+                  transitionBuilder: (child, animation) {
+                    final slide = Tween<Offset>(
+                      begin: const Offset(0, 0.08),
+                      end: Offset.zero,
+                    ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic));
+                    return SlideTransition(
+                      position: slide,
+                      child: FadeTransition(opacity: animation, child: child),
+                    );
+                  },
                   child: _buildBody(context, state, theme),
                 );
               },
@@ -150,7 +159,21 @@ class _NowShowingView extends StatelessWidget {
       key: const ValueKey('content'),
       padding: const EdgeInsets.only(top: 10, bottom: 120),
       itemCount: movies.length,
-      itemBuilder: (context, index) => NowShowingCard(movie: movies[index]),
+      itemBuilder: (context, index) => TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0, end: 1),
+        duration: const Duration(milliseconds: 500),
+        curve: Interval((index * 0.08).clamp(0.0, 0.7), 1.0, curve: Curves.easeOutCubic),
+        builder: (context, value, child) {
+          return Opacity(
+            opacity: value,
+            child: Transform.translate(
+              offset: Offset(0, 24 * (1 - value)),
+              child: child,
+            ),
+          );
+        },
+        child: NowShowingCard(movie: movies[index]),
+      ),
     );
   }
 }

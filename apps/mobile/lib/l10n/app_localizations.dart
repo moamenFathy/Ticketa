@@ -475,6 +475,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get confirmExitNo;
+
+  /// No description provided for @yourTicket.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Ticket'**
+  String get yourTicket;
+
+  /// No description provided for @bookingConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking Confirmed!'**
+  String get bookingConfirmed;
+
+  /// No description provided for @enjoyYourMovie.
+  ///
+  /// In en, this message translates to:
+  /// **'Enjoy your movie!'**
+  String get enjoyYourMovie;
+
+  /// No description provided for @time.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get time;
+
+  /// No description provided for @totalPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Payment'**
+  String get totalPayment;
+
+  /// No description provided for @trailerNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Trailer not available'**
+  String get trailerNotAvailable;
 }
 
 class _AppLocalizationsDelegate

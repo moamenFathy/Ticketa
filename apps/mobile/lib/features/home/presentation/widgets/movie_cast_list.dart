@@ -28,12 +28,12 @@ class MovieCastList extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundColor: theme.colorScheme.onSurface.withOpacity(0.1),
+                  backgroundColor: theme.colorScheme.onSurface.withValues(alpha: 0.1),
                   backgroundImage: member.profilePath != null && member.profilePath!.isNotEmpty
-                      ? CachedNetworkImageProvider(member.profilePath!)
+                      ? CachedNetworkImageProvider(member.profilePath!, maxWidth: 120)
                       : null,
                   child: member.profilePath == null || member.profilePath!.isEmpty
-                      ? Icon(Icons.person, color: theme.colorScheme.onSurface.withOpacity(0.3))
+                      ? Icon(Icons.person, color: theme.colorScheme.onSurface.withValues(alpha: 0.3))
                       : null,
                 ),
                 const SizedBox(height: 6),
@@ -55,7 +55,7 @@ class MovieCastList extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withOpacity(0.5),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                   ),
                 ),

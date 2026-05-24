@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:ticketa/core/utils/youtube_utils.dart';
+import 'package:ticketa/l10n/app_localizations.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
-/// بيفتح التريلر في صفحة Full Screen
 Future<void> showTrailerVideoModal(BuildContext context, String trailerKey) async {
+  final l10n = AppLocalizations.of(context)!;
   final videoId = extractYoutubeVideoId(trailerKey);
   if (videoId == null || videoId.isEmpty) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('التريلر مش متاح')),
+      SnackBar(content: Text(l10n.trailerNotAvailable)),
     );
     return;
   }

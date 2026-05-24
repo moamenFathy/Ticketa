@@ -1,3 +1,5 @@
+import 'package:ticketa/core/constants/app_constants.dart';
+
 class CastMember {
   final String name;
   final String character;
@@ -14,7 +16,7 @@ class CastMember {
   factory CastMember.fromJson(Map<String, dynamic> json) {
     String? profilePath = json['profilePath'];
     if (profilePath != null && profilePath.isNotEmpty && !profilePath.startsWith('http')) {
-      profilePath = 'https://image.tmdb.org/t/p/w185$profilePath';
+      profilePath = '${AppConstants.tmdbImageBase}${AppConstants.tmdbCastSize}$profilePath';
     }
     return CastMember(
       name: json['name'] ?? '',
@@ -69,12 +71,12 @@ class Movie {
   factory Movie.fromJson(Map<String, dynamic> json) {
     String posterPath = json['posterPath'] ?? '';
     if (posterPath.isNotEmpty && !posterPath.startsWith('http')) {
-      posterPath = 'https://image.tmdb.org/t/p/w500$posterPath';
+      posterPath = '${AppConstants.tmdbImageBase}${AppConstants.tmdbPosterSize}$posterPath';
     }
 
     String backdropPath = json['backdropPath'] ?? '';
     if (backdropPath.isNotEmpty && !backdropPath.startsWith('http')) {
-      backdropPath = 'https://image.tmdb.org/t/p/w1280$backdropPath';
+      backdropPath = '${AppConstants.tmdbImageBase}${AppConstants.tmdbBackdropSize}$backdropPath';
     }
 
     return Movie(

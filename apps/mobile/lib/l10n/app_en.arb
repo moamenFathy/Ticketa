@@ -66,5 +66,11 @@
   "confirmExitTitle": "Confirm",
   "confirmExitMessage": "Are you sure? All selected seats will be cleared.",
   "confirmExitYes": "Yes",
-  "confirmExitNo": "Cancel"
+  "confirmExitNo": "Cancel",
+  "yourTicket": "Your Ticket",
+  "bookingConfirmed": "Booking Confirmed!",
+  "enjoyYourMovie": "Enjoy your movie!",
+  "time": "Time",
+  "totalPayment": "Total Payment",
+  "trailerNotAvailable": "Trailer not available"
 }

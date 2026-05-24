@@ -28,7 +28,7 @@ class NowShowingCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: theme.dividerColor.withOpacity(0.05)),
+          border: Border.all(color: theme.dividerColor.withValues(alpha: 0.05)),
         ),
         child: Row(
           children: [
@@ -40,7 +40,7 @@ class NowShowingCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.horizontal(left: Radius.circular(24)),
                     image: DecorationImage(
-                      image: CachedNetworkImageProvider(movie.posterUrl),
+                      image: CachedNetworkImageProvider(movie.posterUrl, maxWidth: 400),
                       fit: BoxFit.cover,
                     ),
                 ),
@@ -94,7 +94,7 @@ class NowShowingCard extends StatelessWidget {
                         const SizedBox(width: 6),
                         Text(l10n.watchTrailer, style: TextStyle(color: theme.colorScheme.primary, fontSize: 12, fontWeight: FontWeight.bold)),
                         const Spacer(),
-                        Icon(Icons.arrow_forward_rounded, color: theme.dividerColor.withOpacity(0.2), size: 16),
+                        Icon(Icons.arrow_forward_rounded, color: theme.dividerColor.withValues(alpha: 0.2), size: 16),
                       ],
                     ),
                   ],
@@ -121,14 +121,14 @@ class NowShowingCard extends StatelessWidget {
     final color = switch (normalized) {
       'imax' => const Color(0xFF00B0FF),
       'gold' => const Color(0xFFFFB300),
-      _ => theme.colorScheme.onSurface.withOpacity(0.4),
+      _ => theme.colorScheme.onSurface.withValues(alpha: 0.4),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Text(
         format,
@@ -142,7 +142,7 @@ class NowShowingCard extends StatelessWidget {
       margin: const EdgeInsets.only(right: 6),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: theme.dividerColor.withOpacity(0.05),
+        color: theme.dividerColor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(

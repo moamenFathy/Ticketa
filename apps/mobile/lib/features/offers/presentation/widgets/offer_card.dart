@@ -19,12 +19,12 @@ class OfferCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.warmOrange.withOpacity(0.2),
-            theme.colorScheme.onSurface.withOpacity(0.05),
+            AppColors.warmOrange.withValues(alpha: 0.2),
+            theme.colorScheme.onSurface.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(25),
-        border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.1)),
+        border: Border.all(color: theme.colorScheme.onSurface.withValues(alpha: 0.1)),
       ),
       child: Stack(
         children: [
@@ -34,7 +34,7 @@ class OfferCard extends StatelessWidget {
             child: Icon(
               Icons.confirmation_number_rounded,
               size: 150,
-              color: theme.colorScheme.onSurface.withOpacity(0.03),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.03),
             ),
           ),
           Padding(
@@ -67,7 +67,7 @@ class OfferCard extends StatelessWidget {
                 Text(
                   "Buy 2 tickets and get 30% discount on snacks",
                   style: TextStyle(
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),

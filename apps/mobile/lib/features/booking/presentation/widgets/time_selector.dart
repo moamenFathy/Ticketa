@@ -26,17 +26,17 @@ class TimeSelector extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 6),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
-              color: isSelected ? theme.colorScheme.primary.withOpacity(0.1) : Colors.transparent,
+              color: isSelected ? theme.colorScheme.primary.withValues(alpha: 0.1) : Colors.transparent,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isSelected ? theme.colorScheme.primary : theme.dividerColor.withOpacity(0.1),
+                color: isSelected ? theme.colorScheme.primary : theme.dividerColor.withValues(alpha: 0.1),
                 width: isSelected ? 2 : 1,
               ),
             ),
             child: Text(
               entry.value,
               style: TextStyle(
-                color: isSelected ? theme.colorScheme.onBackground : theme.colorScheme.onBackground.withOpacity(0.3),
+                color: isSelected ? theme.colorScheme.onBackground : theme.colorScheme.onBackground.withValues(alpha: 0.3),
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 fontSize: 14,
               ),

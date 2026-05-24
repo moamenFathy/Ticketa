@@ -87,11 +87,19 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildContent(ThemeData theme, AppLocalizations l10n, List<Movie> nowShowing, List<Movie> comingSoon, List<Movie> heroMovies, int safePage, bool isDark, BuildContext context) {
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 600),
-      switchInCurve: Curves.easeIn,
-      switchOutCurve: Curves.easeOut,
-      transitionBuilder: (child, animation) =>
-          FadeTransition(opacity: animation, child: child),
+      duration: const Duration(milliseconds: 700),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder: (child, animation) {
+        final slide = Tween<Offset>(
+          begin: const Offset(0, 0.08),
+          end: Offset.zero,
+        ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic));
+        return SlideTransition(
+          position: slide,
+          child: FadeTransition(opacity: animation, child: child),
+        );
+      },
       child: KeyedSubtree(
         key: const ValueKey('content'),
         child: Stack(
@@ -108,32 +116,26 @@ class _HomePageState extends State<HomePage> {
                       height: MediaQuery.of(context).padding.top + 8,
                     ),
                   ),
-                  const SliverToBoxAdapter(child: HomeHeader()),
+                  _staggeredSliver(0.00, const HomeHeader()),
                   if (heroMovies.isNotEmpty)
-                    SliverToBoxAdapter(
-                      child: HomeHeroSection(
-                        movies: heroMovies,
-                        onPageChanged: (index) {
-                          setState(() {
-                            _currentPage = index;
-                          });
-                        },
-                      ),
-                    ),
-                  const SliverToBoxAdapter(child: HomeCategoryList()),
-                  SliverToBoxAdapter(
-                    child: MovieHorizontalList(
-                      title: l10n.nowShowing,
-                      movies: nowShowing,
-                    ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: MovieHorizontalList(
-                      title: l10n.comingSoon,
-                      movies: comingSoon,
-                      showRating: false,
-                    ),
-                  ),
+                    _staggeredSliver(0.10, HomeHeroSection(
+                      movies: heroMovies,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentPage = index;
+                        });
+                      },
+                    )),
+                  _staggeredSliver(0.20, const HomeCategoryList()),
+                  _staggeredSliver(0.30, MovieHorizontalList(
+                    title: l10n.nowShowing,
+                    movies: nowShowing,
+                  )),
+                  _staggeredSliver(0.40, MovieHorizontalList(
+                    title: l10n.comingSoon,
+                    movies: comingSoon,
+                    showRating: false,
+                  )),
                   const SliverToBoxAdapter(
                     child: SizedBox(height: 120),
                   ),
@@ -146,6 +148,26 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _staggeredSliver(double delay, Widget child) {
+    return SliverToBoxAdapter(
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0, end: 1),
+        duration: const Duration(milliseconds: 600),
+        curve: Interval(delay, 1.0, curve: Curves.easeOutCubic),
+        builder: (context, value, child) {
+          return Opacity(
+            opacity: value,
+            child: Transform.translate(
+              offset: Offset(0, 16 * (1 - value)),
+              child: child,
+            ),
+          );
+        },
+        child: child,
+      ),
+    );
+  }
+
   Widget _buildBackground(ThemeData theme, List<Movie> heroMovies, int safePage, bool isDark) {
     if (heroMovies.isNotEmpty) {
       return AnimatedSwitcher(
@@ -154,7 +176,7 @@ class _HomePageState extends State<HomePage> {
           key: ValueKey<String>(heroMovies[safePage].posterUrl),
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: CachedNetworkImageProvider(heroMovies[safePage].posterUrl),
+              image: CachedNetworkImageProvider(heroMovies[safePage].posterUrl, maxWidth: 1080),
               fit: BoxFit.cover,
             ),
           ),

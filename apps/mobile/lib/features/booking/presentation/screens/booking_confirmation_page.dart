@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/l10n/app_localizations.dart';
 
 class BookingConfirmationPage extends StatelessWidget {
   final Map<String, dynamic> bookingData;
@@ -10,6 +11,7 @@ class BookingConfirmationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final movieTitle = bookingData['movie'] ?? 'Unknown Movie';
     final seats = (bookingData['seats'] as List<String>).join(', ');
     final total = bookingData['total'] ?? 0.0;
@@ -17,7 +19,7 @@ class BookingConfirmationPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text("Your Ticket", style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900)),
+        title: Text(l10n.yourTicket, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
@@ -30,7 +32,7 @@ class BookingConfirmationPage extends StatelessWidget {
                 color: Colors.green, size: 80),
             const SizedBox(height: 16),
             Text(
-              "Booking Confirmed!",
+              l10n.bookingConfirmed,
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.w900,
                 color: theme.colorScheme.onSurface,
@@ -38,12 +40,12 @@ class BookingConfirmationPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              "Enjoy your movie!",
-              style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.5), fontWeight: FontWeight.bold),
+              l10n.enjoyYourMovie,
+              style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 40),
             // Digital Ticket
-            _buildDigitalTicket(context, movieTitle, seats, total),
+            _buildDigitalTicket(context, l10n, movieTitle, seats, total),
             const SizedBox(height: 60),
             SizedBox(
               width: double.infinity,
@@ -55,7 +57,7 @@ class BookingConfirmationPage extends StatelessWidget {
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
-                child: const Text("Back to Home", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+                child: Text(l10n.backToHome, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
               ),
             ),
           ],
@@ -64,7 +66,7 @@ class BookingConfirmationPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDigitalTicket(BuildContext context, String movie, String seats, double total) {
+  Widget _buildDigitalTicket(BuildContext context, AppLocalizations l10n, String movie, String seats, double total) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     
@@ -74,7 +76,7 @@ class BookingConfirmationPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
             blurRadius: 30,
             offset: const Offset(0, 10),
           )
@@ -97,9 +99,9 @@ class BookingConfirmationPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "Movie",
-                        style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold),
+                      Text(
+                        l10n.movie,
+                        style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold),
                       ),
                       Text(
                         movie,
@@ -120,23 +122,23 @@ class BookingConfirmationPage extends StatelessWidget {
             padding: const EdgeInsets.all(32),
             child: Column(
               children: [
-                _buildTicketRow(theme, "Seats", seats),
+                _buildTicketRow(theme, l10n.seats, seats),
                 const SizedBox(height: 20),
-                _buildTicketRow(theme, "Date", "Oct 24, 2023"),
+                _buildTicketRow(theme, l10n.date, "Oct 24, 2023"),
                 const SizedBox(height: 20),
-                _buildTicketRow(theme, "Time", "08:30 PM"),
+                _buildTicketRow(theme, l10n.time, "08:30 PM"),
                 const SizedBox(height: 32),
-                Divider(color: theme.colorScheme.onSurface.withOpacity(0.1)),
+                Divider(color: theme.colorScheme.onSurface.withValues(alpha: 0.1)),
                 const SizedBox(height: 32),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Total Payment",
-                      style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.5), fontWeight: FontWeight.bold),
+                      l10n.totalPayment,
+                      style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      "EGP ${total.toStringAsFixed(2)}",
+                      "E£ ${total.toStringAsFixed(2)}",
                       style: theme.textTheme.titleLarge?.copyWith(
                         color: AppColors.warmOrange,
                         fontWeight: FontWeight.w900,
@@ -153,7 +155,7 @@ class BookingConfirmationPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       )
@@ -163,6 +165,8 @@ class BookingConfirmationPage extends StatelessWidget {
                     imageUrl: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TICKETA-$movie-$seats",
                     height: 150,
                     width: 150,
+                    memCacheWidth: 150,
+                    memCacheHeight: 150,
                     placeholder: (_, _) => Icon(Icons.qr_code, size: 80, color: Colors.grey),
                     errorWidget: (_, _, _) => Icon(Icons.qr_code, size: 80, color: Colors.grey),
                   ),
@@ -179,7 +183,7 @@ class BookingConfirmationPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.5), fontWeight: FontWeight.bold)),
+        Text(label, style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.bold)),
         Text(value, style: TextStyle(fontWeight: FontWeight.w900, color: theme.colorScheme.onSurface)),
       ],
     );

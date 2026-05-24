@@ -45,7 +45,7 @@ class _SmallMovieCardState extends State<SmallMovieCard> {
                     borderRadius: BorderRadius.circular(25),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+                        color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
                         blurRadius: 15,
                         offset: const Offset(0, 10),
                       )
@@ -60,6 +60,7 @@ class _SmallMovieCardState extends State<SmallMovieCard> {
                           fit: BoxFit.cover,
                           width: double.infinity,
                           height: double.infinity,
+                          memCacheWidth: 280,
                           placeholder: (_, _) => Container(color: Colors.grey[900]),
                           errorWidget: (_, _, _) => Container(color: Colors.grey[900]),
                         ),
@@ -74,9 +75,9 @@ class _SmallMovieCardState extends State<SmallMovieCard> {
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.5),
+                                    color: Colors.black.withValues(alpha: 0.5),
                                     borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                                    border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                                   ),
                                   child: Row(
                                     children: [
@@ -111,7 +112,7 @@ class _SmallMovieCardState extends State<SmallMovieCard> {
               Text(
                 widget.movie.firstGenre,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.5),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                   fontWeight: FontWeight.bold,
                 ),
               ),

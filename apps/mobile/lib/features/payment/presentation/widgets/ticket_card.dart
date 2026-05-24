@@ -59,7 +59,7 @@ class TicketCard extends StatelessWidget {
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 4),
                   height: 1,
-                  color: theme.colorScheme.onSurface.withOpacity(0.1),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
                 ),
               ),
             ),
@@ -79,7 +79,7 @@ class TicketCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       )
@@ -88,6 +88,8 @@ class TicketCard extends StatelessWidget {
                   child: CachedNetworkImage(
                     imageUrl: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TICKETA-${DateTime.now().millisecondsSinceEpoch}",
                     fit: BoxFit.contain,
+                    memCacheWidth: 150,
+                    memCacheHeight: 150,
                     placeholder: (_, _) => Icon(Icons.qr_code, size: 60, color: Colors.grey),
                     errorWidget: (_, _, _) => Icon(Icons.qr_code, size: 60, color: Colors.grey),
                   ),
@@ -96,7 +98,7 @@ class TicketCard extends StatelessWidget {
                 Text(
                   "TICKET ID: #${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}",
                   style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.2), 
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.2), 
                     letterSpacing: 2,
                     fontWeight: FontWeight.bold,
                   ),
@@ -113,7 +115,7 @@ class TicketCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.5), fontWeight: FontWeight.bold)),
+        Text(label, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
         Text(value, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w900, color: theme.colorScheme.onSurface)),
       ],

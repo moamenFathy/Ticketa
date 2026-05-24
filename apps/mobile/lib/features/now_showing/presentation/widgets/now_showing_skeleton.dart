@@ -16,7 +16,7 @@ class NowShowingSkeleton extends StatelessWidget {
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.05)),
+            border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.05)),
           ),
           child: Row(
             children: [

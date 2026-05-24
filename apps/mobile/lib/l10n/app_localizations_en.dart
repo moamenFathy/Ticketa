@@ -201,4 +201,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmExitNo => 'Cancel';
+
+  @override
+  String get yourTicket => 'Your Ticket';
+
+  @override
+  String get bookingConfirmed => 'Booking Confirmed!';
+
+  @override
+  String get enjoyYourMovie => 'Enjoy your movie!';
+
+  @override
+  String get time => 'Time';
+
+  @override
+  String get totalPayment => 'Total Payment';
+
+  @override
+  String get trailerNotAvailable => 'Trailer not available';
 }

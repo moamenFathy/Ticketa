@@ -24,9 +24,9 @@ class MovieDetailHeader extends StatelessWidget {
       leading: Container(
         margin: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: (isDark ? Colors.black : Colors.white).withOpacity(0.3),
+          color: (isDark ? Colors.black : Colors.white).withValues(alpha: 0.3),
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.white.withOpacity(0.1)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
         ),
         child: IconButton(
           icon: Icon(Icons.arrow_back_ios_new_rounded,
@@ -47,6 +47,7 @@ class MovieDetailHeader extends StatelessWidget {
               child: CachedNetworkImage(
                 imageUrl: movie.posterUrl,
                 fit: BoxFit.cover,
+                memCacheWidth: 1080,
                 placeholder: (_, _) => Container(color: Colors.grey[900]),
                 errorWidget: (_, _, _) => Container(color: Colors.grey[900]),
               ),

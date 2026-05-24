@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
-import '../widgets/offer_card.dart';
-import '../widgets/offer_skeleton.dart' as ticketa_offer_skeleton;
+import 'package:ticketa/features/offers/presentation/widgets/offer_card.dart';
+import 'package:ticketa/features/offers/presentation/widgets/offer_skeleton.dart' as ticketa_offer_skeleton;
 
 class OffersPage extends StatefulWidget {
   const OffersPage({super.key});
@@ -60,6 +60,7 @@ class _OffersPageState extends State<OffersPage> {
                   CachedNetworkImage(
                     imageUrl: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2625&auto=format&fit=crop",
                     fit: BoxFit.cover,
+                    memCacheWidth: 400,
                     placeholder: (_, _) => Container(color: Colors.grey[900]),
                     errorWidget: (_, _, _) => Container(color: Colors.grey[900]),
                   ),
@@ -69,7 +70,7 @@ class _OffersPageState extends State<OffersPage> {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          (isDark ? Colors.black : Colors.white).withOpacity(0.2),
+                          (isDark ? Colors.black : Colors.white).withValues(alpha: 0.2),
                           theme.scaffoldBackgroundColor,
                         ],
                       ),

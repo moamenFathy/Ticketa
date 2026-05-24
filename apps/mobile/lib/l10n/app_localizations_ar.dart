@@ -201,4 +201,22 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get confirmExitNo => 'إلغاء';
+
+  @override
+  String get yourTicket => 'تذكرتك';
+
+  @override
+  String get bookingConfirmed => 'تم الحجز!';
+
+  @override
+  String get enjoyYourMovie => 'استمتع بمشاهدة الفيلم!';
+
+  @override
+  String get time => 'الوقت';
+
+  @override
+  String get totalPayment => 'إجمالي الدفع';
+
+  @override
+  String get trailerNotAvailable => 'التريلر مش متاح';
 }
