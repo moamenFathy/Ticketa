@@ -1,7 +1,7 @@
 import { authApi } from "@/api/auth.api";
 import { setClientToken } from "@/api/client";
 import type { AuthUserDto } from "@/types/auth";
-import { createContext, useCallback, useEffect, useState } from "react";
+import { createContext, useCallback, useEffect, useRef, useState } from "react";
 
 interface AuthProviderProps {
   user: AuthUserDto | null;
@@ -18,8 +18,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<AuthUserDto | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
+  const refreshed = useRef(false);
 
   useEffect(() => {
+    if (refreshed.current) return;
+    refreshed.current = true;
+
     authApi
       .refresh()
       .then((data) => {
