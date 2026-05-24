@@ -9,27 +9,31 @@ class LanguageSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final currentLocale = Localizations.localeOf(context);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
       decoration: BoxDecoration(
-        color: AppColors.warmOrange.withValues(alpha: 0.1),
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: currentLocale.languageCode,
-          dropdownColor: theme.scaffoldBackgroundColor,
-          icon: const Icon(
+          dropdownColor: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(16),
+          elevation: 4,
+          icon: Icon(
             Icons.keyboard_arrow_down_rounded,
             size: 18,
-            color: AppColors.warmOrange,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
           ),
-          style: const TextStyle(
-            color: AppColors.warmOrange,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
+          style: TextStyle(
+            color: theme.colorScheme.onSurface,
+            fontWeight: FontWeight.w800,
+            fontSize: 13,
+            letterSpacing: 0,
           ),
           onChanged: (String? newValue) {
             if (newValue != null) {
@@ -41,7 +45,17 @@ class LanguageSelector extends StatelessWidget {
           ) {
             return DropdownMenuItem<String>(
               value: value,
-              child: Text(value.toUpperCase()),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  value == 'en' ? 'English' : 'العربية',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: theme.colorScheme.onSurface,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
             );
           }).toList(),
         ),

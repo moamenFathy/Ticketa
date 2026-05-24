@@ -48,7 +48,7 @@
   "imax": "IMAX",
   "price": "Price",
   "bookTickets": "Book Tickets",
-  "buyFor": "Buy For {price}",
+  "buyFor": "Buy For E£{price}",
   "cast": "Cast",
   "reviews": "Reviews",
   "editProfile": "Edit Profile",
@@ -62,5 +62,9 @@
   "creditCard": "Credit Card",
   "eWallet": "E-Wallet",
   "ticketId": "Ticket ID",
-  "downloadTicket": "Download Ticket"
+  "downloadTicket": "Download Ticket",
+  "confirmExitTitle": "Confirm",
+  "confirmExitMessage": "Are you sure? All selected seats will be cleared.",
+  "confirmExitYes": "Yes",
+  "confirmExitNo": "Cancel"
 }

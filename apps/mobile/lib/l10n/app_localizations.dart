@@ -365,7 +365,7 @@ abstract class AppLocalizations {
   /// No description provided for @buyFor.
   ///
   /// In en, this message translates to:
-  /// **'Buy For {price}'**
+  /// **'Buy For E£{price}'**
   String buyFor(Object price);
 
   /// No description provided for @cast.
@@ -451,6 +451,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Download Ticket'**
   String get downloadTicket;
+
+  /// No description provided for @confirmExitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirmExitTitle;
+
+  /// No description provided for @confirmExitMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure? All selected seats will be cleared.'**
+  String get confirmExitMessage;
+
+  /// No description provided for @confirmExitYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get confirmExitYes;
+
+  /// No description provided for @confirmExitNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get confirmExitNo;
 }
 
 class _AppLocalizationsDelegate

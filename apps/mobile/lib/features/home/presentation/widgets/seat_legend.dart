@@ -10,13 +10,14 @@ class SeatLegend extends StatelessWidget {
     final theme = Theme.of(context);
     
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _legendItem(l10n.available, theme.colorScheme.onSurface.withOpacity(0.1), theme),
+          _legendItem(l10n.available, theme.colorScheme.onSurface.withValues(alpha: 0.12), theme),
           _legendItem(l10n.selected, const Color(0xFF4CAF50), theme),
-          _legendItem(l10n.occupied, Colors.amber, theme),
+          _legendItem(l10n.occupied, Colors.yellow, theme),
+          _legendItem("VIP", const Color(0xFFE67E22), theme),
         ],
       ),
     );
@@ -24,12 +25,19 @@ class SeatLegend extends StatelessWidget {
 
   Widget _legendItem(String label, Color color, ThemeData theme) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Row(
         children: [
-          CircleAvatar(radius: 5, backgroundColor: color),
-          const SizedBox(width: 5),
-          Text(label, style: theme.textTheme.bodySmall),
+          Container(
+            width: 12,
+            height: 10,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(width: 4),
+          Text(label, style: theme.textTheme.bodySmall?.copyWith(fontSize: 10)),
         ],
       ),
     );

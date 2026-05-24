@@ -144,7 +144,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String buyFor(Object price) {
-    return 'اشتري بـ $price';
+    return 'اشتري بـ E£$price';
   }
 
   @override
@@ -188,4 +188,17 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get downloadTicket => 'تحميل التذكرة';
+
+  @override
+  String get confirmExitTitle => 'تأكيد';
+
+  @override
+  String get confirmExitMessage =>
+      'هل أنت متأكد؟ سيتم إزالة جميع المقاعد المحددة.';
+
+  @override
+  String get confirmExitYes => 'تأكيد';
+
+  @override
+  String get confirmExitNo => 'إلغاء';
 }

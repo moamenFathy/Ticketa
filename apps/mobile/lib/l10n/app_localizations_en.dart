@@ -144,7 +144,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String buyFor(Object price) {
-    return 'Buy For $price';
+    return 'Buy For E£$price';
   }
 
   @override
@@ -188,4 +188,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get downloadTicket => 'Download Ticket';
+
+  @override
+  String get confirmExitTitle => 'Confirm';
+
+  @override
+  String get confirmExitMessage =>
+      'Are you sure? All selected seats will be cleared.';
+
+  @override
+  String get confirmExitYes => 'Yes';
+
+  @override
+  String get confirmExitNo => 'Cancel';
 }

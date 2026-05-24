@@ -11,88 +11,81 @@ class HomeHeader extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
-      child: Column(
+      padding: const EdgeInsets.fromLTRB(20, 2, 20, 18),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Text(
+                l10n.appName,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.warmOrange,
+                  letterSpacing: 0,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Row(
                 children: [
-                  Text(
-                    "TICKETA",
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w900,
-                      color: AppColors.warmOrange,
-                      letterSpacing: 2,
-                    ),
+                  Icon(
+                    Icons.location_on_rounded,
+                    size: 14,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.52),
                   ),
-                  Row(
-                    children: [
-                      Icon(Icons.location_on, size: 14, color: theme.colorScheme.onSurface.withOpacity(0.6)),
-                      const SizedBox(width: 4),
-                      Text(
-                        "Cairo, Egypt",
-                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                  const SizedBox(width: 4),
+                  Text(
+                    "Cairo, Egypt",
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurface.withValues(
+                        alpha: 0.52,
                       ),
-                    ],
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ],
               ),
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.2)),
-                ),
-                child: const CircleAvatar(
-                  radius: 22,
-                  backgroundImage: NetworkImage("https://i.pravatar.cc/150?u=a042581f4e29026704d"),
-                ),
-              ),
             ],
           ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
+          Tooltip(
+            message: l10n.editProfile,
+            child: Material(
+              color: theme.colorScheme.surface.withValues(alpha: 0.72),
+              shape: const CircleBorder(),
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: () => Navigator.of(context).pushNamed('/edit-profile'),
                 child: Container(
-                  height: 50,
+                  width: 48,
+                  height: 48,
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.onSurface.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.1)),
-                  ),
-                  child: TextField(
-                    style: TextStyle(color: theme.colorScheme.onSurface),
-                    decoration: InputDecoration(
-                      hintText: l10n.searchMovies,
-                      hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.4)),
-                      prefixIcon: Icon(Icons.search_rounded, color: theme.colorScheme.onSurface.withOpacity(0.4)),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: theme.colorScheme.onSurface.withValues(
+                        alpha: 0.08,
+                      ),
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(
+                          alpha: theme.brightness == Brightness.dark
+                              ? 0.22
+                              : 0.06,
+                        ),
+                        blurRadius: 16,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.person_rounded,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.76),
+                    size: 24,
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
-              Container(
-                height: 50,
-                width: 50,
-                decoration: BoxDecoration(
-                  color: AppColors.warmOrange,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.warmOrange.withOpacity(0.3),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: const Icon(Icons.tune_rounded, color: Colors.white),
-              ),
-            ],
+            ),
           ),
         ],
       ),

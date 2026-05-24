@@ -43,7 +43,7 @@
   "imax": "ايماكس",
   "price": "السعر",
   "bookTickets": "حجز التذاكر",
-  "buyFor": "اشتري بـ {price}",
+  "buyFor": "اشتري بـ E£{price}",
   "cast": "طاقم العمل",
   "reviews": "المراجعات",
   "editProfile": "تعديل الملف الشخصي",
@@ -57,5 +57,9 @@
   "creditCard": "بطاقة ائتمان",
   "eWallet": "محفظة إلكترونية",
   "ticketId": "رقم التذكرة",
-  "downloadTicket": "تحميل التذكرة"
+  "downloadTicket": "تحميل التذكرة",
+  "confirmExitTitle": "تأكيد",
+  "confirmExitMessage": "هل أنت متأكد؟ سيتم إزالة جميع المقاعد المحددة.",
+  "confirmExitYes": "تأكيد",
+  "confirmExitNo": "إلغاء"
 }

@@ -2,31 +2,37 @@ import 'package:flutter/material.dart';
 
 class CinemaScreenPainter extends CustomPainter {
   final Color color;
-  CinemaScreenPainter({required this.color});
+  final bool isDark;
+
+  CinemaScreenPainter({required this.color, this.isDark = true});
 
   @override
   void paint(Canvas canvas, Size size) {
+    final strokeColor = isDark ? color : color.withValues(alpha: 0.7);
+    final glowOpacity = isDark ? 0.25 : 0.12;
+    final arcHeight = size.height * 0.4;
+
     var paint = Paint()
-      ..color = color
+      ..color = strokeColor
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 5
+      ..strokeWidth = 4
       ..strokeCap = StrokeCap.round;
 
     var path = Path();
-    path.moveTo(size.width * 0.05, 35);
-    path.quadraticBezierTo(size.width * 0.5, -15, size.width * 0.95, 35);
+    path.moveTo(size.width * 0.05, arcHeight);
+    path.quadraticBezierTo(size.width * 0.5, -15, size.width * 0.95, arcHeight);
     canvas.drawPath(path, paint);
 
     var shadowPaint = Paint()
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [color.withOpacity(0.3), Colors.transparent],
-      ).createShader(Rect.fromLTWH(0, 35, size.width, size.height));
+        colors: [color.withValues(alpha: glowOpacity), Colors.transparent],
+      ).createShader(Rect.fromLTWH(0, arcHeight - 5, size.width, size.height - arcHeight + 5));
 
     var shadowPath = Path();
-    shadowPath.moveTo(size.width * 0.05, 35);
-    shadowPath.quadraticBezierTo(size.width * 0.5, -15, size.width * 0.95, 35);
+    shadowPath.moveTo(size.width * 0.05, arcHeight);
+    shadowPath.quadraticBezierTo(size.width * 0.5, -15, size.width * 0.95, arcHeight);
     shadowPath.lineTo(size.width * 1.1, size.height);
     shadowPath.lineTo(size.width * -0.1, size.height);
     shadowPath.close();
@@ -34,5 +40,6 @@ class CinemaScreenPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
+  bool shouldRepaint(CinemaScreenPainter oldDelegate) =>
+      oldDelegate.isDark != isDark || oldDelegate.color != color;
 }
