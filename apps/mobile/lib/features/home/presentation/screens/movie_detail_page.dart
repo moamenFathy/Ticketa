@@ -1,8 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:ticketa/features/home/models/movie.dart';
+import 'package:ticketa/features/home/data/models/movie.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
-import 'package:ticketa/features/home/presentation/screens/seat_selection_page.dart';
+import 'package:ticketa/features/booking/presentation/screens/seat_selection_page.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:ticketa/core/utils/youtube_utils.dart';
 import 'package:ticketa/features/home/presentation/widgets/movie_date_selector.dart';

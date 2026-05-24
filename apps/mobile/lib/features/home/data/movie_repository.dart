@@ -1,6 +1,6 @@
 import 'package:ticketa/core/network/api_service.dart';
 import 'package:ticketa/core/constants/api_constants.dart';
-import 'package:ticketa/features/home/models/movie.dart';
+import 'package:ticketa/features/home/data/models/movie.dart';
 
 class MovieRepository {
   final ApiService _apiService;

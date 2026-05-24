@@ -9,7 +9,7 @@ import 'package:ticketa/features/home/presentation/widgets/home_skeleton.dart'
     as ticketa_home_skeleton;
 import 'package:ticketa/l10n/app_localizations.dart';
 import 'package:ticketa/core/di/injection.dart';
-import 'package:ticketa/features/home/models/movie.dart';
+import 'package:ticketa/features/home/data/models/movie.dart';
 import 'package:ticketa/features/home/presentation/cubit/home_cubit.dart';
 import 'package:ticketa/features/home/presentation/cubit/home_state.dart';
 

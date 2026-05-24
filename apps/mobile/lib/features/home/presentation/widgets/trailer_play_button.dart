@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:ticketa/features/home/models/movie.dart';
+import 'package:ticketa/features/home/data/models/movie.dart';
 import 'package:ticketa/features/home/presentation/widgets/trailer_video_modal.dart';
 
 class TrailerPlayButton extends StatelessWidget {

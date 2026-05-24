@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ticketa/features/home/models/movie.dart';
+import 'package:ticketa/features/home/data/models/movie.dart';
 import 'package:ticketa/features/home/presentation/widgets/trailer_play_button.dart';
 
 class MovieDetailHeader extends StatelessWidget {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ticketa/features/home/models/movie.dart';
+import 'package:ticketa/features/home/data/models/movie.dart';
 
 class MovieCastList extends StatelessWidget {
   final List<CastMember> cast;

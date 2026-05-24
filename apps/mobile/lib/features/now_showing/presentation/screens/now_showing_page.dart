@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ticketa/core/di/injection.dart';
-import 'package:ticketa/features/home/models/movie.dart';
+import 'package:ticketa/features/home/data/models/movie.dart';
 import 'package:ticketa/features/now_showing/presentation/cubit/now_showing_cubit.dart';
 import 'package:ticketa/features/now_showing/presentation/cubit/now_showing_state.dart';
 import 'package:ticketa/l10n/app_localizations.dart';

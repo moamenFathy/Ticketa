@@ -1,4 +1,4 @@
-import 'package:ticketa/features/home/models/movie.dart';
+import 'package:ticketa/features/home/data/models/movie.dart';
 
 abstract class HomeState {}
 

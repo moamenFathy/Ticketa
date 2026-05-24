@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ticketa/features/home/models/movie.dart';
+import 'package:ticketa/features/home/data/models/movie.dart';
 import 'package:ticketa/features/home/presentation/screens/movie_detail_page.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 
