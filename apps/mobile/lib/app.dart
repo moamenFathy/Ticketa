@@ -13,6 +13,7 @@ import 'package:ticketa/features/settings/presentation/screens/privacy_page.dart
 import 'package:ticketa/features/settings/presentation/screens/security_page.dart';
 import 'package:ticketa/features/settings/presentation/screens/settings_page.dart';
 import 'package:ticketa/features/splash/presentation/screens/splash_screen.dart';
+import 'package:ticketa/features/now_showing/presentation/screens/now_showing_page.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 
 class MyApp extends StatelessWidget {
@@ -51,6 +52,7 @@ class MyApp extends StatelessWidget {
               '/security': (context) => const SecurityPage(),
               '/change-password': (context) => const ChangePasswordPage(),
               '/edit-profile': (context) => const EditProfilePage(),
+              '/now-showing': (context) => const NowShowingPage(),
             },
           );
         },

@@ -37,7 +37,7 @@ class MovieHorizontalList extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () => Navigator.of(context).pushNamed('/now-showing'),
                 child: Text(
                   l10n.seeAll,
                   style: theme.textTheme.bodySmall?.copyWith(

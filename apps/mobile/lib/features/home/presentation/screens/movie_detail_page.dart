@@ -324,6 +324,7 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -332,9 +333,9 @@ class _SectionHeader extends StatelessWidget {
           style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
         ),
         TextButton(
-          onPressed: () {},
+          onPressed: () => Navigator.of(context).pushNamed('/now-showing'),
           child: Text(
-            "See All",
+            l10n.seeAll,
             style: theme.textTheme.labelLarge?.copyWith(
               color: AppColors.warmOrange,
               fontWeight: FontWeight.w900,
