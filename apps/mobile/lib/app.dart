@@ -13,6 +13,10 @@ import 'package:ticketa/features/settings/presentation/screens/privacy_page.dart
 import 'package:ticketa/features/settings/presentation/screens/security_page.dart';
 import 'package:ticketa/features/settings/presentation/screens/settings_page.dart';
 import 'package:ticketa/features/splash/presentation/screens/splash_screen.dart';
+import 'package:ticketa/features/auth/presentation/screens/login_page.dart';
+import 'package:ticketa/features/auth/presentation/screens/register_page.dart';
+import 'package:ticketa/features/auth/presentation/screens/confirm_email_page.dart';
+import 'package:ticketa/features/auth/presentation/screens/forgot_password_page.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 
 class MyApp extends StatelessWidget {
@@ -43,6 +47,10 @@ class MyApp extends StatelessWidget {
             supportedLocales: const [Locale('en'), Locale('ar')],
             home: const SplashScreen(),
             routes: {
+              '/login': (context) => const LoginPage(),
+              '/register': (context) => const RegisterPage(),
+              '/confirm-email': (context) => const ConfirmEmailPage(),
+              '/forgot-password': (context) => const ForgotPasswordPage(),
               '/main': (context) => const MainPage(),
               '/settings': (context) => const SettingsPage(),
               '/my-tickets': (context) => const MyTicketsPage(),

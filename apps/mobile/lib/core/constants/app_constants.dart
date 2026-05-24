@@ -6,6 +6,9 @@ class AppConstants {
   static const String languageKey = "language_code";
   static const String themeKey = "theme_mode";
   static const String tokenKey = "auth_token";
+  static const String isGuestKey = "is_guest";
+  static const String isLoggedInKey = "is_logged_in";
+  static const String userEmailKey = "user_email";
   
   // Design Constants
   static const double defaultPadding = 16.0;

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/core/constants/app_constants.dart';
 import 'package:ticketa/features/main/presentation/screens/main_page.dart';
+import 'package:ticketa/features/auth/presentation/screens/login_page.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -41,19 +44,35 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     _controller.forward();
 
     Timer(const Duration(milliseconds: 3000), () {
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => const MainPage(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-            transitionDuration: const Duration(milliseconds: 1000),
-          ),
-        );
-      }
+      if (!mounted) return;
+      _navigate();
     });
+  }
+
+  Future<void> _navigate() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isGuest = prefs.getBool(AppConstants.isGuestKey) ?? false;
+    final isLoggedIn = prefs.getBool(AppConstants.isLoggedInKey) ?? false;
+
+    if (!mounted) return;
+
+    Widget destination;
+    if (isGuest || isLoggedIn) {
+      destination = const MainPage();
+    } else {
+      destination = const LoginPage();
+    }
+
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => destination,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: const Duration(milliseconds: 1000),
+      ),
+    );
   }
 
   @override

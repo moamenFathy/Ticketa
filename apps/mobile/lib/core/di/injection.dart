@@ -7,6 +7,8 @@ import 'package:ticketa/features/home/data/movie_repository.dart';
 import 'package:ticketa/features/home/presentation/cubit/home_cubit.dart';
 import 'package:ticketa/features/home/presentation/cubit/movie_detail_cubit.dart';
 import 'package:ticketa/features/now_showing/presentation/cubit/now_showing_cubit.dart';
+import 'package:ticketa/features/auth/data/auth_repository.dart';
+import 'package:ticketa/features/auth/presentation/cubit/auth_cubit.dart';
 final getIt = GetIt.instance;
 
 Future<void> initInjection() async {
@@ -33,9 +35,11 @@ Future<void> initInjection() async {
 
   // Repositories
   getIt.registerLazySingleton(() => MovieRepository(getIt<ApiService>()));
+  getIt.registerLazySingleton(() => AuthRepository(getIt<ApiService>()));
 
   // Cubits
   getIt.registerFactory(() => HomeCubit(getIt<MovieRepository>()));
   getIt.registerFactory(() => MovieDetailCubit(getIt<MovieRepository>()));
   getIt.registerFactory(() => NowShowingCubit(getIt<MovieRepository>()));
+  getIt.registerFactory(() => AuthCubit(getIt<AuthRepository>()));
 }

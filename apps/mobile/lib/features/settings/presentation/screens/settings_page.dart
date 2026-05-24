@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/core/constants/app_constants.dart';
 import 'package:ticketa/core/services/theme_service.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 import '../widgets/profile_header.dart';
@@ -8,13 +10,141 @@ import '../widgets/premium_stats.dart';
 import '../widgets/settings_tile.dart';
 import '../widgets/language_selector.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  bool _isLoading = true;
+  bool _isGuest = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAuth();
+  }
+
+  Future<void> _loadAuth() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      _isGuest = prefs.getBool(AppConstants.isGuestKey) ?? true;
+      _isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+
+    if (_isLoading) return const SizedBox.shrink();
+
+    if (_isGuest) {
+      return _buildGuestView(theme, isDark);
+    }
+
+    return _buildSettingsView(theme, isDark);
+  }
+
+  Widget _buildGuestView(ThemeData theme, bool isDark) {
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 28),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: AppColors.warmOrange.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.person_outline_rounded,
+                    color: AppColors.warmOrange,
+                    size: 64,
+                  ),
+                ),
+                const SizedBox(height: 28),
+                Text(
+                  'Welcome to Ticketa',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w900,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Sign in to access your tickets,\nbookings and preferences',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 40),
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.warmOrange,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Sign In',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 16,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pushReplacementNamed(context, '/register'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.warmOrange,
+                      side: BorderSide(color: AppColors.warmOrange.withValues(alpha: 0.3)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: const Text(
+                      'Create Account',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 16,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsView(ThemeData theme, bool isDark) {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
@@ -42,13 +172,11 @@ class SettingsPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Profile Header & Premium Stats Section
                   const ProfileHeader(),
                   const SizedBox(height: 16),
                   const PremiumStats(),
                   const SizedBox(height: 32),
 
-                  // App Settings Section
                   SettingsSection(
                     title: l10n.appSettings,
                     icon: Icons.tune_rounded,
@@ -83,7 +211,6 @@ class SettingsPage extends StatelessWidget {
 
                   const SizedBox(height: 24),
 
-                  // Account Section
                   SettingsSection(
                     title: l10n.account,
                     icon: Icons.person_outline_rounded,
@@ -111,7 +238,6 @@ class SettingsPage extends StatelessWidget {
 
                   const SizedBox(height: 24),
 
-                  // Privacy & Security Section
                   SettingsSection(
                     title: l10n.privacySecurity,
                     icon: Icons.security_rounded,
@@ -133,7 +259,6 @@ class SettingsPage extends StatelessWidget {
 
                   const SizedBox(height: 36),
 
-                  // Premium Sleek Logout Card
                   _buildElegantLogout(theme, l10n, isDark),
                 ],
               ),
@@ -178,7 +303,7 @@ class SettingsPage extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {},
+          onTap: _handleLogout,
           splashColor: Colors.redAccent.withValues(alpha: 0.1),
           highlightColor: Colors.redAccent.withValues(alpha: 0.05),
           child: Padding(
@@ -207,5 +332,15 @@ class SettingsPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _handleLogout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(AppConstants.isGuestKey);
+    await prefs.remove(AppConstants.isLoggedInKey);
+    await prefs.remove(AppConstants.userEmailKey);
+    await prefs.remove(AppConstants.tokenKey);
+    if (!mounted) return;
+    Navigator.pushReplacementNamed(context, '/login');
   }
 }
