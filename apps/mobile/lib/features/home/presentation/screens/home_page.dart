@@ -13,6 +13,7 @@ import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/features/home/data/models/movie.dart';
 import 'package:ticketa/features/home/presentation/cubit/home_cubit.dart';
 import 'package:ticketa/features/home/presentation/cubit/home_state.dart';
+import 'package:ticketa/features/home/presentation/screens/see_all_movies_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -130,11 +131,23 @@ class _HomePageState extends State<HomePage> {
                   _staggeredSliver(0.30, MovieHorizontalList(
                     title: l10n.nowShowing,
                     movies: nowShowing,
+                    onSeeAll: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SeeAllMoviesPage(title: l10n.nowShowing, movies: nowShowing),
+                      ),
+                    ),
                   )),
                   _staggeredSliver(0.40, MovieHorizontalList(
                     title: l10n.comingSoon,
                     movies: comingSoon,
                     showRating: false,
+                    onSeeAll: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SeeAllMoviesPage(title: l10n.comingSoon, movies: comingSoon),
+                      ),
+                    ),
                   )),
                   const SliverToBoxAdapter(
                     child: SizedBox(height: 120),

@@ -219,4 +219,32 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get trailerNotAvailable => 'التريلر مش متاح';
+
+  @override
+  String get offerBadge1 => 'خصم 30%';
+
+  @override
+  String get offerTitle1 => 'ليلة سينما نهاية الأسبوع';
+
+  @override
+  String get offerDesc1 =>
+      'اشتري تذكرتين واحصل على خصم 30% على الوجبات الخفيفة';
+
+  @override
+  String get offerBadge2 => 'مجاني';
+
+  @override
+  String get offerTitle2 => 'تذكرة مجانية لعيد الميلاد';
+
+  @override
+  String get offerDesc2 => 'احتفل بعيد ميلادك بتذكرة سينما مجانية';
+
+  @override
+  String get offerBadge3 => 'خصم 20%';
+
+  @override
+  String get offerTitle3 => 'خصم الطلاب';
+
+  @override
+  String get offerDesc3 => 'أظهر بطاقة الطالب واحصل على خصم 20% على أي تذكرة';
 }

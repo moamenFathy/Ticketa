@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 
 class OfferCard extends StatelessWidget {
-  final int index;
+  final String badge;
+  final String title;
+  final String description;
   
   const OfferCard({
     super.key,
-    required this.index,
+    required this.badge,
+    required this.title,
+    required this.description,
   });
 
   @override
@@ -49,14 +53,14 @@ class OfferCard extends StatelessWidget {
                     color: AppColors.warmOrange,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Text(
-                    "30% OFF",
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                  child: Text(
+                    badge,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
                   ),
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  "Weekend Movie Night",
+                  title,
                   style: TextStyle(
                     color: theme.colorScheme.onSurface,
                     fontSize: 18,
@@ -65,7 +69,7 @@ class OfferCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  "Buy 2 tickets and get 30% discount on snacks",
+                  description,
                   style: TextStyle(
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     fontSize: 12,

@@ -72,5 +72,14 @@
   "enjoyYourMovie": "Enjoy your movie!",
   "time": "Time",
   "totalPayment": "Total Payment",
-  "trailerNotAvailable": "Trailer not available"
+  "trailerNotAvailable": "Trailer not available",
+  "offerBadge1": "30% OFF",
+  "offerTitle1": "Weekend Movie Night",
+  "offerDesc1": "Buy 2 tickets and get 30% discount on snacks",
+  "offerBadge2": "FREE",
+  "offerTitle2": "Birthday Free Ticket",
+  "offerDesc2": "Celebrate your birthday with a free movie ticket",
+  "offerBadge3": "20% OFF",
+  "offerTitle3": "Student Discount",
+  "offerDesc3": "Show your student ID and get 20% off any ticket"
 }

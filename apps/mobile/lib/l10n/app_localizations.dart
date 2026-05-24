@@ -511,6 +511,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Trailer not available'**
   String get trailerNotAvailable;
+
+  /// No description provided for @offerBadge1.
+  ///
+  /// In en, this message translates to:
+  /// **'30% OFF'**
+  String get offerBadge1;
+
+  /// No description provided for @offerTitle1.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekend Movie Night'**
+  String get offerTitle1;
+
+  /// No description provided for @offerDesc1.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy 2 tickets and get 30% discount on snacks'**
+  String get offerDesc1;
+
+  /// No description provided for @offerBadge2.
+  ///
+  /// In en, this message translates to:
+  /// **'FREE'**
+  String get offerBadge2;
+
+  /// No description provided for @offerTitle2.
+  ///
+  /// In en, this message translates to:
+  /// **'Birthday Free Ticket'**
+  String get offerTitle2;
+
+  /// No description provided for @offerDesc2.
+  ///
+  /// In en, this message translates to:
+  /// **'Celebrate your birthday with a free movie ticket'**
+  String get offerDesc2;
+
+  /// No description provided for @offerBadge3.
+  ///
+  /// In en, this message translates to:
+  /// **'20% OFF'**
+  String get offerBadge3;
+
+  /// No description provided for @offerTitle3.
+  ///
+  /// In en, this message translates to:
+  /// **'Student Discount'**
+  String get offerTitle3;
+
+  /// No description provided for @offerDesc3.
+  ///
+  /// In en, this message translates to:
+  /// **'Show your student ID and get 20% off any ticket'**
+  String get offerDesc3;
 }
 
 class _AppLocalizationsDelegate

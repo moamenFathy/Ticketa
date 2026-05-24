@@ -8,12 +8,14 @@ class MovieHorizontalList extends StatelessWidget {
   final String title;
   final List<Movie> movies;
   final bool showRating;
+  final VoidCallback? onSeeAll;
 
   const MovieHorizontalList({
     super.key,
     required this.title,
     required this.movies,
     this.showRating = true,
+    this.onSeeAll,
   });
 
   @override
@@ -36,16 +38,17 @@ class MovieHorizontalList extends StatelessWidget {
                   color: theme.colorScheme.onSurface,
                 ),
               ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pushNamed('/now-showing'),
-                child: Text(
-                  l10n.seeAll,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: AppColors.warmOrange,
-                    fontWeight: FontWeight.bold,
+              if (movies.length >= 3)
+                TextButton(
+                  onPressed: onSeeAll,
+                  child: Text(
+                    l10n.seeAll,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: AppColors.warmOrange,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),

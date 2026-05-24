@@ -219,4 +219,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trailerNotAvailable => 'Trailer not available';
+
+  @override
+  String get offerBadge1 => '30% OFF';
+
+  @override
+  String get offerTitle1 => 'Weekend Movie Night';
+
+  @override
+  String get offerDesc1 => 'Buy 2 tickets and get 30% discount on snacks';
+
+  @override
+  String get offerBadge2 => 'FREE';
+
+  @override
+  String get offerTitle2 => 'Birthday Free Ticket';
+
+  @override
+  String get offerDesc2 => 'Celebrate your birthday with a free movie ticket';
+
+  @override
+  String get offerBadge3 => '20% OFF';
+
+  @override
+  String get offerTitle3 => 'Student Discount';
+
+  @override
+  String get offerDesc3 => 'Show your student ID and get 20% off any ticket';
 }

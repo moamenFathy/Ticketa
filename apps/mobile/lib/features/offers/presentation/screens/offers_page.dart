@@ -95,9 +95,15 @@ class _OffersPageState extends State<OffersPage> {
                         key: ValueKey('skeleton'))
                     : ListView.builder(
                         key: const ValueKey('content'),
-                        itemCount: 5,
-                        itemBuilder: (context, index) =>
-                            OfferCard(index: index),
+                        itemCount: 3,
+                        itemBuilder: (context, index) {
+                          final (badge, title, desc) = switch (index) {
+                            0 => (l10n.offerBadge1, l10n.offerTitle1, l10n.offerDesc1),
+                            1 => (l10n.offerBadge2, l10n.offerTitle2, l10n.offerDesc2),
+                            _ => (l10n.offerBadge3, l10n.offerTitle3, l10n.offerDesc3),
+                          };
+                          return OfferCard(badge: badge, title: title, description: desc);
+                        },
                       ),
               ),
             ),

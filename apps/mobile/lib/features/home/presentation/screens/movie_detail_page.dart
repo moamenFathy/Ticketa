@@ -11,6 +11,7 @@ import 'package:ticketa/features/booking/presentation/screens/seat_selection_pag
 import 'package:ticketa/features/home/data/models/movie.dart';
 import 'package:ticketa/features/home/presentation/cubit/movie_detail_cubit.dart';
 import 'package:ticketa/features/home/presentation/cubit/movie_detail_state.dart';
+import 'package:ticketa/features/home/presentation/screens/see_all_cast_page.dart';
 import 'package:ticketa/features/home/presentation/widgets/movie_cast_list.dart';
 import 'package:ticketa/features/home/presentation/widgets/movie_date_selector.dart';
 import 'package:ticketa/features/home/presentation/widgets/movie_detail_header.dart';
@@ -138,7 +139,14 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
               ),
             )),
             const SizedBox(height: 32),
-            _staggeredSection(0.24, _SectionHeader(title: l10n.cast)),
+            _staggeredSection(0.24, _SectionHeader(title: l10n.cast, onSeeAll: displayMovie.cast.length >= 3
+                ? () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SeeAllCastPage(cast: displayMovie.cast),
+                      ),
+                    )
+                : null)),
             const SizedBox(height: 16),
             _staggeredSection(0.24, MovieCastList(cast: displayMovie.cast)),
             const SizedBox(height: 32),
@@ -319,12 +327,13 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
 
 class _SectionHeader extends StatelessWidget {
   final String title;
-  const _SectionHeader({required this.title});
+  final VoidCallback? onSeeAll;
+
+  const _SectionHeader({required this.title, this.onSeeAll});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -332,16 +341,17 @@ class _SectionHeader extends StatelessWidget {
           title,
           style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
         ),
-        TextButton(
-          onPressed: () => Navigator.of(context).pushNamed('/now-showing'),
-          child: Text(
-            l10n.seeAll,
-            style: theme.textTheme.labelLarge?.copyWith(
-              color: AppColors.warmOrange,
-              fontWeight: FontWeight.w900,
+        if (onSeeAll != null)
+          TextButton(
+            onPressed: onSeeAll,
+            child: Text(
+              "See All",
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: AppColors.warmOrange,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
-        ),
       ],
     );
   }
