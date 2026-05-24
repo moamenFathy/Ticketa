@@ -109,7 +109,7 @@ const ShowtimeSeats = () => {
         >
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group"
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             <span className="text-sm font-medium">Back</span>
@@ -118,6 +118,7 @@ const ShowtimeSeats = () => {
 
         {/* ── Hero card ── */}
         <HeroSeat
+          movieId={seatsData.movieId}
           posterUrl={posterUrl}
           movieTitle={seatsData.movieTitle}
           hallName={seatsData.hallName}

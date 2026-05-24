@@ -9,8 +9,10 @@ import {
 } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { format, parseISO } from "date-fns";
+import { Link } from "react-router-dom";
 
 interface Props {
+  movieId: number;
   posterUrl: string;
   movieTitle: string;
   hallName: string;
@@ -20,6 +22,7 @@ interface Props {
 }
 
 const HeroSeat = ({
+  movieId,
   posterUrl,
   movieTitle,
   hallName,
@@ -46,14 +49,16 @@ const HeroSeat = ({
       <div className="relative z-10 p-6 md:p-8 flex flex-col md:flex-row gap-6 items-start md:items-center">
         {/* Poster */}
         <div className="flex-shrink-0">
-          <div className="w-28 md:w-36 aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl border border-white/10 relative">
-            <img
-              src={posterUrl}
-              alt={movieTitle}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl" />
-          </div>
+          <Link to={`/movies/${movieId}`}>
+            <div className="relative w-28 md:w-36 aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl border border-white/10">
+              <img
+                src={posterUrl}
+                alt={movieTitle}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl" />
+            </div>
+          </Link>
         </div>
 
         {/* Info */}
@@ -67,7 +72,12 @@ const HeroSeat = ({
               Now Showing
             </Badge>
             <h1 className="text-2xl md:text-4xl font-black tracking-tight leading-tight">
-              {movieTitle}
+              <Link
+                to={`/movies/${movieId}`}
+                className="hover:text-primary/80 transition-colors"
+              >
+                {movieTitle}
+              </Link>
             </h1>
           </div>
 

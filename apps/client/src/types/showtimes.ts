@@ -20,6 +20,7 @@ type BookedSeat = {
 }
 
 export type ShowtimeSeats = {
+  movieId: number;
 	showtimeId: string;
 	movieTitle: string;
 	moviePosterPath?: string;

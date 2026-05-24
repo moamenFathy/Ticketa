@@ -74,7 +74,7 @@ const OrderSummarySidebar = ({
                         damping: 20,
                       }}
                       onClick={() => onToggleSeat(k)}
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold transition-all group ${style.text} ${style.border} ${style.bg}`}
+                      className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold transition-all group cursor-pointer ${style.text} ${style.border} ${style.bg}`}
                     >
                       <Star className="w-3 h-3" />
                       {rowLabel(r)}
