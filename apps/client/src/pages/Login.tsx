@@ -231,6 +231,7 @@ export default function Login() {
                     placeholder="john@doe.com"
                     className="h-14 pl-14 bg-white dark:bg-black/40 border-border/60 text-foreground placeholder:text-muted-foreground/40 focus:ring-primary/20 focus:border-primary transition-all rounded-2xl relative z-0 text-base shadow-xs"
                     value={email}
+                    autoComplete="username"
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
@@ -263,6 +264,7 @@ export default function Login() {
                     placeholder="••••••••"
                     className="h-14 pl-14 pr-14 bg-white dark:bg-black/40 border-border/60 text-foreground placeholder:text-muted-foreground/40 focus:ring-primary/20 focus:border-primary transition-all rounded-2xl relative z-0 text-base shadow-xs"
                     value={password}
+                    autoComplete="current-password"
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
