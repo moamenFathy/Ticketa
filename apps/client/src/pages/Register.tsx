@@ -4,7 +4,7 @@ import { ChevronLeft, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import logo from "../assets/logo-Photoroom.png";
 import RegisterForm from "@/components/Auth Components/RegisterForm";
-import VerifyCodeForm from "@/components/Auth Components/VerfiyCodeForm";
+import VerifyCodeForm from "@/components/Auth Components/VerifyCodeForm";
 import AdvantagesSection from "@/components/Auth Components/AdvantagesSection";
 import Stepper from "@/components/Auth Components/Stepper";
 

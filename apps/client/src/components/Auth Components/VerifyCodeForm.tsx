@@ -58,7 +58,7 @@ const VerifyCodeForm = ({ email }: { email: string }) => {
         setTimeout(() => setResendSuccess(false), 4000);
       },
       onError: (err) => {
-        const apiErr = err as ApiError;
+        const apiErr = err as unknown as ApiError;
         setResendError(apiErr.message || "Failed to resend code. Try again.");
       },
     });
