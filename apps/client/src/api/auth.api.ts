@@ -18,5 +18,9 @@ export const authApi = {
     api.post<LoginResponseDto>("auth/confirm-email", dto).then((res) => res.data),
 
   resendConfirmationEmail: (email: string) =>
-    api.post<{ message: string }>("auth/resend-confirmation", { email }).then((res) => res.data)
+    api.post<{ message: string }>("auth/resend-confirmation", { email }).then((res) => res.data),
+
+  googleAuth: (idToken: string)=> {
+    return api.post<LoginResponseDto>("auth/google", { idToken }).then((res) => res.data)
+  }
 }

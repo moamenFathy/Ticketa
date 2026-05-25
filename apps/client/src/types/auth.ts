@@ -18,9 +18,9 @@ export type AuthUserDto = {
   id: string;
   email: string;
   name: string;
+  roles?: string[];
 }
 
 export type LoginResponseDto = {
   accessToken: string;
-  user: AuthUserDto;
 }
