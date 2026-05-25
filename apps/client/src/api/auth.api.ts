@@ -18,5 +18,5 @@ export const authApi = {
     api.post<LoginResponseDto>("auth/confirm-email", dto).then((res) => res.data),
 
   resendConfirmationEmail: (email: string) =>
-    api.post<{ message: string }>("auth/resend-email", { email }).then((res) => res.data)
+    api.post<{ message: string }>("auth/resend-confirmation", { email }).then((res) => res.data)
 }

@@ -5,7 +5,7 @@ import ErrorBanner from "./ErrorBanner";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "../ui/input-otp";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useConfirmEmail, useResendConfirmationEmail } from "@/hooks/useAuth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { ApiError } from "@/types/api";
 
 const VerifyCodeForm = ({ email }: { email: string }) => {
@@ -14,7 +14,16 @@ const VerifyCodeForm = ({ email }: { email: string }) => {
     useResendConfirmationEmail();
   const [digits, setDigits] = useState("");
   const [shake, setShake] = useState(false);
+  const [resendError, setResendError] = useState<string | null>(null);
+  const [resendSuccess, setResendSuccess] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   const apiError = error as ApiError | null;
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const id = setInterval(() => setCooldown((c) => c - 1), 1000);
+    return () => clearInterval(id);
+  }, [cooldown]);
 
   const triggerShake = () => {
     setShake(true);
@@ -36,6 +45,29 @@ const VerifyCodeForm = ({ email }: { email: string }) => {
         },
       },
     );
+  };
+
+  const handleResend = () => {
+    if (cooldown > 0) return;
+    setResendError(null);
+    setResendSuccess(false);
+    resend(email, {
+      onSuccess: () => {
+        setResendSuccess(true);
+        setCooldown(300);
+        setTimeout(() => setResendSuccess(false), 4000);
+      },
+      onError: (err) => {
+        const apiErr = err as ApiError;
+        setResendError(apiErr.message || "Failed to resend code. Try again.");
+      },
+    });
+  };
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -99,7 +131,7 @@ const VerifyCodeForm = ({ email }: { email: string }) => {
         </InputOTP>
       </motion.div>
 
-      <ErrorBanner message={apiError?.message || null} />
+      <ErrorBanner message={apiError?.message || resendError || null} />
 
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -127,17 +159,23 @@ const VerifyCodeForm = ({ email }: { email: string }) => {
           )}
         </Button>
 
-        <p className="text-sm text-center text-muted-foreground/70 font-medium">
-          Didn't receive it?{" "}
-          <button
-            type="button"
-            disabled={isResending}
-            onClick={() => resend(email)}
-            className="text-foreground font-black hover:text-primary transition-colors uppercase tracking-[0.08em] text-[11px] cursor-pointer disabled:opacity-40"
-          >
-            {isResending ? "Sending..." : "Resend code"}
-          </button>
-        </p>
+          <p className="text-sm text-center text-muted-foreground/70 font-medium">
+            Didn't receive it?{" "}
+            <button
+              type="button"
+              disabled={isResending || cooldown > 0}
+              onClick={handleResend}
+              className="text-foreground font-black hover:text-primary transition-colors uppercase tracking-[0.08em] text-[11px] cursor-pointer disabled:opacity-40"
+            >
+              {isResending
+                ? "Sending..."
+                : cooldown > 0
+                  ? `Resend in ${formatTime(cooldown)}`
+                  : resendSuccess
+                    ? "Code sent!"
+                    : "Resend code"}
+            </button>
+          </p>
       </motion.div>
     </form>
   );

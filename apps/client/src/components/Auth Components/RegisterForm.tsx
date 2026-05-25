@@ -28,6 +28,10 @@ import { useState } from "react";
 import { useRegister } from "@/hooks/useAuth";
 import z from "zod";
 import SuccessCheckmark from "./SuccessCheckmark";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Calendar } from "../ui/calendar";
+import { format, parse } from "date-fns";
+import { cn } from "@/lib/utils";
 
 const formSchema = z
   .object({
@@ -181,15 +185,72 @@ const RegisterForm = ({
                   <CalendarDays
                     className={`absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 z-10 transition-colors ${iconClass(errors.dateOfBirth?.message, touchedFields.dateOfBirth)}`}
                   />
-                  <Input
-                    id="dateOfBirth"
-                    type="date"
-                    placeholder="YYYY-MM-DD"
-                    autoComplete="bday"
-                    disabled={isPending}
-                    className={`h-14 pl-12 pr-4 rounded-2xl text-sm shadow-xs transition-all duration-300 ${errorBorderClass(errors.dateOfBirth?.message, touchedFields.dateOfBirth)}`}
-                    {...form.register("dateOfBirth")}
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        type="button"
+                        disabled={isPending}
+                        className={cn(
+                          "w-full h-14 pl-12 pr-4 rounded-2xl text-sm font-normal text-left shadow-xs transition-all duration-300 border-border/50 hover:border-border focus:border-primary/60 focus:ring-4 focus:ring-primary/8",
+                          !form.watch("dateOfBirth") &&
+                            "text-muted-foreground/40",
+                          errorBorderClass(
+                            errors.dateOfBirth?.message,
+                            touchedFields.dateOfBirth,
+                          ),
+                        )}
+                      >
+                        {form.watch("dateOfBirth") ? (
+                          format(
+                            parse(
+                              form.watch("dateOfBirth"),
+                              "yyyy-MM-dd",
+                              new Date(),
+                            ),
+                            "PPP",
+                          )
+                        ) : (
+                          <span>Select your birthday</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="w-auto p-0 rounded-2xl overflow-hidden shadow-2xl border-border/40"
+                      align="start"
+                    >
+                      <Calendar
+                        mode="single"
+                        captionLayout="dropdown"
+                        startMonth={new Date(1900, 0)}
+                        endMonth={new Date()}
+                        selected={
+                          form.watch("dateOfBirth")
+                            ? parse(
+                                form.watch("dateOfBirth"),
+                                "yyyy-MM-dd",
+                                new Date(),
+                              )
+                            : undefined
+                        }
+                        onSelect={(date) => {
+                          if (date) {
+                            form.setValue(
+                              "dateOfBirth",
+                              format(date, "yyyy-MM-dd"),
+                              {
+                                shouldValidate: true,
+                                shouldTouch: true,
+                              },
+                            );
+                          }
+                        }}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("1900-01-01")
+                        }
+                      />
+                    </PopoverContent>
+                  </Popover>
                   <SuccessCheckmark
                     show={
                       !!touchedFields.dateOfBirth &&
