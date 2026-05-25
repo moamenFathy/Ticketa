@@ -21,9 +21,9 @@ namespace Ticketa.Infrastructure.Service
 
       var claims = new List<Claim>
       {
-        new Claim(ClaimTypes.NameIdentifier, user.Id),
-        new Claim(ClaimTypes.Name, user.UserName!),
-        new Claim(ClaimTypes.Email, user.Email!)
+        new Claim("uid", user.Id),
+        new Claim("name", user.UserName!),
+        new Claim("email", user.Email!)
       };
 
       claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
