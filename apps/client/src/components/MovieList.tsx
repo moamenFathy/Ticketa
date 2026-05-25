@@ -6,7 +6,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import type { Movie } from "@/types/movie";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import MovieCard from "./MovieCard";
 
 interface MovieListProps {
@@ -35,11 +35,11 @@ export function MovieList({ movies }: MovieListProps) {
 
         <CarouselPrevious
           variant="ghost"
-          className="absolute left-0 top-0 bottom-0 h-full w-12 rounded-none bg-background/50 hover:bg-background/80 border-none text-foreground transition-all duration-300 opacity-30 hover:opacity-100 hover:text-primary disabled:hidden z-30 translate-x-0 !translate-y-0 [&_svg]:w-8 [&_svg]:h-8 [&_svg]:stroke-[3]"
+          className="absolute left-0 top-0 bottom-0 h-full w-12 rounded-none bg-background/50 hover:bg-background/80 border-none text-foreground transition-all duration-300 opacity-30 hover:opacity-100 hover:text-primary disabled:hidden z-30 translate-x-0 translate-y-0! [&_svg]:w-8 [&_svg]:h-8 [&_svg]:stroke-3"
         />
         <CarouselNext
           variant="ghost"
-          className="absolute right-0 top-0 bottom-0 h-full w-12 rounded-none bg-background/50 hover:bg-background/80 border-none text-foreground transition-all duration-300 opacity-30 hover:opacity-100 hover:text-primary disabled:hidden z-30 translate-x-0 !translate-y-0 [&_svg]:w-8 [&_svg]:h-8 [&_svg]:stroke-[3]"
+          className="absolute right-0 top-0 bottom-0 h-full w-12 rounded-none bg-background/50 hover:bg-background/80 border-none text-foreground transition-all duration-300 opacity-30 hover:opacity-100 hover:text-primary disabled:hidden z-30 translate-x-0 translate-y-0! [&_svg]:w-8 [&_svg]:h-8 [&_svg]:stroke-3"
         />
       </Carousel>
     </div>

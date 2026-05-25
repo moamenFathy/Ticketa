@@ -31,7 +31,7 @@ const MovieCard = ({ movie }: Props) => {
         />
 
         {/* Dynamic Overlay Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-all duration-500" />
+        <div className="absolute inset-0 bg-linear-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-all duration-500" />
 
         {/* Top Badges (Genre and Rating) */}
         <AnimatePresence>
@@ -72,7 +72,7 @@ const MovieCard = ({ movie }: Props) => {
         <motion.div
           animate={{ y: isHovered ? 0 : 56 }}
           transition={{ duration: 0.4, ease: [0.33, 1, 0.68, 1] }}
-          className="absolute inset-x-0 bottom-0 px-5 pb-5 pt-10 bg-gradient-to-t from-black via-black/90 to-transparent flex flex-col gap-4"
+          className="absolute inset-x-0 bottom-0 px-5 pb-5 pt-10 bg-linear-to-t from-black via-black/90 to-transparent flex flex-col gap-4"
         >
           <div className="space-y-1">
             <h3 className="text-2xl font-black text-white leading-tight drop-shadow-lg">
@@ -87,12 +87,10 @@ const MovieCard = ({ movie }: Props) => {
             animate={{ opacity: isHovered ? 1 : 0 }}
             transition={{ duration: 0.2 }}
           >
-            <Link to={`/movies/${movie.id}`}>
-              <Button className="w-full bg-primary hover:bg-primary/90 text-white font-bold rounded-xl py-3 transition-all active:scale-95 shadow-lg shadow-primary/25 gap-2">
-                <Ticket className="w-4 h-4" />
-                Book Now
-              </Button>
-            </Link>
+            <Button className="w-full bg-primary hover:bg-primary/90 text-white font-bold rounded-xl py-3 transition-all active:scale-95 shadow-lg shadow-primary/25 gap-2">
+              <Ticket className="w-4 h-4" />
+              Book Now
+            </Button>
           </motion.div>
         </motion.div>
       </div>
