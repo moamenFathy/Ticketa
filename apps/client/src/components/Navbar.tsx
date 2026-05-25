@@ -1,10 +1,11 @@
 import { Link, NavLink } from "react-router-dom";
-import { Calendar, Home, Moon, Sun, Ticket } from "lucide-react";
+import { Calendar, Home, Moon, Sun } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth, useLogout } from "@/hooks/useAuth";
 import UserDropdown from "./UserDropdown";
 import MobileMenu from "./MobileMenu";
+import logo from "../assets/final_logo.png";
 
 const navLinks = [
   { to: "/", label: "Home", icon: Home },
@@ -41,7 +42,11 @@ export default function Navbar() {
             to="/"
             className="flex items-center gap-2 font-bold text-xl hover:opacity-80 transition-opacity"
           >
-            <Ticket size={24} className="text-primary" />
+            <img
+              src={logo}
+              alt="Ticketa"
+              className="h-10 w-10 object-contain"
+            />
             <span className="font-black tracking-tighter uppercase hover:text-primary transition-colors">
               ticke<span className="text-primary">ta</span>
             </span>
