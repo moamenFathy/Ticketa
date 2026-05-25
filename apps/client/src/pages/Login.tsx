@@ -3,48 +3,73 @@ import { Link } from "react-router-dom";
 import { useLogin } from "../hooks/useAuth";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import {
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  Loader2,
-  ArrowRight,
-  ChevronLeft,
-  Zap,
-  Tag,
-  Crown,
-} from "lucide-react";
+import { Mail, Lock, Loader2, ArrowRight, ChevronLeft } from "lucide-react";
 import type { ApiError } from "@/types/api";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import logo from "../assets/logo-Photoroom.png";
+import SuccessCheckmark from "@/components/Auth Components/SuccessCheckmark";
+import PasswordToggle from "@/components/Auth Components/PasswordToggle";
+import ErrorBanner from "@/components/Auth Components/ErrorBanner";
+import AdvantagesSection from "@/components/Auth Components/AdvantagesSection";
+import z from "zod";
+import { useForm, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+
+const iconClass = (hasError?: boolean, isTouched?: boolean) => {
+  if (hasError && isTouched) return "text-destructive";
+  if (isTouched && !hasError) return "text-emerald-500";
+  return "text-muted-foreground/30";
+};
+
+const errorBorderClass = (error?: string, isTouched?: boolean) => {
+  if (error && isTouched)
+    return "border-destructive/60 focus:border-destructive focus:ring-4 focus:ring-destructive/10";
+  return "border-border/50 hover:border-border focus:border-primary/60 focus:ring-4 focus:ring-primary/8";
+};
+
+const formSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    mode: "onBlur",
+    defaultValues: { email: "", password: "" },
+  });
+
+  const { errors, touchedFields } = form.formState;
   const [showPassword, setShowPassword] = useState(false);
   const [isGooglePending, setIsGooglePending] = useState(false);
-  const { mutate: login, isPending, error } = useLogin();
+  const { mutate: login, isPending, error: apiErrorFromMutation } = useLogin();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    login({ email, password });
+  const emailValue = useWatch({ control: form.control, name: "email" }) || "";
+
+  const onSubmit = (values: FormValues) => {
+    login(values);
   };
 
   const handleGoogleLogin = () => {
     setIsGooglePending(true);
-    // Simulate google login redirect/popup logic
     setTimeout(() => {
       window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
     }, 500);
   };
 
-  const apiError = error as ApiError | null;
+  const apiError = apiErrorFromMutation as ApiError | null;
+  const isLoading = isPending || isGooglePending;
 
   return (
-    <div className="h-[calc(100vh-4rem)] grid lg:grid-cols-2 bg-background selection:bg-primary selection:text-primary-foreground overflow-hidden">
-      {/* Left Side: Cinematic Branding (Hidden on mobile) */}
-      <div className="relative hidden lg:flex flex-col justify-between p-10 overflow-hidden bg-zinc-50 dark:bg-black border-r border-border/50">
+    <div className="h-[calc(100vh-4rem)] grid lg:grid-cols-2 bg-background selection:bg-primary/20 overflow-hidden">
+      {/* Left Side: Branding */}
+      <div className="relative hidden lg:flex flex-col justify-between p-10 overflow-hidden bg-zinc-50 dark:bg-black border-r border-border/30">
         <motion.div
           initial={{ scale: 1.1, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -52,7 +77,7 @@ export default function Login() {
           className="absolute inset-0 z-0"
         >
           <div
-            className="w-full h-full opacity-60 dark:opacity-40 brightness-110 dark:brightness-50"
+            className="w-full h-full opacity-50 dark:opacity-35 brightness-110 dark:brightness-50"
             style={{
               backgroundImage:
                 "url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop')",
@@ -61,8 +86,7 @@ export default function Login() {
             }}
           />
         </motion.div>
-
-        <div className="absolute inset-0 z-10 bg-linear-to-t from-zinc-50/80 dark:from-black/80 via-transparent to-transparent" />
+        <div className="absolute inset-0 z-10 bg-linear-to-t from-zinc-50/80 dark:from-black/85 via-transparent to-transparent" />
         <div className="absolute inset-0 z-10 bg-linear-to-r from-zinc-50/90 dark:from-black/90 via-transparent to-transparent" />
 
         <motion.div
@@ -71,23 +95,22 @@ export default function Login() {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="relative z-20 self-start"
         >
-          <Link to="/" className="flex items-center gap-6 group">
+          <Link to="/" className="flex items-center gap-5 group">
             <motion.div
-              whileHover={{ rotate: -5, scale: 1.1 }}
+              whileHover={{ rotate: -4, scale: 1.08 }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              className="relative"
             >
               <img
                 src={logo}
-                alt="Ticketa Logo"
-                className="h-16 w-16 object-contain drop-shadow-xl"
+                alt="Ticketa"
+                className="h-14 w-14 object-contain drop-shadow-xl"
               />
             </motion.div>
             <div className="flex flex-col">
-              <span className="text-4xl font-black tracking-tight text-foreground dark:text-white leading-none">
+              <span className="text-3xl font-black tracking-tight text-foreground dark:text-white leading-none">
                 TICKETA
               </span>
-              <span className="text-xs font-bold tracking-[0.4em] text-primary uppercase mt-2">
+              <span className="text-[10px] font-bold tracking-[0.35em] text-primary uppercase mt-1.5">
                 Premium Cinema
               </span>
             </div>
@@ -117,225 +140,190 @@ export default function Login() {
               manage your bookings all in one place.
             </motion.p>
           </div>
-
           <motion.div
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
             className="flex items-center gap-4"
           >
-            <div className="h-px w-12 bg-primary/50" />
+            <div className="h-px w-12 bg-primary/40" />
             <span className="text-primary font-bold tracking-widest text-[10px] uppercase">
               The Premium Standard
             </span>
           </motion.div>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-          className="relative z-20 flex items-center gap-8"
-        >
-          {[
-            { icon: Zap, label: "Fast Booking" },
-            { icon: Tag, label: "Exclusive Offers" },
-            { icon: Crown, label: "Premium Rewards" },
-          ].map((item, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-2.5 group/item cursor-default"
-            >
-              <div className="h-9 w-9 rounded-xl bg-foreground/5 dark:bg-white/5 border border-foreground/10 dark:border-white/10 flex items-center justify-center group-hover/item:bg-primary/20 group-hover/item:border-primary/30 transition-all duration-300">
-                <item.icon className="h-4 w-4 text-muted-foreground dark:text-zinc-500 group-hover/item:text-primary transition-colors" />
-              </div>
-              <span className="text-muted-foreground dark:text-zinc-500 text-[9px] font-black uppercase tracking-widest group-hover/item:text-foreground dark:group-hover/item:text-zinc-300 transition-colors">
-                {item.label}
-              </span>
-            </div>
-          ))}
-        </motion.div>
+        <AdvantagesSection />
       </div>
 
       {/* Right Side: Login Form */}
-      <div className="flex flex-col justify-center items-center p-6 lg:p-10 relative bg-zinc-50/50 dark:bg-background overflow-y-auto lg:overflow-hidden">
+      <div className="relative flex flex-col items-center p-6 lg:p-5 overflow-y-auto bg-zinc-50/40 dark:bg-background h-full">
         <motion.div
           initial="hidden"
           animate="visible"
           variants={{
             hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: {
-                staggerChildren: 0.1,
-              },
-            },
+            visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
           }}
           className="w-full max-w-md space-y-8 relative z-10"
         >
           <motion.div
             variants={{
-              hidden: { opacity: 0, y: 20 },
+              hidden: { opacity: 0, y: 16 },
               visible: { opacity: 1, y: 0 },
             }}
             className="space-y-2"
           >
             <Link
               to="/"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-2 group/back font-medium"
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-3 group/back font-medium"
             >
               <ChevronLeft className="h-4 w-4 group-hover/back:-translate-x-1 transition-transform" />
               Back to home
             </Link>
-            <h1 className="text-6xl lg:text-7xl font-black tracking-tighter uppercase italic leading-none">
-              <span className="italic-outline-adaptive text-foreground pr-3">
-                Sign
-              </span>
+            <h1 className="text-5xl lg:text-6xl font-black tracking-tighter uppercase italic leading-none">
+              <span className="text-foreground pr-3">Sign</span>
               <span className="text-primary">In</span>
             </h1>
-            <p className="text-muted-foreground font-medium text-base">
+            <p className="text-muted-foreground/70 font-medium text-sm">
               Enter your account details below
             </p>
           </motion.div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-5">
-              <motion.div
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: { opacity: 1, y: 0 },
-                }}
-                className="space-y-2"
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            {/* Email */}
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, y: 16 },
+                visible: { opacity: 1, y: 0 },
+              }}
+            >
+              <Field
+                data-invalid={!!errors.email}
+                data-disabled={isLoading || undefined}
               >
-                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-[0.2em] ml-1">
+                <FieldLabel
+                  htmlFor="email"
+                  className="text-[11px] font-bold text-muted-foreground/60 uppercase tracking-[0.15em] ml-1"
+                >
                   Email Address
-                </label>
-                <div className="relative group/input">
-                  <Mail className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/60 group-focus-within/input:text-primary transition-colors z-10" />
+                </FieldLabel>
+                <div className="relative">
+                  <Mail
+                    className={`absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 z-10 transition-colors ${iconClass(!!errors.email, touchedFields.email)}`}
+                  />
                   <Input
+                    id="email"
                     type="email"
                     placeholder="john@doe.com"
-                    className="h-14 pl-14 bg-white dark:bg-black/40 border-border/60 text-foreground placeholder:text-muted-foreground/40 focus:ring-primary/20 focus:border-primary transition-all rounded-2xl relative z-0 text-base shadow-xs"
-                    value={email}
-                    autoComplete="username"
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
+                    autoComplete="email"
+                    autoFocus
+                    disabled={isLoading}
+                    className={`h-14 pl-12 pr-4 rounded-2xl text-sm shadow-xs transition-all duration-300 ${errorBorderClass(
+                      errors.email?.message,
+                      touchedFields.email,
+                    )}`}
+                    {...form.register("email")}
+                  />
+                  <SuccessCheckmark
+                    show={
+                      !!touchedFields.email &&
+                      !errors.email &&
+                      emailValue.length > 0
+                    }
                   />
                 </div>
-              </motion.div>
+                <FieldError
+                  errors={errors.email ? [errors.email] : undefined}
+                />
+              </Field>
+            </motion.div>
 
-              <motion.div
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: { opacity: 1, y: 0 },
-                }}
-                className="space-y-2"
+            {/* Password */}
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, y: 16 },
+                visible: { opacity: 1, y: 0 },
+              }}
+            >
+              <Field
+                data-invalid={!!errors.password}
+                data-disabled={isLoading || undefined}
               >
                 <div className="flex items-center justify-between ml-1">
-                  <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-[0.2em]">
+                  <FieldLabel
+                    htmlFor="password"
+                    className="text-[11px] font-bold text-muted-foreground/60 uppercase tracking-[0.15em]"
+                  >
                     Password
-                  </label>
+                  </FieldLabel>
                   <Link
                     to="/forgot-password"
-                    title="Forgot Password"
                     className="text-[11px] font-bold text-muted-foreground/60 hover:text-primary uppercase tracking-wider transition-colors"
                   >
                     Forgot?
                   </Link>
                 </div>
-                <div className="relative group/input">
-                  <Lock className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/60 group-focus-within/input:text-primary transition-colors z-10" />
+                <div className="relative">
+                  <Lock
+                    className={`absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 z-10 transition-colors ${iconClass(!!errors.password, touchedFields.password)}`}
+                  />
                   <Input
+                    id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
-                    className="h-14 pl-14 pr-14 bg-white dark:bg-black/40 border-border/60 text-foreground placeholder:text-muted-foreground/40 focus:ring-primary/20 focus:border-primary transition-all rounded-2xl relative z-0 text-base shadow-xs"
-                    value={password}
                     autoComplete="current-password"
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
+                    disabled={isLoading}
+                    className={`h-14 pl-12 pr-12 rounded-2xl text-sm shadow-xs transition-all duration-300 ${errorBorderClass(errors.password?.message, touchedFields.password)}`}
+                    {...form.register("password")}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground transition-colors z-10 cursor-pointer"
-                  >
-                    <AnimatePresence mode="wait">
-                      {showPassword ? (
-                        <motion.div
-                          key="off"
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.8 }}
-                        >
-                          <EyeOff className="h-5 w-5" />
-                        </motion.div>
-                      ) : (
-                        <motion.div
-                          key="on"
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.8 }}
-                        >
-                          <Eye className="h-5 w-5" />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </button>
+                  <PasswordToggle
+                    show={showPassword}
+                    onToggle={() => setShowPassword(!showPassword)}
+                  />
                 </div>
-              </motion.div>
-            </div>
+                <FieldError
+                  errors={errors.password ? [errors.password] : undefined}
+                />
+              </Field>
+            </motion.div>
 
-            <AnimatePresence mode="wait">
-              {apiError && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden"
-                >
-                  <div className="p-4 rounded-2xl bg-destructive/10 border border-destructive/20 flex items-center gap-3">
-                    <div className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
-                    <p className="text-destructive text-sm font-medium">
-                      {apiError.message ||
-                        "Invalid credentials. Please try again."}
-                    </p>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <ErrorBanner message={apiError?.message || null} />
 
+            {/* Submit */}
             <motion.div
               variants={{
-                hidden: { opacity: 0, y: 20 },
+                hidden: { opacity: 0, y: 16 },
                 visible: { opacity: 1, y: 0 },
               }}
               className="space-y-5"
             >
               <Button
                 type="submit"
-                className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-black text-lg rounded-2xl transition-all active:scale-[0.98] shadow-[0_10px_30px_rgba(var(--primary),0.3)] hover:shadow-[0_15px_40px_rgba(var(--primary),0.4)] overflow-hidden relative group"
-                disabled={isPending || isGooglePending}
+                className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-black text-base rounded-2xl active:scale-[0.98] shadow-[0_8px_28px_rgba(var(--primary),0.25)] hover:shadow-[0_12px_36px_rgba(var(--primary),0.35)] overflow-hidden relative group transition-all duration-300"
+                disabled={isLoading}
               >
-                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 {isPending ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <Loader2 className="h-6 w-6 animate-spin" />
+                  <span className="flex items-center justify-center gap-2.5">
+                    <Loader2 className="h-5 w-5 animate-spin" />
                     <span>Processing...</span>
-                  </div>
+                  </span>
                 ) : (
-                  <div className="flex items-center justify-center gap-3">
+                  <span className="flex items-center justify-center gap-2.5">
                     <span>Sign In</span>
-                    <ArrowRight className="h-6 w-6 group-hover:translate-x-1 transition-transform" />
-                  </div>
+                    <ArrowRight className="h-4.5 w-4.5 group-hover:translate-x-1 transition-transform" />
+                  </span>
                 )}
               </Button>
 
-              <div className="relative py-2">
+              {/* Google */}
+              <div className="relative py-1">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-border/60" />
+                  <span className="w-full border-t border-border/40" />
                 </div>
-                <div className="relative flex justify-center text-[10px] uppercase tracking-[0.4em] font-bold">
-                  <span className="bg-zinc-50 dark:bg-background px-6 text-muted-foreground/60">
+                <div className="relative flex justify-center text-[10px] uppercase tracking-[0.35em] font-bold">
+                  <span className="bg-zinc-50 dark:bg-background px-5 text-muted-foreground/50">
                     Social Connection
                   </span>
                 </div>
@@ -345,20 +333,17 @@ export default function Login() {
                 type="button"
                 onClick={handleGoogleLogin}
                 variant="outline"
-                className="w-full h-14 border-border/60 bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 dark:hover:border-primary/50 hover:border-primary/50 text-foreground font-bold text-sm rounded-2xl transition-all duration-300 active:scale-[0.98] group relative overflow-hidden shadow-xs"
-                disabled={isPending || isGooglePending}
+                className="w-full h-14 border-border/50 bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 dark:hover:border-primary/50 hover:border-primary/50 text-foreground font-bold text-sm rounded-2xl transition-all duration-300 active:scale-[0.98] group relative overflow-hidden shadow-xs"
+                disabled={isLoading}
               >
                 {isGooglePending ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                  <span className="flex items-center justify-center gap-2.5">
+                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
                     <span>Connecting...</span>
-                  </div>
+                  </span>
                 ) : (
-                  <div className="flex items-center justify-center gap-4 relative z-10">
-                    <svg
-                      className="h-5 w-5 transition-transform duration-300 group-hover:scale-110"
-                      viewBox="0 0 24 24"
-                    >
+                  <span className="flex items-center justify-center gap-3 relative z-10">
+                    <svg className="h-5 w-5" viewBox="0 0 24 24">
                       <path
                         fill="#4285F4"
                         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -376,28 +361,24 @@ export default function Login() {
                         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                       />
                     </svg>
-                    <span className="uppercase tracking-[0.2em] text-[11px] font-black">
+                    <span className="uppercase tracking-[0.15em] text-[11px] font-black">
                       Continue with Google
                     </span>
-                  </div>
+                  </span>
                 )}
               </Button>
             </motion.div>
           </form>
 
           <motion.footer
-            variants={{
-              hidden: { opacity: 0 },
-              visible: { opacity: 1 },
-            }}
-            className="pt-6 border-t border-border/60 flex flex-col items-center gap-4"
+            variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
+            className="pt-4 border-t border-border/40 flex flex-col items-center gap-4"
           >
-            <p className="text-muted-foreground font-medium text-base">
+            <p className="text-muted-foreground/70 font-medium text-sm">
               Don't have an account?{" "}
               <Link
                 to="/register"
-                title="Register"
-                className="text-foreground font-black hover:text-primary transition-colors uppercase tracking-[0.1em] text-sm"
+                className="text-foreground font-black hover:text-primary transition-colors uppercase tracking-[0.08em] text-[11px]"
               >
                 JOIN NOW
               </Link>
