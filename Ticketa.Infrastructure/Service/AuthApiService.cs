@@ -14,6 +14,7 @@ namespace Ticketa.Infrastructure.Service
     private readonly IEmailService _emailService = emailService;
     private readonly ITokenService _tokenService = tokenService;
     private readonly UserManager<AppUser> _userManager = userManager;
+    private readonly JwtSettings _jwtSettings = jwtSettings.Value;
     private readonly IConfiguration _config = config;
 
     public async Task<AuthResultDto> ConfirmEmailAsync(ConfirmEmailDto dto, CancellationToken ct = default)
@@ -33,7 +34,7 @@ namespace Ticketa.Infrastructure.Service
       var refreshToken = _tokenService.GenerateRefreshToken();
 
       user.RefreshToken = refreshToken;
-      user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpiryDate);
+      user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiryDate);
       await _userManager.UpdateAsync(user);
 
       return AuthResultDto.Success(token, refreshToken);
@@ -164,7 +165,7 @@ namespace Ticketa.Infrastructure.Service
       var accessToken = _tokenService.GenerateAccessToken(user, roles);
       var refreshToken = _tokenService.GenerateRefreshToken();
 
-      var expiryDays = int.Parse(_config["JwtSettings:RefreshTokenExpiryDays"]!);
+      var expiryDays = _jwtSettings.RefreshTokenExpiryDate;
       user.RefreshToken = refreshToken;
       user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(expiryDays);
       await _userManager.UpdateAsync(user);
