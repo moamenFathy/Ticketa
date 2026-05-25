@@ -19,7 +19,7 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: async (dto: loginDto) => authApi.login(dto),
     onSuccess: (data) => {
-      login(data.accessToken, data.user);
+      login(data.accessToken);
       const returnUrl = searchParams.get("returnUrl") || "/";
       navigate(returnUrl, { replace: true });
     },
@@ -47,7 +47,7 @@ export const useConfirmEmail = () => {
   return useMutation({
     mutationFn: authApi.confirmEmail,
     onSuccess: (data) => {
-      login(data.accessToken, data.user);
+      login(data.accessToken);
       const returnUrl = searchParams.get("returnUrl") ?? "/";
       navigate(returnUrl, { replace: true });
     }
@@ -55,4 +55,23 @@ export const useConfirmEmail = () => {
 }
 
 export const useResendConfirmationEmail = () => 
-  useMutation({ mutationFn: (email: string) => authApi.resendConfirmationEmail(email) })
+  useMutation({ mutationFn: (email: string) => authApi.resendConfirmationEmail(email) });
+
+export const useGoogleAuth = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  return useMutation({
+    mutationFn: authApi.googleAuth,
+    onSuccess: (data) => {
+      console.log("Google auth response:", data);
+      login(data.accessToken);
+      const returnUrl = searchParams.get("returnUrl") ?? "/";
+      navigate(returnUrl, { replace: true });
+    },
+    onError: (error) => {
+      console.error("Google auth error:", error);
+    },
+  });
+};
