@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Google.Apis.Auth;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Entities;
@@ -7,11 +9,16 @@ using Ticketa.Core.Settings;
 
 namespace Ticketa.Infrastructure.Service
 {
-  public class AuthApiService(IEmailService emailService, ITokenService tokenService, UserManager<AppUser> userManager, IOptions<JwtSettings> jwtSettings) : IAuthApiService
+  public class AuthApiService(IEmailService emailService, ITokenService tokenService, UserManager<AppUser> userManager, IOptions<JwtSettings> jwtSettings, IConfiguration config) : IAuthApiService
   {
+    private readonly IEmailService _emailService = emailService;
+    private readonly ITokenService _tokenService = tokenService;
+    private readonly UserManager<AppUser> _userManager = userManager;
+    private readonly IConfiguration _config = config;
+
     public async Task<AuthResultDto> ConfirmEmailAsync(ConfirmEmailDto dto, CancellationToken ct = default)
     {
-      var user = await userManager.FindByEmailAsync(dto.Email);
+      var user = await _userManager.FindByEmailAsync(dto.Email);
 
       if (user is null || user.VerificationCode != dto.Code || user.VerificationCodeExpiry < DateTime.UtcNow)
         return AuthResultDto.Failure("Invalid or expired verification code");
@@ -19,57 +26,89 @@ namespace Ticketa.Infrastructure.Service
       user.EmailConfirmed = true;
       user.VerificationCode = null;
       user.VerificationCodeExpiry = null;
-      await userManager.UpdateAsync(user);
+      await _userManager.UpdateAsync(user);
 
-      var roles = await userManager.GetRolesAsync(user);
-      var token = tokenService.GenerateAccessToken(user, roles);
-      var refreshToken = tokenService.GenerateRefreshToken();
+      var roles = await _userManager.GetRolesAsync(user);
+      var token = _tokenService.GenerateAccessToken(user, roles);
+      var refreshToken = _tokenService.GenerateRefreshToken();
 
       user.RefreshToken = refreshToken;
       user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpiryDate);
-      await userManager.UpdateAsync(user);
+      await _userManager.UpdateAsync(user);
 
       return AuthResultDto.Success(token, refreshToken);
     }
 
+    public async Task<AuthResultDto> GoogleAuthAsync(string idToken, CancellationToken ct = default)
+    {
+      GoogleJsonWebSignature.Payload payload;
+      try
+      {
+        var settings = new GoogleJsonWebSignature.ValidationSettings
+        {
+          Audience = [_config["Google:ClientId"]]
+        };
+        payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
+      }
+      catch
+      {
+        return AuthResultDto.Failure("Invalid Google token.");
+      }
+
+      var user = await _userManager.FindByEmailAsync(payload.Email);
+
+      if (user is null)
+      {
+        user = new AppUser
+        {
+          UserName = payload.Email,
+          Email = payload.Email,
+          EmailConfirmed = true,
+          Theme = "light"
+        };
+        var result = await _userManager.CreateAsync(user);
+        if (!result.Succeeded)
+          return AuthResultDto.Failure("Failed to create user account.");
+      }
+      else if (!user.EmailConfirmed)
+      {
+        user.EmailConfirmed = true;
+        await _userManager.UpdateAsync(user);
+      }
+
+      return await IssueTokensAsync(user);
+    }
+
     public async Task<AuthResultDto> LoginAsync(LoginDto dto, CancellationToken ct = default)
     {
-      var user = await userManager.FindByEmailAsync(dto.Email);
+      var user = await _userManager.FindByEmailAsync(dto.Email);
 
-      if (user is null || !await userManager.CheckPasswordAsync(user, dto.Password))
+      if (user is null || !await _userManager.CheckPasswordAsync(user, dto.Password))
         return AuthResultDto.Failure("Invalid email or password");
 
       if (!user.EmailConfirmed)
         return AuthResultDto.Failure("Email not confirmed. Please check your inbox.");
 
-      var roles = await userManager.GetRolesAsync(user);
-      var accessToken = tokenService.GenerateAccessToken(user, roles);
-      var refreshToken = tokenService.GenerateRefreshToken();
-
-      user.RefreshToken = refreshToken;
-      user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpiryDate);
-      await userManager.UpdateAsync(user);
-
-      return AuthResultDto.Success(accessToken, refreshToken);
+      return await IssueTokensAsync(user);
     }
 
     public async Task LogoutAsync(string? refreshToken, CancellationToken ct = default)
     {
       if (string.IsNullOrWhiteSpace(refreshToken)) return;
 
-      var user = userManager.Users.FirstOrDefault(u => u.RefreshToken == refreshToken);
+      var user = _userManager.Users.FirstOrDefault(u => u.RefreshToken == refreshToken);
 
       if (user is null)
         return;
 
       user.RefreshToken = null;
       user.RefreshTokenExpiry = null;
-      await userManager.UpdateAsync(user);
+      await _userManager.UpdateAsync(user);
     }
 
     public async Task<(bool success, string? Error)> RegisterAsync(RegisterDto dto, CancellationToken ct = default)
     {
-      var existing = await userManager.FindByEmailAsync(dto.Email);
+      var existing = await _userManager.FindByEmailAsync(dto.Email);
 
       if (existing is not null)
       {
@@ -88,7 +127,7 @@ namespace Ticketa.Infrastructure.Service
         Theme = "light"
       };
 
-      var result = await userManager.CreateAsync(user, dto.Password);
+      var result = await _userManager.CreateAsync(user, dto.Password);
 
       if (!result.Succeeded)
       {
@@ -102,29 +141,35 @@ namespace Ticketa.Infrastructure.Service
 
     public async Task<AuthResultDto> RefreshTokenAsync(string refreshToken, CancellationToken ct = default)
     {
-      var user = userManager.Users.FirstOrDefault(u => u.RefreshToken == refreshToken);
+      var user = _userManager.Users.FirstOrDefault(u => u.RefreshToken == refreshToken);
 
       if (user is null || user.RefreshTokenExpiry < DateTime.UtcNow)
         return AuthResultDto.Failure("Invalid or expired refresh token");
 
-      var roles = await userManager.GetRolesAsync(user);
-      var newAccessToken = tokenService.GenerateAccessToken(user, roles);
-      var newRefreshToken = tokenService.GenerateRefreshToken();
-
-      user.RefreshToken = newRefreshToken;
-      user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpiryDate);
-      await userManager.UpdateAsync(user);
-
-      return AuthResultDto.Success(newAccessToken, newRefreshToken);
+      return await IssueTokensAsync(user);
     }
 
     public async Task ResendEmailConfirmationAsync(string email, CancellationToken ct = default)
     {
-      var user = await userManager.FindByEmailAsync(email);
+      var user = await _userManager.FindByEmailAsync(email);
 
       if (user is null || user.EmailConfirmed) return;
 
       await SendVerificationCodeAsync(user);
+    }
+
+    private async Task<AuthResultDto> IssueTokensAsync(AppUser user)
+    {
+      var roles = await _userManager.GetRolesAsync(user);
+      var accessToken = _tokenService.GenerateAccessToken(user, roles);
+      var refreshToken = _tokenService.GenerateRefreshToken();
+
+      var expiryDays = int.Parse(_config["JwtSettings:RefreshTokenExpiryDays"]!);
+      user.RefreshToken = refreshToken;
+      user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(expiryDays);
+      await _userManager.UpdateAsync(user);
+
+      return AuthResultDto.Success(accessToken, refreshToken);
     }
 
     private async Task SendVerificationCodeAsync(AppUser user)
@@ -132,10 +177,10 @@ namespace Ticketa.Infrastructure.Service
       var code = GenerateSixDigitCode();
       user.VerificationCode = code;
       user.VerificationCodeExpiry = DateTime.UtcNow.AddMinutes(15);
-      await userManager.UpdateAsync(user);
+      await _userManager.UpdateAsync(user);
 
       var emailBody = EmailTemplates.VerificationCode(code);
-      await emailService.SendEmailAsync(user.Email!, "Verify Your Email", emailBody);
+      await _emailService.SendEmailAsync(user.Email!, "Verify Your Email", emailBody);
     }
 
     private static string GenerateSixDigitCode() => Random.Shared.Next(100_000, 999_999).ToString();
