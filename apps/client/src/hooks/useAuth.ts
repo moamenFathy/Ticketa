@@ -55,4 +55,4 @@ export const useConfirmEmail = () => {
 }
 
 export const useResendConfirmationEmail = () => 
-  useMutation({ mutationFn: authApi.resendConfirmationEmail})
+  useMutation({ mutationFn: (email: string) => authApi.resendConfirmationEmail(email) })

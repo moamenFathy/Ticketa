@@ -1,4 +1,4 @@
-import type { ConfirmEmailDto, loginDto, LoginResponseDto, RegisterDto, ResendConfirmationEmailDto } from "@/types/auth";
+import type { ConfirmEmailDto, loginDto, LoginResponseDto, RegisterDto } from "@/types/auth";
 import api from "./client";
 
 export const authApi = {
@@ -17,6 +17,6 @@ export const authApi = {
   confirmEmail: (dto: ConfirmEmailDto) =>
     api.post<LoginResponseDto>("auth/confirm-email", dto).then((res) => res.data),
 
-  resendConfirmationEmail: (dto: ResendConfirmationEmailDto) =>
-    api.post<{ message: string }>("auth/resend-email", dto).then((res) => res.data)
+  resendConfirmationEmail: (email: string) =>
+    api.post<{ message: string }>("auth/resend-email", { email }).then((res) => res.data)
 }

@@ -14,10 +14,6 @@ export type ConfirmEmailDto = {
   code: string;
 }
 
-export type ResendConfirmationEmailDto = {
-  email: string;
-}
-
 export type AuthUserDto = {
   id: string;
   email: string;
