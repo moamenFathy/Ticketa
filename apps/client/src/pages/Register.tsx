@@ -1,4 +1,4 @@
-import { useState, useMemo, useContext } from "react";
+import { useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,17 +34,18 @@ import {
   Zap,
   Tag,
   Crown,
-  CheckCircle2,
   Sparkles,
   KeyRound,
   PartyPopper,
-  Eye,
-  EyeOff,
   ShieldCheck,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import logo from "../assets/logo-Photoroom.png";
 import type { ApiError } from "@/types/api";
+import PasswordStrength from "@/components/Register Components/PasswordStrength";
+import ErrorBanner from "@/components/Register Components/ErrorBanner";
+import SuccessCheckmark from "@/components/Register Components/SuccessCheckMark";
+import PasswordToggle from "@/components/Register Components/PasswordToggle";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
@@ -79,199 +80,6 @@ const formSchema = z
   });
 
 type FormValues = z.infer<typeof formSchema>;
-
-// ─── Password strength ────────────────────────────────────────────────────────
-
-interface StrengthRule {
-  label: string;
-  test: (pw: string) => boolean;
-}
-
-const STRENGTH_RULES: StrengthRule[] = [
-  { label: "8+ characters", test: (pw) => pw.length >= 8 },
-  { label: "Uppercase letter", test: (pw) => /[A-Z]/.test(pw) },
-  { label: "Lowercase letter", test: (pw) => /[a-z]/.test(pw) },
-  { label: "Number", test: (pw) => /\d/.test(pw) },
-  { label: "Special character", test: (pw) => /[^A-Za-z0-9]/.test(pw) },
-];
-
-function getStrength(password: string): {
-  label: string;
-  color: string;
-  bars: number;
-} {
-  if (!password) return { label: "", color: "", bars: 0 };
-  const passed = STRENGTH_RULES.filter((r) => r.test(password)).length;
-  if (passed <= 1) return { label: "Weak", color: "bg-red-500", bars: 1 };
-  if (passed <= 2) return { label: "Fair", color: "bg-orange-500", bars: 2 };
-  if (passed <= 3) return { label: "Good", color: "bg-yellow-500", bars: 3 };
-  if (passed <= 4) return { label: "Strong", color: "bg-lime-500", bars: 4 };
-  return { label: "Very Strong", color: "bg-emerald-500", bars: 5 };
-}
-
-const PasswordStrength = ({ password }: { password: string }) => {
-  const [showRules, setShowRules] = useState(false);
-  const strength = useMemo(() => getStrength(password), [password]);
-
-  return (
-    <AnimatePresence>
-      {password.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          exit={{ opacity: 0, height: 0 }}
-          className="overflow-hidden"
-        >
-          <div className="pt-2 pb-1 space-y-2">
-            <div className="flex gap-1">
-              {[1, 2, 3, 4, 5].map((bar) => (
-                <div key={bar} className="h-1 flex-1 rounded-full bg-border/30">
-                  <motion.div
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: bar <= strength.bars ? 1 : 0 }}
-                    transition={{
-                      duration: 0.4,
-                      delay: bar * 0.08,
-                      ease: "easeOut",
-                    }}
-                    className={`h-full rounded-full origin-left ${bar <= strength.bars ? strength.color : ""}`}
-                  />
-                </div>
-              ))}
-            </div>
-            <div className="flex items-center justify-between">
-              {strength.label && (
-                <span
-                  className={`text-[11px] font-bold uppercase tracking-wider ${strength.color.replace("bg-", "text-")}`}
-                >
-                  {strength.label}
-                </span>
-              )}
-              <button
-                type="button"
-                onClick={() => setShowRules(!showRules)}
-                className="text-[10px] font-medium text-muted-foreground/50 hover:text-muted-foreground transition-colors uppercase tracking-wider"
-              >
-                {showRules ? "Hide" : "Requirements"}
-              </button>
-            </div>
-            <AnimatePresence>
-              {showRules && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="space-y-1 overflow-hidden"
-                >
-                  {STRENGTH_RULES.map((rule) => {
-                    const passed = rule.test(password);
-                    return (
-                      <div
-                        key={rule.label}
-                        className={`flex items-center gap-2 text-xs font-medium transition-colors duration-300 ${
-                          passed
-                            ? "text-emerald-500"
-                            : "text-muted-foreground/50"
-                        }`}
-                      >
-                        {passed ? (
-                          <CheckCircle2 className="h-3 w-3" />
-                        ) : (
-                          <div className="h-3 w-3 rounded-full border-2 border-current" />
-                        )}
-                        {rule.label}
-                      </div>
-                    );
-                  })}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-};
-
-// ─── Error banner ─────────────────────────────────────────────────────────────
-
-const ErrorBanner = ({ message }: { message: string | null }) => (
-  <AnimatePresence mode="wait">
-    {message && (
-      <motion.div
-        initial={{ opacity: 0, y: -8, height: 0 }}
-        animate={{ opacity: 1, y: 0, height: "auto" }}
-        exit={{ opacity: 0, y: -8, height: 0 }}
-        className="overflow-hidden"
-      >
-        <div className="p-3.5 rounded-2xl bg-destructive/8 border border-destructive/15 flex items-center gap-3">
-          <div className="h-2 w-2 rounded-full bg-destructive animate-pulse shrink-0" />
-          <p className="text-destructive text-xs font-medium leading-relaxed">
-            {message}
-          </p>
-        </div>
-      </motion.div>
-    )}
-  </AnimatePresence>
-);
-
-// ─── Shared field helpers ─────────────────────────────────────────────────────
-
-const SuccessCheckmark = ({ show }: { show: boolean }) => (
-  <AnimatePresence>
-    {show && (
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        exit={{ scale: 0 }}
-        transition={{ type: "spring", stiffness: 400, damping: 20 }}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-10"
-      >
-        <div className="h-5 w-5 rounded-full bg-emerald-500/15 flex items-center justify-center">
-          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-        </div>
-      </motion.div>
-    )}
-  </AnimatePresence>
-);
-
-const PasswordToggle = ({
-  show,
-  onToggle,
-}: {
-  show: boolean;
-  onToggle: () => void;
-}) => (
-  <button
-    type="button"
-    onClick={onToggle}
-    tabIndex={-1}
-    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-foreground/70 transition-colors z-10 cursor-pointer"
-    aria-label={show ? "Hide password" : "Show password"}
-  >
-    <AnimatePresence mode="wait">
-      {show ? (
-        <motion.div
-          key="off"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-        >
-          <EyeOff className="h-[18px] w-[18px]" />
-        </motion.div>
-      ) : (
-        <motion.div
-          key="on"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-        >
-          <Eye className="h-[18px] w-[18px]" />
-        </motion.div>
-      )}
-    </AnimatePresence>
-  </button>
-);
 
 // ─── Step 1: Registration Form ────────────────────────────────────────────────
 
@@ -355,7 +163,7 @@ const RegisterForm = ({
                 </FieldLabel>
                 <div className="relative">
                   <Mail
-                    className={`absolute left-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] z-10 transition-colors ${iconClass(errors.email?.message, touchedFields.email)}`}
+                    className={`absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 z-10 transition-colors ${iconClass(errors.email?.message, touchedFields.email)}`}
                   />
                   <Input
                     id="email"
@@ -394,7 +202,7 @@ const RegisterForm = ({
                 </FieldLabel>
                 <div className="relative">
                   <CalendarDays
-                    className={`absolute left-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] z-10 transition-colors ${iconClass(errors.dateOfBirth?.message, touchedFields.dateOfBirth)}`}
+                    className={`absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 z-10 transition-colors ${iconClass(errors.dateOfBirth?.message, touchedFields.dateOfBirth)}`}
                   />
                   <Input
                     id="dateOfBirth"
@@ -438,7 +246,7 @@ const RegisterForm = ({
                 </div>
                 <div className="relative">
                   <Lock
-                    className={`absolute left-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] z-10 transition-colors ${iconClass(errors.password?.message, touchedFields.password)}`}
+                    className={`absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 z-10 transition-colors ${iconClass(errors.password?.message, touchedFields.password)}`}
                   />
                   <Input
                     id="password"
@@ -475,7 +283,7 @@ const RegisterForm = ({
                 </FieldLabel>
                 <div className="relative">
                   <Lock
-                    className={`absolute left-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] z-10 transition-colors ${iconClass(errors.confirmPassword?.message, touchedFields.confirmPassword)}`}
+                    className={`absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 z-10 transition-colors ${iconClass(errors.confirmPassword?.message, touchedFields.confirmPassword)}`}
                   />
                   <Input
                     id="confirmPassword"
@@ -527,9 +335,9 @@ const RegisterForm = ({
             </span>
           ) : (
             <span className="flex items-center justify-center gap-2.5">
-              <Sparkles className="h-[18px] w-[18px]" />
+              <Sparkles className="h-4.5 w-4.5" />
               <span>Create Account</span>
-              <ArrowRight className="h-[18px] w-[18px] group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="h-4.5 w-4.5 group-hover:translate-x-1 transition-transform" />
             </span>
           )}
         </Button>
