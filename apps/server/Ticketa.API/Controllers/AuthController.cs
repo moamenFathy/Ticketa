@@ -29,7 +29,7 @@ namespace Ticketa.API.Controllers
       if (!result.Succeeded) return BadRequest(new { message = result.Message });
 
       AppendRefreshTokenCookie(result.RefreshToken!);
-      return Ok(new { accessToken = result.AccessToken, user = result.User });
+      return Ok(new { accessToken = result.AccessToken });
     }
 
     [HttpPost("login")]
@@ -41,7 +41,7 @@ namespace Ticketa.API.Controllers
       if (!result.Succeeded) return Unauthorized(new { message = result.Message });
 
       AppendRefreshTokenCookie(result.RefreshToken!);
-      return Ok(new { accessToken = result.AccessToken, user = result.User });
+      return Ok(new { accessToken = result.AccessToken });
     }
 
     [HttpPost("refresh")]
@@ -55,7 +55,7 @@ namespace Ticketa.API.Controllers
       if (!result.Succeeded) return Unauthorized(result.Message);
 
       AppendRefreshTokenCookie(result.RefreshToken!);
-      return Ok(new { accessToken = result.AccessToken, user = result.User });
+      return Ok(new { accessToken = result.AccessToken });
     }
 
     [HttpPost("resend-confirmation")]
@@ -65,6 +65,18 @@ namespace Ticketa.API.Controllers
       await authService.ResendEmailConfirmationAsync(dto.Email, ct);
 
       return Ok(new { message = "If that email is registered and unverified, a new code has been sent." });
+    }
+
+    [HttpPost("google")]
+    public async Task<IActionResult> Google(GoogleAuthDto dto, CancellationToken ct)
+    {
+      if (!ModelState.IsValid) return ValidationProblem(ModelState);
+
+      var result = await authService.GoogleAuthAsync(dto.IdToken, ct);
+      if (!result.Succeeded) return Unauthorized(new { message = result.Message });
+
+      AppendRefreshTokenCookie(result.RefreshToken!);
+      return Ok(new { accessToken = result.AccessToken });
     }
 
     [HttpPost("logout")]
