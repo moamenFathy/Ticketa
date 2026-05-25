@@ -35,3 +35,24 @@ export const useLogout = () => {
     onSuccess: () => navigate("/")
   })
 }
+
+export const useRegister = () =>
+   useMutation({ mutationFn: authApi.register });
+
+export const useConfirmEmail = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  return useMutation({
+    mutationFn: authApi.confirmEmail,
+    onSuccess: (data) => {
+      login(data.accessToken, data.user);
+      const returnUrl = searchParams.get("returnUrl") ?? "/";
+      navigate(returnUrl, { replace: true });
+    }
+  });
+}
+
+export const useResendConfirmationEmail = () => 
+  useMutation({ mutationFn: (email: string) => authApi.resendConfirmationEmail(email) })

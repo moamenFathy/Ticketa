@@ -3,6 +3,17 @@ export type loginDto = {
   password: string;
 }
 
+export type RegisterDto = {
+  email: string;
+  password: string;
+  dateOfBirth: string;
+}
+
+export type ConfirmEmailDto = {
+  email: string;
+  code: string;
+}
+
 export type AuthUserDto = {
   id: string;
   email: string;
