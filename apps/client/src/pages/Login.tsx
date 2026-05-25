@@ -6,7 +6,7 @@ import { Input } from "../components/ui/input";
 import { Mail, Lock, Loader2, ArrowRight, ChevronLeft } from "lucide-react";
 import type { ApiError } from "@/types/api";
 import { motion } from "framer-motion";
-import logo from "../assets/final_logo.png";
+import logo from "../assets/final_logo.svg";
 import SuccessCheckmark from "@/components/Auth Components/SuccessCheckmark";
 import PasswordToggle from "@/components/Auth Components/PasswordToggle";
 import ErrorBanner from "@/components/Auth Components/ErrorBanner";

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
-import logo from "../assets/final_logo.png";
+import logo from "../assets/final_logo.svg";
 import RegisterForm from "@/components/Auth Components/RegisterForm";
 import VerifyCodeForm from "@/components/Auth Components/VerifyCodeForm";
 import AdvantagesSection from "@/components/Auth Components/AdvantagesSection";

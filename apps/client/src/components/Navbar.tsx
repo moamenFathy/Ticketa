@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth, useLogout } from "@/hooks/useAuth";
 import UserDropdown from "./UserDropdown";
 import MobileMenu from "./MobileMenu";
-import logo from "../assets/final_logo.png";
+import logo from "../assets/final_logo.svg";
 
 const navLinks = [
   { to: "/", label: "Home", icon: Home },
