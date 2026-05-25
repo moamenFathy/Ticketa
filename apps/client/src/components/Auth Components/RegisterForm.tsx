@@ -23,14 +23,14 @@ import { Input } from "../ui/input";
 import PasswordStrength from "./PasswordStrength";
 import type { ApiError } from "@/types/api";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useState } from "react";
 import { useRegister } from "@/hooks/useAuth";
 import z from "zod";
 import SuccessCheckmark from "./SuccessCheckmark";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
-import { format, parse } from "date-fns";
+import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 const formSchema = z
@@ -66,15 +66,15 @@ const formSchema = z
 type FormValues = z.infer<typeof formSchema>;
 
 const iconClass = (error?: string, isTouched?: boolean) => {
-  if (error && isTouched) return "text-destructive";
-  if (isTouched && !error) return "text-emerald-500";
+  if (error && isTouched) return "text-destructive text-opacity-80";
+  if (isTouched && !error) return "text-emerald-500/70";
   return "text-muted-foreground/30";
 };
 
 const errorBorderClass = (error?: string, isTouched?: boolean) => {
   if (error && isTouched)
-    return "border-destructive/60 focus:border-destructive focus:ring-4 focus:ring-destructive/10";
-  return "border-border/50 hover:border-border focus:border-primary/60 focus:ring-4 focus:ring-primary/8";
+    return "border-destructive/40 focus:border-destructive/60 focus:ring-4 focus:ring-destructive/10";
+  return "border-border/50 hover:border-border focus:border-primary/40 focus:ring-4 focus:ring-primary/8";
 };
 
 const RegisterForm = ({
@@ -99,6 +99,12 @@ const RegisterForm = ({
 
   const { errors, touchedFields } = form.formState;
   const apiError = error as ApiError | null;
+
+  const emailValue = useWatch({ control: form.control, name: "email" }) || "";
+  const dobValue =
+    useWatch({ control: form.control, name: "dateOfBirth" }) || "";
+  const passwordValue =
+    useWatch({ control: form.control, name: "password" }) || "";
 
   const onSubmit = (values: FormValues) => {
     register(
@@ -150,7 +156,6 @@ const RegisterForm = ({
                     id="email"
                     placeholder="you@example.com"
                     autoComplete="email"
-                    autoFocus
                     disabled={isPending}
                     className={`h-14 pl-12 pr-4 rounded-2xl text-sm shadow-xs transition-all duration-300 ${errorBorderClass(errors.email?.message, touchedFields.email)}`}
                     {...form.register("email")}
@@ -159,7 +164,7 @@ const RegisterForm = ({
                     show={
                       !!touchedFields.email &&
                       !errors.email &&
-                      form.watch("email").length > 0
+                      emailValue.length > 0
                     }
                   />
                 </div>
@@ -183,7 +188,7 @@ const RegisterForm = ({
                 </FieldLabel>
                 <div className="relative">
                   <CalendarDays
-                    className={`absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 z-10 transition-colors ${iconClass(errors.dateOfBirth?.message, touchedFields.dateOfBirth)}`}
+                    className={`absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 z-10 transition-colors pointer-events-none ${iconClass(errors.dateOfBirth?.message, touchedFields.dateOfBirth)}`}
                   />
                   <Popover>
                     <PopoverTrigger asChild>
@@ -192,24 +197,16 @@ const RegisterForm = ({
                         type="button"
                         disabled={isPending}
                         className={cn(
-                          "w-full h-14 pl-12 pr-4 rounded-2xl text-sm font-normal text-left shadow-xs transition-all duration-300 border-border/50 hover:border-border focus:border-primary/60 focus:ring-4 focus:ring-primary/8",
-                          !form.watch("dateOfBirth") &&
-                            "text-muted-foreground/40",
+                          "w-full h-14 pl-12 pr-4 rounded-2xl text-sm font-normal justify-start shadow-xs transition-all duration-300",
+                          !dobValue && "text-muted-foreground/40",
                           errorBorderClass(
                             errors.dateOfBirth?.message,
                             touchedFields.dateOfBirth,
                           ),
                         )}
                       >
-                        {form.watch("dateOfBirth") ? (
-                          format(
-                            parse(
-                              form.watch("dateOfBirth"),
-                              "yyyy-MM-dd",
-                              new Date(),
-                            ),
-                            "PPP",
-                          )
+                        {dobValue ? (
+                          format(new Date(dobValue), "PPP")
                         ) : (
                           <span>Select your birthday</span>
                         )}
@@ -224,15 +221,7 @@ const RegisterForm = ({
                         captionLayout="dropdown"
                         startMonth={new Date(1900, 0)}
                         endMonth={new Date()}
-                        selected={
-                          form.watch("dateOfBirth")
-                            ? parse(
-                                form.watch("dateOfBirth"),
-                                "yyyy-MM-dd",
-                                new Date(),
-                              )
-                            : undefined
-                        }
+                        selected={dobValue ? new Date(dobValue) : undefined}
                         onSelect={(date) => {
                           if (date) {
                             form.setValue(
@@ -255,7 +244,7 @@ const RegisterForm = ({
                     show={
                       !!touchedFields.dateOfBirth &&
                       !errors.dateOfBirth &&
-                      form.watch("dateOfBirth").length > 0
+                      dobValue.length > 0
                     }
                   />
                 </div>
@@ -303,7 +292,7 @@ const RegisterForm = ({
                 <FieldError
                   errors={errors.password ? [errors.password] : undefined}
                 />
-                <PasswordStrength password={form.watch("password")} />
+                <PasswordStrength password={passwordValue} />
               </Field>
             </motion.div>
 
