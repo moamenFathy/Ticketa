@@ -11,6 +11,7 @@ export const queryKeys = {
     },
 
     bookings: {
+      getBooking: (reference: string) => ["bookings", "get", reference] as const,
       create: ["bookings", "create"] as const,
     }
 }

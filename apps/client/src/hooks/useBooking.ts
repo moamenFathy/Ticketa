@@ -1,7 +1,7 @@
-import { createBooking } from "@/api/booking.api"
+import { createBooking, getBooking } from "@/api/booking.api"
 import { queryKeys } from "@/api/queryKeys";
 import type { BookingCreateDto } from "@/types/bookings"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 export const useCreateBooking = () => {
   const queryClient = useQueryClient();
@@ -12,4 +12,12 @@ export const useCreateBooking = () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.showtimes.getSeatsForShowtime(String(variables.showtimeId)) });
     }
   })
+}
+
+export const useGetBooking = (reference: string) => {
+  return useQuery({
+    queryKey: queryKeys.bookings.getBooking(reference),
+    queryFn: ({ signal }) => getBooking(reference, { signal }),
+    enabled: !!reference,
+  });
 }
