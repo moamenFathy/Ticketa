@@ -1,15 +1,15 @@
 import type { BookedSeat } from "./showtimes";
 
 export type BookingCreateDto = {
-  showtimeId: string;
+  showtimeId: number;
   seats: BookedSeat[];
 }
 
 export type BookingResultDto = {
   succeeded: boolean;
   bookingReference?: string;
-  totalAmount?: string;
-  conflictSeats: BookedSeat[];
+  totalAmount?: number;
+  conflictingSeats: BookedSeat[];
 }
 
 export type BookingConfirmationState = {
