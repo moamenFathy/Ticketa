@@ -7,7 +7,7 @@ namespace Ticketa.Core.Helpers
     public HallType Type { get; set; }
     public int Rows { get; set; }
     public int SeatsPerRow { get; set; }
-
     public Dictionary<int, SeatCategory> RowCategoryMap { get; set; } = new();
+    public Dictionary<SeatCategory, decimal> CategorySurchargeMap { get; set; } = new();
   }
 }
