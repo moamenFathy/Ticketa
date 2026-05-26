@@ -73,7 +73,7 @@ const OrderSummarySidebar = ({
               <motion.div key="list" className="flex flex-wrap gap-2">
                 {selectedList.map((k) => {
                   const [r, s] = k.split("-").map(Number);
-                  const cat = rowCategoryMap[r] ?? "Default";
+                  const cat = rowCategoryMap[r + 1] ?? "Default";
                   const style = getCategoryStyle(cat);
                   return (
                     <motion.button
@@ -91,6 +91,9 @@ const OrderSummarySidebar = ({
                       className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold transition-all group cursor-pointer ${style.text} ${style.border} ${style.bg}`}
                     >
                       <Star className="w-3 h-3" />
+                      <span className="opacity-70 font-medium mr-0.5">
+                        {style.label}
+                      </span>
                       {rowLabel(r)}
                       {s}
                       <X className="w-3 h-3 opacity-50 group-hover:opacity-100 transition-opacity" />

@@ -70,7 +70,7 @@ const ShowtimeSeats = () => {
 
     const seen = new Map<string, string>(); // category -> first row label
     Object.entries(seatsData.rowCategoryMap).forEach(([rowIdx, cat]) => {
-      if (!seen.has(cat)) seen.set(cat, rowLabel(Number(rowIdx)));
+      if (!seen.has(cat)) seen.set(cat, rowLabel(Number(rowIdx) - 1));
     });
 
     return Array.from(seen.entries());
