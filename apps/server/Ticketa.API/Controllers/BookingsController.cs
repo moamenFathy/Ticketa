@@ -30,5 +30,12 @@ namespace Ticketa.API.Controllers
         totalAmount = result.TotalAmount
       });
     }
+
+    [HttpGet("{reference}")]
+    public async Task<IActionResult> GetByReference(string reference, CancellationToken ct)
+    {
+      var result = await _boookingService.GetByReferenceAsync(reference, ct);
+      return result is null ? NotFound() : Ok(result);
+    }
   }
 }

@@ -89,7 +89,33 @@ namespace Ticketa.Infrastructure.Service
       _logger.LogInformation("Booking successful: Reference={Ref}", booking.BookingRefrence);
       return BookingResultDto.Success(booking.BookingRefrence, booking.TotalAmount);
     }
+    public async Task<BookingDetailsDto?> GetByReferenceAsync(string reference, CancellationToken ct = default)
+    {
+      var booking = await _uow.Bookings.GetBookingByRefrenceAsync(reference, ct);
+      return booking is null ? null : new BookingDetailsDto
+      {
+        UserId = booking.UserId,
+        UserEmail = booking.User.UserName!,
+        BookingRefrence = booking.BookingRefrence,
+        Status = booking.Status,
+        BookedAt = booking.BookedAt,
+        TotalAmount = booking.TotalAmount,
+        MovieTitle = booking.Showtime.Movie.Title,
+        MoviePosterPath = booking.Showtime.Movie.PosterPath,
+        StartsAt = booking.Showtime.StartTime,
+        HallName = booking.Showtime.Hall.Name,
+        HallType = booking.Showtime.Hall.Type.ToString(),
+        Seats = booking.BookedSeats.Select(s => new BookingDetailsSeatDto
+        {
+          Row = s.Row,
+          SeatNumber = s.SeatNumber,
+          Category = s.Category.ToString(),
+          Price = s.Price
+        }).ToList(),
+      };
+    }
 
     private static string GenerateRefrence() => $"TKT-{DateTime.UtcNow:yyyyMMdd}-{Random.Shared.Next(1000, 9999)}";
+
   }
 }
