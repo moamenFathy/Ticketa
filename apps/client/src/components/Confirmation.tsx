@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
-import { CheckCircle2, ChevronLeft } from "lucide-react";
+import { CheckCircle2, ChevronLeft, Copy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface Props {
@@ -8,6 +8,8 @@ interface Props {
   movieTitle: string;
   rowLabel: (row: number) => string;
   onClick: () => void;
+  bookingReference?: string;
+  totalAmount?: string | number;
 }
 
 const Confirmation = ({
@@ -15,6 +17,8 @@ const Confirmation = ({
   movieTitle,
   rowLabel,
   onClick,
+  bookingReference,
+  totalAmount,
 }: Props) => {
   const navigate = useNavigate();
   return (
@@ -44,6 +48,28 @@ const Confirmation = ({
             <span className="text-foreground font-semibold">{movieTitle}</span>
           </p>
         </div>
+
+        {bookingReference && (
+          <div className="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Reference</span>
+              <button
+                onClick={() => navigator.clipboard.writeText(bookingReference)}
+                className="flex items-center gap-1 text-primary font-mono font-bold hover:underline cursor-pointer"
+              >
+                {bookingReference}
+                <Copy className="w-3 h-3" />
+              </button>
+            </div>
+            {totalAmount && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Total</span>
+                <span className="text-foreground font-bold">{totalAmount}</span>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="flex flex-wrap gap-2 justify-center">
           {selectedList.map((k) => {
             const [r, s] = k.split("-").map(Number);

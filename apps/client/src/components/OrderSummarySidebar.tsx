@@ -1,5 +1,13 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { ShoppingCart, Sparkles, Star, Ticket, X } from "lucide-react";
+import {
+  AlertTriangle,
+  Loader2,
+  ShoppingCart,
+  Sparkles,
+  Star,
+  Ticket,
+  X,
+} from "lucide-react";
 import { Button } from "./ui/button";
 import { getCategoryStyle, rowLabel } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
@@ -12,6 +20,9 @@ interface Props {
   onToggleSeat: (key: string) => void;
   onConfirm: () => void;
   onClear: () => void;
+  isBooking?: boolean;
+  bookingError?: string | null;
+  onDismissError?: () => void;
 }
 
 const OrderSummarySidebar = ({
@@ -22,6 +33,9 @@ const OrderSummarySidebar = ({
   onToggleSeat,
   onConfirm,
   onClear,
+  isBooking = false,
+  bookingError = null,
+  onDismissError,
 }: Props) => {
   return (
     <motion.div
@@ -43,7 +57,7 @@ const OrderSummarySidebar = ({
         </div>
 
         {/* Seat chips */}
-        <div className="px-5 py-4 min-h-[100px]">
+        <div className="px-5 py-4 min-h-25">
           <AnimatePresence mode="popLayout">
             {selectedList.length === 0 ? (
               <motion.p
@@ -110,13 +124,34 @@ const OrderSummarySidebar = ({
 
         {/* CTA */}
         <div className="px-5 pb-5 pt-3">
-          <motion.div whileTap={{ scale: 0.97 }}>
+          <AnimatePresence>
+            {bookingError && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-3 flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2.5 text-sm text-destructive"
+              >
+                <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+                <span className="flex-1">{bookingError}</span>
+                {onDismissError && (
+                  <button
+                    onClick={onDismissError}
+                    className="shrink-0 text-destructive/60 hover:text-destructive transition-colors cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <motion.div whileTap={!isBooking ? { scale: 0.97 } : undefined}>
             <Button
               className="w-full rounded-2xl h-12 font-bold text-base relative overflow-hidden group"
-              disabled={selectedList.length === 0}
+              disabled={selectedList.length === 0 || isBooking}
               onClick={onConfirm}
               style={
-                selectedList.length > 0
+                selectedList.length > 0 && !isBooking
                   ? {
                       boxShadow: "0 8px 32px oklch(67.2% 0.191 39deg / 35%)",
                     }
@@ -124,13 +159,23 @@ const OrderSummarySidebar = ({
               }
             >
               <span className="relative z-10 flex items-center justify-center gap-2">
-                <Ticket className="w-5 h-5" />
-                {selectedList.length === 0
-                  ? "Select Seats"
-                  : `Confirm ${selectedList.length} Seat${selectedList.length !== 1 ? "s" : ""}`}
+                {isBooking ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Booking…
+                  </>
+                ) : (
+                  <>
+                    <Ticket className="w-5 h-5" />
+                    {selectedList.length === 0
+                      ? "Select Seats"
+                      : `Confirm ${selectedList.length} Seat${selectedList.length !== 1 ? "s" : ""}`}
+                  </>
+                )}
               </span>
-              {/* Shimmer on hover */}
-              <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+              {!isBooking && (
+                <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-linear-to-r from-transparent via-white/15 to-transparent" />
+              )}
             </Button>
           </motion.div>
 
