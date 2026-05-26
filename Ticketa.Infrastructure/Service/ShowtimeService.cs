@@ -199,9 +199,14 @@ namespace Ticketa.Infrastructure.Service
       var template = HallTypeHelper.GetTemplate(showtime.Hall.Type);
       var bookedSeats = await _uow.BookedSeats.GetByShowtimeIdAsync(showtimeId, ct);
 
-      var categoryPrices = template.CategorySurchargeMap.ToDictionary(
-         kvp => kvp.Value.ToString(),
-          kvp => showtime.Price + kvp.Value
+      var categoryPrices = template.RowCategoryMap.Values.Distinct().ToDictionary(
+          cat => cat.ToString(),
+          cat => showtime.Price * (cat switch
+          {
+            SeatCategory.VIP => 1.5m,
+            SeatCategory.Premium => 1.2m,
+            _ => 1.0m
+          })
         );
 
       return new ShowtimeSeatDto

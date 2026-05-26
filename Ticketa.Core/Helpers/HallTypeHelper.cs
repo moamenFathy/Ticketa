@@ -20,12 +20,7 @@ namespace Ticketa.Core.Helpers
         Rows = 12,
         SeatsPerRow = 16,
         RowCategoryMap = BuildMap(regularRows: 9, premiumRows: 3,
-            regular: SeatCategory.Regular, premium: SeatCategory.VIP),
-        CategorySurchargeMap = new()
-        {
-          [SeatCategory.Regular] = 0m,
-          [SeatCategory.VIP] = 30m
-        }
+            regular: SeatCategory.Regular, premium: SeatCategory.VIP)
       },
       HallType.IMAX => new HallTemplate
       {
@@ -33,12 +28,7 @@ namespace Ticketa.Core.Helpers
         Rows = 14,
         SeatsPerRow = 16,
         RowCategoryMap = BuildMap(regularRows: 10, premiumRows: 4,
-            regular: SeatCategory.Regular, premium: SeatCategory.Premium),
-        CategorySurchargeMap = new()
-        {
-          [SeatCategory.Regular] = 0m,
-          [SeatCategory.Premium] = 50m
-        }
+            regular: SeatCategory.Regular, premium: SeatCategory.Premium)
       },
       HallType.Gold => new HallTemplate
       {
@@ -46,11 +36,7 @@ namespace Ticketa.Core.Helpers
         Rows = 6,
         SeatsPerRow = 8,
         RowCategoryMap = BuildMap(regularRows: 6, premiumRows: 0,
-            regular: SeatCategory.Regular, premium: SeatCategory.Regular),
-        CategorySurchargeMap = new()
-        {
-          [SeatCategory.Regular] = 0m
-        }
+            regular: SeatCategory.Regular, premium: SeatCategory.Regular)
       },
       _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
     };
