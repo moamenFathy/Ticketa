@@ -16,7 +16,9 @@ interface Props {
   selectedList: string[];
   rowCategoryMap: Record<number, string>;
   hallName: string;
+  hallType?: string;
   startsAt: string;
+  price?: number;
   onToggleSeat: (key: string) => void;
   onConfirm: () => void;
   onClear: () => void;
@@ -29,7 +31,9 @@ const OrderSummarySidebar = ({
   selectedList,
   rowCategoryMap,
   hallName,
+  hallType,
   startsAt,
+  price,
   onToggleSeat,
   onConfirm,
   onClear,
@@ -37,6 +41,22 @@ const OrderSummarySidebar = ({
   bookingError = null,
   onDismissError,
 }: Props) => {
+  const totalPrice = selectedList.reduce((acc, k) => {
+    const [r] = k.split("-").map(Number);
+    const cat = rowCategoryMap[r + 1];
+    // If premium, add 50% to the base price
+    const basePrice = price ?? 0;
+
+    let itemPrice = basePrice;
+    if (cat === "Premium") {
+      itemPrice = basePrice * 1.5;
+    } else if (cat === "VIP" && hallType === "Standard") {
+      itemPrice = basePrice * 1.5;
+    }
+
+    return acc + itemPrice;
+  }, 0);
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 24 }}
@@ -123,6 +143,14 @@ const OrderSummarySidebar = ({
               {startsAt ? format(parseISO(startsAt), "MMM d, yyyy") : "—"}
             </span>
           </div>
+          {selectedList.length > 0 && (
+            <div className="flex justify-between pt-2 border-t border-white/6 items-center">
+              <span className="text-foreground font-bold">Total Price</span>
+              <span className="text-primary text-xl font-black">
+                {totalPrice.toLocaleString()} $
+              </span>
+            </div>
+          )}
         </div>
 
         {/* CTA */}

@@ -41,6 +41,9 @@ const ShowtimesCards = ({ showtime, index }: Props) => {
             </div>
           </div>
           <div className="text-right">
+            <p className="text-[10px] uppercase font-bold tracking-tighter text-muted-foreground group-hover:text-white/50">
+              Starts from
+            </p>
             <p className="text-lg font-bold group-hover:text-white">
               {showtime.price} $
             </p>

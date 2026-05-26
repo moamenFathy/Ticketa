@@ -1,4 +1,4 @@
-import { useGetSeatsForShowtime } from "@/hooks/useShowtimes";
+import { useGetSeatsForShowtime, useGetShowtimes } from "@/hooks/useShowtimes";
 import { useCreateBooking } from "@/hooks/useBooking";
 import { useParams, useLocation } from "react-router-dom";
 import ShowtimeSeatsSkeleton from "@/components/skeletons/ShowtimeSeatsSkeleton";
@@ -31,6 +31,19 @@ const ShowtimeSeats = () => {
     isError,
     refetch,
   } = useGetSeatsForShowtime(id!);
+
+  const { data: moviesWithShowtimes } = useGetShowtimes();
+
+  const price = useMemo(() => {
+    if (seatsData?.price) return seatsData.price;
+    if (!moviesWithShowtimes) return 0;
+
+    for (const movie of moviesWithShowtimes) {
+      const showtime = movie.showtimes.find((s) => String(s.id) === String(id));
+      if (showtime) return showtime.price;
+    }
+    return 0;
+  }, [seatsData, moviesWithShowtimes, id]);
 
   const createBooking = useCreateBooking();
 
@@ -247,7 +260,9 @@ const ShowtimeSeats = () => {
           {/* ── Order Summary sidebar ── */}
           <OrderSummarySidebar
             hallName={seatsData.hallName}
+            hallType={seatsData.hallType}
             startsAt={seatsData.startsAt}
+            price={price}
             selectedList={selectedList}
             rowCategoryMap={seatsData.rowCategoryMap}
             onToggleSeat={toggleSeat}
