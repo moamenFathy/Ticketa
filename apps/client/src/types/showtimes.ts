@@ -11,10 +11,10 @@ export type Showtime = {
 	id: string;
 	hallName: string;
 	startTime: string;
-	price: string;
+	price: number;
 }
 
-type BookedSeat = {
+export type BookedSeat = {
 	row: number;
 	seatNumber: number;
 }
@@ -27,6 +27,7 @@ export type ShowtimeSeats = {
 	hallName: string;
 	hallType: string;
 	startsAt: string;
+	price: number;
 	rows: number;
 	seatsPerRow: number;
 	rowCategoryMap: Record<number, string>;

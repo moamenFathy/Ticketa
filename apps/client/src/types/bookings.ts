@@ -1,0 +1,39 @@
+import type { BookedSeat } from "./showtimes";
+
+export type BookingCreateDto = {
+  showtimeId: number;
+  seats: BookedSeat[];
+}
+
+export type BookingResultDto = {
+  succeeded: boolean;
+  bookingReference?: string;
+  totalAmount?: number;
+  conflictingSeats: BookedSeat[];
+}
+
+export type BookingConfirmationState = {
+  bookingReference: string;
+  totalAmount: string;
+  movieTitle: string;
+  moviePosterPath?: string;
+  hallName: string;
+  hallType: string;
+  startsAt: string;
+  seats: BookedSeat[];
+}
+
+export type BookingDetails = {
+  userId: string;
+  userEmail: string;
+  bookingReference: string;
+  status: string;
+  bookedAt: string;
+  totalAmount: number;
+  movieTitle: string;
+  moviePosterPath?: string;
+  startsAt: string;
+  hallName: string;
+  hallType: string;
+  seats: BookedSeat[];
+}

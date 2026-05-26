@@ -1,8 +1,9 @@
-import { useGetSeatsForShowtime } from "@/hooks/useShowtimes";
-import { useParams } from "react-router-dom";
+import { useGetSeatsForShowtime, useGetShowtimes } from "@/hooks/useShowtimes";
+import { useCreateBooking } from "@/hooks/useBooking";
+import { useParams, useLocation } from "react-router-dom";
 import ShowtimeSeatsSkeleton from "@/components/skeletons/ShowtimeSeatsSkeleton";
 import { motion } from "framer-motion";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ErrorState from "@/components/ErrorState";
@@ -13,11 +14,17 @@ import { rowLabel, seatKey } from "@/lib/utils";
 import SeatGrid from "@/components/SeatGrid";
 import Legend from "@/components/Legend";
 import OrderSummarySidebar from "@/components/OrderSummarySidebar";
+import type { BookingResultDto } from "@/types/bookings";
+import type { ApiError } from "@/types/api";
+import { isConflictError } from "@/api/errors";
+import { useAuth } from "@/hooks/useAuth";
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 const ShowtimeSeats = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isLoggedIn } = useAuth();
   const {
     data: seatsData,
     isLoading,
@@ -25,8 +32,27 @@ const ShowtimeSeats = () => {
     refetch,
   } = useGetSeatsForShowtime(id!);
 
+  const { data: moviesWithShowtimes } = useGetShowtimes();
+
+  const price = useMemo(() => {
+    if (seatsData?.price) return seatsData.price;
+    if (!moviesWithShowtimes) return 0;
+
+    for (const movie of moviesWithShowtimes) {
+      const showtime = movie.showtimes.find((s) => String(s.id) === String(id));
+      if (showtime) return showtime.price;
+    }
+    return 0;
+  }, [seatsData, moviesWithShowtimes, id]);
+
+  const createBooking = useCreateBooking();
+
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [confirmed, setConfirmed] = useState(false);
+  const [bookingResult, setBookingResult] = useState<BookingResultDto | null>(
+    null,
+  );
+  const [bookingError, setBookingError] = useState<string | null>(null);
 
   // Build a Set of booked seat keys for O(1) lookup
   // Backend sends 1-based row indices, our grid uses 0-based
@@ -54,18 +80,81 @@ const ShowtimeSeats = () => {
   // Derive unique categories in display order
   const categories = useMemo(() => {
     if (!seatsData) return [];
+
     const seen = new Map<string, string>(); // category -> first row label
     Object.entries(seatsData.rowCategoryMap).forEach(([rowIdx, cat]) => {
-      if (!seen.has(cat)) seen.set(cat, rowLabel(Number(rowIdx)));
+      if (!seen.has(cat)) seen.set(cat, rowLabel(Number(rowIdx) - 1));
     });
+
     return Array.from(seen.entries());
   }, [seatsData]);
 
   const selectedList = useMemo(() => Array.from(selected), [selected]);
 
+  const handleConfirm = useCallback(() => {
+    if (selectedList.length === 0) return;
+
+    if (!isLoggedIn) {
+      navigate(`/login?returnUrl=${encodeURIComponent(location.pathname)}`);
+      return;
+    }
+
+    setBookingError(null);
+
+    const seats = selectedList.map((k) => {
+      const [row, seatNumber] = k.split("-").map(Number);
+      return { row: row + 1, seatNumber };
+    });
+
+    createBooking.mutate(
+      { showtimeId: Number(id!), seats },
+      {
+        onSuccess: (data) => {
+          setBookingResult(data);
+          setConfirmed(true);
+        },
+        onError: (error) => {
+          const apiError = error as unknown as ApiError;
+          if (isConflictError(apiError)) {
+            if (apiError.conflictingSeats?.length) {
+              const conflictKeys = apiError.conflictingSeats.map((s) =>
+                seatKey(s.row - 1, s.seatNumber),
+              );
+              setSelected((prev) => {
+                const next = new Set(prev);
+                conflictKeys.forEach((k) => next.delete(k));
+                return next;
+              });
+              setBookingError(
+                `${conflictKeys.length} seat(s) were already booked and have been removed.`,
+              );
+            } else {
+              setBookingError(
+                apiError.message ??
+                  "Some seats are no longer available. Please try again.",
+              );
+            }
+          } else {
+            setBookingError(
+              apiError.message ?? "Booking failed. Please try again.",
+            );
+          }
+        },
+      },
+    );
+  }, [selectedList, id, createBooking, isLoggedIn, navigate, location]);
+
   if (isLoading) return <ShowtimeSeatsSkeleton />;
 
-  if (isError || !seatsData) return <ErrorState refetch={refetch} />;
+  if (isError || !seatsData) {
+    return (
+      <ErrorState
+        refetch={refetch}
+        title="Unable to load seats"
+        message="We couldn't retrieve the seating plan for this showtime. Please try again later."
+      />
+    );
+  }
 
   const rows = seatsData.rows;
   const seatsPerRow = seatsData.seatsPerRow;
@@ -80,9 +169,13 @@ const ShowtimeSeats = () => {
         movieTitle={seatsData.movieTitle}
         rowLabel={rowLabel}
         selectedList={selectedList}
+        bookingReference={bookingResult?.bookingReference}
+        totalAmount={bookingResult?.totalAmount}
         onClick={() => {
           setSelected(new Set());
           setConfirmed(false);
+          setBookingResult(null);
+          setBookingError(null);
         }}
       />
     );
@@ -97,7 +190,7 @@ const ShowtimeSeats = () => {
           alt=""
           className="absolute inset-0 w-full h-full object-cover opacity-[0.04] blur-3xl scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
+        <div className="absolute inset-0 bg-linear-to-b from-background/80 via-background/60 to-background" />
       </div>
 
       <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -167,12 +260,20 @@ const ShowtimeSeats = () => {
           {/* ── Order Summary sidebar ── */}
           <OrderSummarySidebar
             hallName={seatsData.hallName}
+            hallType={seatsData.hallType}
             startsAt={seatsData.startsAt}
+            price={price}
             selectedList={selectedList}
             rowCategoryMap={seatsData.rowCategoryMap}
             onToggleSeat={toggleSeat}
-            onConfirm={() => setConfirmed(true)}
-            onClear={() => setSelected(new Set())}
+            onConfirm={handleConfirm}
+            onClear={() => {
+              setSelected(new Set());
+              setBookingError(null);
+            }}
+            isBooking={createBooking.isPending}
+            bookingError={bookingError}
+            onDismissError={() => setBookingError(null)}
           />
         </div>
       </div>

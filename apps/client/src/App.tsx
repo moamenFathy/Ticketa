@@ -6,6 +6,7 @@ import Showtimes from "./pages/Showtimes";
 import ShowtimeSeats from "./pages/ShowtimeSeats";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Scan from "./pages/Scan";
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
         <Route path="movies/:id" element={<MovieDetails />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
+        <Route path="bookings/:reference" element={<Scan />} />
         <Route path="*" element={<h1>not found</h1>} />
       </Route>
     </Routes>

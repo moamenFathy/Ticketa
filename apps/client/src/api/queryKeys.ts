@@ -8,5 +8,10 @@ export const queryKeys = {
     showtimes: {
         getAll: ["showtimes"] as const,
         getSeatsForShowtime: (showtimeId: string) => ["showtimes", "seats", showtimeId] as const
+    },
+
+    bookings: {
+      getBooking: (reference: string) => ["bookings", "get", reference] as const,
+      create: ["bookings", "create"] as const,
     }
 }

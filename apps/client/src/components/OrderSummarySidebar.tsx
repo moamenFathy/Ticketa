@@ -1,5 +1,13 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { ShoppingCart, Sparkles, Star, Ticket, X } from "lucide-react";
+import {
+  AlertTriangle,
+  Loader2,
+  ShoppingCart,
+  Sparkles,
+  Star,
+  Ticket,
+  X,
+} from "lucide-react";
 import { Button } from "./ui/button";
 import { getCategoryStyle, rowLabel } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
@@ -8,21 +16,47 @@ interface Props {
   selectedList: string[];
   rowCategoryMap: Record<number, string>;
   hallName: string;
+  hallType?: string;
   startsAt: string;
+  price?: number;
   onToggleSeat: (key: string) => void;
   onConfirm: () => void;
   onClear: () => void;
+  isBooking?: boolean;
+  bookingError?: string | null;
+  onDismissError?: () => void;
 }
 
 const OrderSummarySidebar = ({
   selectedList,
   rowCategoryMap,
   hallName,
+  hallType,
   startsAt,
+  price,
   onToggleSeat,
   onConfirm,
   onClear,
+  isBooking = false,
+  bookingError = null,
+  onDismissError,
 }: Props) => {
+  const totalPrice = selectedList.reduce((acc, k) => {
+    const [r] = k.split("-").map(Number);
+    const cat = rowCategoryMap[r + 1];
+    // If premium, add 50% to the base price
+    const basePrice = price ?? 0;
+
+    let itemPrice = basePrice;
+    if (cat === "Premium") {
+      itemPrice = basePrice * 1.5;
+    } else if (cat === "VIP" && hallType === "Standard") {
+      itemPrice = basePrice * 1.5;
+    }
+
+    return acc + itemPrice;
+  }, 0);
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 24 }}
@@ -43,7 +77,7 @@ const OrderSummarySidebar = ({
         </div>
 
         {/* Seat chips */}
-        <div className="px-5 py-4 min-h-[100px]">
+        <div className="px-5 py-4 min-h-25">
           <AnimatePresence mode="popLayout">
             {selectedList.length === 0 ? (
               <motion.p
@@ -59,7 +93,7 @@ const OrderSummarySidebar = ({
               <motion.div key="list" className="flex flex-wrap gap-2">
                 {selectedList.map((k) => {
                   const [r, s] = k.split("-").map(Number);
-                  const cat = rowCategoryMap[r] ?? "Default";
+                  const cat = rowCategoryMap[r + 1] ?? "Default";
                   const style = getCategoryStyle(cat);
                   return (
                     <motion.button
@@ -77,6 +111,9 @@ const OrderSummarySidebar = ({
                       className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold transition-all group cursor-pointer ${style.text} ${style.border} ${style.bg}`}
                     >
                       <Star className="w-3 h-3" />
+                      <span className="opacity-70 font-medium mr-0.5">
+                        {style.label}
+                      </span>
                       {rowLabel(r)}
                       {s}
                       <X className="w-3 h-3 opacity-50 group-hover:opacity-100 transition-opacity" />
@@ -106,17 +143,46 @@ const OrderSummarySidebar = ({
               {startsAt ? format(parseISO(startsAt), "MMM d, yyyy") : "—"}
             </span>
           </div>
+          {selectedList.length > 0 && (
+            <div className="flex justify-between pt-2 border-t border-white/6 items-center">
+              <span className="text-foreground font-bold">Total Price</span>
+              <span className="text-primary text-xl font-black">
+                {totalPrice.toLocaleString()} $
+              </span>
+            </div>
+          )}
         </div>
 
         {/* CTA */}
         <div className="px-5 pb-5 pt-3">
-          <motion.div whileTap={{ scale: 0.97 }}>
+          <AnimatePresence>
+            {bookingError && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-3 flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2.5 text-sm text-destructive"
+              >
+                <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+                <span className="flex-1">{bookingError}</span>
+                {onDismissError && (
+                  <button
+                    onClick={onDismissError}
+                    className="shrink-0 text-destructive/60 hover:text-destructive transition-colors cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <motion.div whileTap={!isBooking ? { scale: 0.97 } : undefined}>
             <Button
               className="w-full rounded-2xl h-12 font-bold text-base relative overflow-hidden group"
-              disabled={selectedList.length === 0}
+              disabled={selectedList.length === 0 || isBooking}
               onClick={onConfirm}
               style={
-                selectedList.length > 0
+                selectedList.length > 0 && !isBooking
                   ? {
                       boxShadow: "0 8px 32px oklch(67.2% 0.191 39deg / 35%)",
                     }
@@ -124,13 +190,23 @@ const OrderSummarySidebar = ({
               }
             >
               <span className="relative z-10 flex items-center justify-center gap-2">
-                <Ticket className="w-5 h-5" />
-                {selectedList.length === 0
-                  ? "Select Seats"
-                  : `Confirm ${selectedList.length} Seat${selectedList.length !== 1 ? "s" : ""}`}
+                {isBooking ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Booking…
+                  </>
+                ) : (
+                  <>
+                    <Ticket className="w-5 h-5" />
+                    {selectedList.length === 0
+                      ? "Select Seats"
+                      : `Confirm ${selectedList.length} Seat${selectedList.length !== 1 ? "s" : ""}`}
+                  </>
+                )}
               </span>
-              {/* Shimmer on hover */}
-              <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+              {!isBooking && (
+                <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-linear-to-r from-transparent via-white/15 to-transparent" />
+              )}
             </Button>
           </motion.div>
 
