@@ -3,7 +3,6 @@
   public class BookingResultDto
   {
     public bool Succeeded { get; set; }
-    public bool IsNotFound { get; set; }
     public string? BookingReference { get; set; }
     public decimal? TotalAmount { get; set; }
     public List<SeatDto> ConflictingSeats { get; set; } = [];
@@ -14,8 +13,6 @@
       BookingReference = refrence,
       TotalAmount = total
     };
-
-    public static BookingResultDto NotFound() => new() { IsNotFound = true };
 
     public static BookingResultDto Conflict(IEnumerable<SeatDto> seats) => new()
     {

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Polly;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Interfaces;
+using Ticketa.Core.Interfaces.IRepositories;
 using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Core.Interfaces.Services;
 using Ticketa.Core.Mapping;
@@ -42,6 +43,7 @@ namespace Ticketa.Infrastructure.Extensions
       services.AddScoped<IMoviesService, MoviesService>();
       services.AddScoped<IShowtimeService, ShowtimeService>();
       services.AddScoped<IAuthService, AuthService>();
+      services.AddScoped<IBookingService, BookingService>();
 
       // Email
       services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
