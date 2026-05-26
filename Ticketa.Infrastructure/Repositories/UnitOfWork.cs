@@ -4,19 +4,15 @@ using Ticketa.Infrastructure.Data;
 
 namespace Ticketa.Infrastructure.Repositories
 {
-  public class UnitOfWork : IUnitOfWork
+  public class UnitOfWork(ApplicationDbContext context) : IUnitOfWork
   {
-    private readonly ApplicationDbContext _context;
+    private readonly ApplicationDbContext _context = context;
     private IHallRepository? _halls;
     private IMovieRepository? _movies;
     private IGenreRepository? _genres;
     private IShowtimeRepository? _showtimes;
+    private IBookingRepository? _bookings;
     private IBookedSeatRepository? _bookedseat;
-
-    public UnitOfWork(ApplicationDbContext context)
-    {
-      _context = context;
-    }
 
     public IHallRepository Halls => _halls ??= new HallRepository(_context);
 
@@ -25,6 +21,8 @@ namespace Ticketa.Infrastructure.Repositories
     public IGenreRepository Genres => _genres ??= new GenreRepository(_context);
 
     public IShowtimeRepository Showtimes => _showtimes ??= new ShowtimeRepository(_context);
+
+    public IBookingRepository Bookings => _bookings ??= new BookingRepository(_context);
 
     public IBookedSeatRepository BookedSeats => _bookedseat ??= new BookedSeatRepository(_context);
 
