@@ -14,7 +14,7 @@ export type Showtime = {
 	price: string;
 }
 
-type BookedSeat = {
+export type BookedSeat = {
 	row: number;
 	seatNumber: number;
 }
