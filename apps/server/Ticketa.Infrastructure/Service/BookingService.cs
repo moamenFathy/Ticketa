@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Entities;
+using Ticketa.Core.Enums;
 using Ticketa.Core.Helpers;
 using Ticketa.Core.Interfaces;
 using Ticketa.Core.Interfaces.IRepositories;
@@ -38,11 +39,16 @@ namespace Ticketa.Infrastructure.Service
       }
 
       var template = HallTypeHelper.GetTemplate(showtime.Hall.Type);
-      var surchargeMap = template.CategorySurchargeMap;
 
       var bookedSeats = dto.Seats.Select(s =>
       {
         var category = template.RowCategoryMap[s.Row];
+        decimal multiplier = category switch
+        {
+          SeatCategory.VIP => 1.5m,
+          SeatCategory.Premium => 1.2m,
+          _ => 1.0m
+        };
 
         return new BookedSeat
         {
@@ -50,7 +56,7 @@ namespace Ticketa.Infrastructure.Service
           Row = s.Row,
           SeatNumber = s.SeatNumber,
           Category = category,
-          Price = showtime.Price + surchargeMap[category]
+          Price = showtime.Price * multiplier
         };
       }).ToList();
 
