@@ -8,13 +8,11 @@ using Ticketa.Core.Specifications;
 
 namespace Ticketa.Infrastructure.Service
 {
-  public class ShowtimeService : IShowtimeService
+  public class ShowtimeService(IUnitOfWork uow) : IShowtimeService
   {
     private const int BufferMinutes = 15;
 
-    private readonly IUnitOfWork _uow;
-
-    public ShowtimeService(IUnitOfWork uow) => _uow = uow;
+    private readonly IUnitOfWork _uow = uow;
 
     // ── DataTables ───────────────────────────────────────────────
 
@@ -195,11 +193,16 @@ namespace Ticketa.Infrastructure.Service
     {
       var spec = new ShowtimeByIdSpecification(showtimeId);
       var showtime = await _uow.Showtimes.GetEntityWithSpecAsync(spec);
-
       if (showtime is null) return null;
+
 
       var template = HallTypeHelper.GetTemplate(showtime.Hall.Type);
       var bookedSeats = await _uow.BookedSeats.GetByShowtimeIdAsync(showtimeId, ct);
+
+      var categoryPrices = template.CategorySurchargeMap.ToDictionary(
+         kvp => kvp.Value.ToString(),
+          kvp => showtime.Price + kvp.Value
+        );
 
       return new ShowtimeSeatDto
       {
@@ -210,10 +213,12 @@ namespace Ticketa.Infrastructure.Service
         HallName = showtime.Hall.Name,
         HallType = showtime.Hall.Type.ToString(),
         StartsAt = showtime.StartTime,
+        BasePrice = showtime.Price,
         Rows = template.Rows,
         SeatsPerRow = template.SeatsPerRow,
         RowCategoryMap = template.RowCategoryMap
                                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString()),
+        CategoryPrices = categoryPrices,
         BookedSeats = bookedSeats
                                 .Select(b => new SeatDto { Row = b.Row, SeatNumber = b.SeatNumber })
                                 .ToList()
