@@ -9,9 +9,11 @@
     public string HallName { get; set; } = string.Empty;
     public string HallType { get; set; } = string.Empty;
     public DateTime StartsAt { get; set; }
+    public decimal BasePrice { get; set; }
     public int Rows { get; set; }
     public int SeatsPerRow { get; set; }
     public Dictionary<int, string> RowCategoryMap { get; set; } = new();
+    public Dictionary<string, decimal> CategoryPrices { get; set; } = new();
     public List<SeatDto> BookedSeats { get; set; } = [];
   }
 }
