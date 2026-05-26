@@ -22,3 +22,18 @@ export type BookingConfirmationState = {
   startsAt: string;
   seats: BookedSeat[];
 }
+
+export type BookingDetails = {
+  userId: string;
+  userEmail: string;
+  bookingReference: string;
+  status: string;
+  bookedAt: string;
+  totalAmount: number;
+  movieTitle: string;
+  moviePosterPath?: string;
+  startsAt: string;
+  hallName: string;
+  hallType: string;
+  seats: BookedSeat[];
+}

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { CheckCircle2, ChevronLeft, Copy } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { useNavigate } from "react-router-dom";
 
 interface Props {
@@ -69,6 +70,16 @@ const Confirmation = ({
             )}
           </div>
         )}
+
+        <div className="flex justify-center">
+          <QRCodeSVG
+            value={`${import.meta.env.VITE_APP_URL || window.location.origin}/bookings/${bookingReference}`}
+            size={200}
+            className="rounded-2xl"
+            level="M"
+            includeMargin
+          />
+        </div>
 
         <div className="flex flex-wrap gap-2 justify-center">
           {selectedList.map((k) => {
