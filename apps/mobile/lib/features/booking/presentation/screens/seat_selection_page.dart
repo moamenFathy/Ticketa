@@ -218,8 +218,8 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
   ) {
     final seatMap = state.seatMap;
     final mq = MediaQuery.of(context);
-    final painterHeight = mq.size.height * 0.12;
-    final screenTextTop = painterHeight * 0.35;
+    final painterHeight = mq.size.height * 0.10;
+    final screenTextTop = painterHeight * 0.4;
 
     // Calculate total price based on category
     double totalPrice = 0;
@@ -276,37 +276,43 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
 
           // Screen & Seats Area
           Expanded(
-            child: Padding(
-              padding: EdgeInsets.zero,
-              child: Stack(
-                children: [
-                  Positioned(
-                    top: 0, left: 0, right: 0,
-                    height: painterHeight,
-                    child: CustomPaint(
-                      painter: CinemaScreenPainter(color: theme.colorScheme.primary, isDark: isDark, hallType: seatMap.hallType),
-                    ),
-                  ),
-                  Positioned(
-                    top: screenTextTop, left: 0, right: 0,
-                    child: IgnorePointer(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.keyboard_arrow_up_rounded, color: theme.colorScheme.onSurface.withValues(alpha: 0.4), size: 20),
-                          Text(
-                            l10n.screen.toUpperCase(),
-                            style: TextStyle(
-                              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                              fontSize: 9, letterSpacing: 6, fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
+            child: Column(
+              children: [
+                // Screen painter
+                SizedBox(
+                  height: painterHeight,
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: CustomPaint(
+                          painter: CinemaScreenPainter(color: theme.colorScheme.primary, isDark: isDark, hallType: seatMap.hallType),
+                        ),
                       ),
-                    ),
+                      Positioned(
+                        top: screenTextTop, left: 0, right: 0,
+                        child: IgnorePointer(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.keyboard_arrow_up_rounded, color: theme.colorScheme.onSurface.withValues(alpha: 0.4), size: 20),
+                              Text(
+                                l10n.screen.toUpperCase(),
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                                  fontSize: 9, letterSpacing: 6, fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  Positioned(
-                    top: painterHeight * 0.75, left: 0, right: 0, bottom: 0,
+                ),
+                // Seat grid
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 2),
                     child: CinemaSeatGrid(
                       rows: seatMap.rows,
                       seatsPerRow: seatMap.seatsPerRow,
@@ -319,12 +325,11 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
                       },
                     ),
                   ),
-                ],
-              ),
+                ),
+                const SeatLegend(),
+              ],
             ),
           ),
-
-          const SeatLegend(),
 
           _buildBottomAction(l10n, theme, state, totalPrice),
         ],

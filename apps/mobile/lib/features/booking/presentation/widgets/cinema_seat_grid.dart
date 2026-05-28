@@ -64,7 +64,15 @@ class CinemaSeatGrid extends StatelessWidget {
           final aislesTotal = maxWidth * 0.08;
           final aisleWidth = aislesTotal / 2;
 
-          return Column(
+          final availableForSeats = maxWidth - aislesTotal;
+          final refCount = hallType == 'Gold' ? 8 : 16;
+          final seatUnitWidth = availableForSeats / refCount;
+          final rawSeatWidth = seatUnitWidth - 3;
+          final maxByHeight = (maxHeight - (rows - 1) * 3) / rows;
+          final seatSize = rawSeatWidth.clamp(12.0, maxByHeight.clamp(12.0, 28.0));
+
+          return SingleChildScrollView(
+            child: Column(
             mainAxisSize: MainAxisSize.min,
             children: List.generate(rows, (rowIndex) {
               final rowNumber = rowIndex + 1;
@@ -72,12 +80,6 @@ class CinemaSeatGrid extends StatelessWidget {
               final isVip = category == 'VIP' || category == 'Premium' || _isVipRow(rowNumber);
               final leftCount = _leftSeats(rowNumber);
               final rightCount = _rightSeats(rowNumber);
-              final availableForSeats = maxWidth - aislesTotal;
-              final refCount = hallType == 'Gold' ? 8 : 16;
-              final seatUnitWidth = availableForSeats / refCount;
-              final rawSeatWidth = seatUnitWidth - 3;
-              final maxByHeight = (maxHeight - (rows - 1) * 3) / rows;
-              final seatSize = rawSeatWidth.clamp(12.0, maxByHeight.clamp(12.0, 28.0));
 
               final rowLetter = String.fromCharCode(65 + rowIndex);
 
@@ -141,10 +143,10 @@ class CinemaSeatGrid extends StatelessWidget {
                 ),
               );
             }),
-          );
-        },
-      ),
-    );
+          ),
+        );
+      },
+    ));
   }
 
   Widget _buildSeat({
