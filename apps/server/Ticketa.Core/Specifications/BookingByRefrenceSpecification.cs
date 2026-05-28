@@ -9,7 +9,7 @@ namespace Ticketa.Core.Specifications
       AddCriteria(b => b.BookingRefrence == refrence);
       AddInclude(b => b.BookedSeats);
       AddInclude(b => b.User);
-      AddInclude("Showtime.Moive");
+      AddInclude("Showtime.Movie");
       AddInclude("Showtime.Hall");
     }
   }

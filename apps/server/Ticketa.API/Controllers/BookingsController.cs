@@ -32,6 +32,7 @@ namespace Ticketa.API.Controllers
     }
 
     [HttpGet("{reference}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetByReference(string reference, CancellationToken ct)
     {
       var result = await _boookingService.GetByReferenceAsync(reference, ct);
