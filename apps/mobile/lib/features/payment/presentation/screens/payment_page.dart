@@ -12,6 +12,10 @@ class PaymentPage extends StatefulWidget {
   final List<String> selectedSeats;
   final String date;
   final String time;
+  final String? bookingReference;
+  final int showtimeId;
+  final String? moviePoster;
+  final String? hallName;
 
   const PaymentPage({
     super.key,
@@ -20,6 +24,10 @@ class PaymentPage extends StatefulWidget {
     required this.selectedSeats,
     required this.date,
     required this.time,
+    this.bookingReference,
+    this.showtimeId = 0,
+    this.moviePoster,
+    this.hallName,
   });
 
   @override
@@ -27,8 +35,8 @@ class PaymentPage extends StatefulWidget {
 }
 
 class _PaymentPageState extends State<PaymentPage> {
-  int _selectedMethod = 0; // 0: Card, 1: Apple Pay
-  final bool _isProcessing = false;
+  int _selectedMethod = 0;
+  bool _isProcessing = false;
 
   @override
   Widget build(BuildContext context) {
@@ -56,13 +64,13 @@ class _PaymentPageState extends State<PaymentPage> {
               totalAmount: widget.totalAmount,
             ),
             const SizedBox(height: 32),
-            
+
             Text(
               l10n.paymentMethod,
               style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
             ),
             const SizedBox(height: 16),
-            
+
             PaymentMethodSelector(
               index: 0,
               title: l10n.creditCard,
@@ -70,15 +78,14 @@ class _PaymentPageState extends State<PaymentPage> {
               isSelected: _selectedMethod == 0,
               onTap: () => setState(() => _selectedMethod = 0),
             ),
-            
-            // Card Input Form (Animated)
+
             AnimatedCrossFade(
               firstChild: const SizedBox(width: double.infinity),
               secondChild: const CardInputForm(),
               crossFadeState: _selectedMethod == 0 ? CrossFadeState.showSecond : CrossFadeState.showFirst,
               duration: const Duration(milliseconds: 300),
             ),
-            
+
             const SizedBox(height: 12),
             PaymentMethodSelector(
               index: 1,
@@ -87,74 +94,10 @@ class _PaymentPageState extends State<PaymentPage> {
               isSelected: _selectedMethod == 1,
               onTap: () => setState(() => _selectedMethod = 1),
             ),
-            
+
             const SizedBox(height: 40),
             _buildPayButton(l10n, theme),
             const SizedBox(height: 20),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _simulateApplePay(BuildContext context, ThemeData theme) {
-    final isDark = theme.brightness == Brightness.dark;
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.45,
-        decoration: BoxDecoration(
-          color: theme.scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-        ),
-        child: Column(
-          children: [
-            const SizedBox(height: 12),
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: theme.colorScheme.onSurface.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(2))),
-            const SizedBox(height: 32),
-            Icon(Icons.apple_rounded, size: 48, color: theme.colorScheme.onSurface),
-            const SizedBox(height: 16),
-            Text("Apple Pay", style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900)),
-            const Spacer(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("Total", style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.5), fontWeight: FontWeight.bold)),
-                  Text("${widget.totalAmount.toStringAsFixed(0)} EGP", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: theme.colorScheme.onSurface)),
-                ],
-              ),
-            ),
-            const SizedBox(height: 32),
-            Padding(
-              padding: const EdgeInsets.all(32),
-              child: SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _handlePaymentSuccess();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isDark ? Colors.white : Colors.black, 
-                    foregroundColor: isDark ? Colors.black : Colors.white, 
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.face_unlock_rounded),
-                      const SizedBox(width: 12),
-                      const Text("Pay with Face ID", style: TextStyle(fontWeight: FontWeight.w900)),
-                    ],
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
       ),
@@ -171,6 +114,7 @@ class _PaymentPageState extends State<PaymentPage> {
           time: widget.time,
           seats: widget.selectedSeats,
           totalAmount: widget.totalAmount,
+          bookingReference: widget.bookingReference,
         ),
       ),
     );
@@ -182,11 +126,12 @@ class _PaymentPageState extends State<PaymentPage> {
       height: 60,
       child: ElevatedButton(
         onPressed: _isProcessing ? null : () {
-          if (_selectedMethod == 1) {
-            _simulateApplePay(context, theme);
-          } else {
+          setState(() => _isProcessing = true);
+          Future.delayed(const Duration(milliseconds: 800), () {
+            if (!mounted) return;
+            setState(() => _isProcessing = false);
             _handlePaymentSuccess();
-          }
+          });
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.warmOrange,
@@ -194,12 +139,12 @@ class _PaymentPageState extends State<PaymentPage> {
           elevation: 10,
           shadowColor: AppColors.warmOrange.withValues(alpha: 0.5),
         ),
-        child: _isProcessing 
-          ? const CircularProgressIndicator(color: Colors.white)
-          : Text(
-              l10n.payNow,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
-            ),
+        child: _isProcessing
+            ? const CircularProgressIndicator(color: Colors.white)
+            : Text(
+                l10n.payNow,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+              ),
       ),
     );
   }

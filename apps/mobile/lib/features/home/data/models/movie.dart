@@ -14,17 +14,38 @@ class CastMember {
   });
 
   factory CastMember.fromJson(Map<String, dynamic> json) {
-    String? profilePath = json['profilePath'];
+    String? profilePath = json['profilePath'] ?? json['profile_path'];
     if (profilePath != null && profilePath.isNotEmpty && !profilePath.startsWith('http')) {
       profilePath = '${AppConstants.tmdbImageBase}${AppConstants.tmdbCastSize}$profilePath';
     }
     return CastMember(
-      name: json['name'] ?? '',
-      character: json['character'] ?? '',
+      name: json['name'] ?? json['Name'] ?? '',
+      character: json['character'] ?? json['Character'] ?? '',
       profilePath: profilePath,
-      order: json['order'] ?? 0,
+      order: json['order'] ?? json['Order'] ?? 0,
     );
   }
+}
+
+class ShowtimeInfo {
+  final int id;
+  final DateTime startTime;
+  final double price;
+  final String hallName;
+
+  const ShowtimeInfo({
+    required this.id,
+    required this.startTime,
+    required this.price,
+    this.hallName = '',
+  });
+
+  factory ShowtimeInfo.fromJson(Map<String, dynamic> json) => ShowtimeInfo(
+        id: json['id'] ?? 0,
+        startTime: DateTime.tryParse(json['startTime']?.toString() ?? '') ?? DateTime.now(),
+        price: (json['price'] as num?)?.toDouble() ?? 0.0,
+        hallName: json['hallName'] ?? '',
+      );
 }
 
 class Movie {
@@ -36,6 +57,7 @@ class Movie {
   final double rating;
   final int duration; // minutes
   final List<DateTime> showTimes;
+  final List<ShowtimeInfo> showtimeInfos;
   final String hallType;
   final String overview;
   final String? trailerKey;
@@ -49,6 +71,7 @@ class Movie {
     required this.rating,
     required this.duration,
     required this.showTimes,
+    this.showtimeInfos = const [],
     this.hallType = 'Standard',
     this.backdropUrl = '',
     this.overview = '',
@@ -79,6 +102,27 @@ class Movie {
       backdropPath = '${AppConstants.tmdbImageBase}${AppConstants.tmdbBackdropSize}$backdropPath';
     }
 
+    final rawShowtimes = (json['showtimes'] as List<dynamic>?);
+
+    List<ShowtimeInfo> showtimeInfos = [];
+    List<DateTime> showTimes = [];
+
+    if (rawShowtimes != null) {
+      if (rawShowtimes.every((e) => e is String)) {
+        showTimes = rawShowtimes
+            .map((e) => DateTime.tryParse(e.toString()) ?? DateTime.now())
+            .toList();
+        showtimeInfos = showTimes
+            .map((d) => ShowtimeInfo(id: 0, startTime: d, price: 0))
+            .toList();
+      } else {
+        showtimeInfos = rawShowtimes
+            .map((e) => ShowtimeInfo.fromJson(e as Map<String, dynamic>))
+            .toList();
+        showTimes = showtimeInfos.map((s) => s.startTime).toList();
+      }
+    }
+
     return Movie(
       id: json['id']?.toString() ?? json['movieId']?.toString() ?? '',
       title: json['title'] ?? '',
@@ -93,16 +137,8 @@ class Movie {
               ?.map((e) => CastMember.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      // API might return list of ISO DateTime strings OR list of Showtime objects with startTime
-      showTimes: (json['showtimes'] as List<dynamic>?)
-              ?.map((e) {
-                if (e is Map<String, dynamic> && e.containsKey('startTime')) {
-                  return DateTime.tryParse(e['startTime'].toString()) ?? DateTime.now();
-                }
-                return DateTime.tryParse(e.toString()) ?? DateTime.now();
-              })
-              .toList() ??
-          [],
+      showTimes: showTimes,
+      showtimeInfos: showtimeInfos,
       hallType: json['hallType']?.toString() ?? 'Standard',
     );
   }

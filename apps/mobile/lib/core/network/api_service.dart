@@ -45,7 +45,11 @@ class ApiService {
 
   // Error Handling
   Exception _handleError(DioException e) {
-    // You can customize this to return specific error models
-    return Exception(e.message ?? "Something went wrong");
+    String? message;
+    if (e.response?.data is Map) {
+      message = (e.response?.data as Map)['message']?.toString();
+    }
+    message ??= e.message;
+    return Exception(message ?? "Something went wrong");
   }
 }

@@ -4,11 +4,13 @@ import 'package:intl/intl.dart';
 class SeatDateSelector extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onDateSelected;
+  final DateTime? showtimeDate;
 
   const SeatDateSelector({
     super.key,
     required this.selectedIndex,
     required this.onDateSelected,
+    this.showtimeDate,
   });
 
   @override
@@ -17,13 +19,15 @@ class SeatDateSelector extends StatelessWidget {
     final locale = Localizations.localeOf(context).languageCode;
     final now = DateTime.now();
 
+    final dates = showtimeDate != null ? [showtimeDate!] : List.generate(14, (i) => now.add(Duration(days: i)));
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 24, right: 24, bottom: 12),
           child: Text(
-            DateFormat.MMMM(locale).format(now).toUpperCase(),
+            DateFormat.MMMM(locale).format(dates.first).toUpperCase(),
             style: theme.textTheme.labelSmall?.copyWith(letterSpacing: 3, fontWeight: FontWeight.bold),
           ),
         ),
@@ -32,12 +36,12 @@ class SeatDateSelector extends StatelessWidget {
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemCount: 14,
+            itemCount: dates.length,
             itemBuilder: (context, index) {
-              final date = now.add(Duration(days: index));
-              bool isSelected = index == selectedIndex;
+              final date = dates[index];
+              bool isSelected = showtimeDate != null || index == selectedIndex;
               return GestureDetector(
-                onTap: () => onDateSelected(index),
+                onTap: showtimeDate != null ? null : () => onDateSelected(index),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   width: 75,

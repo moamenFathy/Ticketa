@@ -9,6 +9,7 @@ class BookingSuccessPage extends StatelessWidget {
   final String time;
   final List<String> seats;
   final double totalAmount;
+  final String? bookingReference;
 
   const BookingSuccessPage({
     super.key,
@@ -17,6 +18,7 @@ class BookingSuccessPage extends StatelessWidget {
     required this.time,
     required this.seats,
     required this.totalAmount,
+    this.bookingReference,
   });
 
   @override
@@ -33,7 +35,6 @@ class BookingSuccessPage extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 20),
-              // Success Animation/Icon
               Center(
                 child: Column(
                   children: [
@@ -58,13 +59,31 @@ class BookingSuccessPage extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                    if (bookingReference != null && bookingReference!.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AppColors.warmOrange.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'Ref: $bookingReference',
+                          style: TextStyle(
+                            color: AppColors.warmOrange,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 12,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 40),
-              
-              // Ticket Card
+
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: TicketCard(
@@ -75,10 +94,9 @@ class BookingSuccessPage extends StatelessWidget {
                   totalAmount: totalAmount,
                 ),
               ),
-              
+
               const SizedBox(height: 40),
-              
-              // Buttons
+
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: Column(

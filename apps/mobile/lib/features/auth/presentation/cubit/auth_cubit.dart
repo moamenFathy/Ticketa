@@ -14,14 +14,16 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       final result = await _repository.login(email, password);
       final message = result['message']?.toString() ?? 'Login successful';
-      if (result.containsKey('isConfirmed') && result['isConfirmed'] == false) {
-        emit(AuthEmailConfirmRequired(email: email, message: message));
-      } else {
-        await _saveAuth(email: email);
-        emit(AuthLoginSuccess(message));
-      }
+      final token = result['accessToken']?.toString();
+      await _saveAuth(email: email, token: token);
+      emit(AuthLoginSuccess(message));
     } catch (e) {
-      emit(AuthError(e.toString().replaceFirst('Exception: ', '')));
+      final msg = e.toString().replaceFirst('Exception: ', '');
+      if (msg.contains('Email not confirmed') || msg.contains('not confirmed')) {
+        emit(AuthEmailConfirmRequired(email: email, message: msg));
+      } else {
+        emit(AuthError(msg));
+      }
     }
   }
 
@@ -41,7 +43,8 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       final result = await _repository.confirmEmail(email, code);
       final message = result['message']?.toString() ?? 'Email confirmed';
-      await _saveAuth(email: email);
+      final token = result['accessToken']?.toString();
+      await _saveAuth(email: email, token: token);
       emit(AuthEmailConfirmed(message));
     } catch (e) {
       emit(AuthError(e.toString().replaceFirst('Exception: ', '')));
@@ -88,12 +91,15 @@ class AuthCubit extends Cubit<AuthState> {
 
   void reset() => emit(AuthInitial());
 
-  Future<void> _saveAuth({String? email}) async {
+  Future<void> _saveAuth({String? email, String? token}) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(AppConstants.isLoggedInKey, true);
     await prefs.setBool(AppConstants.isGuestKey, false);
     if (email != null) {
       await prefs.setString(AppConstants.userEmailKey, email);
+    }
+    if (token != null) {
+      await prefs.setString(AppConstants.tokenKey, token);
     }
   }
 }

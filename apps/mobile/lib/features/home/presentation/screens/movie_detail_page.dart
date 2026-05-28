@@ -29,6 +29,7 @@ class MovieDetailPage extends StatefulWidget {
 
 class _MovieDetailPageState extends State<MovieDetailPage> {
   bool _isPlayingTrailer = false;
+  ShowtimeInfo? _selectedShowtime;
 
   @override
   void initState() {
@@ -46,7 +47,25 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       child: BlocBuilder<MovieDetailCubit, MovieDetailState>(
         builder: (context, state) {
           final isLoaded = state is MovieDetailLoaded;
-          final displayMovie = isLoaded ? state.movie : widget.movie;
+          final raw = isLoaded ? state.movie : widget.movie;
+          final hasValidShowtimes = raw.showtimeInfos.isNotEmpty && raw.showtimeInfos.any((s) => s.id > 0);
+          final displayMovie = (isLoaded && !hasValidShowtimes)
+              ? Movie(
+                  id: raw.id,
+                  title: raw.title,
+                  posterUrl: raw.posterUrl,
+                  backdropUrl: raw.backdropUrl,
+                  genre: raw.genre,
+                  rating: raw.rating,
+                  duration: raw.duration,
+                  showTimes: widget.movie.showTimes,
+                  showtimeInfos: widget.movie.showtimeInfos,
+                  hallType: raw.hallType,
+                  overview: raw.overview,
+                  trailerKey: raw.trailerKey,
+                  cast: raw.cast,
+                )
+              : raw;
           final isLoading = state is MovieDetailInitial || state is MovieDetailLoading;
 
           return AnimatedSwitcher(
@@ -153,8 +172,12 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
             _staggeredSection(0.32, _SectionHeader(title: l10n.selectDate)),
             const SizedBox(height: 16),
             _staggeredSection(0.32,
-              displayMovie.showTimes.isNotEmpty
-                  ? MovieDateSelector(showTimes: displayMovie.showTimes) as Widget
+              displayMovie.showtimeInfos.isNotEmpty
+                  ? MovieDateSelector(
+                      showtimes: displayMovie.showtimeInfos,
+                      onShowtimeSelected: (st) =>
+                          setState(() => _selectedShowtime = st),
+                    ) as Widget
                   : const Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text("No showtimes available yet."),
@@ -269,12 +292,22 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                   ],
                 ),
                 child: ElevatedButton(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => SeatSelectionPage(movieTitle: movie.title),
-                    ),
-                  ),
+                  onPressed: () {
+                    final st = _selectedShowtime ?? (movie.showtimeInfos.isNotEmpty ? movie.showtimeInfos.first : null);
+                    if (st == null) return;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SeatSelectionPage(
+                          movieTitle: movie.title,
+                          showtimeId: st.id,
+                          basePrice: st.price,
+                          hallName: st.hallName,
+                          moviePoster: movie.posterUrl,
+                        ),
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 18),
                     backgroundColor: AppColors.warmOrange,

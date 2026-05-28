@@ -63,8 +63,10 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
       ),
     );
     if (picked != null) {
-      final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      _dateController.text = '${months[picked.month - 1]} ${picked.day}, ${picked.year}';
+      final y = picked.year.toString();
+      final m = picked.month.toString().padLeft(2, '0');
+      final d = picked.day.toString().padLeft(2, '0');
+      _dateController.text = '$y-$m-$d';
     }
   }
 

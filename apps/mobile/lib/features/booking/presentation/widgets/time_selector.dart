@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class TimeSelector extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onTimeSelected;
-  final List<String> times = const ["08:00", "10:30", "14:00", "18:45"];
+  final List<String> times = const ["8:00 AM", "10:30 AM", "2:00 PM", "6:45 PM"];
 
   const TimeSelector({
     super.key,
@@ -14,7 +14,9 @@ class TimeSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Row(
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: times.asMap().entries.map((entry) {
         int index = entry.key;
@@ -44,6 +46,7 @@ class TimeSelector extends StatelessWidget {
           ),
         );
       }).toList(),
+      ),
     );
   }
 }

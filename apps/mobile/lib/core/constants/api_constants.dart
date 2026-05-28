@@ -13,6 +13,10 @@ class ApiConstants {
   static const String logoutEndpoint = "Auth/logout";
   static const String refreshEndpoint = "Auth/refresh";
   static const String forgotPasswordEndpoint = "Auth/forgot-password";
+
+  // Booking
+  static const String showtimeSeatsEndpoint = "Showtimes";
+  static const String bookingsEndpoint = "Bookings";
   
   // Headers
   static const String contentType = "application/json";

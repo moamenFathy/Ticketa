@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:ticketa/features/booking/data/models/seat_dto.dart';
 
 class CinemaSeatGrid extends StatelessWidget {
+  final int rows;
+  final int seatsPerRow;
+  final Map<int, String> rowCategoryMap;
+  final List<SeatDto> bookedSeats;
   final List<String> selectedSeats;
   final Function(String) onSeatToggled;
 
   const CinemaSeatGrid({
     super.key,
+    required this.rows,
+    required this.seatsPerRow,
+    required this.rowCategoryMap,
+    required this.bookedSeats,
     required this.selectedSeats,
     required this.onSeatToggled,
   });
@@ -14,6 +23,7 @@ class CinemaSeatGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final bookedSet = bookedSeats.map((s) => s.id).toSet();
     final selectedSet = selectedSeats.toSet();
 
     return RepaintBoundary(
@@ -22,7 +32,7 @@ class CinemaSeatGrid extends StatelessWidget {
           final maxWidth = constraints.maxWidth;
           final aislesTotal = maxWidth * 0.08;
           final availableForSeats = maxWidth - aislesTotal;
-          final seatUnitWidth = availableForSeats / 16;
+          final seatUnitWidth = availableForSeats / seatsPerRow;
           final rawSeatWidth = seatUnitWidth - 1;
           final seatWidth = rawSeatWidth.clamp(14.0, 24.0);
           final seatHeight = (seatWidth * 11 / 18).clamp(8.0, 16.0);
@@ -30,12 +40,71 @@ class CinemaSeatGrid extends StatelessWidget {
 
           return Column(
             mainAxisSize: MainAxisSize.min,
-            children: List.generate(14, (row) {
-              if (row < 3) {
-                return _buildVipRow(row, theme, isDark, selectedSet, seatWidth, seatHeight);
-              } else {
-                return _buildMainRow(row, theme, isDark, selectedSet, seatWidth, seatHeight, aisleWidth);
-              }
+            children: List.generate(rows, (rowIndex) {
+              final rowNumber = rowIndex + 1;
+              final category = rowCategoryMap[rowNumber] ?? 'Regular';
+              final isVip = category == 'VIP';
+              final isPremium = category == 'Premium';
+
+              final leftCount = seatsPerRow ~/ 4;
+              final centerCount = seatsPerRow ~/ 2;
+              final rightCount = seatsPerRow - leftCount - centerCount;
+
+              return Padding(
+                padding: EdgeInsets.only(bottom: rowIndex == rows - 1 ? 0 : 3),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ...List.generate(leftCount, (col) {
+                      final seatNumber = col + 1;
+                      final id = SeatDto(row: rowNumber, seatNumber: seatNumber).id;
+                      return _buildSeat(
+                        seatId: id,
+                        isBooked: bookedSet.contains(id),
+                        selectedSet: selectedSet,
+                        theme: theme,
+                        isDark: isDark,
+                        isVip: isVip,
+                        isPremium: isPremium,
+                        seatWidth: seatWidth,
+                        seatHeight: seatHeight,
+                      );
+                    }),
+                    SizedBox(width: aisleWidth),
+                    ...List.generate(centerCount, (col) {
+                      final seatNumber = leftCount + col + 1;
+                      final id = SeatDto(row: rowNumber, seatNumber: seatNumber).id;
+                      return _buildSeat(
+                        seatId: id,
+                        isBooked: bookedSet.contains(id),
+                        selectedSet: selectedSet,
+                        theme: theme,
+                        isDark: isDark,
+                        isVip: isVip,
+                        isPremium: isPremium,
+                        seatWidth: seatWidth,
+                        seatHeight: seatHeight,
+                      );
+                    }),
+                    SizedBox(width: aisleWidth),
+                    ...List.generate(rightCount, (col) {
+                      final seatNumber = leftCount + centerCount + col + 1;
+                      final id = SeatDto(row: rowNumber, seatNumber: seatNumber).id;
+                      return _buildSeat(
+                        seatId: id,
+                        isBooked: bookedSet.contains(id),
+                        selectedSet: selectedSet,
+                        theme: theme,
+                        isDark: isDark,
+                        isVip: isVip,
+                        isPremium: isPremium,
+                        seatWidth: seatWidth,
+                        seatHeight: seatHeight,
+                      );
+                    }),
+                  ],
+                ),
+              );
             }),
           );
         },
@@ -43,116 +112,23 @@ class CinemaSeatGrid extends StatelessWidget {
     );
   }
 
-  Widget _buildVipRow(int row, ThemeData theme, bool isDark, Set<String> selectedSet, double seatWidth, double seatHeight) {
-    int seats = 10;
-    String section = "VIP";
-
-    return Padding(
-      padding: EdgeInsets.only(bottom: row == 2 ? 10 : 3),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(seats, (col) {
-          String seatId = "${section}_${row}_$col";
-          return _buildSeat(
-            seatId: seatId,
-            selectedSet: selectedSet,
-            theme: theme,
-            isDark: isDark,
-            isVip: true,
-            seatWidth: seatWidth,
-            seatHeight: seatHeight,
-          );
-        }),
-      ),
-    );
-  }
-
-  Widget _buildMainRow(int row, ThemeData theme, bool isDark, Set<String> selectedSet, double seatWidth, double seatHeight, double aisleWidth) {
-    int leftCount = 4;
-    int centerCount = 8;
-    int rightCount = 4;
-    String section = "M";
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 3),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ...List.generate(leftCount, (col) {
-            String seatId = "${section}L_${row}_$col";
-            return _buildSeat(
-              seatId: seatId,
-              selectedSet: selectedSet,
-              theme: theme,
-              isDark: isDark,
-              isVip: false,
-              seatWidth: seatWidth,
-              seatHeight: seatHeight,
-            );
-          }),
-          SizedBox(width: aisleWidth),
-          ...List.generate(centerCount, (col) {
-            String seatId = "${section}C_${row}_$col";
-            return _buildSeat(
-              seatId: seatId,
-              selectedSet: selectedSet,
-              theme: theme,
-              isDark: isDark,
-              isVip: false,
-              seatWidth: seatWidth,
-              seatHeight: seatHeight,
-            );
-          }),
-          SizedBox(width: aisleWidth),
-          ...List.generate(rightCount, (col) {
-            String seatId = "${section}R_${row}_$col";
-            return _buildSeat(
-              seatId: seatId,
-              selectedSet: selectedSet,
-              theme: theme,
-              isDark: isDark,
-              isVip: false,
-              seatWidth: seatWidth,
-              seatHeight: seatHeight,
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
   Widget _buildSeat({
     required String seatId,
+    required bool isBooked,
     required Set<String> selectedSet,
     required ThemeData theme,
     required bool isDark,
     required bool isVip,
+    required bool isPremium,
     required double seatWidth,
     required double seatHeight,
   }) {
-    bool isSelected = selectedSet.contains(seatId);
-    bool isReserved = (seatId == "VIP_0_1") ||
-                      (seatId == "VIP_0_7") ||
-                      (seatId == "VIP_1_4") ||
-                      (seatId == "VIP_2_0") ||
-                      (seatId == "VIP_2_9") ||
-                      (seatId == "M_L_3_2") ||
-                      (seatId == "M_L_6_0") ||
-                      (seatId == "M_L_9_3") ||
-                      (seatId == "M_L_12_1") ||
-                      (seatId == "M_C_3_5") ||
-                      (seatId == "M_C_6_2") ||
-                      (seatId == "M_C_8_7") ||
-                      (seatId == "M_C_11_3") ||
-                      (seatId == "M_R_4_2") ||
-                      (seatId == "M_R_7_0") ||
-                      (seatId == "M_R_10_3") ||
-                      (seatId == "M_R_12_0");
+    final isSelected = selectedSet.contains(seatId);
 
     Color seatColor;
     Color borderColor = Colors.transparent;
 
-    if (isReserved) {
+    if (isBooked) {
       seatColor = Colors.yellow.withValues(alpha: 0.55);
       borderColor = Colors.yellow.withValues(alpha: 0.35);
     } else if (isSelected) {
@@ -161,6 +137,9 @@ class CinemaSeatGrid extends StatelessWidget {
     } else if (isVip) {
       seatColor = const Color(0xFFE67E22).withValues(alpha: isDark ? 0.4 : 0.3);
       borderColor = const Color(0xFFE67E22).withValues(alpha: isDark ? 0.25 : 0.2);
+    } else if (isPremium) {
+      seatColor = Colors.purple.withValues(alpha: isDark ? 0.4 : 0.3);
+      borderColor = Colors.purple.withValues(alpha: isDark ? 0.25 : 0.2);
     } else {
       seatColor = isDark
           ? Colors.white.withValues(alpha: 0.12)
@@ -171,7 +150,7 @@ class CinemaSeatGrid extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: isReserved ? null : () => onSeatToggled(seatId),
+      onTap: isBooked ? null : () => onSeatToggled(seatId),
       child: Container(
         width: seatWidth,
         height: seatHeight,
