@@ -32,19 +32,28 @@ class ShowtimeInfo {
   final DateTime startTime;
   final double price;
   final String hallName;
+  final int totalSeats;
 
   const ShowtimeInfo({
     required this.id,
     required this.startTime,
     required this.price,
     this.hallName = '',
+    this.totalSeats = 0,
   });
+
+  String get hallType {
+    if (totalSeats >= 220) return 'IMAX';
+    if (totalSeats >= 80) return 'Standard';
+    return 'Gold';
+  }
 
   factory ShowtimeInfo.fromJson(Map<String, dynamic> json) => ShowtimeInfo(
         id: json['id'] ?? 0,
         startTime: DateTime.tryParse(json['startTime']?.toString() ?? '') ?? DateTime.now(),
         price: (json['price'] as num?)?.toDouble() ?? 0.0,
         hallName: json['hallName'] ?? '',
+        totalSeats: json['totalSeats'] ?? 0,
       );
 }
 
@@ -113,7 +122,7 @@ class Movie {
             .map((e) => DateTime.tryParse(e.toString()) ?? DateTime.now())
             .toList();
         showtimeInfos = showTimes
-            .map((d) => ShowtimeInfo(id: 0, startTime: d, price: 0))
+            .map((d) => ShowtimeInfo(id: 0, startTime: d, price: 0, totalSeats: 192))
             .toList();
       } else {
         showtimeInfos = rawShowtimes
@@ -139,7 +148,7 @@ class Movie {
           [],
       showTimes: showTimes,
       showtimeInfos: showtimeInfos,
-      hallType: json['hallType']?.toString() ?? 'Standard',
+      hallType: showtimeInfos.isNotEmpty ? showtimeInfos.first.hallType : 'Standard',
     );
   }
 }

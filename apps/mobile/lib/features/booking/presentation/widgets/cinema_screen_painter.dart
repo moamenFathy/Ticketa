@@ -9,61 +9,59 @@ class CinemaScreenPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final isImax = hallType == 'IMAX';
     final strokeColor = isDark ? color : color.withValues(alpha: 0.7);
     final glowOpacity = isDark ? 0.25 : 0.12;
-    final y = size.height * 0.4;
+    final y = isImax ? size.height * 0.4 : size.height * 0.18;
+    final left = size.width * 0.05;
+    final right = size.width * 0.95;
 
-    if (hallType == 'Standard') {
-      final standardY = size.height * 0.18;
-      var paint = Paint()
-        ..color = strokeColor
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2
-        ..strokeCap = StrokeCap.round;
+    final linePaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 6
+      ..strokeCap = StrokeCap.round;
 
-      canvas.drawLine(Offset(size.width * 0.05, standardY), Offset(size.width * 0.95, standardY), paint);
+    linePaint.shader = LinearGradient(
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+        colors: [
+          Colors.black,
+          strokeColor.withValues(alpha: 0.5),
+          strokeColor.withValues(alpha: 0.9),
+          strokeColor.withValues(alpha: 0.9),
+          strokeColor.withValues(alpha: 0.5),
+          Colors.black,
+        ],
+        stops: const [0.0, 0.2, 0.35, 0.65, 0.8, 1.0],
+      ).createShader(Rect.fromLTWH(left, y - 5, right - left, 10));
 
-      var shadowPaint = Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [color.withValues(alpha: glowOpacity), Colors.transparent],
-        ).createShader(Rect.fromLTWH(0, standardY, size.width, size.height - standardY));
-
-      var shadowPath = Path();
-      shadowPath.moveTo(size.width * 0.05, standardY);
-      shadowPath.lineTo(size.width * 0.95, standardY);
-      shadowPath.lineTo(size.width * 1.1, size.height);
-      shadowPath.lineTo(size.width * -0.1, size.height);
-      shadowPath.close();
-      canvas.drawPath(shadowPath, shadowPaint);
+    if (isImax) {
+      final path = Path();
+      path.moveTo(left, y);
+      path.quadraticBezierTo(size.width * 0.5, -15, right, y);
+      canvas.drawPath(path, linePaint);
     } else {
-      var paint = Paint()
-        ..color = strokeColor
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 4
-        ..strokeCap = StrokeCap.round;
-
-      var path = Path();
-      path.moveTo(size.width * 0.05, y);
-      path.quadraticBezierTo(size.width * 0.5, -15, size.width * 0.95, y);
-      canvas.drawPath(path, paint);
-
-      var shadowPaint = Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [color.withValues(alpha: glowOpacity), Colors.transparent],
-        ).createShader(Rect.fromLTWH(0, y - 5, size.width, size.height - y + 5));
-
-      var shadowPath = Path();
-      shadowPath.moveTo(size.width * 0.05, y);
-      shadowPath.quadraticBezierTo(size.width * 0.5, -15, size.width * 0.95, y);
-      shadowPath.lineTo(size.width * 1.1, size.height);
-      shadowPath.lineTo(size.width * -0.1, size.height);
-      shadowPath.close();
-      canvas.drawPath(shadowPath, shadowPaint);
+      canvas.drawLine(Offset(left, y), Offset(right, y), linePaint);
     }
+
+    final glowPaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [color.withValues(alpha: glowOpacity), Colors.transparent],
+      ).createShader(Rect.fromLTWH(0, y, size.width, size.height - y));
+
+    final glowPath = Path();
+    glowPath.moveTo(left, y);
+    if (isImax) {
+      glowPath.quadraticBezierTo(size.width * 0.5, -15, right, y);
+    } else {
+      glowPath.lineTo(right, y);
+    }
+    glowPath.lineTo(size.width * 1.1, size.height);
+    glowPath.lineTo(size.width * -0.1, size.height);
+    glowPath.close();
+    canvas.drawPath(glowPath, glowPaint);
   }
 
   @override

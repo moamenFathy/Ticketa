@@ -8,6 +8,7 @@ import 'package:ticketa/features/booking/data/models/seat_dto.dart';
 import 'package:ticketa/features/booking/presentation/cubit/booking_cubit.dart';
 import 'package:ticketa/features/booking/presentation/cubit/booking_state.dart';
 import 'package:ticketa/features/payment/presentation/screens/payment_page.dart';
+import 'package:ticketa/features/home/data/models/movie.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 import '../widgets/seat_legend.dart';
 import '../widgets/cinema_seat_grid.dart';
@@ -18,6 +19,7 @@ import '../widgets/time_selector.dart';
 class SeatSelectionPage extends StatefulWidget {
   final String movieTitle;
   final int showtimeId;
+  final List<ShowtimeInfo> showtimeInfos;
   final double basePrice;
   final String hallName;
   final String? moviePoster;
@@ -26,6 +28,7 @@ class SeatSelectionPage extends StatefulWidget {
     super.key,
     required this.movieTitle,
     required this.showtimeId,
+    this.showtimeInfos = const [],
     required this.basePrice,
     this.hallName = '',
     this.moviePoster,
@@ -38,7 +41,7 @@ class SeatSelectionPage extends StatefulWidget {
 class _SeatSelectionPageState extends State<SeatSelectionPage> {
   List<SeatDto> _pendingSeats = [];
   int _selectedDateIndex = 0;
-  int _selectedTimeIndex = 1;
+  int _selectedTimeIndex = 0;
 
   Future<void> _requireAuth(BuildContext actionContext) async {
     final prefs = await SharedPreferences.getInstance();
@@ -165,7 +168,12 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
             },
             builder: (context, state) {
               if (state is BookingLoading) {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(
+                  child: SizedBox(
+                    width: 28, height: 28,
+                    child: CircularProgressIndicator(strokeWidth: 3),
+                  ),
+                );
               }
 
               if (state is SeatMapLoaded) {
@@ -188,7 +196,12 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
                 );
               }
 
-              return const Center(child: CircularProgressIndicator());
+              return const Center(
+                child: SizedBox(
+                  width: 28, height: 28,
+                  child: CircularProgressIndicator(strokeWidth: 3),
+                ),
+              );
             },
           ),
         ),
@@ -215,19 +228,21 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
       if (parts.length == 2) {
         final row = int.tryParse(parts[0]) ?? 0;
         final category = seatMap.rowCategoryMap[row] ?? 'Regular';
-        final multiplier = seatMap.categoryPrices[category] ?? 1.0;
-        totalPrice += seatMap.basePrice * multiplier;
+        totalPrice += seatMap.categoryPrices[category] ?? seatMap.basePrice;
       }
     }
 
-    return PopScope(
-      canPop: state.selectedSeats.isEmpty,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) {
-          _showExitDialog(context, l10n);
-        }
-      },
-      child: Column(
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 250),
+      child: PopScope(
+        key: ValueKey(seatMap.showtimeId),
+        canPop: state.selectedSeats.isEmpty,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) {
+            _showExitDialog(context, l10n);
+          }
+        },
+        child: Column(
         children: [
           _buildAppBar(l10n, theme, state),
 
@@ -249,7 +264,12 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
             selectedIndex: _selectedTimeIndex,
             onTimeSelected: (index) {
               setState(() => _selectedTimeIndex = index);
+              if (index < widget.showtimeInfos.length) {
+                context.read<BookingCubit>().loadSeatMap(widget.showtimeInfos[index].id);
+              }
             },
+            showtimes: widget.showtimeInfos,
+            showtimeTime: seatMap.startsAt,
           ),
 
           const SizedBox(height: 8),
@@ -257,7 +277,7 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
           // Screen & Seats Area
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.zero,
               child: Stack(
                 children: [
                   Positioned(
@@ -286,13 +306,14 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
                     ),
                   ),
                   Positioned(
-                    top: painterHeight, left: 0, right: 0, bottom: 0,
+                    top: painterHeight * 0.75, left: 0, right: 0, bottom: 0,
                     child: CinemaSeatGrid(
                       rows: seatMap.rows,
                       seatsPerRow: seatMap.seatsPerRow,
                       rowCategoryMap: seatMap.rowCategoryMap,
                       bookedSeats: seatMap.bookedSeats,
                       selectedSeats: state.selectedSeats,
+                      hallType: seatMap.hallType,
                       onSeatToggled: (seatId) {
                         context.read<BookingCubit>().toggleSeat(seatId);
                       },
@@ -307,6 +328,7 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
 
           _buildBottomAction(l10n, theme, state, totalPrice),
         ],
+      ),
       ),
     );
   }

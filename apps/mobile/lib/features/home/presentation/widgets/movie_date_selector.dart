@@ -35,67 +35,80 @@ class _MovieDateSelectorState extends State<MovieDateSelector> {
     final locale = Localizations.localeOf(context).languageCode;
     final theme = Theme.of(context);
 
-    return SizedBox(
-      height: 90,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        itemCount: widget.showtimes.length,
-        itemBuilder: (context, index) {
-          final st = widget.showtimes[index];
-          final date = st.startTime;
-          final isSelected = _selectedIndex == index;
-          return GestureDetector(
-            onTap: () {
-              setState(() => _selectedIndex = index);
-              widget.onShowtimeSelected?.call(st);
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              width: 70,
-              margin: const EdgeInsets.only(right: 12),
-              decoration: BoxDecoration(
-                color: isSelected ? AppColors.warmOrange : theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(25),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: AppColors.warmOrange.withValues(alpha: 0.3),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        )
-                      ]
-                    : [],
-                border: Border.all(
-                  color: isSelected ? AppColors.warmOrange : theme.dividerColor.withValues(alpha: 0.1),
+    if (widget.showtimes.isEmpty) return const SizedBox.shrink();
+
+    final first = widget.showtimes.first.startTime;
+    final last = widget.showtimes.last.startTime;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: AppColors.warmOrange.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.warmOrange.withValues(alpha: 0.15)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.date_range_rounded, size: 16, color: AppColors.warmOrange),
+              const SizedBox(width: 8),
+              Text(
+                '${DateFormat.MMMd(locale).format(first)} - ${DateFormat.MMMd(locale).format(last)}',
+                style: TextStyle(
+                  color: AppColors.warmOrange,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
                 ),
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    DateFormat.MMM(locale).format(date),
-                    style: TextStyle(
-                      color: isSelected ? Colors.white70 : theme.textTheme.bodySmall?.color?.withValues(alpha: 0.5),
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+        SizedBox(
+          height: 44,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            itemCount: widget.showtimes.length,
+            itemBuilder: (context, index) {
+              final st = widget.showtimes[index];
+              final date = st.startTime;
+              final isSelected = _selectedIndex == index;
+              final timeStr = DateFormat('h:mm a').format(date);
+
+              return GestureDetector(
+                onTap: () {
+                  setState(() => _selectedIndex = index);
+                  widget.onShowtimeSelected?.call(st);
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  margin: const EdgeInsets.only(right: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: isSelected ? AppColors.warmOrange : theme.colorScheme.surface,
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(
+                      color: isSelected ? AppColors.warmOrange : theme.dividerColor.withValues(alpha: 0.15),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    date.day.toString(),
+                  child: Text(
+                    timeStr,
                     style: TextStyle(
-                      color: isSelected ? Colors.white : theme.textTheme.titleMedium?.color,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 20,
+                      color: isSelected ? Colors.white : theme.colorScheme.onSurface,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
                     ),
                   ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

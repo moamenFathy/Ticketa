@@ -1,19 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:ticketa/features/home/data/models/movie.dart';
 
 class TimeSelector extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onTimeSelected;
-  final List<String> times = const ["8:00 AM", "10:30 AM", "2:00 PM", "6:45 PM"];
+  final List<ShowtimeInfo> showtimes;
+  final DateTime? showtimeTime;
+  final List<String> hardcodedTimes = const ["8:00 AM", "10:30 AM", "2:00 PM", "6:45 PM"];
 
   const TimeSelector({
     super.key,
     required this.selectedIndex,
     required this.onTimeSelected,
+    this.showtimes = const [],
+    this.showtimeTime,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final times = showtimes.isNotEmpty
+        ? showtimes.map((s) => DateFormat('h:mm a').format(s.startTime)).toList()
+        : showtimeTime != null
+            ? [DateFormat('h:mm a').format(showtimeTime!)]
+            : hardcodedTimes;
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(

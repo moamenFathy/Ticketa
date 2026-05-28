@@ -169,7 +169,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
             const SizedBox(height: 16),
             _staggeredSection(0.24, MovieCastList(cast: displayMovie.cast)),
             const SizedBox(height: 32),
-            _staggeredSection(0.32, _SectionHeader(title: l10n.selectDate)),
+            _staggeredSection(0.32, _SectionHeader(title: 'Show Time')),
             const SizedBox(height: 16),
             _staggeredSection(0.32,
               displayMovie.showtimeInfos.isNotEmpty
@@ -271,7 +271,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                   ),
                 ),
                 Text(
-                  "EGP 120.00",
+                  "EGP ${(_selectedShowtime?.price ?? (movie.showtimeInfos.isNotEmpty ? movie.showtimeInfos.first.price : 0)).toStringAsFixed(2)}",
                   style: theme.textTheme.titleLarge?.copyWith(
                     color: AppColors.warmOrange,
                     fontWeight: FontWeight.w900,
@@ -301,6 +301,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                         builder: (_) => SeatSelectionPage(
                           movieTitle: movie.title,
                           showtimeId: st.id,
+                          showtimeInfos: movie.showtimeInfos,
                           basePrice: st.price,
                           hallName: st.hallName,
                           moviePoster: movie.posterUrl,
