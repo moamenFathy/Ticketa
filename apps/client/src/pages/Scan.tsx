@@ -33,20 +33,24 @@ const Scan = () => {
   }
 
   if (isError || !booking) {
+    console.error("Booking fetch error:", { isError, booking });
     return (
       <ErrorState
         refetch={refetch}
         title="Booking Not Found"
-        message="The booking reference you scanned is invalid or no longer exists."
+        message={`The booking reference you scanned is invalid or no longer exists. URL: ${import.meta.env.VITE_API_URL}`}
       />
     );
   }
 
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center p-6 space-y-8">
-      <h1 className="text-3xl font-black tracking-tight text-center">
-        Your Ticket
-      </h1>
+      <div className="text-center space-y-1">
+        <h1 className="text-3xl font-black tracking-tight">Your Ticket</h1>
+        <p className="text-muted-foreground font-mono font-bold text-sm">
+          #{booking.bookingReference || reference}
+        </p>
+      </div>
 
       <div className="relative w-full max-w-md">
         {/* Decorative circles for ticket aesthetic */}
@@ -132,8 +136,8 @@ const Scan = () => {
             </div>
 
             <div className="pt-2 text-center">
-              <p className="text-[10px] font-mono text-muted-foreground mt-2">
-                REF: {booking.bookingReference}
+              <p className="text-xs font-mono text-muted-foreground mt-2">
+                REF: {booking.bookingReference || reference}
               </p>
             </div>
           </div>
