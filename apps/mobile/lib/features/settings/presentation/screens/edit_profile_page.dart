@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ticketa/core/constants/app_constants.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/core/utils/localization_helper.dart';
 
@@ -11,10 +13,29 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController(text: 'Mohamed Ahmed');
-  final _emailController = TextEditingController(text: 'mohamed@ticketa.com');
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _phoneController = TextEditingController(text: '+20 100 123 4567');
   final _cityController = TextEditingController(text: 'Cairo');
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
+
+  Future<void> _loadUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final email = prefs.getString(AppConstants.userEmailKey) ?? '';
+    final name = email.contains('@') ? email.split('@')[0] : email;
+    if (!mounted) return;
+    setState(() {
+      _nameController.text = name;
+      _emailController.text = email;
+      _isLoading = false;
+    });
+  }
 
   @override
   void dispose() {
@@ -28,6 +49,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -51,7 +79,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _ProfilePhotoCard(onChangePhoto: () {}),
+                _ProfilePhotoCard(
+                  onChangePhoto: () {},
+                  name: _nameController.text,
+                ),
                 const SizedBox(height: 18),
                 Form(
                   key: _formKey,
@@ -101,8 +132,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 8),
-                _InfoCard(),
                 const SizedBox(height: 18),
                 _SaveButton(
                   label: localeCopy(context, 'Save changes', 'حفظ التغييرات'),
@@ -140,8 +169,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
 class _ProfilePhotoCard extends StatelessWidget {
   final VoidCallback onChangePhoto;
+  final String name;
 
-  const _ProfilePhotoCard({required this.onChangePhoto});
+  const _ProfilePhotoCard({required this.onChangePhoto, required this.name});
 
   @override
   Widget build(BuildContext context) {
@@ -212,18 +242,10 @@ class _ProfilePhotoCard extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            localeCopy(context, 'Mohamed Ahmed', 'محمد أحمد'),
+            name,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w900,
               letterSpacing: 0,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            localeCopy(context, 'Ticketa loyalty member', 'عضو نقاط تيكيتا'),
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.52),
-              fontWeight: FontWeight.w700,
             ),
           ),
         ],
@@ -283,42 +305,6 @@ class _ProfileField extends StatelessWidget {
             borderSide: const BorderSide(color: AppColors.warmOrange),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _InfoCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.warmOrange.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.warmOrange.withValues(alpha: 0.14)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.info_outline_rounded, color: AppColors.warmOrange),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              localeCopy(
-                context,
-                'Your email is used for ticket receipts and account recovery.',
-                'يُستخدم البريد الإلكتروني لإيصالات التذاكر واسترجاع الحساب.',
-              ),
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.62),
-                fontWeight: FontWeight.w700,
-                height: 1.35,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

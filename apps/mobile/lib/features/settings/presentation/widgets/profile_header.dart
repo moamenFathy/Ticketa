@@ -14,6 +14,7 @@ class ProfileHeader extends StatefulWidget {
 class _ProfileHeaderState extends State<ProfileHeader> {
   bool _isGuest = true;
   bool _isLoading = true;
+  String _email = '';
 
   @override
   void initState() {
@@ -26,6 +27,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
     if (!mounted) return;
     setState(() {
       _isGuest = prefs.getBool(AppConstants.isGuestKey) ?? true;
+      _email = prefs.getString(AppConstants.userEmailKey) ?? '';
       _isLoading = false;
     });
   }
@@ -185,7 +187,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   children: [
                     Flexible(
                       child: Text(
-                        "Mohamed Ahmed",
+                        _email.contains('@') ? _email.split('@')[0] : _email,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.titleMedium?.copyWith(
@@ -205,7 +207,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "mohamed@ticketa.com",
+                  _email,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall?.copyWith(
@@ -214,8 +216,6 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                     fontSize: 12,
                   ),
                 ),
-                const SizedBox(height: 12),
-                _buildMemberBadge(theme, l10n.loyaltyPoints),
               ],
             ),
           ),
@@ -286,47 +286,6 @@ class _ProfileHeaderState extends State<ProfileHeader> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildMemberBadge(ThemeData theme, String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.warmOrange.withValues(alpha: 0.12),
-            AppColors.warmOrange.withValues(alpha: 0.05),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(
-          color: AppColors.warmOrange.withValues(alpha: 0.2),
-          width: 0.8,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.workspace_premium_rounded,
-            color: AppColors.warmOrange,
-            size: 13,
-          ),
-          const SizedBox(width: 5),
-          Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: AppColors.warmOrange,
-              fontSize: 10.5,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 0,
-            ),
-          ),
-        ],
-      ),
     );
   }
 

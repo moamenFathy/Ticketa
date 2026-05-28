@@ -201,7 +201,11 @@ class CinemaSeatGrid extends StatelessWidget {
                 ? Colors.white
                 : isBooked
                     ? Colors.white.withValues(alpha: 0.6)
-                    : Colors.white.withValues(alpha: 0.4),
+                    : isVip
+                        ? Colors.white.withValues(alpha: 0.4)
+                        : isDark
+                            ? Colors.white.withValues(alpha: 0.4)
+                            : Colors.black.withValues(alpha: 0.25),
           ),
         ),
       ),

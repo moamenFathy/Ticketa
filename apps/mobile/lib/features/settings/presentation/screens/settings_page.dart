@@ -6,7 +6,7 @@ import 'package:ticketa/core/constants/app_constants.dart';
 import 'package:ticketa/core/services/theme_service.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 import '../widgets/profile_header.dart';
-import '../widgets/premium_stats.dart';
+
 import '../widgets/settings_tile.dart';
 import '../widgets/language_selector.dart';
 
@@ -173,8 +173,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const ProfileHeader(),
-                  const SizedBox(height: 16),
-                  const PremiumStats(),
                   const SizedBox(height: 32),
 
                   SettingsSection(

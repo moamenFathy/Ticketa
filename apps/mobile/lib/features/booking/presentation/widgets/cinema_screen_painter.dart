@@ -12,6 +12,7 @@ class CinemaScreenPainter extends CustomPainter {
     final isImax = hallType == 'IMAX';
     final strokeColor = isDark ? color : color.withValues(alpha: 0.7);
     final glowOpacity = isDark ? 0.25 : 0.12;
+    final edgeColor = isDark ? Colors.black : Colors.black.withValues(alpha: 0.12);
     final y = isImax ? size.height * 0.4 : size.height * 0.18;
     final left = size.width * 0.05;
     final right = size.width * 0.95;
@@ -25,12 +26,12 @@ class CinemaScreenPainter extends CustomPainter {
         begin: Alignment.centerLeft,
         end: Alignment.centerRight,
         colors: [
-          Colors.black,
+          edgeColor,
           strokeColor.withValues(alpha: 0.5),
           strokeColor.withValues(alpha: 0.9),
           strokeColor.withValues(alpha: 0.9),
           strokeColor.withValues(alpha: 0.5),
-          Colors.black,
+          edgeColor,
         ],
         stops: const [0.0, 0.2, 0.35, 0.65, 0.8, 1.0],
       ).createShader(Rect.fromLTWH(left, y - 5, right - left, 10));
