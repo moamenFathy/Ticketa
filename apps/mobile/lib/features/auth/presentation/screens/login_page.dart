@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ticketa/core/services/message_service.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/features/auth/presentation/widgets/auth_background.dart';
@@ -167,6 +169,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\x00-\x7F]'))],
       style: TextStyle(color: theme.colorScheme.onSurface),
       decoration: _inputDecoration(
         theme, isDark,
@@ -181,6 +184,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     return TextFormField(
       controller: _passwordController,
       obscureText: _obscurePassword,
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\x00-\x7F]'))],
       style: TextStyle(color: theme.colorScheme.onSurface),
       decoration: _inputDecoration(
         theme, isDark,
@@ -224,13 +228,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         } else if (state is AuthEmailConfirmRequired) {
           Navigator.pushReplacementNamed(context, '/confirm-email', arguments: state.email);
         } else if (state is AuthError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          );
+          MessageService.showError(context: context, message: state.message);
         }
       },
       builder: (context, state) {

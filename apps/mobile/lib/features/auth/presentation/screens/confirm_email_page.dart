@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ticketa/core/services/message_service.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/features/auth/presentation/widgets/auth_background.dart';
@@ -16,6 +18,7 @@ class ConfirmEmailPage extends StatefulWidget {
 class _ConfirmEmailPageState extends State<ConfirmEmailPage> with SingleTickerProviderStateMixin {
   final _codeController = TextEditingController();
   String? _email;
+  bool _codeValid = false;
   late AnimationController _animController;
   late Animation<double> _slideUp;
   late Animation<double> _fadeIn;
@@ -23,6 +26,9 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> with SingleTickerPr
   @override
   void initState() {
     super.initState();
+    _codeController.addListener(() {
+      setState(() => _codeValid = _codeController.text.trim().length == 6);
+    });
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
@@ -188,6 +194,7 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> with SingleTickerPr
       controller: _codeController,
       textAlign: TextAlign.center,
       keyboardType: TextInputType.number,
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       maxLength: 6,
       style: TextStyle(
         color: theme.colorScheme.onSurface,
@@ -229,22 +236,10 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> with SingleTickerPr
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthEmailConfirmed) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          );
+          MessageService.showSuccess(context: context, message: state.message);
           Navigator.pushNamedAndRemoveUntil(context, '/main', (route) => false);
         } else if (state is AuthError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          );
+          MessageService.showError(context: context, message: state.message);
         }
       },
       builder: (context, state) {
@@ -269,7 +264,7 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> with SingleTickerPr
               ],
             ),
             child: ElevatedButton(
-              onPressed: isLoading || _email == null || _codeController.text.trim().isEmpty
+              onPressed: isLoading || _email == null || !_codeValid
                   ? null
                   : () => context.read<AuthCubit>().confirmEmail(_email!, _codeController.text.trim()),
               style: ElevatedButton.styleFrom(
@@ -323,13 +318,7 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> with SingleTickerPr
               listenWhen: (_, state) => state is AuthResendSuccess,
               listener: (context, state) {
                 final s = state as AuthResendSuccess;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(s.message),
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                );
+                MessageService.showSuccess(context: context, message: s.message);
               },
               child: const SizedBox.shrink(),
             ),

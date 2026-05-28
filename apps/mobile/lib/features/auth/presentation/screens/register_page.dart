@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ticketa/core/services/message_service.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/core/di/injection.dart';
+import 'package:ticketa/core/widgets/custom_date_picker.dart';
 import 'package:ticketa/features/auth/presentation/widgets/auth_background.dart';
 import 'package:ticketa/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:ticketa/features/auth/presentation/cubit/auth_state.dart';
@@ -49,19 +52,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
   }
 
   Future<void> _pickDate() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime(now.year - 18),
-      firstDate: DateTime(1950),
-      lastDate: DateTime(now.year - 5),
-      builder: (context, child) => Theme(
-        data: Theme.of(context).copyWith(
-          colorScheme: Theme.of(context).colorScheme.copyWith(primary: AppColors.warmOrange),
-        ),
-        child: child!,
-      ),
-    );
+    final picked = await showCustomDatePicker(context);
     if (picked != null) {
       final y = picked.year.toString();
       final m = picked.month.toString().padLeft(2, '0');
@@ -189,6 +180,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\x00-\x7F]'))],
       style: TextStyle(color: theme.colorScheme.onSurface),
       decoration: _inputDecoration(theme, isDark, hint: 'your@email.com', icon: Icons.email_outlined),
       validator: (v) => v == null || v.isEmpty ? 'Email is required' : null,
@@ -199,6 +191,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
     return TextFormField(
       controller: _passwordController,
       obscureText: _obscurePassword,
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\x00-\x7F]'))],
       style: TextStyle(color: theme.colorScheme.onSurface),
       decoration: _inputDecoration(
         theme, isDark,
@@ -242,22 +235,10 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
       listener: (context, state) {
         if (state is AuthRegisterSuccess) {
           final email = _emailController.text.trim();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          );
+          MessageService.showSuccess(context: context, message: state.message);
           Navigator.pushReplacementNamed(context, '/confirm-email', arguments: email);
         } else if (state is AuthError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          );
+          MessageService.showError(context: context, message: state.message);
         }
       },
       builder: (context, state) {

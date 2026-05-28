@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ticketa/core/services/message_service.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/features/auth/presentation/widgets/auth_background.dart';
@@ -157,6 +159,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\x00-\x7F]'))],
       style: TextStyle(color: theme.colorScheme.onSurface),
       decoration: InputDecoration(
         hintText: 'your@email.com',
@@ -187,22 +190,10 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthForgotPasswordSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          );
+          MessageService.showSuccess(context: context, message: state.message);
           Navigator.pop(context);
         } else if (state is AuthError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          );
+          MessageService.showError(context: context, message: state.message);
         }
       },
       builder: (context, state) {
