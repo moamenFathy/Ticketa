@@ -8,7 +8,7 @@ export interface TokenPayload {
   exp: number;
 }
 
-export const parseJwt = (token: string): TokenPayload | null => {
+const parseJwt = (token: string): TokenPayload | null => {
  const base64 = token.split('.')[1];
  if (!base64) return null;
  try {
