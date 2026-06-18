@@ -1,4 +1,4 @@
-import type { ConfirmEmailDto, loginDto, LoginResponseDto, RegisterDto } from "@/types/auth";
+import type { ConfirmEmailDto, ForgotPasswordDto, loginDto, LoginResponseDto, RegisterDto, ResetPasswordDto } from "@/types/auth";
 import api from "./client";
 
 export const authApi = {
@@ -22,5 +22,13 @@ export const authApi = {
 
   googleAuth: (idToken: string)=> {
     return api.post<LoginResponseDto>("auth/google", { idToken }).then((res) => res.data)
+  },
+  
+  forgetPassword: (dto: ForgotPasswordDto) => {
+    return api.post("auth/forget-password", dto).then((res) => res.data)
+  },
+
+  resetPassword: (dto: ResetPasswordDto) => {
+    return api.post("auth/reset-password", dto).then((res) => res.data)
   }
 }
