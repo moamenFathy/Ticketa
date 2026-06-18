@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
-import logo from "../assets/final_logo.svg";
 import RegisterForm from "@/components/Auth Components/RegisterForm";
 import VerifyCodeForm from "@/components/Auth Components/VerifyCodeForm";
 import AdvantagesSection from "@/components/Auth Components/AdvantagesSection";
 import Stepper from "@/components/Auth Components/Stepper";
+import BrandLogo from "@/components/Auth Components/BrandLogo";
 
 const Register = () => {
   const [step, setStep] = useState<"register" | "verify">("register");
@@ -40,33 +40,7 @@ const Register = () => {
         <div className="absolute inset-0 z-10 bg-linear-to-t from-zinc-50/80 dark:from-black/85 via-transparent to-transparent" />
         <div className="absolute inset-0 z-10 bg-linear-to-r from-zinc-50/90 dark:from-black/90 via-transparent to-transparent" />
 
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="relative z-20 self-start"
-        >
-          <Link to="/" className="flex items-center gap-5 group">
-            <motion.div
-              whileHover={{ rotate: -4, scale: 1.08 }}
-              transition={{ type: "spring", stiffness: 400, damping: 10 }}
-            >
-              <img
-                src={logo}
-                alt="Ticketa"
-                className="h-14 w-14 object-contain drop-shadow-xl"
-              />
-            </motion.div>
-            <div className="flex flex-col">
-              <span className="text-3xl font-black tracking-tight text-foreground dark:text-white leading-none">
-                TICKETA
-              </span>
-              <span className="text-[10px] font-bold tracking-[0.35em] text-primary uppercase mt-1.5">
-                Premium Cinema
-              </span>
-            </div>
-          </Link>
-        </motion.div>
+        <BrandLogo />
 
         <div className="relative z-20 space-y-6 max-w-lg pl-4">
           <div className="space-y-3">

@@ -36,8 +36,7 @@ export const useLogout = () => {
   })
 }
 
-export const useRegister = () =>
-   useMutation({ mutationFn: authApi.register });
+export const useRegister = () => useMutation({ mutationFn: authApi.register });
 
 export const useConfirmEmail = () => {
   const { login } = useAuth();
@@ -55,7 +54,8 @@ export const useConfirmEmail = () => {
 }
 
 export const useResendConfirmationEmail = () => 
-  useMutation({ mutationFn: (email: string) => authApi.resendConfirmationEmail(email) });
+  useMutation({ mutationFn: (email: string) => 
+    authApi.resendConfirmationEmail(email) });
 
 export const useGoogleAuth = () => {
   const { login } = useAuth();
@@ -75,3 +75,15 @@ export const useGoogleAuth = () => {
     },
   });
 };
+
+export const useForgotPassword = () => {
+  return useMutation({
+    mutationFn: authApi.forgetPassword
+  })
+}
+
+export const useResetPassword = () => {
+  return useMutation({
+    mutationFn: authApi.resetPassword
+  })
+}
