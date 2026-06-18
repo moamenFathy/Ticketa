@@ -6,7 +6,6 @@ import { Input } from "../components/ui/input";
 import { Mail, Lock, Loader2, ArrowRight, ChevronLeft } from "lucide-react";
 import type { ApiError } from "@/types/api";
 import { motion } from "framer-motion";
-import logo from "../assets/final_logo.svg";
 import SuccessCheckmark from "@/components/Auth Components/SuccessCheckmark";
 import PasswordToggle from "@/components/Auth Components/PasswordToggle";
 import ErrorBanner from "@/components/Auth Components/ErrorBanner";
@@ -16,6 +15,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { GoogleLogin } from "@react-oauth/google";
+import BrandLogo from "@/components/Auth Components/BrandLogo";
 
 const iconClass = (hasError?: boolean, isTouched?: boolean) => {
   if (hasError && isTouched) return "text-destructive";
@@ -84,33 +84,7 @@ export default function Login() {
         <div className="absolute inset-0 z-10 bg-linear-to-t from-zinc-50/80 dark:from-black/85 via-transparent to-transparent" />
         <div className="absolute inset-0 z-10 bg-linear-to-r from-zinc-50/90 dark:from-black/90 via-transparent to-transparent" />
 
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="relative z-20 self-start"
-        >
-          <Link to="/" className="flex items-center gap-5 group">
-            <motion.div
-              whileHover={{ rotate: -4, scale: 1.08 }}
-              transition={{ type: "spring", stiffness: 400, damping: 10 }}
-            >
-              <img
-                src={logo}
-                alt="Ticketa"
-                className="h-14 w-14 object-contain drop-shadow-xl"
-              />
-            </motion.div>
-            <div className="flex flex-col">
-              <span className="text-3xl font-black tracking-tight text-foreground dark:text-white leading-none">
-                TICKETA
-              </span>
-              <span className="text-[10px] font-bold tracking-[0.35em] text-primary uppercase mt-1.5">
-                Premium Cinema
-              </span>
-            </div>
-          </Link>
-        </motion.div>
+        <BrandLogo />
 
         <div className="relative z-20 space-y-6 max-w-lg pl-4">
           <div className="space-y-3">
