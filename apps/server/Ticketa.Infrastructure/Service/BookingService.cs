@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Entities;
-using Ticketa.Core.Enums;
 using Ticketa.Core.Helpers;
 using Ticketa.Core.Interfaces;
 using Ticketa.Core.Interfaces.IRepositories;
@@ -43,12 +42,7 @@ namespace Ticketa.Infrastructure.Service
       var bookedSeats = dto.Seats.Select(s =>
       {
         var category = template.RowCategoryMap[s.Row];
-        decimal multiplier = category switch
-        {
-          SeatCategory.VIP => 1.5m,
-          SeatCategory.Premium => 1.2m,
-          _ => 1.0m
-        };
+        decimal multiplier = HallTypeHelper.GetPriceMultiplier(category);
 
         return new BookedSeat
         {
