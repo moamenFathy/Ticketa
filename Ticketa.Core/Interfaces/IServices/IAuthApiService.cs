@@ -12,5 +12,8 @@ namespace Ticketa.Core.Interfaces.IServices
 
     Task ResendEmailConfirmationAsync(string email, CancellationToken ct = default);
     Task<AuthResultDto> RefreshTokenAsync(string refreshToken, CancellationToken ct = default);
+
+    Task ForgetPasswordAsync(string email, CancellationToken ct = default);
+    Task<(bool Success, string? Error)> ResetPasswordAsync(ResetPasswordDto dto, CancellationToken ct = default);
   }
 }
