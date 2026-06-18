@@ -24,3 +24,13 @@ export type AuthUserDto = {
 export type LoginResponseDto = {
   accessToken: string;
 }
+
+export type ForgotPasswordDto = {
+  email: string;
+}
+
+export type ResetPasswordDto = {
+  email: string;
+  token: string;
+  newPassword: string;
+}

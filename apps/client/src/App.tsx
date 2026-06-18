@@ -7,6 +7,8 @@ import ShowtimeSeats from "./pages/ShowtimeSeats";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Scan from "./pages/Scan";
+import ForgetPassword from "./pages/ForgetPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 const App = () => {
   return (
@@ -18,6 +20,8 @@ const App = () => {
         <Route path="showtimes/:id" element={<ShowtimeSeats />} />
         <Route path="movies/:id" element={<MovieDetails />} />
         <Route path="login" element={<Login />} />
+        <Route path="forgot-password" element={<ForgetPassword />} />
+        <Route path="reset-password" element={<ResetPassword />} />
         <Route path="register" element={<Register />} />
         <Route path="bookings/:reference" element={<Scan />} />
         <Route path="*" element={<h1>not found</h1>} />
