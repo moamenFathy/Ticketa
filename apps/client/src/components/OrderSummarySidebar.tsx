@@ -31,7 +31,6 @@ const OrderSummarySidebar = ({
   selectedList,
   rowCategoryMap,
   hallName,
-  hallType,
   startsAt,
   price,
   onToggleSeat,
@@ -48,11 +47,7 @@ const OrderSummarySidebar = ({
     const basePrice = price ?? 0;
 
     let itemPrice = basePrice;
-    if (cat === "Premium") {
-      itemPrice = basePrice * 1.5;
-    } else if (cat === "VIP" && hallType === "Standard") {
-      itemPrice = basePrice * 1.5;
-    }
+    if (cat !== "Regular") itemPrice = basePrice * 1.5;
 
     return acc + itemPrice;
   }, 0);
