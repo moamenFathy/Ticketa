@@ -60,7 +60,7 @@ namespace Ticketa.Core.Helpers
     public static decimal GetPriceMultiplier(SeatCategory category) => category switch
     {
       SeatCategory.VIP => 1.5m,
-      SeatCategory.Premium => 1.2m,
+      SeatCategory.Premium => 1.5m,
       _ => 1.0m
     };
   }
