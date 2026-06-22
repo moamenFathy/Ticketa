@@ -8,5 +8,6 @@ namespace Ticketa.Core.Helpers
     public int Rows { get; set; }
     public int SeatsPerRow { get; set; }
     public Dictionary<int, SeatCategory> RowCategoryMap { get; set; } = new();
+    public Dictionary<SeatCategory, decimal> CategorySurchargeMape { get; set; } = new();
   }
 }

@@ -5,6 +5,7 @@
     public bool Succeeded { get; set; }
     public string? BookingReference { get; set; }
     public decimal? TotalAmount { get; set; }
+    public string Message { get; set; } = string.Empty;
     public List<SeatDto> ConflictingSeats { get; set; } = [];
 
     public static BookingResultDto Success(string refrence, decimal total) => new()
@@ -18,6 +19,12 @@
     {
       Succeeded = false,
       ConflictingSeats = seats.ToList()
+    };
+
+    public static BookingResultDto Failure(string message) => new()
+    {
+      Succeeded = false,
+      Message = message
     };
   }
 }
