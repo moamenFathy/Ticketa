@@ -11,7 +11,13 @@ import { rowLabel } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/api/queryKeys";
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY, {
+  developerTools: {
+    assistant: {
+      enabled: false,
+    },
+  },
+});
 
 const Checkout = () => {
   const location = useLocation();
@@ -39,6 +45,7 @@ const Checkout = () => {
 
   const appearance = {
     theme: "night" as const,
+    labels: "floating" as const,
     variables: {
       colorPrimary: "oklch(67.2% 0.191 39deg)",
       colorBackground: "#0a0a0a",
