@@ -14,6 +14,8 @@ namespace Ticketa.Infrastructure.Data
     public DbSet<Showtime> Showtimes { get; set; }
     public DbSet<Booking> Bookings { get; set; }
     public DbSet<BookedSeat> BookedSeats { get; set; }
+    public DbSet<Payment> Payments { get; set; }
+    public DbSet<PaymentSeat> PaymentSeats { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
