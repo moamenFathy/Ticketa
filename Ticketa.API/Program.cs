@@ -61,6 +61,7 @@ var app = builder.Build();
 app.MapScalarApiReference();
 app.MapOpenApi();
 app.MapGet("/", () => Results.Redirect("/scalar")).ExcludeFromDescription();
+app.MapGet("/env", (IWebHostEnvironment env) => Results.Ok(env.EnvironmentName));
 
 app.UseCors("AllowFrontend");
 

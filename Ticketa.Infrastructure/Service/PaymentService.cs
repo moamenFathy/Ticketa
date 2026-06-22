@@ -1,6 +1,8 @@
 ﻿using Stripe;
 using System.Text.Json;
 using Ticketa.Core.DTOs;
+using Ticketa.Core.Entities;
+using Ticketa.Core.Enums;
 using Ticketa.Core.Helpers;
 using Ticketa.Core.Interfaces;
 using Ticketa.Core.Interfaces.IRepositories;
@@ -13,6 +15,13 @@ namespace Ticketa.Infrastructure.Service
   {
     private readonly IUnitOfWork _uow = uow;
     private readonly IBookingService _bookingService = bookingService;
+
+    private static string ComputeSeatHash(IEnumerable<SeatDto> seats)
+    {
+      return string.Join(",", seats
+          .OrderBy(s => s.Row).ThenBy(s => s.SeatNumber)
+          .Select(s => $"{s.Row}:{s.SeatNumber}"));
+    }
 
     public async Task<BookingResultDto> ConfirmAsync(string paymentIntentId, string userId, CancellationToken ct = default)
     {
@@ -31,6 +40,8 @@ namespace Ticketa.Infrastructure.Service
       var bookingDto = new BookingCreateDto { ShowtimeId = showtimeId, Seats = seats };
       var result = await _bookingService.CreateAsync(bookingDto, userId, ct);
 
+      var payment = await _uow.Payments.GetAsync(p => p.StripePaymentIntentId == paymentIntentId);
+
       if (!result.Succeeded && result.ConflictingSeats.Count > 0)
       {
         var refundService = new RefundService();
@@ -38,6 +49,19 @@ namespace Ticketa.Infrastructure.Service
             new RefundCreateOptions { PaymentIntent = paymentIntentId },
             cancellationToken: ct
           );
+
+        if (payment is not null)
+        {
+          payment.Status = PaymentStatus.Refunded;
+          payment.RefundedAt = DateTime.UtcNow;
+          await _uow.SaveAsync();
+        }
+      }
+      else if (result.Succeeded && payment is not null)
+      {
+        payment.Status = PaymentStatus.Completed;
+        payment.CompletedAt = DateTime.UtcNow;
+        await _uow.SaveAsync();
       }
 
       return result;
@@ -50,15 +74,31 @@ namespace Ticketa.Infrastructure.Service
       if (showtime is null) return null;
 
       var template = HallTypeHelper.GetTemplate(showtime.Hall.Type);
+      dto.Seats = dto.Seats.OrderBy(s => s.Row).ThenBy(s => s.SeatNumber).ToList();
+      var seatHash = ComputeSeatHash(dto.Seats);
 
+      var dedupSpec = new PaymentSpecification(userId, dto.ShowtimeId, seatHash);
+      var existing = await _uow.Payments.GetEntityWithSpecAsync(dedupSpec, ct);
+      if (existing is not null)
+      {
+        return new PaymentIntentResultDto
+        {
+          ClientSecret = existing.ClientSecret,
+          PaymentIntentId = existing.StripePaymentIntentId,
+          TotalAmount = existing.TotalAmount
+        };
+      }
 
-      var totalAmount = dto.Seats.Sum(seat =>
+      decimal totalAmount = 0;
+      var paymentSeats = new List<PaymentSeat>();
+      foreach (var seat in dto.Seats)
       {
         var category = template.RowCategoryMap[seat.Row];
-        decimal multiplier = HallTypeHelper.GetPriceMultiplier(category);
-
-        return showtime.Price * multiplier;
-      });
+        var multiplier = HallTypeHelper.GetPriceMultiplier(category);
+        var unitPrice = showtime.Price * multiplier;
+        totalAmount += unitPrice;
+        paymentSeats.Add(new PaymentSeat { Row = seat.Row, SeatNumber = seat.SeatNumber, UnitPrice = unitPrice });
+      }
 
       var metaData = new Dictionary<string, string>
       {
@@ -70,7 +110,7 @@ namespace Ticketa.Infrastructure.Service
       var options = new PaymentIntentCreateOptions
       {
         Amount = (long)(totalAmount * 100),
-        Currency = "EGP",
+        Currency = "AED",
         Metadata = metaData,
         AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
         {
@@ -78,16 +118,31 @@ namespace Ticketa.Infrastructure.Service
         },
       };
 
-      var seatKey = string.Join("-", dto.Seats.OrderBy(s => s.Row).ThenBy(s => s.SeatNumber)
-        .Select(s => $"{s.Row}:{s.SeatNumber}"));
-
       var requestOptions = new RequestOptions
       {
-        IdempotencyKey = $"{userId}-{dto.ShowtimeId}-{seatKey}"
+        IdempotencyKey = Guid.NewGuid().ToString("N")
       };
 
       var service = new PaymentIntentService();
       var paymnetIntent = await service.CreateAsync(options, requestOptions, ct);
+
+      var payment = new Payment
+      {
+        StripePaymentIntentId = paymnetIntent.Id,
+        ClientSecret = paymnetIntent.ClientSecret,
+        UserId = userId,
+        ShowtimeId = dto.ShowtimeId,
+        TotalAmount = totalAmount,
+        Currency = "AED",
+        Status = PaymentStatus.Pending,
+        SeatHash = seatHash,
+        SeatCount = dto.Seats.Count,
+        CreatedAt = DateTime.UtcNow,
+        PaymentSeats = paymentSeats
+      };
+
+      await _uow.Payments.CreateAsync(payment);
+      await _uow.SaveAsync();
 
       return new PaymentIntentResultDto
       {
