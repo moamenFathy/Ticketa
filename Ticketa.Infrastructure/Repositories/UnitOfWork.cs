@@ -13,6 +13,7 @@ namespace Ticketa.Infrastructure.Repositories
     private IShowtimeRepository? _showtimes;
     private IBookingRepository? _bookings;
     private IBookedSeatRepository? _bookedseat;
+    private IPaymentRepository? _payments;
 
     public IHallRepository Halls => _halls ??= new HallRepository(_context);
 
@@ -25,6 +26,8 @@ namespace Ticketa.Infrastructure.Repositories
     public IBookingRepository Bookings => _bookings ??= new BookingRepository(_context);
 
     public IBookedSeatRepository BookedSeats => _bookedseat ??= new BookedSeatRepository(_context);
+
+    public IPaymentRepository Payments => _payments ??= new PaymentRepository(_context);
 
     public async Task SaveAsync()
     {
