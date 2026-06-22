@@ -68,5 +68,29 @@
         """;
       return EmailLayout("Reset Your Password", content);
     }
+
+    public static string PasswordReset(string name, string resetLink)
+    {
+      var content = $"""
+      <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:24px">
+          <h2>Hello {name},</h2>
+
+          <p>We received a request to reset your password.</p>
+
+          <p>
+              <a href="{resetLink}"
+                 style="background:#c9a96e;color:white;padding:12px 20px;
+                        text-decoration:none;border-radius:6px">
+                  Reset Password
+              </a>
+          </p>
+
+          <p>This link will expire shortly.</p>
+
+          <p>If you didn't request this, ignore this email.</p>
+      </div>
+      """;
+      return EmailLayout("Password Reset Request", content);
+    }
   }
 }

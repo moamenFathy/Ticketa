@@ -10,6 +10,7 @@ namespace Ticketa.Core.Interfaces
     IShowtimeRepository Showtimes { get; }
     IBookingRepository Bookings { get; }
     IBookedSeatRepository BookedSeats { get; }
+    IPaymentRepository Payments { get; }
     Task SaveAsync();
   }
 }

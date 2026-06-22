@@ -1,7 +1,9 @@
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using System.Text;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Interfaces.IServices;
@@ -184,7 +186,55 @@ namespace Ticketa.Infrastructure.Service
       var emailBody = EmailTemplates.VerificationCode(code);
       await _emailService.SendEmailAsync(user.Email!, "Verify Your Email", emailBody);
     }
+    public async Task ForgetPasswordAsync(string email, CancellationToken ct = default)
+    {
+      var user = await _userManager.FindByEmailAsync(email);
+
+      if (user is null || !user.EmailConfirmed) return;
+
+      var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+      var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+      var clientUrl = _config["ClientSettings:BaseUrl"];
+
+      var resetLink = $"{clientUrl}/reset-password" +
+              $"?email={Uri.EscapeDataString(user.Email!)}&token={Uri.EscapeDataString(encodedToken)}";
+
+      var html = EmailTemplates.PasswordReset(user.UserName!, resetLink);
+
+      await _emailService.SendEmailAsync(user.Email!, "Reset Your Password", html);
+    }
+
+    public async Task<(bool Success, string? Error)> ResetPasswordAsync(ResetPasswordDto dto, CancellationToken ct = default)
+    {
+      var user = await _userManager.FindByEmailAsync(dto.Email);
+
+      if (user is null)
+        return (false, "Invalid email address.");
+
+      string decodedToken;
+
+      try
+      {
+        decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(dto.Token));
+      }
+      catch (Exception ex)
+      {
+        return (false, "Invalid token format.");
+      }
+
+      var result = await _userManager.ResetPasswordAsync(user, decodedToken, dto.NewPassword);
+
+      if (!result.Succeeded)
+      {
+        return (false, result.Errors.First().Description);
+      }
+
+      return (true, null);
+    }
 
     private static string GenerateSixDigitCode() => Random.Shared.Next(100_000, 999_999).ToString();
+
   }
 }
