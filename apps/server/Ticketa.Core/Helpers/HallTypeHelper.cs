@@ -20,7 +20,8 @@ namespace Ticketa.Core.Helpers
         Rows = 12,
         SeatsPerRow = 16,
         RowCategoryMap = BuildMap(regularRows: 9, premiumRows: 3,
-            regular: SeatCategory.Regular, premium: SeatCategory.VIP)
+            regular: SeatCategory.Regular, premium: SeatCategory.VIP),
+
       },
       HallType.IMAX => new HallTemplate
       {
@@ -55,5 +56,12 @@ namespace Ticketa.Core.Helpers
 
       return map;
     }
+
+    public static decimal GetPriceMultiplier(SeatCategory category) => category switch
+    {
+      SeatCategory.VIP => 1.5m,
+      SeatCategory.Premium => 1.5m,
+      _ => 1.0m
+    };
   }
 }
