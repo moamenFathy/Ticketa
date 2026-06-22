@@ -1,5 +1,5 @@
 import { useGetSeatsForShowtime, useGetShowtimes } from "@/hooks/useShowtimes";
-import { useCreateBooking } from "@/hooks/useBooking";
+import { useCreatePaymentIntent } from "@/hooks/usePayment";
 import { useParams, useLocation } from "react-router-dom";
 import ShowtimeSeatsSkeleton from "@/components/skeletons/ShowtimeSeatsSkeleton";
 import { motion } from "framer-motion";
@@ -7,14 +7,12 @@ import { useState, useMemo, useCallback } from "react";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ErrorState from "@/components/ErrorState";
-import Confirmation from "@/components/Confirmation";
 import HeroSeat from "@/components/HeroSeat";
 import { TMDB_IMAGE_POSTER_URL } from "@/api/constants";
 import { rowLabel, seatKey } from "@/lib/utils";
 import SeatGrid from "@/components/SeatGrid";
 import Legend from "@/components/Legend";
 import OrderSummarySidebar from "@/components/OrderSummarySidebar";
-import type { BookingResultDto } from "@/types/bookings";
 import type { ApiError } from "@/types/api";
 import { isConflictError } from "@/api/errors";
 import { useAuth } from "@/hooks/useAuth";
@@ -45,13 +43,9 @@ const ShowtimeSeats = () => {
     return 0;
   }, [seatsData, moviesWithShowtimes, id]);
 
-  const createBooking = useCreateBooking();
+  const createIntent = useCreatePaymentIntent();
 
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [confirmed, setConfirmed] = useState(false);
-  const [bookingResult, setBookingResult] = useState<BookingResultDto | null>(
-    null,
-  );
   const [bookingError, setBookingError] = useState<string | null>(null);
 
   // Build a Set of booked seat keys for O(1) lookup
@@ -106,12 +100,20 @@ const ShowtimeSeats = () => {
       return { row: row + 1, seatNumber };
     });
 
-    createBooking.mutate(
+    createIntent.mutate(
       { showtimeId: Number(id!), seats },
       {
         onSuccess: (data) => {
-          setBookingResult(data);
-          setConfirmed(true);
+          navigate("/checkout", {
+            state: {
+              clientSecret: data.clientSecret,
+              paymentIntentId: data.paymentIntentId,
+              totalAmount: data.totalAmount,
+              selectedList,
+              movieTitle: seatsData!.movieTitle,
+              showtimeId: id,
+            },
+          });
         },
         onError: (error) => {
           const apiError = error as unknown as ApiError;
@@ -136,13 +138,21 @@ const ShowtimeSeats = () => {
             }
           } else {
             setBookingError(
-              apiError.message ?? "Booking failed. Please try again.",
+              apiError.message ?? "Checkout failed. Please try again.",
             );
           }
         },
       },
     );
-  }, [selectedList, id, createBooking, isLoggedIn, navigate, location]);
+  }, [
+    selectedList,
+    id,
+    createIntent,
+    isLoggedIn,
+    navigate,
+    location,
+    seatsData,
+  ]);
 
   if (isLoading) return <ShowtimeSeatsSkeleton />;
 
@@ -161,25 +171,6 @@ const ShowtimeSeats = () => {
   const posterUrl = seatsData.moviePosterPath
     ? `${TMDB_IMAGE_POSTER_URL}${seatsData.moviePosterPath}`
     : "/poster-placeholder.png";
-
-  // ── Confirmation overlay ─────────────────────────────────────────────────
-  if (confirmed) {
-    return (
-      <Confirmation
-        movieTitle={seatsData.movieTitle}
-        rowLabel={rowLabel}
-        selectedList={selectedList}
-        bookingReference={bookingResult?.bookingReference}
-        totalAmount={bookingResult?.totalAmount}
-        onClick={() => {
-          setSelected(new Set());
-          setConfirmed(false);
-          setBookingResult(null);
-          setBookingError(null);
-        }}
-      />
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -271,7 +262,7 @@ const ShowtimeSeats = () => {
               setSelected(new Set());
               setBookingError(null);
             }}
-            isBooking={createBooking.isPending}
+            isBooking={createIntent.isPending}
             bookingError={bookingError}
             onDismissError={() => setBookingError(null)}
           />
