@@ -22,6 +22,7 @@ namespace Ticketa.API.Controllers
       return result is null ? NotFound(new { message = "showtime not found." }) : Ok(result);
     }
 
+    [HttpPost("confirm-payment")]
     public async Task<IActionResult> Confirm(ConfirmPaymentDto dto, CancellationToken ct)
     {
       if (!ModelState.IsValid) return ValidationProblem(ModelState);
