@@ -18,7 +18,7 @@ export default function Navbar() {
   const [dark, setDark] = useState(
     () => localStorage.getItem("theme") === "dark",
   );
-  const { user, isLoggedIn } = useAuth();
+  const { user, isLoggedIn, isInitializing } = useAuth();
   const logoutMutation = useLogout();
   const { mutate: googleAuth } = useGoogleAuth();
 
@@ -31,7 +31,7 @@ export default function Navbar() {
     onError: () => {
       console.error("Google One Tap Login Failed");
     },
-    disabled: isLoggedIn,
+    disabled: isLoggedIn || isInitializing,
     cancel_on_tap_outside: false,
     use_fedcm_for_prompt: false, // Disable FedCM to fix NetworkError across different accounts
   });

@@ -198,3 +198,9 @@ a {
 .preserve-3d {
   transform-style: preserve-3d;
 }
+
+@media (max-width: 426px) {
+  .responsive-seats {
+    zoom: 0.5;
+  }
+}

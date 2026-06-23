@@ -21,7 +21,7 @@ const SeatGrid = ({
   toggleSeat,
 }: Props) => {
   return (
-    <div className="px-4 md:px-8 pb-8 pt-2 overflow-x-auto">
+    <div className="px-4 md:px-8 pb-8 pt-2 overflow-x-auto responsive-seats">
       <div className="flex flex-col gap-1.5 min-w-max mx-auto w-fit">
         {Array.from({ length: rows }, (_, rowIdx) => {
           const category = seatsData!.rowCategoryMap[rowIdx + 1] ?? "Default";
