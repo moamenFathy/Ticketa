@@ -18,7 +18,6 @@ using Ticketa.Infrastructure.Service;
 
 namespace Ticketa.Infrastructure.Extensions
 {
-  // Ticketa.Infrastructure/Extensions/ServiceCollectionExtensions.cs
   public static class ServiceCollectionExtensions
   {
     public static IServiceCollection AddTicketaInfrastructure(
@@ -30,7 +29,7 @@ namespace Ticketa.Infrastructure.Extensions
           opt.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
       // Identity
-      services.AddIdentity<AppUser, IdentityRole>(opt =>
+      services.AddIdentity<AppUser, AppRole>(opt =>
       {
         opt.User.RequireUniqueEmail = true;
         opt.SignIn.RequireConfirmedEmail = true;
