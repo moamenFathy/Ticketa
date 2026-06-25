@@ -1,4 +1,6 @@
+using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Infrastructure.Extensions;
+using Ticketa.Infrastructure.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddTicketaInfrastructure(builder.Configuration);
+builder.Services.AddScoped<IAdminManagementService, AdminManagementService>();
 
 builder.Services.ConfigureApplicationCookie(opt =>
 {
@@ -19,8 +22,6 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 });
 
 var app = builder.Build();
-
-app.UseCors("AllowAll");
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
