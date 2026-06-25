@@ -1,0 +1,105 @@
+@model AdminUserUpsertVM
+
+@{
+  var isEdit = !string.IsNullOrEmpty(Model.Id);
+  var title = isEdit ? "Edit User" : "Create User";
+  var submitUrl = isEdit
+    ? "/AdminUserManagement/Upsert?id=" + Model.Id
+    : "/AdminUserManagement/Upsert";
+}
+
+<!-- Header -->
+<div class="flex items-center justify-between pb-3 border-b border-base-300">
+  <h3 class="text-xl font-bold">@title</h3>
+  <label for="modal" class="btn btn-sm btn-ghost btn-circle hover:bg-base-300">✕</label>
+</div>
+
+<!-- Form -->
+<form class="flex flex-col gap-4 mt-4"
+      id="userForm"
+      method="post"
+      asp-action="Upsert"
+      asp-controller="AdminUserManagement"
+      data-submit-url="@submitUrl">
+
+  @Html.AntiForgeryToken()
+  <input asp-for="Id" type="hidden" />
+
+  <!-- Validation -->
+  <div asp-validation-summary="ModelOnly"
+       class="text-error text-sm bg-error/10 p-2 rounded-lg"></div>
+
+  <!-- Name -->
+  <div class="grid grid-cols-2 gap-4">
+    <label class="form-control w-full">
+      <span class="label-text font-medium">First Name</span>
+      <input asp-for="FirstName"
+             class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary"
+             placeholder="First name"
+             autofocus
+             />
+      <span asp-validation-for="FirstName" class="text-error mt-1 text-sm font-bold"></span>
+    </label>
+
+    <label class="form-control w-full">
+      <span class="label-text font-medium">Last Name</span>
+      <input asp-for="LastName"
+             class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary"
+             placeholder="Last name"
+             />
+      <span asp-validation-for="LastName" class="text-error mt-1 text-sm font-bold"></span>
+    </label>
+  </div>
+
+  <!-- Email -->
+  <label class="form-control w-full">
+    <span class="label-text font-medium">Email</span>
+    <input asp-for="Email"
+           class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary"
+           placeholder="Email address" />
+    <span asp-validation-for="Email" class="text-error mt-1 text-sm font-bold"></span>
+  </label>
+
+  <!-- Password -->
+  <div class="grid grid-cols-2 gap-4">
+    <label class="form-control w-full">
+      <span class="label-text font-medium">@(isEdit ? "New Password" : "Password")</span>
+      <input asp-for="Password"
+             class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary"
+             placeholder="@(isEdit ? "Leave blank to keep current" : "Minimum 8 characters")"
+             type="password"
+             />
+      <span asp-validation-for="Password" class="text-error mt-1 text-sm font-bold"></span>
+    </label>
+
+    <label class="form-control w-full">
+      <span class="label-text font-medium">Confirm Password</span>
+      <input asp-for="ConfirmPassword"
+             class="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary"
+             placeholder="Confirm password"
+             type="password"
+             />
+      <span asp-validation-for="ConfirmPassword" class="text-error mt-1 text-sm font-bold"></span>
+    </label>
+  </div>
+
+  <!-- Role -->
+  <label class="form-control w-full">
+    <span class="label-text font-medium">Role</span>
+    <select asp-for="Role"
+            class="select select-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary">
+      <option value="">-- Select Role --</option>
+      @foreach (var role in Model.AvailableRoles)
+      {
+        <option value="@role" selected="@(Model.Role == role)">@role</option>
+      }
+    </select>
+    <span asp-validation-for="Role" class="text-error mt-1 text-sm font-bold"></span>
+  </label>
+
+  <!-- Actions -->
+  <div class="modal-action mt-2 flex justify-end gap-3">
+    <label for="modal" class="btn btn-ghost border border-base-300 hover:bg-base-200">Cancel</label>
+    <button class="btn btn-primary px-5 hover:brightness-110" type="submit">@(isEdit ? "Save Changes" : "Create User")</button>
+  </div>
+</form>

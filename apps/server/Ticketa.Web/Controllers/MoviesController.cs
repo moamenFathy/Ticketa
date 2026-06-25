@@ -22,6 +22,24 @@ namespace Ticketa.Web.Controllers
 
     public IActionResult Index() => View();
 
+    [HttpGet]
+    public async Task<IActionResult> GetAll(
+    [FromQuery] DataTableRequestsDto request,
+    [FromQuery(Name = "search[value]")] string? searchValue = null,
+    [FromQuery(Name = "order[0][column]")] int orderColumn = 0,
+    [FromQuery(Name = "order[0][dir]")] string orderDir = "asc",
+    string? segmentedFilter = null)
+    {
+      var result = await _movieService.GetAllAsync(
+          request,
+          searchValue,
+          orderColumn,
+          orderDir,
+          segmentedFilter);
+
+      return Json(result);
+    }
+
     public async Task<IActionResult> Import(CancellationToken cancellationToken)
     {
       var movies = await _tmdbService.GetPopularMoviesAsync(cancellationToken);
@@ -102,24 +120,6 @@ namespace Ticketa.Web.Controllers
 
       TempData["success"] = "Movie deleted successfully";
       return Json(new { success = true });
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetAll(
-        [FromQuery] DataTableRequestsDto request,
-        [FromQuery(Name = "search[value]")] string? searchValue = null,
-        [FromQuery(Name = "order[0][column]")] int orderColumn = 0,
-        [FromQuery(Name = "order[0][dir]")] string orderDir = "asc",
-        string? segmentedFilter = null)
-    {
-      var result = await _movieService.GetAllAsync(
-          request,
-          searchValue,
-          orderColumn,
-          orderDir,
-          segmentedFilter);
-
-      return Json(result);
     }
 
     [HttpGet]
