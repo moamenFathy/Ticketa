@@ -4,6 +4,8 @@ namespace Ticketa.Core.Entities
 {
   public class AppUser : IdentityUser
   {
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
     public DateOnly DateOfBirth { get; set; }
     public string Theme { get; set; } = "light";
     public string? VerificationCode { get; set; }
