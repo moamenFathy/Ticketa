@@ -48,6 +48,14 @@ namespace Ticketa.Core.Helpers
       public const string Delete = "roles:delete";
     }
 
+    public static class Halls
+    {
+      public const string View = "halls:view";
+      public const string Create = "halls:create";
+      public const string Edit = "halls:edit";
+      public const string Delete = "halls:delete";
+    }
+
     public static class Dashboard
     {
       public const string View = "dashboard:view";
