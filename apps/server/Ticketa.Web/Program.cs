@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Identity;
-using Ticketa.Core.Entities;
 using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Infrastructure.Extensions;
 using Ticketa.Infrastructure.Service;
@@ -11,7 +9,6 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddTicketaInfrastructure(builder.Configuration);
 builder.Services.AddScoped<IAdminManagementService, AdminManagementService>();
-builder.Services.AddScoped<IRoleService, RoleService>();
 
 builder.Services.ConfigureApplicationCookie(opt =>
 {
