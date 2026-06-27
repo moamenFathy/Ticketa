@@ -5,7 +5,7 @@ using Ticketa.Core.Entities;
 
 namespace Ticketa.Infrastructure.Data
 {
-  public class ApplicationDbContext(DbContextOptions options) : IdentityDbContext<AppUser>(options)
+  public class ApplicationDbContext(DbContextOptions options) : IdentityDbContext<AppUser, AppRole, string>(options)
   {
     public DbSet<Hall> Halls { get; set; }
     public DbSet<Movie> Movies { get; set; }

@@ -5,9 +5,12 @@ using Ticketa.Core.Enums;
 using Ticketa.Core.Helpers;
 using Ticketa.Core.Interfaces;
 using Ticketa.Core.Specifications;
+using Ticketa.Infrastructure.Authorization;
+using static Ticketa.Core.Helpers.Permissions;
 
 namespace Ticketa.Web.Controllers
 {
+  [RequirePermission(Halls.View)]
   public class HallController : Controller
   {
     private readonly IUnitOfWork _uow;
@@ -68,6 +71,7 @@ namespace Ticketa.Web.Controllers
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [RequirePermission(Halls.Edit)]
     public async Task<IActionResult> Upsert(HallUpsertDto dto, int? id)
     {
       int? effectiveId = id ?? (dto.Id > 0 ? dto.Id : (int?)null);
@@ -150,6 +154,7 @@ namespace Ticketa.Web.Controllers
     // ─── Delete ───────────────────────────────────────────────────────────────
 
     [HttpGet]
+    [RequirePermission(Halls.Delete)]
     public async Task<IActionResult> DeleteConfirmation(int id)
     {
       var hall = await _uow.Halls.GetAsync(h => h.Id == id);
@@ -162,6 +167,7 @@ namespace Ticketa.Web.Controllers
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [RequirePermission(Halls.Delete)]
     public async Task<IActionResult> Delete(int id)
     {
       var hall = await _uow.Halls.GetAsync(h => h.Id == id);
