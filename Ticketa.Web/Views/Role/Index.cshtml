@@ -1,0 +1,54 @@
+@{
+  Layout = "_AdminLayout";
+  ViewData["Title"] = "Role Management";
+}
+
+<div class="card bg-base-100 border border-base-300 shadow-sm">
+  <div class="card-body gap-4">
+    <div class="flex items-center justify-between border-b border-base-300 pb-3">
+      <h2 class="card-title">Roles</h2>
+      <button type="button" class="btn btn-primary" onclick="openModal('roleForm', '/Role/Upsert', 'role')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 5v14" />
+          <path d="M5 12h14" />
+        </svg>
+        Add Role
+      </button>
+    </div>
+
+    <div>
+      <table id="DataTable" class="table cell-border hover stripe compact text-center">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Admin Role</th>
+            <th>Permissions</th>
+            <th>Users</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<input type="checkbox" id="modal" class="modal-toggle" />
+
+<div class="modal shadow-2xl" id="modal-wrapper" role="dialog" aria-modal="true">
+  <div class="modal-box w-11/12 max-w-lg" id="modalContent">
+  </div>
+  <label class="modal-backdrop" for="modal">Close</label>
+</div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+  <partial name="_ValidationScriptsPartial" />
+  <script>
+    window.csrfToken = document.querySelector(
+      'input[name="__RequestVerificationToken"]'
+    ).value;
+  </script>
+  <script type="module" src="~/js/AdminTables/Role.js" asp-append-version="true"></script>
+}
