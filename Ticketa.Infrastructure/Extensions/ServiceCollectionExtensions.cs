@@ -1,16 +1,19 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Polly;
 using Ticketa.Core.Entities;
+using Ticketa.Core.Helpers;
 using Ticketa.Core.Interfaces;
 using Ticketa.Core.Interfaces.IRepositories;
 using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Core.Interfaces.Services;
 using Ticketa.Core.Mapping;
 using Ticketa.Core.Settings;
+using Ticketa.Infrastructure.Authorization;
 using Ticketa.Infrastructure.Data;
 using Ticketa.Infrastructure.ExternalService;
 using Ticketa.Infrastructure.Repositories;
@@ -18,7 +21,6 @@ using Ticketa.Infrastructure.Service;
 
 namespace Ticketa.Infrastructure.Extensions
 {
-  // Ticketa.Infrastructure/Extensions/ServiceCollectionExtensions.cs
   public static class ServiceCollectionExtensions
   {
     public static IServiceCollection AddTicketaInfrastructure(
@@ -30,7 +32,7 @@ namespace Ticketa.Infrastructure.Extensions
           opt.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
       // Identity
-      services.AddIdentity<AppUser, IdentityRole>(opt =>
+      services.AddIdentity<AppUser, AppRole>(opt =>
       {
         opt.User.RequireUniqueEmail = true;
         opt.SignIn.RequireConfirmedEmail = true;
@@ -44,6 +46,7 @@ namespace Ticketa.Infrastructure.Extensions
       services.AddScoped<IShowtimeService, ShowtimeService>();
       services.AddScoped<IAuthService, AuthService>();
       services.AddScoped<IBookingService, BookingService>();
+      services.AddScoped<IRoleService, RoleService>();
 
       // Email
       services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
@@ -63,6 +66,21 @@ namespace Ticketa.Infrastructure.Extensions
       .AddTransientHttpErrorPolicy(policy =>
           policy.WaitAndRetryAsync(3, retryAttempt =>
               TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
+
+      return services;
+    }
+
+    public static IServiceCollection AddTicketaAuthorization(
+        this IServiceCollection services)
+    {
+      services.AddAuthorization(options =>
+      {
+        foreach (var permission in Permissions.GetAll())
+          options.AddPolicy(permission, policy =>
+              policy.Requirements.Add(new PermissionRequirement(permission)));
+      });
+
+      services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
       return services;
     }
