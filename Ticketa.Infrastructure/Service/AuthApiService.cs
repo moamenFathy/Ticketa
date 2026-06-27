@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using System.Security.Claims;
 using System.Text;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Entities;
@@ -11,11 +12,12 @@ using Ticketa.Core.Settings;
 
 namespace Ticketa.Infrastructure.Service
 {
-  public class AuthApiService(IEmailService emailService, ITokenService tokenService, UserManager<AppUser> userManager, IOptions<JwtSettings> jwtSettings, IConfiguration config) : IAuthApiService
+  public class AuthApiService(IEmailService emailService, ITokenService tokenService, UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, IOptions<JwtSettings> jwtSettings, IConfiguration config) : IAuthApiService
   {
     private readonly IEmailService _emailService = emailService;
     private readonly ITokenService _tokenService = tokenService;
     private readonly UserManager<AppUser> _userManager = userManager;
+    private readonly RoleManager<AppRole> _roleManager = roleManager;
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
     private readonly IConfiguration _config = config;
 
@@ -165,7 +167,17 @@ namespace Ticketa.Infrastructure.Service
     private async Task<AuthResultDto> IssueTokensAsync(AppUser user)
     {
       var roles = await _userManager.GetRolesAsync(user);
-      var accessToken = _tokenService.GenerateAccessToken(user, roles);
+      var permissions = new List<string>();
+
+      foreach (var roleName in roles)
+      {
+        var appRole = await _roleManager.FindByNameAsync(roleName);
+        if (appRole is null) continue;
+        var claims = await _roleManager.GetClaimsAsync(appRole);
+        permissions.AddRange(claims.Where(c => c.Type == "permission").Select(c => c.Value));
+      }
+
+      var accessToken = _tokenService.GenerateAccessToken(user, roles, permissions.Distinct().ToList());
       var refreshToken = _tokenService.GenerateRefreshToken();
 
       var expiryDays = _jwtSettings.RefreshTokenExpiryDate;

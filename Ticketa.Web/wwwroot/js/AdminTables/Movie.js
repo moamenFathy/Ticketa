@@ -592,7 +592,7 @@ function initMovieImportPage() {
 
         if (movie.poster) {
             const img = document.createElement("img");
-            img.src = movie.poster;                          // browser encodes src automatically
+            img.src = poster;              // browser encodes src automatically
             img.alt = movie.title || "";                     // textual context — safe
             img.className = "h-full w-full object-cover transition-transform duration-500 group-hover:scale-105";
             posterPanel.appendChild(img);

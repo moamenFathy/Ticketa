@@ -14,7 +14,7 @@ namespace Ticketa.Infrastructure.Service
   {
     private readonly JwtSettings _jwt = jwt.Value;
 
-    public string GenerateAccessToken(AppUser user, IList<string> roles)
+    public string GenerateAccessToken(AppUser user, IList<string> roles, IList<string>? permissions = null)
     {
       var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.SecretKey));
       var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -27,6 +27,9 @@ namespace Ticketa.Infrastructure.Service
       };
 
       claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+      if (permissions?.Count > 0)
+        claims.AddRange(permissions.Select(p => new Claim("permission", p)));
 
       var token = new JwtSecurityToken(
         issuer: _jwt.Issuer,

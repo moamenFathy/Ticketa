@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using Ticketa.Core.Entities;
@@ -21,6 +22,12 @@ public class AuthController : Controller
     _userManager = userManager;
     _signInManger = signInManger;
     _authService = authService;
+  }
+
+  [AllowAnonymous]
+  public IActionResult AccessDenied()
+  {
+    return View();
   }
 
   public IActionResult Register()
