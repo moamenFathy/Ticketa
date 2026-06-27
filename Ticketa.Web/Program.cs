@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Identity;
+using Ticketa.Core.Entities;
 using Ticketa.Core.Interfaces.IServices;
+using Ticketa.Infrastructure.Authorization;
 using Ticketa.Infrastructure.Extensions;
 using Ticketa.Infrastructure.Service;
 
@@ -13,7 +16,11 @@ builder.Services.AddScoped<IAdminManagementService, AdminManagementService>();
 builder.Services.ConfigureApplicationCookie(opt =>
 {
   opt.LoginPath = "/Auth/Login";
+  opt.AccessDeniedPath = "/Auth/AccessDenied";
 });
+
+builder.Services.AddTicketaAuthorization();
+builder.Services.AddScoped<IUserClaimsPrincipalFactory<AppUser>, CustomClaimsPrincipalFactory>();
 
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
