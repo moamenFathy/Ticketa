@@ -1,14 +1,15 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Enums;
 using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Core.Interfaces.Services;
+using Ticketa.Infrastructure.Authorization;
 using Ticketa.Web.ViewModels;
+using static Ticketa.Core.Helpers.Permissions;
 
 namespace Ticketa.Web.Controllers
 {
-  [Authorize]
+  [RequirePermission(Movies.View)]
   public class MoviesController : Controller
   {
     private readonly IMoviesService _movieService;
@@ -51,6 +52,7 @@ namespace Ticketa.Web.Controllers
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [RequirePermission(Movies.Import)]
     public async Task<IActionResult> Import(MovieImportVM vm, CancellationToken cancellationToken)
     {
       if (vm.SelectedTmdbIds is null || !vm.SelectedTmdbIds.Any())
@@ -86,6 +88,7 @@ namespace Ticketa.Web.Controllers
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [RequirePermission(Movies.Edit)]
     public async Task<IActionResult> UpdateStatus(int id, int status)
     {
       var success = await _movieService.UpdateStatusAsync(id, (MovieStatus)status);
@@ -96,6 +99,7 @@ namespace Ticketa.Web.Controllers
       return Json(new { success = true });
     }
 
+    [RequirePermission(Movies.Delete)]
     public async Task<IActionResult> DeleteConfirmation(int id)
     {
       var movie = await _movieService.GetByIdAsync(id);
@@ -108,6 +112,7 @@ namespace Ticketa.Web.Controllers
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [RequirePermission(Movies.Delete)]
     public async Task<IActionResult> Delete(int id)
     {
       var movie = await _movieService.GetByIdAsync(id);

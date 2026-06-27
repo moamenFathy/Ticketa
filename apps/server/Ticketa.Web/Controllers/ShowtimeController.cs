@@ -1,12 +1,13 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Interfaces.IServices;
+using Ticketa.Infrastructure.Authorization;
 using Ticketa.Web.ViewModels;
+using static Ticketa.Core.Helpers.Permissions;
 
 namespace Ticketa.Web.Controllers
 {
-  [Authorize]
+  [RequirePermission(Showtimes.View)]
   public class ShowtimeController : Controller
   {
     private readonly IShowtimeService _showtimeService;
@@ -53,6 +54,7 @@ namespace Ticketa.Web.Controllers
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [RequirePermission(Showtimes.Edit)]
     public async Task<IActionResult> Upsert([Bind(Prefix = "Form")] ShowtimeUpsertDto dto)
     {
       var viewName = dto.Id == 0 ? "_CreateShowtimeModal" : "_EditShowtimeModal";
@@ -82,6 +84,7 @@ namespace Ticketa.Web.Controllers
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [RequirePermission(Showtimes.Edit)]
     public async Task<IActionResult> UpdateStatus(int id, Core.Enums.ShowtimeStatus status)
     {
       var success = await _showtimeService.UpdateStatusAsync(id, status);
@@ -89,6 +92,7 @@ namespace Ticketa.Web.Controllers
     }
 
     [HttpGet]
+    [RequirePermission(Showtimes.Delete)]
     public async Task<IActionResult> DeleteConfirmation(int id)
     {
       var showtime = await _showtimeService.GetByIdAsync(id);
@@ -101,6 +105,7 @@ namespace Ticketa.Web.Controllers
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [RequirePermission(Showtimes.Delete)]
     public async Task<IActionResult> Delete(int id)
     {
       var showtime = await _showtimeService.GetByIdAsync(id);
