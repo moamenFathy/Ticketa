@@ -4,10 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Interfaces.IServices;
+using Ticketa.Infrastructure.Authorization;
 using Ticketa.Web.ViewModels;
+using static Ticketa.Core.Helpers.Permissions;
 
 namespace Ticketa.Web.Controllers
 {
+  [RequirePermission(Users.View)]
   public class AdminUserManagementController(
       UserManager<AppUser> userManager,
       RoleManager<AppRole> roleManager,
@@ -55,6 +58,7 @@ namespace Ticketa.Web.Controllers
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [RequirePermission(Users.Edit)]
     public async Task<IActionResult> Upsert(AdminUserUpsertVM vm)
     {
       if (!ModelState.IsValid)
@@ -92,6 +96,7 @@ namespace Ticketa.Web.Controllers
     }
 
     [HttpGet]
+    [RequirePermission(Users.Delete)]
     public async Task<IActionResult> DeleteConfirmation(string id)
     {
       var user = await userManager.FindByIdAsync(id);
@@ -101,6 +106,7 @@ namespace Ticketa.Web.Controllers
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [RequirePermission(Users.Delete)]
     public async Task<IActionResult> Delete(string id)
     {
       var user = await userManager.FindByIdAsync(id);

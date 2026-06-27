@@ -1,20 +1,22 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ticketa.Core.DTOs.Roles;
 using Ticketa.Core.Helpers;
 using Ticketa.Core.Interfaces.IServices;
+using Ticketa.Infrastructure.Authorization;
 using Ticketa.Web.ViewModels;
+using static Ticketa.Core.Helpers.Permissions;
 
 namespace Ticketa.Web.Controllers
 {
-  [Authorize]
   public class RoleController(IRoleService roleService) : Controller
   {
     private readonly IRoleService _roleService = roleService;
 
+    [RequirePermission(Roles.View)]
     public IActionResult Index() => View();
 
     [HttpGet]
+    [RequirePermission(Roles.View)]
     public async Task<IActionResult> GetAll()
     {
       var result = await _roleService.GetAllAsync();
@@ -22,6 +24,7 @@ namespace Ticketa.Web.Controllers
     }
 
     [HttpGet]
+    [RequirePermission(Roles.View)]
     public IActionResult Upsert(string? id)
     {
       var groupedPermissions = GetGroupedPermissions();
@@ -43,6 +46,7 @@ namespace Ticketa.Web.Controllers
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [RequirePermission(Roles.Edit)]
     public async Task<IActionResult> Upsert(RoleUpsertVM vm)
     {
       if (!ModelState.IsValid)
@@ -78,6 +82,7 @@ namespace Ticketa.Web.Controllers
     }
 
     [HttpGet]
+    [RequirePermission(Roles.Edit)]
     public async Task<IActionResult> LoadForEdit(string id)
     {
       var role = await _roleService.GetByIdAsync(id);
@@ -94,6 +99,7 @@ namespace Ticketa.Web.Controllers
     }
 
     [HttpGet]
+    [RequirePermission(Roles.Delete)]
     public async Task<IActionResult> DeleteConfirmation(string id)
     {
       var roles = await _roleService.GetAllAsync();
@@ -104,6 +110,7 @@ namespace Ticketa.Web.Controllers
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [RequirePermission(Roles.Delete)]
     public async Task<IActionResult> Delete(string id)
     {
       var (success, error) = await _roleService.DeleteAsync(id);
