@@ -27,6 +27,7 @@ namespace Ticketa.Infrastructure.Service
         TotalAmount = p.TotalAmount,
         Status = p.Status.ToString(),
         CreatedAt = p.CreatedAt,
+        RefundedAt = p.RefundedAt,
         BookingReference = "",
         BookingStatus = ""
       }).OrderByDescending(p => p.CreatedAt).ToList();

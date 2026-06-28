@@ -11,6 +11,7 @@ namespace Ticketa.Core.DTOs.Payments
     public string Status { get; set; } = string.Empty;
     public string BookingReference { get; set; } = string.Empty;
     public string BookingStatus { get; set; } = string.Empty;
+    public DateTime? RefundedAt { get; set; }
     public DateTime CreatedAt { get; set; }
   }
 }
