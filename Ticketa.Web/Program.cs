@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Stripe;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Infrastructure.Authorization;
@@ -12,6 +13,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddTicketaInfrastructure(builder.Configuration);
 builder.Services.AddScoped<IAdminManagementService, AdminManagementService>();
+
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 builder.Services.ConfigureApplicationCookie(opt =>
 {

@@ -47,6 +47,7 @@ namespace Ticketa.Infrastructure.Extensions
       services.AddScoped<IAuthService, AuthService>();
       services.AddScoped<IBookingService, BookingService>();
       services.AddScoped<IRoleService, RoleService>();
+      services.AddScoped<IPaymentManagementService, PaymentManagementService>();
 
       // Email
       services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
