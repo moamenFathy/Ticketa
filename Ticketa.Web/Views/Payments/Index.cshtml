@@ -1,0 +1,40 @@
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Payment Management";
+}
+
+<div class="card bg-base-100 border border-base-300 shadow-sm">
+    <div class="card-body gap-4">
+        <div class="flex items-center justify-between border-b border-base-300 pb-3">
+            <h2 class="card-title">Payments</h2>
+        </div>
+
+        <div>
+            <table id="DataTable" class="table cell-border hover stripe compact text-center">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Movie</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+        window.csrfToken = document.querySelector(
+        'input[name="__RequestVerificationToken"]'
+        ).value;
+    </script>
+    <script type="module" src="~/js/AdminTables/Payments.js" asp-append-version="true"></script>
+}
