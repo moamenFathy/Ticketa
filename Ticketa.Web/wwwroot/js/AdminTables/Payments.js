@@ -42,6 +42,8 @@ initDataTable("/Payments/GetAll", [
     orderable: false,
     className: "align-middle text-center whitespace-nowrap",
     render: (id, _type, row) => {
+      if (row.status === "Refunded")
+        return `<span class="text-sm text-gray-500">Refunded ${new Date(row.refundedAt).toLocaleDateString()}</span>`;
       if (row.status !== "Completed") return "";
       return `
         <div class="flex flex-row justify-center items-center gap-2">
@@ -65,5 +67,11 @@ initDataTable("/Payments/GetAll", [
   order: [[5, 'desc']],
   columnDefs: [
     { className: "flex justify-center gap-1", targets: 6 },
-  ]
+  ],
+  stateLoadParams: (settings, data) => {
+    if (data.columns.length !== 7) {
+      localStorage.removeItem(`DataTables_${settings.sTableId}_${window.location.pathname}`);
+      return false;
+    }
+  },
 });
