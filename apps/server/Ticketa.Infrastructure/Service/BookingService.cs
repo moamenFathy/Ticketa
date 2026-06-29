@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Entities;
+using Ticketa.Core.Enums;
 using Ticketa.Core.Helpers;
 using Ticketa.Core.Interfaces;
 using Ticketa.Core.Interfaces.IRepositories;
@@ -66,6 +67,16 @@ namespace Ticketa.Infrastructure.Service
       };
 
       await _uow.Bookings.CreateAsync(booking);
+
+      var existingBookedCount = await _uow.BookedSeats.CountAsync(
+          new BookedSeatByShowtimeIdSpecification(dto.ShowtimeId));
+      var totalSeats = showtime.Hall.TotalSeats;
+
+      if (existingBookedCount + dto.Seats.Count >= totalSeats)
+      {
+        showtime.Status = ShowtimeStatus.SoldOut;
+        await _uow.Showtimes.UpdateAsync(showtime);
+      }
 
       try
       {
