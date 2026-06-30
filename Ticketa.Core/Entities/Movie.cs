@@ -6,6 +6,7 @@ namespace Ticketa.Core.Entities
   {
     public int Id { get; set; }
     public int TmdbId { get; set; }
+    public string ImdbId { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
     public string Overview { get; set; } = string.Empty;
     public string PosterPath { get; set; } = string.Empty;   // relative path from TMDB
