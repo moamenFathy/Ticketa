@@ -82,7 +82,6 @@ namespace Ticketa.Infrastructure.Service
           m.VoteAverage,
           m.ImportedAt,
           m.RuntimeMinutes,
-          m.TmdbId,
           m.TrailerKey,
           hasShowtimes
         });
@@ -317,10 +316,12 @@ namespace Ticketa.Infrastructure.Service
     {
       var showtimeList = showtimes.ToList();
 
-      return new ActiveMovieWithDetailsDto
+      return new MovieDetailsDto
       {
         Id = movie.Id,
         Title = movie.Title,
+        TmdbId = movie.TmdbId,
+        ImdbId = movie.ImdbId,
         Overview = movie.Overview,
         PosterPath = movie.PosterPath,
         BackdropPath = movie.BackdropPath,
