@@ -363,7 +363,7 @@ if (dataTableElement) {
                                     <div class="flex flex-col min-w-[120px]">
                                         <span class="text-[10px] font-bold text-base-content/60 uppercase tracking-wider mb-1">Hall</span>
                                         <span class="font-bold text-base">${st.hallName}</span>
-                                        <span class="text-xs text-base-content/60 mt-0.5">${st.totalSeats} seats</span>
+                                        <span class="text-xs text-base-content/60 mt-0.5">${st.visibleSeatCount} bookable</span>
                                     </div>
                                     
                                     <div class="flex flex-col min-w-[140px]">

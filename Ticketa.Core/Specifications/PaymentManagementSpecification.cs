@@ -8,6 +8,7 @@ namespace Ticketa.Core.Specifications
     {
       AddInclude(p => p.User);
       AddInclude(p => p.Showtime);
+      AddInclude(p => p.PaymentSeats);
       AddInclude("Showtime.Movie");
     }
 

@@ -41,7 +41,7 @@
             <option value="">Select a hall...</option>
             @foreach (var hall in Model.Halls)
             {
-                <option value="@hall.Id">@hall.Name (@hall.TotalSeats seats)</option>
+                <option value="@hall.Id">@hall.Name (@hall.VisibleSeatCount bookable seats)</option>
             }
         </select>
         <span asp-validation-for="Form.HallId" class="text-error mt-1 text-sm font-bold"></span>

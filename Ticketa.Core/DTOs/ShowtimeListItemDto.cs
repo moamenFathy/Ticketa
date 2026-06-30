@@ -12,5 +12,6 @@ namespace Ticketa.Core.DTOs
     public ShowtimeStatus Status { get; set; } = ShowtimeStatus.Scheduled;
     public int HallId { get; set; }
     public int TotalSeats { get; set; }
+    public int VisibleSeatCount { get; set; }
   }
 }

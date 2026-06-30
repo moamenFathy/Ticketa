@@ -20,7 +20,7 @@ initDataTable("/Hall/GetAll", [
             return `
                 <div class="flex flex-col items-center justify-center">
                     <span class="text-xs font-semibold">${row.totalRows} × ${row.seatsPerRow}</span>
-                    <span class="text-[10px] text-base-content/50">${row.totalSeats} seats</span>
+                    <span class="text-[10px] text-base-content/50">${row.visibleSeatCount} bookable</span>
                 </div>
             `;
         }
@@ -75,11 +75,21 @@ document.addEventListener('change', function(e) {
             '1': { rows: 14, seats: 16, categories: 'Rows 1–10: Regular | Rows 11–14: Premium' },     // IMAX
             '2': { rows: 6,  seats: 8,  categories: 'All rows: Regular' }                             // Gold
         };
+        const getInvisibleCount = (rows) => {
+            let count = 0;
+            for (let r = 0; r < rows; r++) {
+                const skip = r === 0 ? 3 : r === rows - 1 ? 2 : 0;
+                count += skip * 2;
+            }
+            return count;
+        };
         const t = templates[e.target.value];
         if(t) {
+            const total = t.rows * t.seats;
+            const invisible = getInvisibleCount(t.rows);
             document.getElementById('previewRows').textContent   = t.rows;
             document.getElementById('previewSeats').textContent  = t.seats;
-            document.getElementById('previewTotal').textContent  = t.rows * t.seats;
+            document.getElementById('previewTotal').textContent  = total - invisible;
             document.getElementById('previewCategories').textContent = t.categories;
         }
     }

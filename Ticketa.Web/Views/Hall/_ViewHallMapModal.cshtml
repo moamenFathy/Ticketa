@@ -5,6 +5,13 @@
 @{
     var template = HallTypeHelper.GetTemplate(Model.Type);
     
+    static int GetSkip(int rowIndex, int totalRows) => (rowIndex, totalRows) switch
+    {
+        (1, _) => 3,
+        (_, var t) when rowIndex == t => 2,
+        _ => 0
+    };
+
     // Map SeatCategory to CSS classes for visual representation
     string GetSeatColor(SeatCategory cat) => cat switch
     {
@@ -22,7 +29,7 @@
     <div>
         <h3 class="text-xl font-bold">@Model.Name</h3>
         <p class="text-sm text-base-content/60 mt-1">
-            @Model.Type Hall &nbsp;•&nbsp; @template.Rows Rows &nbsp;•&nbsp; @(template.Rows * template.SeatsPerRow) Seats Total
+            @Model.Type Hall &nbsp;•&nbsp; @template.Rows Rows &nbsp;•&nbsp; @template.VisibleSeatCount Bookable Seats
         </p>
     </div>
     <label for="modal" class="btn btn-sm btn-ghost btn-circle hover:bg-base-300">✕</label>
@@ -67,12 +74,13 @@
 
                 <!-- Seats -->
                 <div class="flex gap-2">
+                    @{
+                        var skip = GetSkip(row, template.Rows);
+                    }
                     @for (int seat = 1; seat <= template.SeatsPerRow; seat++)
                     {
-                        // Calculate if this seat should be "empty" to create the shape in image 1
-                        bool isHidden = false;
-                        if (row == 1 && (seat <= 3 || seat >= 14)) isHidden = true; // Top row shorter
-                        if (row == template.Rows && (seat <= 2 || seat >= 15)) isHidden = true; // Bottom row shorter
+                        // Stadium bowl: skip seats on both edges
+                        bool isHidden = seat <= skip || seat > template.SeatsPerRow - skip;
                         
                         if (isHidden)
                         {
