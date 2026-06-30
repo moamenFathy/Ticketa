@@ -28,13 +28,63 @@
     </div>
 </div>
 
-@Html.AntiForgeryToken()
+<input type="checkbox" id="modal" class="modal-toggle" />
+<div class="modal shadow-2xl" role="dialog" aria-modal="true">
+    <div class="modal-box w-11/12 max-w-lg">
+        <div class="flex items-center gap-3 pb-3 border-b border-base-300">
+            <div class="bg-error text-white p-2 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-redo2-icon lucide-redo-2">
+                    <path d="m15 14 5-5-5-5" />
+                    <path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13" />
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-error">Refund Payment</h3>
+            <label for="modal" class="btn btn-sm btn-ghost btn-circle ml-auto hover:bg-base-300">&times;</label>
+        </div>
+
+        <form class="flex flex-col gap-4 mt-4"
+              id="refundForm"
+              method="post"
+              data-submit-url="/Payments/Refund">
+
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" id="refundPaymentId" value="" />
+
+            <p class="text-base" id="refundDetails"></p>
+
+            <p class="text-sm text-gray-500">
+                This will cancel the booking, free the seats, and revert the showtime status if applicable.
+            </p>
+
+            <div id="errorBanner" role="alert" class="alert alert-error shadow-sm hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span id="errorBannerText"></span>
+            </div>
+
+            <div role="alert" class="alert alert-warning shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span><strong>Warning:</strong> This action cannot be undone.</span>
+            </div>
+
+            <div class="modal-action mt-2 flex justify-end gap-3">
+                <label for="modal" class="btn btn-ghost border border-base-300 hover:bg-base-200">Cancel</label>
+                <button class="btn bg-error text-white hover:bg-red-700 px-5" type="submit">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-redo2-icon lucide-redo-2">
+                        <path d="m15 14 5-5-5-5" />
+                        <path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13" />
+                    </svg>
+                    Refund
+                </button>
+            </div>
+        </form>
+    </div>
+    <label class="modal-backdrop" for="modal">Close</label>
+</div>
 
 @section Scripts {
-    <script>
-        window.csrfToken = document.querySelector(
-        'input[name="__RequestVerificationToken"]'
-        ).value;
-    </script>
     <script type="module" src="~/js/AdminTables/Payments.js" asp-append-version="true"></script>
 }
