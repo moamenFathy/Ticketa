@@ -120,6 +120,71 @@ namespace Ticketa.Infrastructure.Service
       };
     }
 
+    public async Task<(bool Success, string Message)> CancelBookingsForPaymentAsync(int showtimeId, IEnumerable<PaymentSeat> paymentSeats)
+    {
+      var showtimeSpec = new ShowtimeByIdSpecification(showtimeId);
+      var showtime = await _uow.Showtimes.GetEntityWithSpecAsync(showtimeSpec);
+
+      if (showtime is null)
+        return (false, "Showtime not found.");
+
+      var paymentSeatList = paymentSeats.ToList();
+      if (paymentSeatList.Count == 0)
+        return (false, "No seats associated with this payment.");
+
+      var seatPairs = paymentSeatList.Select(s => (s.Row, s.SeatNumber)).ToList();
+
+      var allBookedSeats = (await _uow.BookedSeats.GetByShowtimeIdAsync(showtimeId)).ToList();
+
+      var matchedSeats = allBookedSeats
+          .Where(bs => seatPairs.Any(sp => sp.Row == bs.Row && sp.SeatNumber == bs.SeatNumber))
+          .ToList();
+
+      if (matchedSeats.Count == 0)
+        return (false, "No matching booked seats found for this payment.");
+
+      var matchedBookingIds = matchedSeats.Select(s => s.BookingId).Distinct().ToList();
+      var bookings = new List<Booking>();
+      foreach (var id in matchedBookingIds)
+      {
+        var b = await _uow.Bookings.GetAsync(b => b.Id == id);
+        if (b is not null) bookings.Add(b);
+      }
+
+      foreach (var seat in matchedSeats)
+      {
+        _uow.BookedSeats.Delete(seat);
+      }
+
+      foreach (var booking in bookings)
+      {
+        var remainingForBooking = allBookedSeats
+            .Count(bs => bs.BookingId == booking.Id && !matchedSeats.Contains(bs));
+        if (remainingForBooking == 0)
+        {
+          booking.Status = BookingStatus.Cancelled;
+        }
+      }
+
+      await _uow.SaveAsync();
+
+      if (showtime.Status == ShowtimeStatus.SoldOut)
+      {
+        var template = HallTypeHelper.GetTemplate(showtime.Hall.Type);
+        var remainingSeatsCount = await _uow.BookedSeats.CountAsync(
+            new BookedSeatByShowtimeIdSpecification(showtimeId));
+
+        if (remainingSeatsCount < template.VisibleSeatCount)
+        {
+          showtime.Status = ShowtimeStatus.Scheduled;
+        }
+
+        await _uow.SaveAsync();
+      }
+
+      return (true, "Bookings cancelled successfully.");
+    }
+
     private static string GenerateRefrence() => $"TKT-{DateTime.UtcNow:yyyyMMdd}-{Random.Shared.Next(1000, 9999)}";
 
   }
