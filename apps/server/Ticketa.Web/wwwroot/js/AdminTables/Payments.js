@@ -47,19 +47,13 @@ initDataTable("/Payments/GetAll", [
       if (row.status !== "Completed") return "";
       return `
         <div class="flex flex-row justify-center items-center gap-2">
-          <form method="post" action="/Payments/Refund" class="refund-form">
-            <input type="hidden" name="id" value="${id}" />
-            <input type="hidden" name="__RequestVerificationToken" value="${window.csrfToken}" />
-            <button type="submit" class="btn btn-ghost btn-sm text-orange-500 hover:bg-orange-50" onclick="return confirm('Are you sure you want to refund this payment?')">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 4v4h-4" />
-                <path d="M3.07 13.06A7.97 7.97 0 0 0 12 20a7.98 7.98 0 0 0 7.07-4" />
-                <path d="M20.93 10.94A7.97 7.97 0 0 0 12 4a7.97 7.97 0 0 0-7.07 4" />
-                <path d="M3 12V8h4" />
-              </svg>
-              Refund
-            </button>
-          </form>
+          <button type="button" class="refund-btn btn btn-ghost btn-sm" data-payment-id="${id}" data-user-name="${row.userName}" data-movie-title="${row.movieTitle}" data-amount="${row.totalAmount}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-redo2-icon lucide-redo-2">
+                    <path d="m15 14 5-5-5-5" />
+                    <path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13" />
+                </svg>
+            Refund
+          </button>
         </div>`;
     }
   }
@@ -74,4 +68,15 @@ initDataTable("/Payments/GetAll", [
       return false;
     }
   },
+});
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.refund-btn');
+  if (!btn) return;
+
+  document.getElementById('refundPaymentId').value = btn.dataset.paymentId;
+  document.getElementById('refundDetails').innerHTML =
+    `Are you sure you want to refund <span class="font-semibold text-error">${parseFloat(btn.dataset.amount).toFixed(2)} EGP</span> paid by <span class="font-semibold">${btn.dataset.userName}</span> for <span class="font-semibold">${btn.dataset.movieTitle}</span>?`;
+
+  document.getElementById('modal').checked = true;
 });

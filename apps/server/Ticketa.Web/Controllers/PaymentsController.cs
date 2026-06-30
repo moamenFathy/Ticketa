@@ -23,15 +23,7 @@ namespace Ticketa.Web.Controllers
     public async Task<IActionResult> Refund(int id)
     {
       var (success, message) = await paymentManagementService.RefundAsync(id);
-
-      if (!success)
-      {
-        TempData["Error"] = message;
-        return RedirectToAction(nameof(Index));
-      }
-
-      TempData["Success"] = "Payment refunded successfully.";
-      return RedirectToAction(nameof(Index));
+      return Json(new { success, message });
     }
   }
 }
