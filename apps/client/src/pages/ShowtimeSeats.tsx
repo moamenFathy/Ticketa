@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import ErrorState from "@/components/ErrorState";
 import HeroSeat from "@/components/HeroSeat";
 import { TMDB_IMAGE_POSTER_URL } from "@/api/constants";
-import { rowLabel, seatKey } from "@/lib/utils";
+import { getInvisibleCount, rowLabel, seatKey } from "@/lib/utils";
 import SeatGrid from "@/components/SeatGrid";
 import Legend from "@/components/Legend";
 import OrderSummarySidebar from "@/components/OrderSummarySidebar";
@@ -56,6 +56,13 @@ const ShowtimeSeats = () => {
       s.add(seatKey(b.row - 1, b.seatNumber)),
     );
     return s;
+  }, [seatsData]);
+
+  // Visible seat count (excluding invisible spacers in the stadium bowl shape)
+  const visibleSeatCount = useMemo(() => {
+    if (!seatsData) return 0;
+    const { rows, seatsPerRow } = seatsData;
+    return rows * seatsPerRow - getInvisibleCount(rows);
   }, [seatsData]);
 
   const toggleSeat = (key: string) => {
@@ -208,7 +215,7 @@ const ShowtimeSeats = () => {
           hallName={seatsData.hallName}
           hallType={seatsData.hallType}
           startAt={seatsData.startsAt}
-          availableSeats={rows * seatsPerRow - bookedSet.size}
+          availableSeats={visibleSeatCount - bookedSet.size}
         />
 
         {/* ── Main grid: map + sidebar ── */}
