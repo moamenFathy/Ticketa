@@ -10,3 +10,8 @@ export async function getMovieDetails(id: string, { signal }: { signal?: AbortSi
     const { data } = await api.get<MovieDetails>(`movies/${id}`, { signal });
     return data;
 }
+
+export async function getComingSoonMovies({ signal }: { signal?: AbortSignal }) {
+    const { data } = await api.get<Movie[]>("movies/comingsoon", { signal });
+    return data;
+}
