@@ -50,6 +50,7 @@ namespace Ticketa.Infrastructure.Service
               Id = s.Id,
               HallName = s.Hall.Name,
               TotalSeats = s.Hall.TotalSeats,
+        VisibleSeatCount = HallTypeHelper.GetTemplate(s.Hall.Type).VisibleSeatCount,
               StartTime = s.StartTime,
               EndTime = s.EndTime,
               Price = s.Price,

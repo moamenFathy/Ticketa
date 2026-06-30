@@ -70,7 +70,7 @@ namespace Ticketa.Infrastructure.Service
 
       var existingBookedCount = await _uow.BookedSeats.CountAsync(
           new BookedSeatByShowtimeIdSpecification(dto.ShowtimeId));
-      var totalSeats = showtime.Hall.TotalSeats;
+      var totalSeats = template.VisibleSeatCount;
 
       if (existingBookedCount + dto.Seats.Count >= totalSeats)
       {
