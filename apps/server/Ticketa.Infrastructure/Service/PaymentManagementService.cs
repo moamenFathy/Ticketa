@@ -3,14 +3,16 @@ using Ticketa.Core.DTOs.Payments;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Enums;
 using Ticketa.Core.Interfaces;
+using Ticketa.Core.Interfaces.IRepositories;
 using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Core.Specifications;
 
 namespace Ticketa.Infrastructure.Service
 {
-  public class PaymentManagementService(IUnitOfWork uow) : IPaymentManagementService
+  public class PaymentManagementService(IUnitOfWork uow, IBookingService bookingService) : IPaymentManagementService
   {
     private readonly IUnitOfWork _uow = uow;
+    private readonly IBookingService _bookingService = bookingService;
 
     public async Task<List<PaymentListItemDto>> GetAllAsync()
     {
@@ -53,16 +55,11 @@ namespace Ticketa.Infrastructure.Service
 
         payment.Status = PaymentStatus.Refunded;
         payment.RefundedAt = DateTime.UtcNow;
-
-        var bookingSpec = new BookingByUserAndShowtimeSpecification(payment.UserId, payment.ShowtimeId);
-        var bookings = await _uow.Bookings.GetAllWithSpecAsync(bookingSpec);
-
-        foreach (var booking in bookings)
-        {
-          booking.Status = BookingStatus.Cancelled;
-        }
-
         await _uow.SaveAsync();
+
+        var (success, message) = await _bookingService.CancelBookingsForPaymentAsync(payment.ShowtimeId, payment.PaymentSeats);
+        if (!success)
+          return (false, message);
 
         return (true, "Payment refunded successfully.");
       }

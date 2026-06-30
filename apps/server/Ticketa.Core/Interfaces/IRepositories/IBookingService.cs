@@ -1,4 +1,5 @@
 ﻿using Ticketa.Core.DTOs;
+using Ticketa.Core.Entities;
 
 namespace Ticketa.Core.Interfaces.IRepositories
 {
@@ -6,5 +7,6 @@ namespace Ticketa.Core.Interfaces.IRepositories
   {
     Task<BookingResultDto> CreateAsync(BookingCreateDto dto, string userId, CancellationToken ct = default);
     Task<BookingDetailsDto?> GetByReferenceAsync(string reference, CancellationToken ct = default);
+    Task<(bool Success, string Message)> CancelBookingsForPaymentAsync(int showtimeId, IEnumerable<PaymentSeat> paymentSeats);
   }
 }
