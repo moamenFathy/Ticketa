@@ -1,9 +1,9 @@
 import { ArrowLeft, Ticket, Play } from "lucide-react";
 import {
+  AnimatePresence,
   motion,
   useScroll,
   useTransform,
-  AnimatePresence,
 } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useRef, useState } from "react";
@@ -15,6 +15,7 @@ import ErrorState from "@/components/ErrorState";
 import TrailerDialog from "@/components/TrailerDialog";
 import MovieDetailsSkeleton from "@/components/skeletons/MovieDetailsSkeleton";
 import { TMDB_IMAGE_BASE_URL, TMDB_IMAGE_ORIGINAL_URL } from "@/api/constants";
+import ExternalLinkIcons from "@/components/ExternalLinkIcons";
 
 // ─── Constants & Helpers ───────────────────────────────────────────────────
 
@@ -104,6 +105,7 @@ const MovieDetailsPage = () => {
                 alt={movie.title}
                 className="w-full h-full object-cover"
               />
+
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             </motion.div>
           </div>
@@ -188,8 +190,18 @@ const MovieDetailsPage = () => {
         </div>
       </section>
 
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ delay: 0.5 }}
+        className="px-6 lg:px-20 max-w-7xl mx-auto py-20"
+      >
+        <ExternalLinkIcons imdbId={movie.imdbId} tmdbId={movie.tmdbId} />
+      </motion.section>
+
       {/* 2. Cast Section - Underneath */}
-      <section className="relative z-20 px-6 lg:px-20 max-w-7xl mx-auto py-20 pb-40">
+      <section className="relative z-20 px-6 lg:px-20 max-w-7xl mx-auto py-20 pb-40 pt-0">
         <CastSection cast={movie.cast} />
       </section>
 

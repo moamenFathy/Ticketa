@@ -16,6 +16,8 @@ export type MovieDetails = Movie & {
   backdropPath?: string | null;
   trailerKey: string | null;
   cast: Cast[];
+  imdbId?: string;
+  tmdbId?: number;
 };
 
 export type Cast = {
