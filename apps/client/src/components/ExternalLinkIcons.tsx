@@ -40,10 +40,10 @@ const ExternalLinkIcons = ({ imdbId, tmdbId }: ExternalLinkIconsProps) => {
   };
 
   return (
-    <div className="space-y-4 pt-2">
-      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 dark:text-white/40">
-        Share your rating and join the community on your preferred platforms
-      </span>
+    <div className="flex items-center gap-4 pb-7">
+      <motion.span className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 dark:text-white/40">
+        Also on
+      </motion.span>
 
       <motion.div
         initial="hidden"
@@ -58,7 +58,7 @@ const ExternalLinkIcons = ({ imdbId, tmdbId }: ExternalLinkIconsProps) => {
             },
           },
         }}
-        className="flex items-center gap-4"
+        className="flex items-center gap-6"
       >
         {platforms.map((p) => (
           <motion.a
@@ -70,9 +70,9 @@ const ExternalLinkIcons = ({ imdbId, tmdbId }: ExternalLinkIconsProps) => {
             variants={itemVariants}
             whileHover={{ y: -4, scale: 1.08 }}
             whileTap={{ scale: 0.96 }}
-            className={`p-3 rounded-2xl transition-shadow duration-300 hover:shadow-lg ${p.shadow}`}
+            className={``}
           >
-            <img src={p.src} alt={p.alt} className="w-8 h-8 object-contain" />
+            <img src={p.src} alt={p.alt} className="w-9 h-9 object-contain" />
           </motion.a>
         ))}
       </motion.div>

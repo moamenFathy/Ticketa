@@ -186,19 +186,10 @@ const MovieDetailsPage = () => {
                 </Button>
               )}
             </motion.div>
+            <ExternalLinkIcons imdbId={movie.imdbId} tmdbId={movie.tmdbId} />
           </div>
         </div>
       </section>
-
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ delay: 0.5 }}
-        className="px-6 lg:px-20 max-w-7xl mx-auto py-20"
-      >
-        <ExternalLinkIcons imdbId={movie.imdbId} tmdbId={movie.tmdbId} />
-      </motion.section>
 
       {/* 2. Cast Section - Underneath */}
       <section className="relative z-20 px-6 lg:px-20 max-w-7xl mx-auto py-20 pb-40 pt-0">
