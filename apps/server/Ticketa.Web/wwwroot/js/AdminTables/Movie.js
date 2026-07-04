@@ -264,9 +264,11 @@ function initMovieSegmentedFilter(onChange) {
 
 const dataTableElement = document.getElementById("DataTable");
 
+let currentUrl = "/Movies/GetAll";
+
 if (dataTableElement) {
     let currentFilter = "all";
-    initDataTable("/Movies/GetAll", [
+    initDataTable(currentUrl, [
         {
             data: "posterPath",
             orderable: false,
@@ -351,10 +353,17 @@ if (dataTableElement) {
             }
         },
         {
+            data: "archivedAt",
+            orderable: false,
+            className: "align-middle text-center whitespace-nowrap",
+            render: (data) => data ? `<span class="text-xs text-base-content/60">${toDataTableDate(data)}</span>` : ""
+        },
+        {
             data: "id",
             orderable: false,
             className: "align-middle text-center whitespace-nowrap",
-            render: (id, _type, row) => `
+            render: (id, _type, row) => {
+                        let actions = `
                         <div class="flex flex-row justify-center items-center gap-2">
                             <div class="tooltip" data-tip="Trailer">
                                  <button type="button" class="btn btn-ghost btn-sm hover:bg-blue-50 text-bold" onclick="openMovieTrailer(this, '${(row.title ?? "Movie").replace(/'/g, "&#39;")}', '${row.trailerKey ?? ""}', '${row.tmdbId ?? ""}')">
@@ -362,11 +371,13 @@ if (dataTableElement) {
                                         <path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/>
                                     </svg>
                                  </button>
-                            </div>
-                            <div class="tooltip" data-tip="${row.hasShowtimes ? 'Movie has active showtimes' : 'Delete'}">
+                            </div>`;
+
+                        if (row.isArchived) {
+                            actions += `
+                            <div class="tooltip" data-tip="Delete">
                                  <button type="button" 
-                                         class="btn btn-ghost btn-sm text-red-400 hover:bg-red-50 ${row.hasShowtimes ? 'btn-disabled opacity-30' : ''}" 
-                                         ${row.hasShowtimes ? 'disabled' : ''}
+                                         class="btn btn-ghost btn-sm text-red-400 hover:bg-red-50"
                                          onclick="openModal('deleteForm', '/Movies/DeleteConfirmation/${id}', 'movie')">
                                             <svg xmlns="http://www.w3.org/2000/svg"
                                                 height="18" width="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -374,20 +385,33 @@ if (dataTableElement) {
                                                       d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16" />
                                             </svg>
                                  </button>
-                            </div>
-                        </div>
-                        `
+                            </div>`;
+                        }
+
+                        actions += `</div>`;
+                        return actions;
+                    }
         }
     ], {
         order: [[5, "desc"]],
         ajaxData: function () {
-            return {
-                // Include your segmented filter as an extra request parameter
-                segmentedFilter: currentFilter
-            };
+            return { segmentedFilter: currentFilter };
         },
         initComplete: function () {
             const api = this.api();
+
+            const toggle = document.getElementById("showArchivedToggle");
+            if (toggle) {
+                toggle.addEventListener("click", () => {
+                    const isShown = toggle.dataset.showArchived === "true";
+                    toggle.dataset.showArchived = isShown ? "false" : "true";
+                    const label = toggle.querySelector(".toggle-label");
+                    if (label) label.textContent = isShown ? "Show Archived" : "Show Active";
+                    toggle.classList.toggle("text-violet-600", !isShown);
+                    currentUrl = isShown ? "/Movies/GetAll" : "/Movies/GetAllArchived";
+                    api.ajax.url(currentUrl).load();
+                });
+            }
 
             initMovieSegmentedFilter((filter) => {
                 currentFilter = filter;
@@ -877,9 +901,12 @@ window.updateMovieStatus = async function (id, selectEl) {
         if (response.ok) {
             const data = await response.json();
             if (data.success) {
-                // Success feedback
                 indicator.innerHTML = '✓';
                 indicator.className = 'status-indicator absolute -right-1 -top-1 text-xs text-green-600';
+                if (newStatus === 2 || currentUrl.includes("Archived")) {
+                    setTimeout(() => location.reload(), 500);
+                    return;
+                }
                 setTimeout(() => indicator.classList.add('hidden'), 1500);
             } else {
                 showError();
