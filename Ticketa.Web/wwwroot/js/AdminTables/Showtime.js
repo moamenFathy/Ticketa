@@ -267,9 +267,11 @@ const observeModalForTomSelect = () => {
 
 observeModalForTomSelect();
 
+let currentUrl = "/Showtime/GetAll";
+
 if (dataTableElement) {
     let currentFilter = "all";
-    initDataTable("/Showtime/GetAll", [
+    initDataTable(currentUrl, [
         {
             data: null,
             orderable: false,
@@ -317,7 +319,7 @@ if (dataTableElement) {
 
                             const fiveHoursFromNow = new Date(new Date().getTime() + (5 * 60 * 60 * 1000));
                             const canEditTime = start > fiveHoursFromNow;
-                            const canEditStatus = st.status !== 2 && st.status !== 1;
+                            const canEditStatus = st.status !== 2;
                             let canEdit = true;
                             let tooltipMsg = "Edit";
                             if (!canEditStatus) {
@@ -336,15 +338,11 @@ if (dataTableElement) {
                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
                                    </button>`;
 
-                            const canDelete = st.status === 2;
-                            const deleteTooltipMsg = canDelete ? "Delete" : "Cannot delete incomplete showtimes";
-                            const deleteBtnClass = canDelete ? "btn-square btn-outline btn-sm border-base-300 text-red-500 hover:bg-red-50 hover:border-red-200" : "btn-square btn-outline btn-sm border-base-300 text-base-content/30 cursor-not-allowed";
-                            const deleteOnclick = canDelete ? `onclick="openModal('deleteForm', '/Showtime/DeleteConfirmation/${st.id}', 'showtime')"` : "disabled";
-
-                            const deleteButton = `
-                                <button type="button" class="btn ${deleteBtnClass} tooltip" data-tip="${deleteTooltipMsg}" ${deleteOnclick}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16" /></svg>
-                                </button>`;
+                            const deleteButton = st.isArchived
+                                ? `<button type="button" class="btn btn-square btn-outline btn-sm border-base-300 text-red-500 hover:bg-red-50 hover:border-red-200 tooltip" data-tip="Delete" onclick="openModal('deleteForm', '/Showtime/DeleteConfirmation/${st.id}', 'showtime')">
+                                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16" /></svg>
+                                   </button>`
+                                : '';
 
                             const trailerButton = `
                                 <button type="button" class="btn btn-square btn-outline btn-sm border-base-300 text-indigo-600 hover:bg-blue-50 hover:border-base-400 tooltip" data-tip="Trailer" onclick="openMovieTrailer(this, '${(row.title ?? "Movie").replace(/'/g, "&#39;")}', '${st.trailerKey ?? ""}', '${row.tmdbId ?? ""}')">
@@ -382,6 +380,13 @@ if (dataTableElement) {
                                         <span class="text-[10px] font-bold text-base-content/60 uppercase tracking-wider mb-1">Price</span>
                                         <span class="font-bold text-base">${priceFormatted}</span>
                                     </div>
+                                    
+                                    ${st.archivedAt ? `
+                                    <div class="flex flex-col min-w-[130px]">
+                                        <span class="text-[10px] font-bold text-base-content/60 uppercase tracking-wider mb-1">Archived</span>
+                                        <span class="text-xs text-base-content/60">${toDataTableDate(st.archivedAt)}</span>
+                                    </div>
+                                    ` : ''}
                                     
                                     <div class="flex-1 flex justify-center min-w-[150px]">
                                         ${statusHtml}
@@ -425,6 +430,19 @@ if (dataTableElement) {
         },
         initComplete: function () {
             const api = this.api();
+
+            const toggle = document.getElementById("showArchivedToggle");
+            if (toggle) {
+                toggle.addEventListener("click", () => {
+                    const isShowingArchived = currentUrl === "/Showtime/GetAllArchived";
+                    currentUrl = isShowingArchived ? "/Showtime/GetAll" : "/Showtime/GetAllArchived";
+                    const label = toggle.querySelector(".toggle-label");
+                    if (label) label.textContent = isShowingArchived ? "Show Archived" : "Show Active";
+                    toggle.classList.toggle("text-violet-600", !isShowingArchived);
+                    api.ajax.url(currentUrl).load();
+                });
+            }
+
             initSegmentedFilter((filter) => {
                 currentFilter = filter;
                 api.ajax.reload();
@@ -474,6 +492,10 @@ window.updateShowtimeStatus = async function (id, selectEl) {
             if (data.success) {
                 indicator.innerHTML = '✓';
                 indicator.className = 'status-indicator absolute -right-1 -top-1 text-xs text-green-600';
+                if (newStatus === 2 || currentUrl.includes("Archived")) {
+                    setTimeout(() => location.reload(), 500);
+                    return;
+                }
                 setTimeout(() => indicator.classList.add('hidden'), 1500);
             } else {
                 showError();
