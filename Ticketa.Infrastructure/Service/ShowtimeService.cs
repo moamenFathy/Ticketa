@@ -20,6 +20,21 @@ namespace Ticketa.Infrastructure.Service
         string? search,
         string? segmentedFilter)
     {
+      return await GetAllDataAsync(search, segmentedFilter, archivedOnly: false);
+    }
+
+    public async Task<IEnumerable<MovieShowtimeDto>> GetAllArchivedAsync(
+        string? search,
+        string? segmentedFilter)
+    {
+      return await GetAllDataAsync(search, segmentedFilter, archivedOnly: true);
+    }
+
+    private async Task<IEnumerable<MovieShowtimeDto>> GetAllDataAsync(
+        string? search,
+        string? segmentedFilter,
+        bool archivedOnly)
+    {
       ShowtimeStatus? status = segmentedFilter?.ToLower() switch
       {
         "scheduled" => ShowtimeStatus.Scheduled,
@@ -31,7 +46,7 @@ namespace Ticketa.Infrastructure.Service
       var query = string.IsNullOrWhiteSpace(search) ? null : search;
 
       var showtimes = await _uow.Showtimes.GetAllWithSpecAsync(
-          new ShowtimeSpecification(status, query));
+          new ShowtimeSpecification(status, query, archivedOnly: archivedOnly));
 
       return showtimes
           .GroupBy(s => s.Movie)
@@ -49,13 +64,14 @@ namespace Ticketa.Infrastructure.Service
             {
               Id = s.Id,
               HallName = s.Hall.Name,
-              TotalSeats = s.Hall.TotalSeats,
-        VisibleSeatCount = HallTypeHelper.GetTemplate(s.Hall.Type).VisibleSeatCount,
+              VisibleSeatCount = HallTypeHelper.GetTemplate(s.Hall.Type).VisibleSeatCount,
               StartTime = s.StartTime,
               EndTime = s.EndTime,
               Price = s.Price,
               Status = s.Status,
-              HallId = s.HallId
+              HallId = s.HallId,
+              IsArchived = s.IsArchived,
+              ArchivedAt = s.ArchivedAt
             }).OrderBy(s => s.StartTime).ToList()
           })
           .OrderBy(m => m.Title);
@@ -178,6 +194,17 @@ namespace Ticketa.Infrastructure.Service
 
       showtime.Status = status;
 
+      if (status == ShowtimeStatus.Completed)
+      {
+        showtime.IsArchived = true;
+        showtime.ArchivedAt = DateTime.UtcNow;
+      }
+      else
+      {
+        showtime.IsArchived = false;
+        showtime.ArchivedAt = null;
+      }
+
       await _uow.Showtimes.UpdateAsync(showtime);
       await _uow.SaveAsync();
 
@@ -231,20 +258,20 @@ namespace Ticketa.Infrastructure.Service
       };
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<string?> DeleteAsync(int id)
     {
       var showtime = await _uow.Showtimes.GetAsync(s => s.Id == id);
 
       if (showtime is null)
-        return false;
+        return "Showtime not found.";
 
-      if (showtime.Status != ShowtimeStatus.Completed)
-        return false;
+      var hasBookings = await _uow.Bookings.AnyForShowtimeAsync(id);
+      if (hasBookings)
+        return "Can't remove this showtime — it has bookings or payments.";
 
       _uow.Showtimes.Delete(showtime);
       await _uow.SaveAsync();
-
-      return true;
+      return null;
     }
   }
 }
