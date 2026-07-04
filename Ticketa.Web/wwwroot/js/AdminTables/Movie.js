@@ -399,6 +399,7 @@ if (dataTableElement) {
         },
         initComplete: function () {
             const api = this.api();
+            api.column(8).visible(false);
 
             const toggle = document.getElementById("showArchivedToggle");
             if (toggle) {
@@ -409,6 +410,7 @@ if (dataTableElement) {
                     if (label) label.textContent = isShown ? "Show Archived" : "Show Active";
                     toggle.classList.toggle("text-violet-600", !isShown);
                     currentUrl = isShown ? "/Movies/GetAll" : "/Movies/GetAllArchived";
+                    api.column(8).visible(currentUrl.includes("Archived"));
                     api.ajax.url(currentUrl).load();
                 });
             }
