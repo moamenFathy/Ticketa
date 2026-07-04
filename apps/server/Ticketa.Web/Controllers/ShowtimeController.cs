@@ -33,6 +33,17 @@ namespace Ticketa.Web.Controllers
     }
 
     [HttpGet]
+    public async Task<IActionResult> GetAllArchived(
+        string? search,
+        string? segmentedFilter = null)
+    {
+      var result = await _showtimeService.GetAllArchivedAsync(
+          search, segmentedFilter);
+
+      return Json(new { data = result });
+    }
+
+    [HttpGet]
     public async Task<IActionResult> Upsert(int? id)
     {
       var vm = new ShowtimeUpsertVM
@@ -108,13 +119,9 @@ namespace Ticketa.Web.Controllers
     [RequirePermission(Showtimes.Delete)]
     public async Task<IActionResult> Delete(int id)
     {
-      var showtime = await _showtimeService.GetByIdAsync(id);
-      if (showtime is null)
-        return NotFound();
-
-      var success = await _showtimeService.DeleteAsync(id);
-      if (!success)
-        return Json(new { success = false, message = "Failed to delete showtime." });
+      var error = await _showtimeService.DeleteAsync(id);
+      if (error is not null)
+        return Json(new { success = false, message = error });
 
       TempData["success"] = "Showtime deleted successfully";
       return Json(new { success = true });

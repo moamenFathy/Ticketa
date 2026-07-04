@@ -14,9 +14,16 @@ namespace Ticketa.Core.Interfaces.IServices
 
     Task<Movie?> GetByIdAsync(int id);
 
-    Task<bool> DeleteAsync(int id);
+    Task<string?> DeleteAsync(int id);
 
     Task<object> GetAllAsync(
+        DataTableRequestsDto request,
+        string? search,
+        int orderColumn,
+        string orderDir,
+        string? segmentedFilter);
+
+    Task<object> GetAllArchivedAsync(
         DataTableRequestsDto request,
         string? search,
         int orderColumn,
