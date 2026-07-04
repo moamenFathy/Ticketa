@@ -22,20 +22,20 @@ namespace Ticketa.Infrastructure.Service
       _mapper = mapper;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<string?> DeleteAsync(int id)
     {
       var movie = await _uow.Movies.GetAsync(m => m.Id == id);
 
       if (movie is null)
-        return false;
+        return "Movie not found.";
 
-      if (await _uow.Showtimes.AnyAsync(s => s.MovieId == id))
-        return false; // Prevention logic
+      var hasShowtimes = await _uow.Showtimes.AnyAsync(s => s.MovieId == id);
+      if (hasShowtimes)
+        return "Can't remove this movie — it still has showtimes.";
 
       _uow.Movies.Delete(movie);
       await _uow.SaveAsync();
-
-      return true;
+      return null;
     }
 
     public async Task<object> GetAllAsync(
@@ -45,15 +45,36 @@ namespace Ticketa.Infrastructure.Service
         string orderDir,
         string? segmentedFilter)
     {
+      return await GetAllDataAsync(request, search, orderColumn, orderDir, segmentedFilter, archivedOnly: false);
+    }
+
+    public async Task<object> GetAllArchivedAsync(
+        DataTableRequestsDto request,
+        string? search,
+        int orderColumn,
+        string orderDir,
+        string? segmentedFilter)
+    {
+      return await GetAllDataAsync(request, search, orderColumn, orderDir, segmentedFilter, archivedOnly: true);
+    }
+
+    private async Task<object> GetAllDataAsync(
+        DataTableRequestsDto request,
+        string? search,
+        int orderColumn,
+        string orderDir,
+        string? segmentedFilter,
+        bool archivedOnly)
+    {
       var status = MapStatus(segmentedFilter);
       var searchValue = string.IsNullOrWhiteSpace(search) ? null : search;
 
       // 1. Total count (no filters)
-      var totalSpec = new MovieSpecification();
+      var totalSpec = new MovieSpecification(archivedOnly: archivedOnly);
       var total = await _uow.Movies.CountAsync(totalSpec);
 
       // 2. Filtered count
-      var countSpec = new MovieSpecification(status, searchValue);
+      var countSpec = new MovieSpecification(status, searchValue, archivedOnly: archivedOnly);
       var filtered = await _uow.Movies.CountAsync(countSpec);
 
       // 3. Data with paging
@@ -63,29 +84,26 @@ namespace Ticketa.Infrastructure.Service
           orderColumn,
           orderDir,
           request.Start,
-          request.Length);
+          request.Length,
+          archivedOnly: archivedOnly);
 
       var movies = await _uow.Movies.GetAllWithSpecAsync(spec);
 
-      var dataList = new List<object>();
-      foreach (var m in movies)
+      var dataList = movies.Select(m => new
       {
-        bool hasShowtimes = await _uow.Showtimes.AnyAsync(s => s.MovieId == m.Id);
-        dataList.Add(new
-        {
-          m.Id,
-          m.Title,
-          m.Status,
-          m.PosterPath,
-          m.Overview,
-          m.ReleaseDate,
-          m.VoteAverage,
-          m.ImportedAt,
-          m.RuntimeMinutes,
-          m.TrailerKey,
-          hasShowtimes
-        });
-      }
+        m.Id,
+        m.Title,
+        m.Status,
+        m.PosterPath,
+        m.Overview,
+        m.ReleaseDate,
+        m.VoteAverage,
+        m.ImportedAt,
+        m.RuntimeMinutes,
+        m.TrailerKey,
+        m.IsArchived,
+        m.ArchivedAt
+      }).ToList();
 
       // 4. DataTables response
       return new
@@ -213,6 +231,17 @@ namespace Ticketa.Infrastructure.Service
       if (movie == null) return false;
 
       movie.Status = status;
+
+      if (status == MovieStatus.Archived)
+      {
+        movie.IsArchived = true;
+        movie.ArchivedAt = DateTime.UtcNow;
+      }
+      else
+      {
+        movie.IsArchived = false;
+        movie.ArchivedAt = null;
+      }
 
       await _uow.Movies.UpdateAsync(movie);
       await _uow.SaveAsync();

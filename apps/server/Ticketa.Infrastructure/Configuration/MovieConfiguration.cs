@@ -33,6 +33,8 @@ namespace Ticketa.Infrastructure.Configuration
 
       builder.Property(m => m.ImdbId)
         .HasMaxLength(20);
+
+      builder.HasIndex(m => m.IsArchived).HasFilter("[IsArchived] = 0");
     }
   }
 }
