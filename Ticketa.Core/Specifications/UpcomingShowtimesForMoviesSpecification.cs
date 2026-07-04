@@ -10,7 +10,8 @@ namespace Ticketa.Core.Specifications
       var ids = movieIds.ToList();
       AddCriteria(s =>
           ids.Contains(s.MovieId) &&
-          s.Status == ShowtimeStatus.Scheduled);
+          s.Status == ShowtimeStatus.Scheduled &&
+          !s.IsArchived);
       AddInclude(s => s.Hall);
       AddOrderBy(s => s.StartTime);
     }

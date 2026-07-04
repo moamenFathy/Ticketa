@@ -24,6 +24,8 @@ namespace Ticketa.Infrastructure.Configuration
              .WithMany(s => s.Showtimes)
              .HasForeignKey(s => s.HallId)
              .OnDelete(DeleteBehavior.Restrict);
+
+      builder.HasIndex(s => s.IsArchived).HasFilter("[IsArchived] = 0");
     }
   }
 }

@@ -11,6 +11,8 @@ namespace Ticketa.Core.Entities
     public DateTime EndTime { get; set; }
     public decimal Price { get; set; }
     public ShowtimeStatus Status { get; set; } = ShowtimeStatus.Scheduled;
+    public bool IsArchived { get; set; }
+    public DateTime? ArchivedAt { get; set; }
 
     public Movie Movie { get; set; } = null!;
     public Hall Hall { get; set; } = null!;

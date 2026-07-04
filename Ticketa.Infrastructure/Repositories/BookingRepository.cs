@@ -1,4 +1,5 @@
-﻿using Ticketa.Core.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Ticketa.Core.Entities;
 using Ticketa.Core.Interfaces.IRepositories;
 using Ticketa.Core.Specifications;
 using Ticketa.Infrastructure.Data;
@@ -12,5 +13,8 @@ namespace Ticketa.Infrastructure.Repositories
       var spec = new BookingByRefrenceSpecification(reference);
       return await GetEntityWithSpecAsync(spec);
     }
+
+    public async Task<bool> AnyForShowtimeAsync(int showtimeId)
+      => await _context.Bookings.AnyAsync(b => b.ShowtimeId == showtimeId);
   }
 }
