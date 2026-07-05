@@ -25,6 +25,7 @@ builder.Services.Configure<JwtSettings>(jwtSettings);
 builder.Services.AddScoped<ITokenService, Ticketa.Infrastructure.Service.TokenService>();
 builder.Services.AddScoped<IAuthApiService, AuthApiService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
 
 builder.Services.AddAuthentication(options =>
 {
