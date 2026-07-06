@@ -14,5 +14,10 @@ export const queryKeys = {
     bookings: {
       getBooking: (reference: string) => ["bookings", "get", reference] as const,
       create: ["bookings", "create"] as const,
-    }
+    },
+
+    profile: {
+      get: ["profile"] as const,
+      bookings: (page: number) => ["profile", "bookings", page] as const,
+    },
 }
