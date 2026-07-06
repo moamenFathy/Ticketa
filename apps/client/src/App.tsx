@@ -8,6 +8,7 @@ import Checkout from "./pages/Checkout";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Scan from "./pages/Scan";
+import Profile from "./pages/Profile";
 import ForgetPassword from "./pages/ForgetPassword";
 import ResetPassword from "./pages/ResetPassword";
 
@@ -25,6 +26,7 @@ const App = () => {
         <Route path="forgot-password" element={<ForgetPassword />} />
         <Route path="reset-password" element={<ResetPassword />} />
         <Route path="register" element={<Register />} />
+        <Route path="profile" element={<Profile />} />
         <Route path="bookings/:reference" element={<Scan />} />
         <Route path="*" element={<h1>not found</h1>} />
       </Route>
