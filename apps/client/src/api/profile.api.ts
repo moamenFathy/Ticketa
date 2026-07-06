@@ -15,5 +15,5 @@ export const profileApi = {
     api.get<PagedResultDto<BookingHistoryItemDto>>("profile/bookings", {
       params: { page, pageSize },
       signal,
-    }).then((res) => res.data),
+    }).then((res) =>  res.data)
 };
