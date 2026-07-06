@@ -31,7 +31,7 @@ const UserDropdown = ({ name, email, handleLogout }: Props) => {
             {name.charAt(0).toUpperCase()}
           </div>
           <span className="truncate max-w-30 text-zinc-900 dark:text-zinc-100 font-semibold">
-            {email}
+            {name}
           </span>
           <ChevronDown
             size={14}
