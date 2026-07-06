@@ -6,5 +6,5 @@ export async function createBooking(dto: BookingCreateDto) {
 }
 
 export async function getBooking(reference: string, {signal}: { signal?: AbortSignal }) {
-  return api.get<BookingDetails>(`Bookings/${reference}`, { signal }).then((res) => {console.log(res.data); return res.data});
+  return api.get<BookingDetails>(`Bookings/${reference}`, { signal }).then((res) => res.data);
 }

@@ -65,7 +65,6 @@ export const useGoogleAuth = () => {
   return useMutation({
     mutationFn: authApi.googleAuth,
     onSuccess: (data) => {
-      console.log("Google auth response:", data);
       login(data.accessToken);
       const returnUrl = searchParams.get("returnUrl") ?? "/";
       navigate(returnUrl, { replace: true });
