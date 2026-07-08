@@ -8,26 +8,32 @@ import {
 import type { Movie } from "@/types/movie";
 import { Link } from "react-router-dom";
 import MovieCard from "./MovieCard";
+import ComingSoonCard from "./ComingSoonCard";
 
 interface MovieListProps {
   movies: Movie[];
+  comingSoon?: boolean;
 }
 
-export function MovieList({ movies }: MovieListProps) {
+export function MovieList({ movies, comingSoon }: MovieListProps) {
   return (
     <div className="relative group/main">
       <Carousel
-        opts={{ align: "start", slidesToScroll: "auto" }}
+        opts={{ align: "start", slidesToScroll: "auto", dragFree: true }}
         className="w-full px-4 sm:px-12"
       >
         <CarouselContent className="-ml-4">
           {movies.map((movie) => (
             <CarouselItem
               key={movie.id}
-              className="pl-4 basis-[70%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 shrink-0"
+              className="pl-4 basis-[60%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 shrink-0"
             >
               <Link to={`/movies/${movie.id}`} className="block w-full h-full">
-                <MovieCard movie={movie} />
+                {comingSoon ? (
+                  <ComingSoonCard movie={movie} />
+                ) : (
+                  <MovieCard movie={movie} />
+                )}
               </Link>
             </CarouselItem>
           ))}
