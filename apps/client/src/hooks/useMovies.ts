@@ -1,4 +1,4 @@
-import { getComingSoonMovies, getMovieDetails, getNowPlayingMovies } from "@/api/movies.api";
+import { getComingSoonMovies, getMostPopularMovies, getMovieDetails, getNowPlayingMovies } from "@/api/movies.api";
 import { queryKeys } from "@/api/queryKeys";
 import { useQuery } from "@tanstack/react-query";
 
@@ -21,4 +21,11 @@ export function useMovieDetails(movieId: string) {
         queryKey: queryKeys.movies.movieDetails(movieId),
         queryFn: ({ signal }) => getMovieDetails(movieId, { signal })
     })
+}
+
+export function useMostPopularMovies() {
+  return useQuery({
+    queryKey: queryKeys.movies.mostPopular,
+    queryFn: ({ signal }) => getMostPopularMovies({ signal })
+  })
 }

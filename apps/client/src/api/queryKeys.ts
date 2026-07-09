@@ -3,7 +3,8 @@ export const queryKeys = {
     movies: {
         nowPlaying: ["movies", "nowPlaying"] as const,
         movieDetails: (id: string) => ["movies", "details", id] as const,
-        comingSoon: ["movies", "comingSoon"] as const
+        comingSoon: ["movies", "comingSoon"] as const,
+        mostPopular: ["movies", "mostPopular"] as const
     },
 
     showtimes: {
