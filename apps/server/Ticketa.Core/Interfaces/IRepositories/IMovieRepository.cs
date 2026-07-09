@@ -1,4 +1,5 @@
-﻿using Ticketa.Core.Entities;
+﻿using Ticketa.Core.DTOs;
+using Ticketa.Core.Entities;
 
 namespace Ticketa.Core.Interfaces.IRepositories
 {
@@ -6,5 +7,6 @@ namespace Ticketa.Core.Interfaces.IRepositories
   {
     Task UpdateAsync(Movie movie);
     Task<List<int>> ExistingTmdbIdsAsync(IEnumerable<int> tmdbIds);
+    Task<List<TopBookedMovieDto>> GetTopBookedMoviesAsync(int count, CancellationToken ct = default);
   }
 }
