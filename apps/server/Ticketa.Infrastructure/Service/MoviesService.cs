@@ -383,6 +383,8 @@ namespace Ticketa.Infrastructure.Service
       if (types.Contains(HallType.Gold)) return HallType.Gold;
       return HallType.Standard;
     }
+    public async Task<List<TopBookedMovieDto>> GetTopBookedMoviesAsync(int count = 6, CancellationToken ct = default) =>
+      await _uow.Movies.GetTopBookedMoviesAsync(count, ct);
 
     private static MovieStatus? MapStatus(string? segmentedFilter)
     {
@@ -394,5 +396,6 @@ namespace Ticketa.Infrastructure.Service
         _ => null
       };
     }
+
   }
 }

@@ -22,7 +22,7 @@ namespace Ticketa.Infrastructure.Service
       var claims = new List<Claim>
       {
         new Claim("uid", user.Id),
-        new Claim("name", user.UserName!),
+        new Claim("name", $"{user.FirstName} {user.LastName}"!),
         new Claim("email", user.Email!)
       };
 

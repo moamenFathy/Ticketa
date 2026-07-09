@@ -52,7 +52,7 @@ namespace Ticketa.API.Controllers
       }
     }
 
-    [HttpGet("ComingSoon")]
+    [HttpGet("coming-soon")]
     [ProducesResponseType(typeof(ActiveMovieWithDetailsDto), statusCode: StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ActiveMovieWithDetailsDto), statusCode: StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetComingSoon(CancellationToken ct)
@@ -69,6 +69,27 @@ namespace Ticketa.API.Controllers
       catch (Exception ex)
       {
         return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred while retrieving coming soon movies: {ex.Message}");
+      }
+    }
+
+    [HttpGet("top-booked")]
+    [ProducesResponseType(typeof(TopBookedMovieDto), statusCode: StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(TopBookedMovieDto), statusCode: StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(TopBookedMovieDto), statusCode: StatusCodes.Status499ClientClosedRequest)]
+    public async Task<IActionResult> GetTopBookings([FromQuery] int count = 6, CancellationToken ct = default)
+    {
+      try
+      {
+        var topBookedMovies = await _moviesService.GetTopBookedMoviesAsync(count, ct);
+        return Ok(topBookedMovies);
+      }
+      catch (OperationCanceledException)
+      {
+        return StatusCode(StatusCodes.Status499ClientClosedRequest, "The request was canceled.");
+      }
+      catch (Exception ex)
+      {
+        return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred while retrieving top booked movies: {ex.Message}");
       }
     }
 
