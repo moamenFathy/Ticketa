@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Ticket, Info, Clock, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { Movie } from "@/types/movie";
+import type { MostPopularMovies } from "@/types/movie";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -11,20 +11,30 @@ import {
 } from "@/api/constants";
 
 interface HeroSectionProps {
-  movies: Movie[];
+  movies: MostPopularMovies[];
 }
 
 const HeroSection = ({ movies }: HeroSectionProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [resetKey, setResetKey] = useState(0);
 
-  // Auto-slide every 10 seconds
+  // Auto-slide every 10 seconds with smooth progress tracking
   useEffect(() => {
     if (!movies || movies.length === 0) return;
+    const tickMs = 50;
+    const durationMs = 10000;
+    let elapsed = 0;
     const timer = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % Math.min(movies.length, 6));
-    }, 10000);
+      elapsed += tickMs;
+      if (elapsed >= durationMs) {
+        elapsed = 0;
+        setActiveIndex((prev) => (prev + 1) % Math.min(movies.length, 6));
+      }
+      setProgress(Math.min(elapsed / durationMs, 1));
+    }, tickMs);
     return () => clearInterval(timer);
-  }, [movies]);
+  }, [movies, resetKey]);
 
   if (!movies || movies.length === 0) return null;
 
@@ -90,13 +100,9 @@ const HeroSection = ({ movies }: HeroSectionProps) => {
               >
                 <div className="flex items-center gap-3">
                   <Badge className="bg-primary text-white font-black uppercase tracking-widest px-4 py-1 border-none rounded-md">
-                    Newly Added
+                    #{activeIndex + 1} Most Sold Tickets
                   </Badge>
                   <div className="flex items-center gap-2 text-sm font-bold text-white/80">
-                    <span>
-                      {currentMovie.releaseDate?.split("-")[0] || "2026"}
-                    </span>
-                    <span>•</span>
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
                       <span>
@@ -128,7 +134,7 @@ const HeroSection = ({ movies }: HeroSectionProps) => {
                       className="h-16 px-10 text-xl font-bold bg-primary hover:bg-primary/90 text-white rounded-2xl shadow-2xl transition-all hover:scale-105 active:scale-95"
                     >
                       <Ticket className="mr-3 h-7 w-7" />
-                      Book Ticket
+                      Grab Your Tickets
                     </Button>
                   </Link>
                   <Link to={`/movies/${currentMovie.id}`}>
@@ -149,31 +155,56 @@ const HeroSection = ({ movies }: HeroSectionProps) => {
 
       {/* Thumbnails at Bottom Right */}
       <div className="absolute bottom-10 right-10 z-20 hidden md:flex items-center gap-3 p-3 bg-black/40 backdrop-blur-2xl rounded-[2rem] border border-white/10 shadow-2xl">
-        {movies.slice(0, 6).map((movie, index) => (
-          <button
-            key={movie.id}
-            onClick={() => setActiveIndex(index)}
-            className={`relative shrink-0 transition-all duration-500 rounded-2xl overflow-hidden group ${
-              activeIndex === index
-                ? "w-32 h-20 ring-2 ring-primary scale-110 mx-2"
-                : "w-20 h-14 opacity-40 hover:opacity-100 hover:scale-105"
-            }`}
-          >
-            <img
-              src={`https://image.tmdb.org/t/p/w300${movie.backdropPath || movie.posterPath}`}
-              alt={movie.title}
-              className="w-full h-full object-cover"
-            />
-            <div
-              className={`absolute inset-0 transition-colors ${activeIndex === index ? "bg-primary/20" : "bg-black/40 group-hover:bg-transparent"}`}
-            />
-            {index === 5 && movies.length > 6 && (
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                <ChevronRight className="w-6 h-6 text-white" />
+        {movies.slice(0, 6).map((movie, index) => {
+          const clipRight =
+            index < activeIndex
+              ? 0
+              : index === activeIndex
+                ? (1 - progress) * 100
+                : 100;
+          return (
+            <button
+              key={movie.id}
+              onClick={() => {
+                setActiveIndex(index);
+                setProgress(0);
+                setResetKey((k) => k + 1);
+              }}
+              className={`relative shrink-0 transition-all duration-500 rounded-2xl overflow-hidden group ${
+                activeIndex === index
+                  ? "w-32 h-20 scale-110 mx-2"
+                  : "w-20 h-14 hover:scale-105"
+              }`}
+            >
+              <div className="absolute inset-0 rounded-2xl overflow-hidden">
+                <img
+                  src={`https://image.tmdb.org/t/p/w300${movie.backdropPath || movie.posterPath}`}
+                  alt={movie.title}
+                  className="w-full h-full object-cover grayscale"
+                />
               </div>
-            )}
-          </button>
-        ))}
+              <div
+                className="absolute inset-0 rounded-2xl overflow-hidden"
+                style={{
+                  clipPath: `inset(0 ${clipRight}% 0 0 round 16px)`,
+                }}
+              >
+                <img
+                  src={`https://image.tmdb.org/t/p/w300${movie.backdropPath || movie.posterPath}`}
+                  alt={movie.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 rounded-2xl border-2 border-primary pointer-events-none" />
+              </div>
+              <div className="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors" />
+              {index === 5 && movies.length > 6 && (
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                  <ChevronRight className="w-6 h-6 text-white" />
+                </div>
+              )}
+            </button>
+          );
+        })}
       </div>
     </section>
   );

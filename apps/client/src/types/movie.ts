@@ -11,6 +11,17 @@ export type Movie = {
   releaseDate: string;
 };
 
+export type MostPopularMovies = {
+  id: string;
+  title: string;
+  posterPath?: string;
+  backdropPath?: string;
+  overview: string;
+  voteAverage: number;
+  runtime: number;
+  genres: string[];
+}
+
 export type MovieDetails = Movie & {
   overview: string;
   backdropPath?: string | null;

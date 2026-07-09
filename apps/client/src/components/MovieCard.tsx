@@ -88,7 +88,7 @@ const MovieCard = ({ movie }: Props) => {
           >
             <Button className="w-full bg-primary hover:bg-primary/90 text-white font-bold rounded-xl py-3 transition-all active:scale-95 shadow-lg shadow-primary/25 gap-2">
               <Ticket className="w-4 h-4" />
-              Book Now
+              Grab Tickets
             </Button>
           </motion.div>
         </motion.div>

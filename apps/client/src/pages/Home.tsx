@@ -3,7 +3,11 @@ import MovieList from "@/components/MovieList";
 import GenreMovieList from "@/components/GenreMovieList";
 import { MovieListSkeleton } from "@/components/skeletons/MovieListSkeleton";
 import { Button } from "@/components/ui/button";
-import { useNowPlayingMovies, useComingSoonMovies } from "@/hooks/useMovies";
+import {
+  useNowPlayingMovies,
+  useComingSoonMovies,
+  useMostPopularMovies,
+} from "@/hooks/useMovies";
 import { Link } from "react-router-dom";
 import ErrorState from "@/components/ErrorState";
 import HeroSectionSkeleton from "@/components/skeletons/HeroSectionSkeleton";
@@ -24,28 +28,38 @@ const Home = () => {
     refetch: refetchComingSoon,
   } = useComingSoonMovies();
 
-  if (nowPlayingLoading || comingSoonLoading)
+  const {
+    data: heroMovies,
+    isLoading: heroMoviesLoading,
+    isError: heroMoviesError,
+    refetch: refetchHeroMovies,
+  } = useMostPopularMovies();
+
+  if (nowPlayingLoading || comingSoonLoading || heroMoviesLoading)
     return (
       <>
         <HeroSectionSkeleton />
         <MovieListSkeleton />
       </>
     );
-  if ((nowPlayingError || !nowPlaying) && (comingSoonError || !comingSoon))
+  if (
+    (nowPlayingError || !nowPlaying) &&
+    (comingSoonError || !comingSoon) &&
+    (heroMoviesError || !heroMovies)
+  )
     return (
       <ErrorState
         refetch={() => {
           refetchNowPlaying();
           refetchComingSoon();
+          refetchHeroMovies();
         }}
       />
     );
 
-  const heroMovies = nowPlaying?.slice(0, 6) || [];
-
   return (
     <>
-      <HeroSection movies={heroMovies} />
+      <HeroSection movies={heroMovies || []} />
       <section className="pt-12">
         <div className="flex justify-between items-center px-6">
           <h1 className="text-2xl font-bold">Now showing</h1>
