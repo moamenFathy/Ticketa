@@ -1,4 +1,6 @@
-﻿using Stripe;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Stripe;
 using System.Text.Json;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Entities;
@@ -11,17 +13,21 @@ using Ticketa.Core.Specifications;
 
 namespace Ticketa.Infrastructure.Service
 {
-  public class PaymentService(IUnitOfWork uow, IBookingService bookingService) : IPaymentService
+  public class PaymentService(
+      IUnitOfWork uow,
+      IBookingService bookingService,
+      IEmailService emailService,
+      IQrCodeService qrCodeService,
+      IConfiguration configuration,
+      ILogger<PaymentService> logger) : IPaymentService
   {
     private readonly IUnitOfWork _uow = uow;
     private readonly IBookingService _bookingService = bookingService;
-
-    private static string ComputeSeatHash(IEnumerable<SeatDto> seats)
-    {
-      return string.Join(",", seats
-          .OrderBy(s => s.Row).ThenBy(s => s.SeatNumber)
-          .Select(s => $"{s.Row}:{s.SeatNumber}"));
-    }
+    private readonly IEmailService _emailService = emailService;
+    private readonly IQrCodeService _qrCodeService = qrCodeService;
+    private readonly IConfiguration _configuration = configuration;
+    private readonly ILogger<PaymentService> _logger = logger;
+    private static char RowToLetter(int row) => (char)('A' + row - 1);
 
     public async Task<BookingResultDto> ConfirmAsync(string paymentIntentId, string userId, CancellationToken ct = default)
     {
@@ -37,10 +43,16 @@ namespace Ticketa.Infrastructure.Service
       var showtimeId = int.Parse(paymentIntent.Metadata["showtimeId"]);
       var seats = JsonSerializer.Deserialize<List<SeatDto>>(paymentIntent.Metadata["seats"])!;
 
+      var payment = await _uow.Payments.GetAsync(p => p.StripePaymentIntentId == paymentIntentId);
+
+      if (payment is not null && payment.Status == PaymentStatus.Completed)
+      {
+        _logger.LogInformation("Payment {IntentId} already processed (Completed), returning cached result", paymentIntentId);
+        return BookingResultDto.Success(payment.BookingReference ?? "", payment.TotalAmount);
+      }
+
       var bookingDto = new BookingCreateDto { ShowtimeId = showtimeId, Seats = seats };
       var result = await _bookingService.CreateAsync(bookingDto, userId, ct);
-
-      var payment = await _uow.Payments.GetAsync(p => p.StripePaymentIntentId == paymentIntentId);
 
       if (!result.Succeeded && result.ConflictingSeats.Count > 0)
       {
@@ -59,9 +71,45 @@ namespace Ticketa.Infrastructure.Service
       }
       else if (result.Succeeded && payment is not null)
       {
+        payment.BookingReference = result.BookingReference;
         payment.Status = PaymentStatus.Completed;
         payment.CompletedAt = DateTime.UtcNow;
         await _uow.SaveAsync();
+
+        try
+        {
+          var details = await _bookingService.GetByReferenceAsync(result.BookingReference!, ct);
+
+          if (details is not null)
+          {
+            var clientBaseUrl = _configuration["ClientSettings:BaseUrl"] ?? "http://localhost:5173";
+            var scanUrl = $"{clientBaseUrl.TrimEnd('/')}/scan/{result.BookingReference}";
+            var qrBytes = _qrCodeService.GeneratePng(scanUrl);
+            const string cid = "ticket-qr";
+
+            var html = EmailTemplates.BookingConfirmation(
+                details.CustomerFirstName,
+                details.MovieTitle,
+                details.StartsAt,
+                details.HallName,
+                details.Seats.Select(s => $"{RowToLetter(s.Row)}{s.SeatNumber}"),
+                details.TotalAmount,
+                result.BookingReference!,
+                cid);
+
+            await _emailService.SendEmailWithInlineImageAsync(
+                details.CustomerEmail,
+                "Your Ticketa Booking Confirmation",
+                html,
+                qrBytes,
+                cid,
+                ct);
+          }
+        }
+        catch (Exception ex)
+        {
+          _logger.LogError(ex, "Ticket email failed for booking {Reference}", result.BookingReference);
+        }
       }
 
       return result;
@@ -151,5 +199,13 @@ namespace Ticketa.Infrastructure.Service
         TotalAmount = totalAmount
       };
     }
+
+    private static string ComputeSeatHash(IEnumerable<SeatDto> seats)
+    {
+      return string.Join(",", seats
+          .OrderBy(s => s.Row).ThenBy(s => s.SeatNumber)
+          .Select(s => $"{s.Row}:{s.SeatNumber}"));
+    }
+
   }
 }

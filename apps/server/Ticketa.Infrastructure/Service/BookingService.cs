@@ -101,7 +101,8 @@ namespace Ticketa.Infrastructure.Service
       {
         UserId = booking.UserId,
         UserEmail = booking.User.UserName!,
-        BookingRefrence = booking.BookingRefrence,
+        CustomerEmail = booking.User.Email!,
+        CustomerFirstName = booking.User.FirstName,
         Status = booking.Status,
         BookedAt = booking.BookedAt,
         TotalAmount = booking.TotalAmount,

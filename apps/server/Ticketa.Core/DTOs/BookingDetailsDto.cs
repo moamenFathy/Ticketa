@@ -6,6 +6,8 @@ namespace Ticketa.Core.DTOs
   {
     public string UserId { get; set; } = string.Empty;
     public string UserEmail { get; set; } = string.Empty;
+    public string CustomerEmail { get; set; } = string.Empty;
+    public string CustomerFirstName { get; set; } = string.Empty;
     public string BookingRefrence { get; set; } = string.Empty;
     public BookingStatus Status { get; set; }
     public DateTime BookedAt { get; set; }

@@ -19,7 +19,6 @@ namespace Ticketa.Infrastructure.Service
     {
       var message = new MimeMessage();
 
-      // "Ticketa" is what shows in the inbox
       message.From.Add(new MailboxAddress(_settings.FromName, _settings.FromEmail));
       message.To.Add(MailboxAddress.Parse(toEmail));
       message.Subject = subject;
@@ -34,7 +33,28 @@ namespace Ticketa.Infrastructure.Service
       await client.AuthenticateAsync(_settings.Username, _settings.Password);
       await client.SendAsync(message);
       await client.DisconnectAsync(true);
+    }
 
+    public async Task SendEmailWithInlineImageAsync(
+        string to, string subject, string htmlBody,
+        byte[] imageBytes, string contentId, CancellationToken ct = default)
+    {
+      var message = new MimeMessage();
+      message.From.Add(new MailboxAddress(_settings.FromName, _settings.FromEmail));
+      message.To.Add(MailboxAddress.Parse(to));
+      message.Subject = subject;
+
+      var builder = new BodyBuilder { HtmlBody = htmlBody };
+      var image = builder.LinkedResources.Add("ticket-qr.png", imageBytes, new ContentType("image", "png"));
+      image.ContentId = contentId;
+
+      message.Body = builder.ToMessageBody();
+
+      using var client = new SmtpClient();
+      await client.ConnectAsync(_settings.Host, _settings.Port, SecureSocketOptions.StartTls, ct);
+      await client.AuthenticateAsync(_settings.Username, _settings.Password, ct);
+      await client.SendAsync(message, ct);
+      await client.DisconnectAsync(true, ct);
     }
   }
 }
