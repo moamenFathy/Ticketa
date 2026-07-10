@@ -12,6 +12,7 @@ namespace Ticketa.Core.Entities
     public decimal TotalAmount { get; set; }
     public string Currency { get; set; } = "EGP";
     public PaymentStatus Status { get; set; } = PaymentStatus.Pending;
+    public string? BookingReference { get; set; }
     public string SeatHash { get; set; } = string.Empty;
     public int SeatCount { get; set; }
     public DateTime CreatedAt { get; set; }
