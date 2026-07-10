@@ -30,7 +30,7 @@ namespace Ticketa.API.Controllers
       var userId = User.FindFirstValue("uid");
       var result = await _paymentService.ConfirmAsync(dto.PaymentIntentId, userId!, ct);
 
-      if (!result.Succeeded && result.ConflictingSeats.Count > 0)
+      if (!result.Succeeded)
         return BadRequest(new { message = result.Message, conflictingSeats = result.ConflictingSeats });
 
       return Ok(result);

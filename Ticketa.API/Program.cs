@@ -29,6 +29,7 @@ builder.Services.AddScoped<ITokenService, Ticketa.Infrastructure.Service.TokenSe
 builder.Services.AddScoped<IAuthApiService, AuthApiService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IQrCodeService, QrCodeService>();
 
 builder.Services.AddAuthentication(options =>
 {
