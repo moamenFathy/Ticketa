@@ -8,9 +8,10 @@ import { TMDB_IMAGE_POSTER_URL } from "@/api/constants";
 
 interface Props {
   movie: Movie;
+  compact?: boolean;
 }
 
-const MovieCard = ({ movie }: Props) => {
+const MovieCard = ({ movie, compact }: Props) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -74,7 +75,7 @@ const MovieCard = ({ movie }: Props) => {
           className="absolute inset-x-0 bottom-0 px-5 pb-5 pt-10 bg-linear-to-t from-black via-black/90 to-transparent flex flex-col gap-4"
         >
           <div className="space-y-1">
-            <h3 className="text-2xl font-black text-white leading-tight drop-shadow-lg">
+            <h3 className={`${compact ? "text-base" : "text-2xl"} font-bold text-white leading-tight drop-shadow-lg`}>
               {movie.title}
             </h3>
             <div className="flex items-center gap-2 text-[8px] font-bold text-gray-300 uppercase tracking-widest">

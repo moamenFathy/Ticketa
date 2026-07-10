@@ -11,13 +11,14 @@ import Scan from "./pages/Scan";
 import Profile from "./pages/Profile";
 import ForgetPassword from "./pages/ForgetPassword";
 import ResetPassword from "./pages/ResetPassword";
+import Movies from "./pages/Movies";
 
 const App = () => {
   return (
     <Routes>
       <Route element={<RootLayout />}>
         <Route index path="/" element={<Home />} />
-        <Route path="movies" element={<h1>Movies</h1>} />
+        <Route path="movies" element={<Movies />} />
         <Route path="showtimes" element={<Showtimes />} />
         <Route path="showtimes/:id" element={<ShowtimeSeats />} />
         <Route path="checkout" element={<Checkout />} />

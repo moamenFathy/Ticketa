@@ -23,7 +23,7 @@ export const MovieStats = ({
   const stats = [
     {
       icon: Star,
-      value: rating.toFixed(1),
+      value: `${rating.toFixed(1)} / 10`,
       label: "IMDB",
       color: "text-primary",
     },
