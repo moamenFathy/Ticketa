@@ -8,7 +8,6 @@ interface Props {
   selectedList: string[];
   movieTitle: string;
   rowLabel: (row: number) => string;
-  onClick: () => void;
   bookingReference?: string;
   totalAmount?: string | number;
 }
@@ -17,7 +16,6 @@ const Confirmation = ({
   selectedList,
   movieTitle,
   rowLabel,
-  onClick,
   bookingReference,
   totalAmount,
 }: Props) => {
@@ -99,11 +97,11 @@ const Confirmation = ({
           <Button
             variant="outline"
             className="rounded-full"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/showtimes")}
           >
             <ChevronLeft className="w-4 h-4 mr-1" /> Back to showtimes
           </Button>
-          <Button className="rounded-full" onClick={onClick}>
+          <Button className="rounded-full" onClick={() => navigate(-1)}>
             Book More
           </Button>
         </div>

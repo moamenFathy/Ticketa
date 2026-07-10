@@ -74,7 +74,6 @@ const Checkout = () => {
         selectedList={state.selectedList}
         bookingReference={bookingReference}
         totalAmount={state.totalAmount}
-        onClick={() => navigate("/")}
       />
     );
   }
