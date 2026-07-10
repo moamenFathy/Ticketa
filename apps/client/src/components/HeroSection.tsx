@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Ticket, Info, Clock, ChevronRight } from "lucide-react";
+import { Ticket, Info, Clock, ChevronRight, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { MostPopularMovies } from "@/types/movie";
 import { Link } from "react-router-dom";
@@ -12,6 +12,13 @@ import {
 
 interface HeroSectionProps {
   movies: MostPopularMovies[];
+}
+
+function formatRevenue(amount: number): string {
+  if (amount >= 1_000_000_000) return `$${(amount / 1_000_000_000).toFixed(1)}B`;
+  if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1)}M`;
+  if (amount >= 1_000) return `$${(amount / 1_000).toFixed(1)}K`;
+  return `$${amount}`;
 }
 
 const HeroSection = ({ movies }: HeroSectionProps) => {
@@ -110,6 +117,11 @@ const HeroSection = ({ movies }: HeroSectionProps) => {
                           ? `${Math.floor(currentMovie.runtime / 60)}h ${currentMovie.runtime % 60}m`
                           : "2h 10m"}
                       </span>
+                    </div>
+                    <span className="text-white/40">|</span>
+                    <div className="flex items-center gap-1">
+                      <DollarSign className="w-4 h-4" />
+                      <span>{formatRevenue(currentMovie.totalRevenue)}</span>
                     </div>
                   </div>
                 </div>

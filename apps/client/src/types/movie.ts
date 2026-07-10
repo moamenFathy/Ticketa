@@ -18,6 +18,7 @@ export type MostPopularMovies = {
   backdropPath?: string;
   overview: string;
   voteAverage: number;
+  totalRevenue: number;
   runtime: number;
   genres: string[];
 }
