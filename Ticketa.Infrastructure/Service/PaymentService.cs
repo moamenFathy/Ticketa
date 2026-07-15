@@ -83,7 +83,7 @@ namespace Ticketa.Infrastructure.Service
           if (details is not null)
           {
             var clientBaseUrl = _configuration["ClientSettings:BaseUrl"] ?? "http://localhost:5173";
-            var scanUrl = $"{clientBaseUrl.TrimEnd('/')}/scan/{result.BookingReference}";
+            var scanUrl = $"{clientBaseUrl.TrimEnd('/')}/bookings/{result.BookingReference}";
             var qrBytes = _qrCodeService.GeneratePng(scanUrl);
             const string cid = "ticket-qr";
 
