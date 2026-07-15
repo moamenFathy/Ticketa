@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Interfaces.IServices;
 
@@ -6,6 +7,7 @@ namespace Ticketa.API.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
+  [Authorize]
   public class ShowtimesController(IShowtimeService showtimeService) : ControllerBase
   {
     private readonly IShowtimeService _showtimeService = showtimeService;
