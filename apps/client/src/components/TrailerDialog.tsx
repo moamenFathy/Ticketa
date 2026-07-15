@@ -32,6 +32,7 @@ const TrailerDialog = ({ trailerKey, setIsVideoVisible }: Props) => {
         <Button
           onClick={() => setIsVideoVisible(false)}
           className="absolute top-10 right-6 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 backdrop-blur-xl p-0 text-white"
+          aria-label="Close trailer"
         >
           ✕
         </Button>

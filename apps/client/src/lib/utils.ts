@@ -3,6 +3,18 @@ import type { Movie } from "@/types/movie";
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
+export function iconClass(hasError?: string | boolean, isTouched?: boolean) {
+  if (hasError && isTouched) return "text-destructive";
+  if (isTouched && !hasError) return "text-emerald-500";
+  return "text-muted-foreground/30";
+}
+
+export function errorBorderClass(error?: string, isTouched?: boolean) {
+  if (error && isTouched)
+    return "border-destructive/60 focus:border-destructive focus:ring-4 focus:ring-destructive/10";
+  return "border-border/50 hover:border-border focus:border-primary/60 focus:ring-4 focus:ring-primary/8";
+}
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -51,13 +63,9 @@ export function movieByGenre(movies: Movie[]) {
       genreMap.set(primaryGenre, list);
     });
 
-    console.log(genreMap);
-
     const sorted = [...genreMap.entries()]
       .map(([genre, list]) => ({ genre, movies: list }))
       .sort((a, b) => b.movies.length - a.movies.length);
-
-      console.log(sorted)
 
     const main = sorted.filter(
       (s) => s.movies.length >= 2 || s.genre === "All Now Showing",

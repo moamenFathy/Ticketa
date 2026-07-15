@@ -31,7 +31,7 @@ import SuccessCheckmark from "./SuccessCheckmark";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import { cn, iconClass, errorBorderClass } from "@/lib/utils";
 
 const formSchema = z
   .object({
@@ -64,18 +64,6 @@ const formSchema = z
   });
 
 type FormValues = z.infer<typeof formSchema>;
-
-const iconClass = (error?: string, isTouched?: boolean) => {
-  if (error && isTouched) return "text-destructive text-opacity-80";
-  if (isTouched && !error) return "text-emerald-500/70";
-  return "text-muted-foreground/30";
-};
-
-const errorBorderClass = (error?: string, isTouched?: boolean) => {
-  if (error && isTouched)
-    return "border-destructive/40 focus:border-destructive/60 focus:ring-4 focus:ring-destructive/10";
-  return "border-border/50 hover:border-border focus:border-primary/40 focus:ring-4 focus:ring-primary/8";
-};
 
 const RegisterForm = ({
   onSuccess,

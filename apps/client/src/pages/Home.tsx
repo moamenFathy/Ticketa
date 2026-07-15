@@ -12,8 +12,25 @@ import { Link } from "react-router-dom";
 import ErrorState from "@/components/ErrorState";
 import HeroSectionSkeleton from "@/components/skeletons/HeroSectionSkeleton";
 import { Separator } from "@/components/ui/separator";
+import { useGoogleOneTapLogin } from "@react-oauth/google";
+import { useAuth, useGoogleAuth } from "@/hooks/useAuth";
 
 const Home = () => {
+  const { isLoggedIn, isInitializing } = useAuth();
+  const { mutate: googleAuth } = useGoogleAuth();
+
+  useGoogleOneTapLogin({
+    onSuccess: (credentialResponse) => {
+      if (credentialResponse.credential) {
+        googleAuth(credentialResponse.credential);
+      }
+    },
+    onError: () => console.error("Google One Tap Login Failed"),
+    disabled: isLoggedIn || isInitializing,
+    cancel_on_tap_outside: false,
+    use_fedcm_for_prompt: false,
+  });
+
   const {
     data: nowPlaying,
     isLoading: nowPlayingLoading,

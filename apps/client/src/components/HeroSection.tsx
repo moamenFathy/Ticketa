@@ -72,8 +72,8 @@ const HeroSection = ({ movies }: HeroSectionProps) => {
             className="h-full w-full object-cover"
           />
           {/* Advanced Overlays */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-[#030712]/40 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#030712] via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-[#030712] via-[#030712]/40 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-r from-[#030712] via-transparent to-transparent" />
           <div className="absolute inset-0 bg-black/20" />
         </motion.div>
       </AnimatePresence>

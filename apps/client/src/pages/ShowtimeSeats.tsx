@@ -22,7 +22,7 @@ const ShowtimeSeats = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, isInitializing } = useAuth();
   const {
     data: seatsData,
     isLoading,
@@ -160,6 +160,13 @@ const ShowtimeSeats = () => {
     location,
     seatsData,
   ]);
+
+  if (isInitializing) return <ShowtimeSeatsSkeleton />;
+
+  if (!isLoggedIn) {
+    navigate(`/login?returnUrl=${encodeURIComponent(location.pathname)}`, { replace: true });
+    return null;
+  }
 
   if (isLoading) return <ShowtimeSeatsSkeleton />;
 

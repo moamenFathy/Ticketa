@@ -2,11 +2,10 @@ import { Link, NavLink } from "react-router-dom";
 import { Calendar, Home, Moon, Sun } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { useAuth, useGoogleAuth, useLogout } from "@/hooks/useAuth";
+import { useAuth, useLogout } from "@/hooks/useAuth";
 import UserDropdown from "./UserDropdown";
 import MobileMenu from "./MobileMenu";
 import logo from "../assets/final_logo.svg";
-import { useGoogleOneTapLogin } from "@react-oauth/google";
 
 const navLinks = [
   { to: "/", label: "Home", icon: Home },
@@ -18,23 +17,8 @@ export default function Navbar() {
   const [dark, setDark] = useState(
     () => localStorage.getItem("theme") === "dark",
   );
-  const { user, isLoggedIn, isInitializing } = useAuth();
+  const { user, isLoggedIn } = useAuth();
   const logoutMutation = useLogout();
-  const { mutate: googleAuth } = useGoogleAuth();
-
-  useGoogleOneTapLogin({
-    onSuccess: (credentialResponse) => {
-      if (credentialResponse.credential) {
-        googleAuth(credentialResponse.credential);
-      }
-    },
-    onError: () => {
-      console.error("Google One Tap Login Failed");
-    },
-    disabled: isLoggedIn || isInitializing,
-    cancel_on_tap_outside: false,
-    use_fedcm_for_prompt: false, // Disable FedCM to fix NetworkError across different accounts
-  });
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);

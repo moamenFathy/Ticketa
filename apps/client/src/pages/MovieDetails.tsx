@@ -17,16 +17,6 @@ import MovieDetailsSkeleton from "@/components/skeletons/MovieDetailsSkeleton";
 import { TMDB_IMAGE_BASE_URL, TMDB_IMAGE_ORIGINAL_URL } from "@/api/constants";
 import ExternalLinkIcons from "@/components/ExternalLinkIcons";
 
-// ─── Constants & Helpers ───────────────────────────────────────────────────
-
-// @ts-expect-error - Reserved for future use
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const formatRuntime = (minutes: number): string => {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return `${h}h ${m}m`;
-};
-
 const MovieDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -71,8 +61,8 @@ const MovieDetailsPage = () => {
             alt={movie.title}
             className="w-full h-full object-cover opacity-30 dark:opacity-50 contrast-125"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-[#080a0f] via-transparent dark:via-[#080a0f]/40 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-white dark:from-[#080a0f] via-transparent to-white dark:to-[#080a0f]" />
+          <div className="absolute inset-0 bg-linear-to-t from-white dark:from-[#080a0f] via-transparent dark:via-[#080a0f]/40 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-r from-white dark:from-[#080a0f] via-transparent to-white dark:to-[#080a0f]" />
         </motion.div>
 
         {/* Global Navigation Overlay */}
@@ -106,7 +96,7 @@ const MovieDetailsPage = () => {
                 className="w-full h-full object-cover"
               />
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             </motion.div>
           </div>
 

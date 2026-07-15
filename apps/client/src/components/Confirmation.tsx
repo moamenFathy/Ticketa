@@ -45,7 +45,8 @@ const Confirmation = ({
       }
     };
 
-    frame();
+    const frameId = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(frameId);
   }, []);
 
   return (

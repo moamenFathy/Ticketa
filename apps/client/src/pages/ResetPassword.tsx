@@ -16,18 +16,7 @@ import z from "zod";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-
-const iconClass = (hasError?: boolean, isTouched?: boolean) => {
-  if (hasError && isTouched) return "text-destructive";
-  if (isTouched && !hasError) return "text-emerald-500";
-  return "text-muted-foreground/30";
-};
-
-const errorBorderClass = (error?: string, isTouched?: boolean) => {
-  if (error && isTouched)
-    return "border-destructive/60 focus:border-destructive focus:ring-4 focus:ring-destructive/10";
-  return "border-border/50 hover:border-border focus:border-primary/60 focus:ring-4 focus:ring-primary/8";
-};
+import { iconClass, errorBorderClass } from "@/lib/utils";
 
 const formSchema = z
   .object({

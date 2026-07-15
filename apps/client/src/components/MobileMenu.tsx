@@ -36,6 +36,7 @@ const MobileMenu = ({
             variant="ghost"
             size="icon"
             className="hover:bg-accent rounded-full transition-colors"
+            aria-label="Open menu"
           >
             <Menu size={24} />
           </Button>
