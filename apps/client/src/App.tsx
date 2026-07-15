@@ -13,6 +13,7 @@ import Profile from "./pages/Profile";
 import ForgetPassword from "./pages/ForgetPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Movies from "./pages/Movies";
+import NotFound from "./pages/NotFound";
 
 const App = () => {
   return (
@@ -31,7 +32,7 @@ const App = () => {
         <Route path="register" element={<Register />} />
         <Route path="profile" element={<Profile />} />
         <Route path="bookings/:reference" element={<Scan />} />
-        <Route path="*" element={<h1>not found</h1>} />
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
     </ErrorBoundary>

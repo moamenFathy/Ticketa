@@ -1,5 +1,6 @@
 import type { Movie } from "@/types/movie";
 import MovieList from "./MovieList";
+import LazySection from "./LazySection";
 import { useMemo } from "react";
 import { Film } from "lucide-react";
 import { movieByGenre } from "@/lib/utils";
@@ -19,7 +20,7 @@ export function GenreMovieList({ movies }: GenreMovieListProps) {
   return (
     <div>
       {sections.map(({ genre, movies: genreMovies }) => (
-        <div key={genre} className="mb-10">
+        <LazySection key={genre} className="mb-10">
           <div className="flex items-center gap-3 px-6 mb-4">
             <Film className="w-5 h-5 text-primary shrink-0" />
             <h2 className="text-xl font-bold">{genre}</h2>
@@ -29,11 +30,11 @@ export function GenreMovieList({ movies }: GenreMovieListProps) {
             </span>
           </div>
           <MovieList movies={genreMovies} />
-        </div>
+        </LazySection>
       ))}
 
       {smallMovies.length > 0 && (
-        <div className="mb-10">
+        <LazySection className="mb-10">
           <div className="flex items-center gap-3 px-6 mb-4">
             <Film className="w-5 h-5 text-primary shrink-0" />
             <h2 className="text-xl font-bold">More Movies</h2>
@@ -42,7 +43,7 @@ export function GenreMovieList({ movies }: GenreMovieListProps) {
             </span>
           </div>
           <MovieList movies={smallMovies} />
-        </div>
+        </LazySection>
       )}
     </div>
   );

@@ -28,7 +28,7 @@ const HeroShowtimes = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="relative h-[50vh] w-full overflow-hidden"
+      className="relative h-[30vh] md:h-[50vh] w-full overflow-hidden"
     >
       <div className="absolute inset-0">
         <img

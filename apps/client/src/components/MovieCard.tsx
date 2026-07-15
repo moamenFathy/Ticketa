@@ -25,6 +25,7 @@ const MovieCard = ({ movie, compact }: Props) => {
         <motion.img
           src={`${TMDB_IMAGE_POSTER_URL}${movie.posterPath}`}
           alt={movie.title}
+          loading="lazy"
           animate={{ scale: isHovered ? 1.05 : 1 }}
           transition={{ duration: 0.8, ease: [0.33, 1, 0.68, 1] }}
           className="w-full h-full object-cover"

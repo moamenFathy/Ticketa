@@ -15,15 +15,34 @@ const navLinks = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [dark, setDark] = useState(
-    () => localStorage.getItem("theme") === "dark",
+    () => localStorage.getItem("theme") === "dark"
+      || (!localStorage.getItem("theme") && matchMedia("(prefers-color-scheme: dark)").matches),
+  );
+  const [userPreference, setUserPreference] = useState(
+    () => !!localStorage.getItem("theme"),
   );
   const { user, isLoggedIn } = useAuth();
   const logoutMutation = useLogout();
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
-    localStorage.setItem("theme", dark ? "dark" : "light");
-  }, [dark]);
+    if (userPreference) {
+      localStorage.setItem("theme", dark ? "dark" : "light");
+    }
+  }, [dark, userPreference]);
+
+  useEffect(() => {
+    if (userPreference) return;
+    const mq = matchMedia("(prefers-color-scheme: dark)");
+    const handler = (e: MediaQueryListEvent) => setDark(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, [userPreference]);
+
+  const toggleTheme = () => {
+    setUserPreference(true);
+    setDark((prev) => !prev);
+  };
 
   const handleLogout = () => {
     logoutMutation.mutate();
@@ -78,7 +97,7 @@ export default function Navbar() {
         {/* Right side */}
         <div className="flex items-center gap-3">
           <button
-            onClick={() => setDark(!dark)}
+            onClick={toggleTheme}
             className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-300"
             aria-label="Toggle theme"
           >

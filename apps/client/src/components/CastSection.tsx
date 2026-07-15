@@ -52,6 +52,7 @@ export const CastSection = ({ cast }: CastSectionProps) => {
                     <img
                       src={`${TMDB_IMG}/w500${person.profile_path}`}
                       alt={person.name}
+                      loading="lazy"
                       className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
                     />
                   ) : (
