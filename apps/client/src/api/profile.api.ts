@@ -1,4 +1,5 @@
-import type { ProfileDto, ProfileUpdateDto, ChangePasswordDto, PagedResultDto, BookingHistoryItemDto } from "@/types/profile";
+import type { ProfileDto, ProfileUpdateDto, ChangePasswordDto, BookingHistoryItemDto } from "@/types/profile";
+import type { PagedResultDto } from "@/types/api";
 import api from "./client";
 
 export const profileApi = {

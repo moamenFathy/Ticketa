@@ -1,21 +1,47 @@
+import { useEffect, useRef } from "react";
 import { useNowPlayingMovies } from "@/hooks/useMovies";
 import MovieCard from "@/components/MovieCard";
 import { MovieListSkeleton } from "@/components/skeletons/MovieListSkeleton";
 import ErrorState from "@/components/ErrorState";
 import { Link } from "react-router-dom";
-import { Film } from "lucide-react";
+import { Film, Loader2 } from "lucide-react";
 
 const Movies = () => {
   const {
-    data: movies,
+    data,
     isLoading,
     isError,
     refetch,
-  } = useNowPlayingMovies();
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useNowPlayingMovies(30);
+
+  const movies = data?.pages.flatMap((p) => p.items) ?? [];
+  const totalCount = data?.pages[0]?.totalCount ?? 0;
+
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { rootMargin: "400px" },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   if (isLoading) return <MovieListSkeleton />;
 
-  if (isError || !movies) {
+  if (isError || !data?.pages[0]) {
     return <ErrorState refetch={refetch} />;
   }
 
@@ -25,7 +51,7 @@ const Movies = () => {
         <Film className="w-7 h-7 text-primary" />
         <h1 className="text-3xl font-black tracking-tight">Now Showing</h1>
         <span className="text-muted-foreground text-sm mt-1.5">
-          {movies.length} {movies.length === 1 ? "movie" : "movies"}
+          {totalCount} {totalCount === 1 ? "movie" : "movies"}
         </span>
       </div>
 
@@ -34,17 +60,26 @@ const Movies = () => {
           No movies showing right now. Check back later!
         </p>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-          {movies.map((movie) => (
-            <Link
-              key={movie.id}
-              to={`/movies/${movie.id}`}
-              className="block"
-            >
-              <MovieCard movie={movie} compact />
-            </Link>
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 mb-12">
+            {movies.map((movie) => (
+              <Link key={movie.id} to={`/movies/${movie.id}`} className="block">
+                <MovieCard movie={movie} compact />
+              </Link>
+            ))}
+          </div>
+
+          <div ref={sentinelRef} className="flex justify-center py-8">
+            {isFetchingNextPage && (
+              <Loader2 className="size-6 animate-spin text-muted-foreground" />
+            )}
+            {!hasNextPage && movies.length >= totalCount && (
+              <p className="text-muted-foreground text-sm">
+                You've reached the end
+              </p>
+            )}
+          </div>
+        </>
       )}
     </div>
   );

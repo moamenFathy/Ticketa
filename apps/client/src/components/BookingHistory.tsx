@@ -1,8 +1,8 @@
 import {
   CalendarIcon,
-  ChevronDown,
   ChevronRight,
   Clock,
+  Loader2,
   MapPin,
   Receipt,
 } from "lucide-react";
@@ -12,18 +12,37 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { TMDB_IMAGE_POSTER_URL } from "@/api/constants";
 import { format } from "date-fns/format";
 import { Badge } from "./ui/badge";
-import { useState } from "react";
+import { useEffect, useRef } from "react";
 import { useBookingHistory } from "@/hooks/useProfile";
 import { useNavigate } from "react-router-dom";
 
 const BookingHistory = () => {
   const navigate = useNavigate();
-  const [bookingPage, setBookingPage] = useState(1);
-  const { data: bookingData, isLoading: bookingsLoading } =
-    useBookingHistory(bookingPage);
+  const {
+    data: bookingData,
+    isLoading: bookingsLoading,
+    fetchNextPage: fetchNextBookingPage,
+    hasNextPage: hasNextBookingPage,
+    isFetchingNextPage: isFetchingNextBookingPage,
+  } = useBookingHistory(10);
 
-  const allBookings = bookingData?.items ?? [];
-  const hasMore = bookingData?.hasMore ?? false;
+  const allBookings = bookingData?.pages.flatMap(p => p.items) ?? [];
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextBookingPage && !isFetchingNextBookingPage) {
+          fetchNextBookingPage();
+        }
+      },
+      { rootMargin: "400px" },
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasNextBookingPage, isFetchingNextBookingPage, fetchNextBookingPage]);
 
   return (
     <Card>
@@ -33,7 +52,7 @@ const BookingHistory = () => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {bookingsLoading && bookingPage === 1 ? (
+        {bookingsLoading ? (
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
               <Skeleton key={i} className="h-20 w-full rounded-xl" />
@@ -111,24 +130,15 @@ const BookingHistory = () => {
               ))}
             </div>
 
-            {hasMore && (
-              <div className="flex justify-center mt-6">
-                <Button
-                  variant="outline"
-                  onClick={() => setBookingPage((p) => p + 1)}
-                  disabled={bookingsLoading}
-                  className="gap-2"
-                >
-                  {bookingsLoading ? (
-                    "Loading..."
-                  ) : (
-                    <>
-                      Load More <ChevronDown className="w-4 h-4" />
-                    </>
-                  )}
-                </Button>
-              </div>
-            )}
+            <div ref={sentinelRef} className="flex justify-center py-6">
+              {isFetchingNextBookingPage ? (
+                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+              ) : !hasNextBookingPage ? (
+                <p className="text-sm text-muted-foreground">
+                  You've reached the end
+                </p>
+              ) : null}
+            </div>
           </>
         )}
       </CardContent>

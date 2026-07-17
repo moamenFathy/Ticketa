@@ -1,8 +1,12 @@
 import type { MostPopularMovies, Movie, MovieDetails } from "@/types/movie";
+import type { PagedResultDto } from "@/types/api";
 import api from "./client";
 
-export async function getNowPlayingMovies({ signal }: { signal?: AbortSignal }) {
-    const { data } = await api.get<Movie[]>("movies", { signal });
+export async function getNowPlayingMovies(page: number, pageSize: number, { signal }: { signal?: AbortSignal }) {
+    const { data } = await api.get<PagedResultDto<Movie>>("movies", {
+      params: { page, pageSize },
+      signal,
+    });
     return data;
 }
 

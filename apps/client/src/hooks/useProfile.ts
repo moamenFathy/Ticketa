@@ -2,7 +2,7 @@ import { profileApi } from "@/api/profile.api";
 import { queryKeys } from "@/api/queryKeys";
 import { useAuth } from "@/hooks/useAuth";
 import type { ProfileUpdateDto, ChangePasswordDto } from "@/types/profile";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export const useProfile = () => {
@@ -41,13 +41,14 @@ export const useChangePassword = () =>
     },
   });
 
-export const useBookingHistory = (page: number) => {
+export const useBookingHistory = (pageSize: number = 10) => {
   const { isLoggedIn, isInitializing } = useAuth();
 
-  return useQuery({
-    queryKey: queryKeys.profile.bookings(page),
-    queryFn: ({ signal }) => profileApi.getBookingHistory(page, 10, { signal }),
+  return useInfiniteQuery({
+    queryKey: queryKeys.profile.bookings,
+    queryFn: ({ signal, pageParam }) => profileApi.getBookingHistory(pageParam, pageSize, { signal }),
     enabled: isLoggedIn && !isInitializing,
-    placeholderData: (prev) => prev,
+    getNextPageParam: (lastPage) => lastPage.hasMore ? lastPage.page + 1 : undefined,
+    initialPageParam: 1,
   });
 };

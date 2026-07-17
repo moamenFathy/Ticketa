@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import HeroSection from "@/components/HeroSection";
 import MovieList from "@/components/MovieList";
 import GenreMovieList from "@/components/GenreMovieList";
@@ -36,7 +37,10 @@ const Home = () => {
     isLoading: nowPlayingLoading,
     isError: nowPlayingError,
     refetch: refetchNowPlaying,
-  } = useNowPlayingMovies();
+    fetchNextPage: fetchNextNowPlayingPage,
+    hasNextPage: hasNextNowPlayingPage,
+    isFetchingNextPage: isFetchingNextNowPlayingPage,
+  } = useNowPlayingMovies(50);
 
   const {
     data: comingSoon,
@@ -52,6 +56,12 @@ const Home = () => {
     refetch: refetchHeroMovies,
   } = useMostPopularMovies();
 
+  useEffect(() => {
+    if (hasNextNowPlayingPage && !isFetchingNextNowPlayingPage) {
+      fetchNextNowPlayingPage();
+    }
+  }, [hasNextNowPlayingPage, isFetchingNextNowPlayingPage, fetchNextNowPlayingPage]);
+
   if (nowPlayingLoading || comingSoonLoading || heroMoviesLoading)
     return (
       <>
@@ -60,7 +70,7 @@ const Home = () => {
       </>
     );
   if (
-    (nowPlayingError || !nowPlaying) &&
+    (nowPlayingError || !nowPlaying?.pages[0]) &&
     (comingSoonError || !comingSoon) &&
     (heroMoviesError || !heroMovies)
   )
@@ -73,6 +83,8 @@ const Home = () => {
         }}
       />
     );
+
+  const nowPlayingMovies = nowPlaying?.pages.flatMap(p => p.items) ?? [];
 
   return (
     <>
@@ -90,8 +102,8 @@ const Home = () => {
           </Link>
         </div>
         <div className="py-6 mx-auto">
-          {nowPlaying && nowPlaying.length > 0 ? (
-            <GenreMovieList movies={nowPlaying} />
+          {nowPlayingMovies.length > 0 ? (
+            <GenreMovieList movies={nowPlayingMovies} />
           ) : (
             <p className="text-muted-foreground text-center py-12">
               No upcoming movies yet. Check back later!

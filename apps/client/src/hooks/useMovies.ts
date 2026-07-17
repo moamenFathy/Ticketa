@@ -1,11 +1,13 @@
 import { getComingSoonMovies, getMostPopularMovies, getMovieDetails, getNowPlayingMovies } from "@/api/movies.api";
 import { queryKeys } from "@/api/queryKeys";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
-export function useNowPlayingMovies() {
-    return useQuery({
+export function useNowPlayingMovies(pageSize = 30) {
+    return useInfiniteQuery({
         queryKey: queryKeys.movies.nowPlaying,
-        queryFn: ({ signal }) => getNowPlayingMovies({ signal })
+        queryFn: ({ pageParam, signal }) => getNowPlayingMovies(pageParam, pageSize, { signal }),
+        initialPageParam: 1,
+        getNextPageParam: (lastPage) => lastPage.hasMore ? lastPage.page + 1 : undefined,
     })
 }
 

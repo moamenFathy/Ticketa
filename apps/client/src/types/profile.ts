@@ -28,11 +28,3 @@ export type BookingHistoryItemDto = {
   totalAmount: number;
   status: string;
 };
-
-export type PagedResultDto<T> = {
-  items: T[];
-  page: number;
-  pageSize: number;
-  totalCount: number;
-  hasMore: boolean;
-};

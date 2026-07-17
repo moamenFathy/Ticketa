@@ -19,6 +19,6 @@ export const queryKeys = {
 
     profile: {
       get: ["profile"] as const,
-      bookings: (page: number) => ["profile", "bookings", page] as const,
+      bookings: ["profile", "bookings"] as const,
     },
 }
