@@ -39,6 +39,13 @@ namespace Ticketa.Core.Specifications
       ApplyPaging(skip, take);
     }
 
+    public MovieSpecification(MovieStatus? status, string? search, bool includeGenres, bool includeCast, int skip, int take, bool archivedOnly = false)
+        : this(status, search, includeGenres, includeCast, archivedOnly)
+    {
+      AddOrderByDesc(m => m.ReleaseDate);
+      ApplyPaging(skip, take);
+    }
+
     private void ApplyFilters(MovieStatus? status, string? search)
     {
       if (status.HasValue && !string.IsNullOrEmpty(search))
