@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Ticketa.Core.DTOs;
+using Ticketa.Core.DTOs.Common;
 using Ticketa.Core.Interfaces.IServices;
 
 namespace Ticketa.API.Controllers
@@ -12,14 +13,14 @@ namespace Ticketa.API.Controllers
     private readonly IShowtimeService _showtimeService = showtimeService;
 
     [HttpGet]
-    [ProducesResponseType(typeof(ActiveMovieWithDetailsDto), statusCode: StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ActiveMovieWithDetailsDto), statusCode: StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAll(CancellationToken ct)
+    [ProducesResponseType(typeof(PagedResultDto<ActiveMovieWithDetailsDto>), statusCode: StatusCodes.Status200OK)]
+    [ProducesResponseType(statusCode: StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
     {
       try
       {
-        var movies = await _moviesService.GetAllActiveWithDetailsAsync(ct);
-        return Ok(movies);
+        var result = await _moviesService.GetAllActiveWithDetailsAsync(page, pageSize, ct);
+        return Ok(result);
       }
       catch (OperationCanceledException)
       {

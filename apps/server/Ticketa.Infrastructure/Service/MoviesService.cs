@@ -1,5 +1,6 @@
 using AutoMapper;
 using Ticketa.Core.DTOs;
+using Ticketa.Core.DTOs.Common;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Enums;
 using Ticketa.Core.Interfaces;
@@ -263,26 +264,39 @@ namespace Ticketa.Infrastructure.Service
       });
     }
 
-    public async Task<IEnumerable<ActiveMovieWithDetailsDto>> GetAllActiveWithDetailsAsync(CancellationToken ct = default)
+    public async Task<PagedResultDto<ActiveMovieWithDetailsDto>> GetAllActiveWithDetailsAsync(int page, int pageSize, CancellationToken ct = default)
     {
-      // Pass 'true' to include genres, and set status to Active
-      var spec = new MovieSpecification(MovieStatus.Active, null, includeGenres: true, includeCast: false);
-      var movies = await _uow.Movies.GetAllWithSpecAsync(spec, ct);
+      pageSize = Math.Min(pageSize, 25);
+      page = Math.Max(page, 1);
 
-      return movies.Select(m => new ActiveMovieWithDetailsDto
+      var countSpec = new MovieSpecification(MovieStatus.Active, null);
+      var totalCount = await _uow.Movies.CountAsync(countSpec);
+
+      var dataSpec = new MovieSpecification(MovieStatus.Active, null, includeGenres: true, includeCast: false,
+          skip: (page - 1) * pageSize, take: pageSize);
+      var movies = await _uow.Movies.GetAllWithSpecAsync(dataSpec, ct);
+
+      return new PagedResultDto<ActiveMovieWithDetailsDto>
       {
-        Id = m.Id,
-        Title = m.Title,
-        Overview = m.Overview,
-        PosterPath = m.PosterPath,
-        BackdropPath = m.BackdropPath,
-        VoteAverage = m.VoteAverage,
-        TrailerKey = m.TrailerKey,
-        Runtime = m.RuntimeMinutes,
-        ReleaseDate = DateOnly.FromDateTime(m.ReleaseDate),
-        Language = m.Language,
-        Genres = m.Genres.Select(g => g.Name).ToList()
-      });
+        Items = movies.Select(m => new ActiveMovieWithDetailsDto
+        {
+          Id = m.Id,
+          Title = m.Title,
+          Overview = m.Overview,
+          PosterPath = m.PosterPath,
+          BackdropPath = m.BackdropPath,
+          VoteAverage = m.VoteAverage,
+          TrailerKey = m.TrailerKey,
+          Runtime = m.RuntimeMinutes,
+          ReleaseDate = DateOnly.FromDateTime(m.ReleaseDate),
+          Language = m.Language,
+          Genres = m.Genres.Select(g => g.Name).ToList()
+        }),
+        Page = page,
+        PageSize = pageSize,
+        TotalCount = totalCount,
+        HasMore = (page * pageSize) < totalCount
+      };
     }
 
     public async Task<IEnumerable<ActiveMovieWithDetailsDto>> GetNowShowingMoviesAsync(CancellationToken ct = default)
