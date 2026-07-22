@@ -23,24 +23,22 @@ namespace Ticketa.Web.Controllers
 
     [HttpGet]
     public async Task<IActionResult> GetAll(
-        string? search,
-        string? segmentedFilter = null)
+    [FromQuery] DataTableRequestsDto request,
+    [FromQuery(Name = "search[value]")] string? searchValue = null,
+    string? segmentedFilter = null)
     {
-      var result = await _showtimeService.GetAllAsync(
-          search, segmentedFilter);
-
-      return Json(new { data = result });
+      var result = await _showtimeService.GetAllAsync(request, searchValue, segmentedFilter);
+      return Json(result);
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAllArchived(
-        string? search,
-        string? segmentedFilter = null)
+    [FromQuery] DataTableRequestsDto request,
+    [FromQuery(Name = "search[value]")] string? searchValue = null,
+    string? segmentedFilter = null)
     {
-      var result = await _showtimeService.GetAllArchivedAsync(
-          search, segmentedFilter);
-
-      return Json(new { data = result });
+      var result = await _showtimeService.GetAllArchivedAsync(request, searchValue, segmentedFilter);
+      return Json(result);
     }
 
     [HttpGet]

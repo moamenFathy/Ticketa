@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Ticketa.Core.DTOs;
 using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Infrastructure.Authorization;
 using static Ticketa.Core.Helpers.Permissions;
@@ -11,10 +12,14 @@ namespace Ticketa.Web.Controllers
     public IActionResult Index() => View();
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(
+    [FromQuery] DataTableRequestsDto request,
+    [FromQuery(Name = "search[value]")] string? searchValue = null,
+    [FromQuery(Name = "order[0][column]")] int orderColumn = 0,
+    [FromQuery(Name = "order[0][dir]")] string orderDir = "asc")
     {
-      var result = await paymentManagementService.GetAllAsync();
-      return Json(new { data = result });
+      var result = await paymentManagementService.GetAllAsync(request, searchValue, orderColumn, orderDir);
+      return Json(result);
     }
 
     [HttpPost]
