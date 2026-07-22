@@ -14,6 +14,9 @@ namespace Ticketa.Core.Interfaces.IServices
             string? search,
             string? segmentedFilter);
 
+    Task<object> GetAllAsync(DataTableRequestsDto request, string? search, string? segmentedFilter);
+    Task<object> GetAllArchivedAsync(DataTableRequestsDto request, string? search, string? segmentedFilter);
+
     Task<string?> CreateAsync(ShowtimeUpsertDto dto);
     Task<string?> UpdateAsync(ShowtimeUpsertDto dto);
     Task<ShowtimeUpsertDto?> GetForUpsertAsync(int id);

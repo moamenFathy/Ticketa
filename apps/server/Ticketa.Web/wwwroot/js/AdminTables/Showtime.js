@@ -275,14 +275,13 @@ if (dataTableElement) {
         {
             data: null,
             orderable: false,
+            searchable: false,
             className: "p-0 border-0 bg-transparent align-top",
             render: function (data, type, row) {
                 if (type === 'display') {
                     const poster = row.posterPath ? `<img src="${imageBase}${row.posterPath}" alt="Poster" class="w-12 h-16 object-cover rounded shadow-sm shrink-0" />` : `<div class="w-12 h-16 bg-base-300 rounded flex items-center justify-center text-[10px] text-base-content/50 shrink-0 border border-base-300">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-30"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
                     </div>`;
-
-                    const initials = row.title.substring(0, 2).toUpperCase();
 
                     let showtimesHtml = '';
                     if (row.showtimes && row.showtimes.length > 0) {
@@ -357,7 +356,7 @@ if (dataTableElement) {
                                 </button>`;
 
                             return `
-                                <div class="flex p-10 items-center flex-wrap md:flex-nowrap gap-6 p-5 border-b border-base-300 last:border-b-0 hover:bg-base-200/30 transition-colors">
+                                <div class="flex items-center flex-wrap md:flex-nowrap gap-6 p-5 border-b border-base-300 last:border-b-0 hover:bg-base-200/30 transition-colors">
                                     <div class="flex flex-col min-w-[120px]">
                                         <span class="text-[10px] font-bold text-base-content/60 uppercase tracking-wider mb-1">Hall</span>
                                         <span class="font-bold text-base">${st.hallName}</span>
@@ -420,11 +419,12 @@ if (dataTableElement) {
                     `;
                 }
 
-                // For filter/search
-                return row.title + " " + (row.showtimes || []).map(st => st.hallName).join(" ");
+                return row.title;
             }
         }
     ], {
+        ordering: false,
+        bSort: false,
         ajaxData: function () {
             return { segmentedFilter: currentFilter };
         },
@@ -448,10 +448,13 @@ if (dataTableElement) {
                 api.ajax.reload();
             });
         },
-        serverSide: false,
-        responsive: false,
-        ordering: false,
-        bSort: false
+        serverSide: true,
+        stateLoadParams: (settings, data) => {
+            if (data.columns.length !== 1) {
+                localStorage.removeItem(`DataTables_${settings.sTableId}_${window.location.pathname}`);
+                return false;
+            }
+        }
     });
 }
 

@@ -76,6 +76,76 @@ namespace Ticketa.Infrastructure.Service
           })
           .OrderBy(m => m.Title);
     }
+    public async Task<object> GetAllAsync(DataTableRequestsDto request, string? search, string? segmentedFilter)
+    {
+      return await GetAllDataTableAsync(request, search, segmentedFilter, archivedOnly: false);
+    }
+
+    public async Task<object> GetAllArchivedAsync(DataTableRequestsDto request, string? search, string? segmentedFilter)
+    {
+      return await GetAllDataTableAsync(request, search, segmentedFilter, archivedOnly: true);
+    }
+
+    private async Task<object> GetAllDataTableAsync(DataTableRequestsDto request, string? search, string? segmentedFilter, bool archivedOnly)
+    {
+      ShowtimeStatus? status = segmentedFilter?.ToLower() switch
+      {
+        "scheduled" => ShowtimeStatus.Scheduled,
+        "soldout" => ShowtimeStatus.SoldOut,
+        "completed" => ShowtimeStatus.Completed,
+        _ => null
+      };
+
+      var searchValue = string.IsNullOrWhiteSpace(search) ? null : search;
+
+      var totalSpec = new ShowtimeSpecification(archivedOnly: archivedOnly);
+      var allShowtimes = await _uow.Showtimes.GetAllWithSpecAsync(totalSpec);
+      var totalMovies = allShowtimes.Select(s => s.MovieId).Distinct().Count();
+
+      var spec = new ShowtimeSpecification(status, searchValue, archivedOnly: archivedOnly);
+      var showtimes = await _uow.Showtimes.GetAllWithSpecAsync(spec);
+
+      var movieGroups = showtimes
+          .GroupBy(s => s.Movie)
+          .Select(g => new MovieShowtimeDto
+          {
+            MovieId = g.Key.Id,
+            TmdbId = g.Key.TmdbId,
+            Title = g.Key.Title,
+            PosterPath = g.Key.PosterPath,
+            trailerKey = g.Key.TrailerKey,
+            Rate = g.Key.VoteAverage,
+            Runtime = g.Key.RuntimeMinutes,
+            Genres = g.Key.Genres.Select(genre => genre.Name).ToList(),
+            Showtimes = g.Select(s => new ShowtimeListItemDto
+            {
+              Id = s.Id,
+              HallName = s.Hall.Name,
+              VisibleSeatCount = HallTypeHelper.GetTemplate(s.Hall.Type).VisibleSeatCount,
+              StartTime = s.StartTime,
+              EndTime = s.EndTime,
+              Price = s.Price,
+              Status = s.Status,
+              HallId = s.HallId,
+              IsArchived = s.IsArchived,
+              ArchivedAt = s.ArchivedAt
+            }).OrderBy(s => s.StartTime).ToList()
+          })
+          .OrderBy(m => m.Title)
+          .ToList();
+
+      var filtered = movieGroups.Count;
+      var paged = movieGroups.Skip(request.Start).Take(request.Length).ToList();
+
+      return new
+      {
+        draw = request.Draw,
+        recordsTotal = totalMovies,
+        recordsFiltered = filtered,
+        data = paged
+      };
+    }
+
     // ── Create & Update ───────────────────────────────────────────────────
 
     public async Task<string?> CreateAsync(ShowtimeUpsertDto dto)

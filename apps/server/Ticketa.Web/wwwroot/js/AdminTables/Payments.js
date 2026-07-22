@@ -58,7 +58,8 @@ initDataTable("/Payments/GetAll", [
     }
   }
 ], {
-  order: [[5, 'desc']],
+    order: [[5, 'desc']],
+  serverSide: true,
   columnDefs: [
     { className: "flex justify-center gap-1", targets: 6 },
   ],
@@ -67,7 +68,7 @@ initDataTable("/Payments/GetAll", [
       localStorage.removeItem(`DataTables_${settings.sTableId}_${window.location.pathname}`);
       return false;
     }
-  },
+    },
 });
 
 document.addEventListener('click', (e) => {
