@@ -64,11 +64,16 @@ initDataTable("/Payments/GetAll", [
     { className: "flex justify-center gap-1", targets: 6 },
   ],
   stateLoadParams: (settings, data) => {
-    if (data.columns.length !== 7) {
+    if (data.columns.length !== 7 || data._v !== 2) {
       localStorage.removeItem(`DataTables_${settings.sTableId}_${window.location.pathname}`);
       return false;
     }
-    },
+    data.start = 0;
+  },
+  stateSaveCallback: (settings, data) => {
+    data._v = 2;
+    localStorage.setItem(`DataTables_${settings.sTableId}_${window.location.pathname}`, JSON.stringify(data));
+  },
 });
 
 document.addEventListener('click', (e) => {

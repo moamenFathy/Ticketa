@@ -382,7 +382,7 @@ if (dataTableElement) {
                                     
                                     ${st.archivedAt ? `
                                     <div class="flex flex-col min-w-[130px]">
-                                        <span class="text-[10px] font-bold text-base-content/60 uppercase tracking-wider mb-1">Archived</span>
+                                        <span class="text-[10px] font-bold text-base-content/60 uppercase tracking-wider mb-1">Completed At</span>
                                         <span class="text-xs text-base-content/60">${toDataTableDate(st.archivedAt)}</span>
                                     </div>
                                     ` : ''}
