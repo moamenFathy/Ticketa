@@ -15,6 +15,7 @@ using Ticketa.Core.Mapping;
 using Ticketa.Core.Settings;
 using Ticketa.Infrastructure.Authorization;
 using Ticketa.Infrastructure.Data;
+using Ticketa.Infrastructure.BackgroundServices;
 using Ticketa.Infrastructure.ExternalService;
 using Ticketa.Infrastructure.Repositories;
 using Ticketa.Infrastructure.Service;
@@ -67,6 +68,9 @@ namespace Ticketa.Infrastructure.Extensions
       .AddTransientHttpErrorPolicy(policy =>
           policy.WaitAndRetryAsync(3, retryAttempt =>
               TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
+
+      // Background services
+      services.AddHostedService<ShowtimeCompletionService>();
 
       return services;
     }
