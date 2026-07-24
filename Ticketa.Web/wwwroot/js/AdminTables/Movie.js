@@ -401,20 +401,6 @@ if (dataTableElement) {
             const api = this.api();
             api.column(8).visible(false);
 
-            const toggle = document.getElementById("showArchivedToggle");
-            if (toggle) {
-                toggle.addEventListener("click", () => {
-                    const isShown = toggle.dataset.showArchived === "true";
-                    toggle.dataset.showArchived = isShown ? "false" : "true";
-                    const label = toggle.querySelector(".toggle-label");
-                    if (label) label.textContent = isShown ? "Show Archived" : "Show Active";
-                    toggle.classList.toggle("text-violet-600", !isShown);
-                    currentUrl = isShown ? "/Movies/GetAll" : "/Movies/GetAllArchived";
-                    api.column(8).visible(currentUrl.includes("Archived"));
-                    api.ajax.url(currentUrl).load();
-                });
-            }
-
             initMovieSegmentedFilter((filter) => {
                 currentFilter = filter;
                 api.ajax.reload();

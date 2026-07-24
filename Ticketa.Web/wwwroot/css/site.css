@@ -453,3 +453,7 @@ input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
+
+table.dataTable > tbody > tr > th, table.dataTable > tbody > tr > td {
+    padding: 0px;
+}

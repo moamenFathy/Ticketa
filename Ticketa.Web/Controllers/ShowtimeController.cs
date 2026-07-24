@@ -32,16 +32,6 @@ namespace Ticketa.Web.Controllers
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllArchived(
-    [FromQuery] DataTableRequestsDto request,
-    [FromQuery(Name = "search[value]")] string? searchValue = null,
-    string? segmentedFilter = null)
-    {
-      var result = await _showtimeService.GetAllArchivedAsync(request, searchValue, segmentedFilter);
-      return Json(result);
-    }
-
-    [HttpGet]
     public async Task<IActionResult> Upsert(int? id)
     {
       var vm = new ShowtimeUpsertVM
@@ -89,15 +79,6 @@ namespace Ticketa.Web.Controllers
         return Json(new { success = false, message = error });
 
       return Json(new { success = true });
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [RequirePermission(Showtimes.Edit)]
-    public async Task<IActionResult> UpdateStatus(int id, Core.Enums.ShowtimeStatus status)
-    {
-      var success = await _showtimeService.UpdateStatusAsync(id, status);
-      return Json(new { success });
     }
 
     [HttpGet]

@@ -10,12 +10,7 @@ namespace Ticketa.Core.Interfaces.IServices
             string? search,
             string? segmentedFilter);
 
-    public Task<IEnumerable<MovieShowtimeDto>> GetAllArchivedAsync(
-            string? search,
-            string? segmentedFilter);
-
     Task<object> GetAllAsync(DataTableRequestsDto request, string? search, string? segmentedFilter);
-    Task<object> GetAllArchivedAsync(DataTableRequestsDto request, string? search, string? segmentedFilter);
 
     Task<string?> CreateAsync(ShowtimeUpsertDto dto);
     Task<string?> UpdateAsync(ShowtimeUpsertDto dto);
@@ -23,7 +18,6 @@ namespace Ticketa.Core.Interfaces.IServices
 
     Task<IEnumerable<HallDto>> GetHallsAsync();
 
-    Task<bool> UpdateStatusAsync(int id, ShowtimeStatus status);
 
     public Task<Showtime?> GetByIdAsync(int id);
     Task<IEnumerable<MovieShowtimeDto>> GetScheduledGroupedAsync(CancellationToken ct = default);

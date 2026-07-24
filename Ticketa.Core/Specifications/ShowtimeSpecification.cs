@@ -5,18 +5,21 @@ namespace Ticketa.Core.Specifications
 {
   public class ShowtimeSpecification : BaseSpecification<Showtime>
   {
-    public ShowtimeSpecification(bool archivedOnly = false)
+    public ShowtimeSpecification(bool? archivedOnly = false)
     {
-      if (archivedOnly)
-        AddCriteria(s => s.IsArchived);
-      else
-        AddCriteria(s => !s.IsArchived);
+      if (archivedOnly.HasValue)
+      {
+        if (archivedOnly.Value)
+          AddCriteria(s => s.IsArchived);
+        else
+          AddCriteria(s => !s.IsArchived);
+      }
       AddInclude(s => s.Movie);
       AddInclude(s => s.Hall);
       AddInclude("Movie.Genres");
     }
 
-    public ShowtimeSpecification(ShowtimeStatus? status, string? search, bool archivedOnly = false) : this(archivedOnly)
+    public ShowtimeSpecification(ShowtimeStatus? status, string? search, bool? archivedOnly = false) : this(archivedOnly)
     {
       ApplyFilters(status, search);
     }

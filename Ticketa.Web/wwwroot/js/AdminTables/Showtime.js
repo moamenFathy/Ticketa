@@ -296,38 +296,25 @@ if (dataTableElement) {
 
                             const priceFormatted = `${st.price.toFixed(2)} $`;
 
-                            const scheduledSel = st.status === 0 ? "selected" : "";
-                            const soldOutSel = st.status === 1 ? "selected" : "";
-                            const completedSel = st.status === 2 ? "selected" : "";
+                            let statusText = "";
+                            if (st.status === 0) statusText = "• Scheduled";
+                            else if (st.status === 1) statusText = "• Sold Out";
+                            else if (st.status === 2) statusText = "• Completed";
 
                             let colorClass = "";
-                            if (st.status === 0) colorClass = "text-blue-700 bg-blue-100 border-blue-200";
-                            else if (st.status === 1) colorClass = "text-yellow-700 bg-yellow-100 border-yellow-200";
-                            else if (st.status === 2) colorClass = "text-green-700 bg-green-100 border-green-200";
+                            if (st.status === 0) colorClass = "text-blue-700 bg-blue-100";
+                            else if (st.status === 1) colorClass = "text-yellow-700 bg-yellow-100";
+                            else if (st.status === 2) colorClass = "text-green-700 bg-green-100";
 
                             const statusHtml = `
-                                <div class="relative inline-flex items-center">
-                                    <select class="select select-sm select-bordered w-36 rounded-full font-semibold focus:outline-none transition-all duration-200 ${colorClass}" onchange="updateShowtimeStatus(${st.id}, this)">
-                                        <option value="0" ${scheduledSel}>• Scheduled</option>
-                                        <option value="1" ${soldOutSel}>• Sold Out</option>
-                                        <option value="2" ${completedSel}>• Completed</option>
-                                    </select>
-                                    <span class="status-indicator absolute -right-1 -top-1 hidden"></span>
-                                </div>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${colorClass}">
+                                    ${statusText}
+                                </span>
                             `;
 
                             const fiveHoursFromNow = new Date(new Date().getTime() + (5 * 60 * 60 * 1000));
-                            const canEditTime = start > fiveHoursFromNow;
-                            const canEditStatus = st.status !== 2;
-                            let canEdit = true;
-                            let tooltipMsg = "Edit";
-                            if (!canEditStatus) {
-                                canEdit = false;
-                                tooltipMsg = "Cannot edit this status right now";
-                            } else if (!canEditTime) {
-                                canEdit = false;
-                                tooltipMsg = "Cannot edit within 5 hours of starting";
-                            }
+                            const canEdit = start > fiveHoursFromNow;
+                            const tooltipMsg = canEdit ? "Edit" : "Cannot edit within 5 hours of starting";
 
                             const editButton = canEdit
                                 ? `<button type="button" class="btn btn-square btn-outline btn-sm border-base-300 text-violet-500 hover:bg-violet-50 hover:bg-base-200 hover:border-base-400 tooltip" data-tip="${tooltipMsg}" onclick="openModal('createForm', '/showtime/Upsert/' + ${st.id}, 'showtime')">
@@ -403,7 +390,7 @@ if (dataTableElement) {
                     }
 
                     return `
-                    <details class="group border border-base-300 bg-base-100 rounded-xl overflow-hidden [&_summary::-webkit-details-marker]:hidden mb-4 shadow-sm w-full block">
+                    <details class="group border bg-base-100 rounded-xl overflow-hidden [&_summary::-webkit-details-marker]:hidden mb-4 shadow-sm w-full block">
                         <summary class="flex items-center gap-4 p-4 cursor-pointer hover:bg-base-200/50 transition-colors list-none outline-none">
                             ${poster}
                             <div class="flex-1 font-semibold text-xl truncate">${row.title}</div>
@@ -431,18 +418,6 @@ if (dataTableElement) {
         initComplete: function () {
             const api = this.api();
 
-            const toggle = document.getElementById("showArchivedToggle");
-            if (toggle) {
-                toggle.addEventListener("click", () => {
-                    const isShowingArchived = currentUrl === "/Showtime/GetAllArchived";
-                    currentUrl = isShowingArchived ? "/Showtime/GetAll" : "/Showtime/GetAllArchived";
-                    const label = toggle.querySelector(".toggle-label");
-                    if (label) label.textContent = isShowingArchived ? "Show Archived" : "Show Active";
-                    toggle.classList.toggle("text-violet-600", !isShowingArchived);
-                    api.ajax.url(currentUrl).load();
-                });
-            }
-
             initSegmentedFilter((filter) => {
                 currentFilter = filter;
                 api.ajax.reload();
@@ -458,69 +433,3 @@ if (dataTableElement) {
     });
 }
 
-window.updateShowtimeStatus = async function (id, selectEl) {
-    const newStatus = parseInt(selectEl.value, 10);
-    const wrapper = selectEl.parentElement;
-    const indicator = wrapper.querySelector('.status-indicator');
-
-    let colorClass = "";
-    if (newStatus === 0) colorClass = "text-blue-700 bg-blue-100 border-blue-200";
-    else if (newStatus === 1) colorClass = "text-yellow-700 bg-yellow-100 border-yellow-200";
-    else if (newStatus === 2) colorClass = "text-green-700 bg-green-100 border-green-200";
-
-    selectEl.className = "select select-sm select-bordered w-36 rounded-full font-semibold focus:outline-none transition-all duration-200 " + colorClass;
-
-    selectEl.disabled = true;
-    selectEl.style.opacity = '0.7';
-    selectEl.style.cursor = 'wait';
-    indicator.innerHTML = '⟳';
-    indicator.className = 'status-indicator absolute -right-1 -top-1 text-xs animate-spin text-violet-600';
-    indicator.classList.remove('hidden');
-
-    try {
-        const formData = new FormData();
-        formData.append('id', id);
-        formData.append('status', newStatus);
-
-        const response = await fetch('/Showtime/UpdateStatus', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                "RequestVerificationToken": window.csrfToken
-            }
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            if (data.success) {
-                indicator.innerHTML = '✓';
-                indicator.className = 'status-indicator absolute -right-1 -top-1 text-xs text-green-600';
-                if (newStatus === 2 || currentUrl.includes("Archived")) {
-                    setTimeout(() => location.reload(), 500);
-                    return;
-                }
-                setTimeout(() => indicator.classList.add('hidden'), 1500);
-            } else {
-                showError();
-            }
-        } else {
-            showError();
-        }
-    } catch (err) {
-        showError();
-    } finally {
-        selectEl.disabled = false;
-        selectEl.style.opacity = '1';
-        selectEl.style.cursor = 'default';
-    }
-
-    function showError() {
-        indicator.innerHTML = '✕';
-        indicator.className = 'status-indicator absolute -right-1 -top-1 text-xs text-red-600';
-        selectEl.classList.add('animate-pulse');
-        setTimeout(() => {
-            indicator.classList.add('hidden');
-            selectEl.classList.remove('animate-pulse');
-        }, 2000);
-    }
-};
