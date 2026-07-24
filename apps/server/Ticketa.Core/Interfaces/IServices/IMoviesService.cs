@@ -24,13 +24,6 @@ namespace Ticketa.Core.Interfaces.IServices
         string orderDir,
         string? segmentedFilter);
 
-    Task<object> GetAllArchivedAsync(
-        DataTableRequestsDto request,
-        string? search,
-        int orderColumn,
-        string orderDir,
-        string? segmentedFilter);
-
     Task<IEnumerable<MovieDropdownDto>> GetAllActiveAsync();
 
     Task<PagedResultDto<ActiveMovieWithDetailsDto>> GetAllActiveWithDetailsAsync(int page, int pageSize, CancellationToken ct = default);

@@ -23,13 +23,6 @@ namespace Ticketa.Infrastructure.Service
       return await GetAllDataAsync(search, segmentedFilter, archivedOnly: false);
     }
 
-    public async Task<IEnumerable<MovieShowtimeDto>> GetAllArchivedAsync(
-        string? search,
-        string? segmentedFilter)
-    {
-      return await GetAllDataAsync(search, segmentedFilter, archivedOnly: true);
-    }
-
     private async Task<IEnumerable<MovieShowtimeDto>> GetAllDataAsync(
         string? search,
         string? segmentedFilter,
@@ -78,15 +71,10 @@ namespace Ticketa.Infrastructure.Service
     }
     public async Task<object> GetAllAsync(DataTableRequestsDto request, string? search, string? segmentedFilter)
     {
-      return await GetAllDataTableAsync(request, search, segmentedFilter, archivedOnly: false);
+      return await GetAllDataTableAsync(request, search, segmentedFilter);
     }
 
-    public async Task<object> GetAllArchivedAsync(DataTableRequestsDto request, string? search, string? segmentedFilter)
-    {
-      return await GetAllDataTableAsync(request, search, segmentedFilter, archivedOnly: true);
-    }
-
-    private async Task<object> GetAllDataTableAsync(DataTableRequestsDto request, string? search, string? segmentedFilter, bool archivedOnly)
+    private async Task<object> GetAllDataTableAsync(DataTableRequestsDto request, string? search, string? segmentedFilter)
     {
       ShowtimeStatus? status = segmentedFilter?.ToLower() switch
       {
@@ -98,14 +86,14 @@ namespace Ticketa.Infrastructure.Service
 
       var searchValue = string.IsNullOrWhiteSpace(search) ? null : search;
 
-      var totalSpec = new ShowtimeSpecification(archivedOnly: archivedOnly);
+      var totalSpec = new ShowtimeSpecification(archivedOnly: null);
       var allShowtimes = await _uow.Showtimes.GetAllWithSpecAsync(totalSpec);
       var totalMovies = allShowtimes.Select(s => s.MovieId).Distinct().Count();
 
-      var spec = new ShowtimeSpecification(status, searchValue, archivedOnly: archivedOnly);
+      var spec = new ShowtimeSpecification(status, searchValue, archivedOnly: null);
       var showtimes = await _uow.Showtimes.GetAllWithSpecAsync(spec);
 
-      var movieGroups = showtimes
+      var movieGroupsQuery = showtimes
           .GroupBy(s => s.Movie)
           .Select(g => new MovieShowtimeDto
           {
@@ -130,9 +118,15 @@ namespace Ticketa.Infrastructure.Service
               IsArchived = s.IsArchived,
               ArchivedAt = s.ArchivedAt
             }).OrderBy(s => s.StartTime).ToList()
-          })
-          .OrderBy(m => m.Title)
-          .ToList();
+          });
+
+      IOrderedEnumerable<MovieShowtimeDto> ordered;
+      if (status == null)
+        ordered = movieGroupsQuery.OrderBy(m => m.Showtimes.Min(s => (int)s.Status));
+      else
+        ordered = movieGroupsQuery.OrderBy(m => m.Title);
+
+      var movieGroups = ordered.ThenBy(m => m.Title).ToList();
 
       var filtered = movieGroups.Count;
       var paged = movieGroups.Skip(request.Start).Take(request.Length).ToList();
@@ -255,30 +249,6 @@ namespace Ticketa.Infrastructure.Service
         TotalRows = h.TotalRows,
         SeatsPerRow = h.SeatsPerRow,
       });
-    }
-
-    public async Task<bool> UpdateStatusAsync(int id, ShowtimeStatus status)
-    {
-      var showtime = await _uow.Showtimes.GetAsync(s => s.Id == id);
-      if (showtime == null) return false;
-
-      showtime.Status = status;
-
-      if (status == ShowtimeStatus.Completed)
-      {
-        showtime.IsArchived = true;
-        showtime.ArchivedAt = DateTime.UtcNow;
-      }
-      else
-      {
-        showtime.IsArchived = false;
-        showtime.ArchivedAt = null;
-      }
-
-      await _uow.Showtimes.UpdateAsync(showtime);
-      await _uow.SaveAsync();
-
-      return true;
     }
 
     public async Task<IEnumerable<MovieShowtimeDto>> GetScheduledGroupedAsync(CancellationToken ct = default)

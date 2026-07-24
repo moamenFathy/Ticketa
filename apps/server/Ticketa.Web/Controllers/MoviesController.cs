@@ -41,24 +41,6 @@ namespace Ticketa.Web.Controllers
       return Json(result);
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetAllArchived(
-    [FromQuery] DataTableRequestsDto request,
-    [FromQuery(Name = "search[value]")] string? searchValue = null,
-    [FromQuery(Name = "order[0][column]")] int orderColumn = 0,
-    [FromQuery(Name = "order[0][dir]")] string orderDir = "asc",
-    string? segmentedFilter = null)
-    {
-      var result = await _movieService.GetAllArchivedAsync(
-          request,
-          searchValue,
-          orderColumn,
-          orderDir,
-          segmentedFilter);
-
-      return Json(result);
-    }
-
     public async Task<IActionResult> Import(CancellationToken cancellationToken)
     {
       var movies = await _tmdbService.GetPopularMoviesAsync(cancellationToken);

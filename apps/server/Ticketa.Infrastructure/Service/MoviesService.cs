@@ -46,17 +46,7 @@ namespace Ticketa.Infrastructure.Service
         string orderDir,
         string? segmentedFilter)
     {
-      return await GetAllDataAsync(request, search, orderColumn, orderDir, segmentedFilter, archivedOnly: false);
-    }
-
-    public async Task<object> GetAllArchivedAsync(
-        DataTableRequestsDto request,
-        string? search,
-        int orderColumn,
-        string orderDir,
-        string? segmentedFilter)
-    {
-      return await GetAllDataAsync(request, search, orderColumn, orderDir, segmentedFilter, archivedOnly: true);
+      return await GetAllDataAsync(request, search, orderColumn, orderDir, segmentedFilter);
     }
 
     private async Task<object> GetAllDataAsync(
@@ -64,11 +54,12 @@ namespace Ticketa.Infrastructure.Service
         string? search,
         int orderColumn,
         string orderDir,
-        string? segmentedFilter,
-        bool archivedOnly)
+        string? segmentedFilter)
     {
       var status = MapStatus(segmentedFilter);
       var searchValue = string.IsNullOrWhiteSpace(search) ? null : search;
+      var archivedOnly = status == null ? (bool?)null : false;
+      var orderByStatus = status == null;
 
       // 1. Total count (no filters)
       var totalSpec = new MovieSpecification(archivedOnly: archivedOnly);
@@ -86,7 +77,8 @@ namespace Ticketa.Infrastructure.Service
           orderDir,
           request.Start,
           request.Length,
-          archivedOnly: archivedOnly);
+          archivedOnly: archivedOnly,
+          orderByStatus: orderByStatus);
 
       var movies = await _uow.Movies.GetAllWithSpecAsync(spec);
 
