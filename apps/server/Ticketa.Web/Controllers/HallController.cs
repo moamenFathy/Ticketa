@@ -203,7 +203,21 @@ namespace Ticketa.Web.Controllers
       if (hall is null)
         return NotFound();
 
-      return PartialView("_ViewHallMapModal", hall);
+      var template = HallTypeHelper.GetTemplate(hall.Type);
+      var vm = new ShowtimeSeatDto
+      {
+        ShowtimeId = 0,
+        MovieTitle = "",
+        HallName = hall.Name,
+        HallType = hall.Type.ToString(),
+        Rows = template.Rows,
+        SeatsPerRow = template.SeatsPerRow,
+        RowCategoryMap = template.RowCategoryMap
+                     .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString()),
+        BookedSeats = []
+      };
+
+      return PartialView("_ViewHallMapModal", vm);
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────
