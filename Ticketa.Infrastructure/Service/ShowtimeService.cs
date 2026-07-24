@@ -8,11 +8,12 @@ using Ticketa.Core.Specifications;
 
 namespace Ticketa.Infrastructure.Service
 {
-  public class ShowtimeService(IUnitOfWork uow) : IShowtimeService
+  public class ShowtimeService(IUnitOfWork uow, TimeConversions timeConversions) : IShowtimeService
   {
     private const int BufferMinutes = 15;
 
     private readonly IUnitOfWork _uow = uow;
+    private readonly TimeConversions _timeConversions = timeConversions;
 
     // ── DataTables ───────────────────────────────────────────────
 
@@ -58,13 +59,13 @@ namespace Ticketa.Infrastructure.Service
               Id = s.Id,
               HallName = s.Hall.Name,
               VisibleSeatCount = HallTypeHelper.GetTemplate(s.Hall.Type).VisibleSeatCount,
-              StartTime = s.StartTime,
-              EndTime = s.EndTime,
+              StartTime = _timeConversions.EnsureUtcKind(s.StartTime),
+              EndTime = _timeConversions.EnsureUtcKind(s.EndTime),
               Price = s.Price,
               Status = s.Status,
               HallId = s.HallId,
               IsArchived = s.IsArchived,
-              ArchivedAt = s.ArchivedAt
+              ArchivedAt = s.ArchivedAt.HasValue ? _timeConversions.EnsureUtcKind(s.ArchivedAt.Value) : null
             }).OrderBy(s => s.StartTime).ToList()
           })
           .OrderBy(m => m.Title);
@@ -110,13 +111,13 @@ namespace Ticketa.Infrastructure.Service
               Id = s.Id,
               HallName = s.Hall.Name,
               VisibleSeatCount = HallTypeHelper.GetTemplate(s.Hall.Type).VisibleSeatCount,
-              StartTime = s.StartTime,
-              EndTime = s.EndTime,
+              StartTime = _timeConversions.EnsureUtcKind(s.StartTime),
+              EndTime = _timeConversions.EnsureUtcKind(s.EndTime),
               Price = s.Price,
               Status = s.Status,
               HallId = s.HallId,
               IsArchived = s.IsArchived,
-              ArchivedAt = s.ArchivedAt
+              ArchivedAt = s.ArchivedAt.HasValue ? _timeConversions.EnsureUtcKind(s.ArchivedAt.Value) : null
             }).OrderBy(s => s.StartTime).ToList()
           });
 
@@ -144,10 +145,12 @@ namespace Ticketa.Infrastructure.Service
 
     public async Task<string?> CreateAsync(ShowtimeUpsertDto dto)
     {
-      if (dto.StartTime < DateTime.Now)
+      var utcStart = _timeConversions.ConvertToUtc(dto.StartTime);
+
+      if (utcStart < DateTime.UtcNow)
         return "A showtime cannot be scheduled in the past.";
 
-      if (dto.StartTime < DateTime.Now.AddHours(5))
+      if (utcStart < DateTime.UtcNow.AddHours(5))
         return "A showtime must be scheduled at least 5 hours from now.";
 
       var movie = await _uow.Movies.GetAsync(m => m.Id == dto.MovieId);
@@ -156,16 +159,16 @@ namespace Ticketa.Infrastructure.Service
       var hall = await _uow.Halls.GetAsync(h => h.Id == dto.HallId);
       if (hall is null) return "Hall not found.";
 
-      var endTime = dto.StartTime.AddMinutes((movie.RuntimeMinutes > 0 ? movie.RuntimeMinutes : 120) + BufferMinutes);
+      var endTime = utcStart.AddMinutes((movie.RuntimeMinutes > 0 ? movie.RuntimeMinutes : 120) + BufferMinutes);
 
-      if (await _uow.Showtimes.HasConflictAsync(dto.HallId, dto.StartTime, endTime))
+      if (await _uow.Showtimes.HasConflictAsync(dto.HallId, utcStart, endTime))
         return $"{hall.Name} already has a showtime during that slot.";
 
       await _uow.Showtimes.CreateAsync(new Showtime
       {
         MovieId = dto.MovieId,
         HallId = dto.HallId,
-        StartTime = dto.StartTime,
+        StartTime = utcStart,
         EndTime = endTime,
         Price = dto.Price,
         Status = ShowtimeStatus.Scheduled,
@@ -192,17 +195,19 @@ namespace Ticketa.Infrastructure.Service
         Id = showtime.Id,
         MovieId = showtime.MovieId,
         HallId = showtime.HallId,
-        StartTime = showtime.StartTime,
+        StartTime = _timeConversions.ConvertFromUtc(showtime.StartTime),
         Price = showtime.Price
       };
     }
 
     public async Task<string?> UpdateAsync(ShowtimeUpsertDto dto)
     {
-      if (dto.StartTime < DateTime.Now)
+      var utcStart = _timeConversions.ConvertToUtc(dto.StartTime);
+
+      if (utcStart < DateTime.UtcNow)
         return "A showtime cannot be scheduled in the past.";
 
-      if (dto.StartTime < DateTime.Now.AddHours(5))
+      if (utcStart < DateTime.UtcNow.AddHours(5))
         return "A showtime must be scheduled at least 5 hours from now.";
 
       var movie = await _uow.Movies.GetAsync(m => m.Id == dto.MovieId);
@@ -214,20 +219,20 @@ namespace Ticketa.Infrastructure.Service
       var showtime = await _uow.Showtimes.GetAsync(s => s.Id == dto.Id);
       if (showtime is null) return "Showtime not found.";
 
-      if (showtime.StartTime <= DateTime.Now.AddHours(5))
+      if (showtime.StartTime <= DateTime.UtcNow.AddHours(5))
         return "A showtime cannot be edited less than 5 hours before it starts.";
 
       if (showtime.Status == ShowtimeStatus.Completed)
         return "The showtime is already completed";
 
-      var endTime = dto.StartTime.AddMinutes((movie.RuntimeMinutes > 0 ? movie.RuntimeMinutes : 120) + BufferMinutes);
+      var endTime = utcStart.AddMinutes((movie.RuntimeMinutes > 0 ? movie.RuntimeMinutes : 120) + BufferMinutes);
 
-      if (await _uow.Showtimes.HasConflictAsync(dto.HallId, dto.StartTime, endTime, dto.Id))
+      if (await _uow.Showtimes.HasConflictAsync(dto.HallId, utcStart, endTime, dto.Id))
         return $"{hall.Name} already has a showtime during that slot.";
 
       showtime.MovieId = dto.MovieId;
       showtime.HallId = dto.HallId;
-      showtime.StartTime = dto.StartTime;
+      showtime.StartTime = utcStart;
       showtime.EndTime = endTime;
       showtime.Price = dto.Price;
 
@@ -285,7 +290,7 @@ namespace Ticketa.Infrastructure.Service
         MoviePosterPath = showtime.Movie.PosterPath,
         HallName = showtime.Hall.Name,
         HallType = showtime.Hall.Type.ToString(),
-        StartsAt = showtime.StartTime,
+        StartsAt = _timeConversions.EnsureUtcKind(showtime.StartTime),
         BasePrice = showtime.Price,
         Rows = template.Rows,
         SeatsPerRow = template.SeatsPerRow,

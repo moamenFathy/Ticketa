@@ -42,6 +42,7 @@ namespace Ticketa.Infrastructure.Extensions
       .AddDefaultTokenProviders();
 
       // Core services
+      services.AddSingleton<TimeConversions>();
       services.AddScoped<IUnitOfWork, UnitOfWork>();
       services.AddScoped<IMoviesService, MoviesService>();
       services.AddScoped<IShowtimeService, ShowtimeService>();
