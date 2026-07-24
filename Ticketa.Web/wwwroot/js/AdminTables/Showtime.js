@@ -338,7 +338,7 @@ if (dataTableElement) {
                                 </button>`;
 
                             const mapButton = `
-                                <button type="button" class="btn btn-square btn-outline btn-sm border-base-300 text-blue-500 hover:bg-blue-50 hover:border-base-400 tooltip" data-tip="View Hall Map" onclick="openModal('viewMapForm', '/hall/ViewMap/${st.hallId}', 'seat map')">
+                                <button type="button" class="btn btn-square btn-outline btn-sm border-base-300 text-blue-500 hover:bg-blue-50 hover:border-base-400 tooltip" data-tip="View Seat Map" onclick="openModal('viewMapForm', '/showtime/ViewSeatMap/${st.id}', 'seat map')">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 12h18"/><path d="M12 3v18"/></svg>
                                 </button>`;
 

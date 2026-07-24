@@ -82,6 +82,16 @@ namespace Ticketa.Web.Controllers
     }
 
     [HttpGet]
+    public async Task<IActionResult> ViewSeatMap(int id)
+    {
+      var seatMap = await _showtimeService.GetSeatMapAsync(id);
+      if (seatMap is null)
+        return NotFound();
+
+      return PartialView("_ViewHallMapModal", seatMap);
+    }
+
+    [HttpGet]
     [RequirePermission(Showtimes.Delete)]
     public async Task<IActionResult> DeleteConfirmation(int id)
     {
