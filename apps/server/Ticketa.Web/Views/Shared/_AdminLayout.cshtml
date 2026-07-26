@@ -42,6 +42,18 @@
                 </svg>
             </label>
 
+            <div class="dropdown dropdown-end">
+                <button tabindex="0" role="button" class="btn btn-ghost btn-circle relative" aria-label="Notifications">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                    <span id="notificationDot" class="hidden absolute top-0.5 right-0.5 size-2.5 rounded-full bg-red-500 animate-pulse"></span>
+                </button>
+                <div tabindex="-1" class="dropdown-content bg-base-100 rounded-box z-1 mt-3 w-80 p-2 shadow border border-base-200">
+                    <ul id="notificationList" class="max-h-96 overflow-y-auto">
+                        <li class="px-4 py-4 text-sm text-base-content/50 text-center">Loading...</li>
+                    </ul>
+                </div>
+            </div>
+
             @if (User.Identity?.IsAuthenticated == true)
             {
                 <div class="hidden lg:flex gap-3">
@@ -217,6 +229,74 @@
 
         drawerToggle.addEventListener("change", syncDrawerSwap);
         syncDrawerSwap();
+    </script>
+    <script>
+        var ls = window.localStorage;
+        var seenSoldOutIds = (function() {
+            try { return new Set(JSON.parse(ls.getItem('ticketaSeenSoldOutIds') || '[]').map(String)); }
+            catch (e) { return new Set(); }
+        })();
+        var lastSoldOutIds = [];
+
+        function saveSeenIds() {
+            try { ls.setItem('ticketaSeenSoldOutIds', JSON.stringify([...seenSoldOutIds])); } catch (e) {}
+        }
+
+        function updateNotifications(data) {
+            var soldOutIds = (data.soldOut || []).map(function(s) { return String(s.showtimeId); });
+            lastSoldOutIds = soldOutIds;
+
+            var hasUnseen = soldOutIds.some(function(id) { return !seenSoldOutIds.has(id); });
+            var dot = document.getElementById('notificationDot');
+            if (dot) dot.classList.toggle('hidden', !hasUnseen);
+
+            var list = document.getElementById('notificationList');
+            if (!list) return;
+
+            var icons = { soldOut: '\uD83D\uDCB0', running: '\uD83D\uDFE2', completed: '\u2705' };
+            var all = [];
+            (data.soldOut || []).forEach(function(s) { all.push(Object.assign({}, s, { _t: 'soldOut' })); });
+            (data.currentlyRunning || []).forEach(function(s) { all.push(Object.assign({}, s, { _t: 'running' })); });
+            (data.recentlyCompleted || []).forEach(function(s) { all.push(Object.assign({}, s, { _t: 'completed' })); });
+
+            all.sort(function(a, b) { return new Date(b.startTime) - new Date(a.startTime); });
+
+            var activeIds = {};
+            all.forEach(function(n) { activeIds[n.showtimeId] = true; });
+            var pruned = [];
+            seenSoldOutIds.forEach(function(id) { if (activeIds[id]) pruned.push(id); });
+            seenSoldOutIds = new Set(pruned);
+            saveSeenIds();
+
+            var html = '';
+            all.slice(0, 10).forEach(function(item) {
+                var extra = '';
+                if (item._t === 'completed') extra = new Date(item.archivedAt).toLocaleString();
+                html += '<li class="px-4 py-2 hover:bg-base-200 text-sm flex items-start gap-2"' + (item.showtimeId ? ' data-showtime-id="' + item.showtimeId + '"' : '') + '>' +
+                    '<span>' + icons[item._t] + '</span>' +
+                    '<div>' +
+                        '<p class="font-medium">' + item.movieTitle + '</p>' +
+                        '<p class="text-xs text-base-content/50">' + item.hallName + ' · ' + new Date(item.startTime).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) + (extra ? ' · ' + extra : '') + '</p>' +
+                    '</div>' +
+                '</li>';
+            });
+            list.innerHTML = html || '<li class="px-4 py-4 text-sm text-base-content/50 text-center">No notifications</li>';
+        }
+
+        document.querySelector('[aria-label="Notifications"]')?.addEventListener('focus', function() {
+            lastSoldOutIds.forEach(function(id) { seenSoldOutIds.add(id); });
+            saveSeenIds();
+            var dot = document.getElementById('notificationDot');
+            if (dot) dot.classList.add('hidden');
+        });
+
+        (function pollNotifications() {
+            fetch('/Dashboard/NotificationSummary')
+                .then(function(r) { return r.json(); })
+                .then(function(data) { updateNotifications(data); })
+                .catch(function() {});
+            setTimeout(pollNotifications, 15000);
+        })();
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
