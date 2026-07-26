@@ -3,6 +3,7 @@ using Stripe;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Infrastructure.Authorization;
+using Ticketa.Infrastructure.Data;
 using Ticketa.Infrastructure.Extensions;
 using Ticketa.Infrastructure.Service;
 
@@ -32,6 +33,9 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 });
 
 var app = builder.Build();
+
+// Seed Admin role with all current permissions
+await DbInitializer.SeedAdminPermissionsAsync(app.Services);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
