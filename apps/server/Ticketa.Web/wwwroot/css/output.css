@@ -3781,6 +3781,22 @@
       border-color: color-mix(in oklab, var(--color-white) 5%, transparent);
     }
   }
+  .menu-active {
+    :where(:not(ul, details, .menu-title, .btn))& {
+      @layer daisyui.l1.l2 {
+        --tw-outline-style: none;
+        outline-style: none;
+        @media (forced-colors: active) {
+          outline: 2px solid transparent;
+          outline-offset: 2px;
+        }
+        color: var(--menu-active-fg);
+        background-color: var(--menu-active-bg);
+        background-size: auto, calc(var(--noise) * 100%);
+        background-image: none, var(--fx-noise);
+      }
+    }
+  }
   .bg-\[\#1a1a1a\] {
     background-color: #1a1a1a;
   }
