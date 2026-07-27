@@ -96,10 +96,8 @@
             <div class="flex h-full flex-col items-start bg-base-200 is-drawer-close:w-14 is-drawer-open:w-64">
                 <!-- Sidebar content here -->
                 <ul class="menu w-full grow">
-                    <!-- List Dashboard item -->
                     <li>
-                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Homepage" asp-controller="Dashboard" asp-action="Index">
-                            <!-- Home icon -->
+                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "menu-active" : "")" data-tip="Homepage" asp-controller="Dashboard" asp-action="Index">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="my-1.5 inline-block size-4">
                                 <path d="M3 3v16a2 2 0 0 0 2 2h16" />
                                 <path d="M7 11.207a.5.5 0 0 1 .146-.353l2-2a.5.5 0 0 1 .708 0l3.292 3.292a.5.5 0 0 0 .708 0l4.292-4.292a.5.5 0 0 1 .854.353V16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1z" />
@@ -108,9 +106,8 @@
                         </a>
                     </li>
 
-                    <!-- List Payments item -->
                     <li>
-                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Payments" asp-controller="Payments" asp-action="Index">
+                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right @(ViewContext.RouteData.Values["controller"]?.ToString() == "Payments" ? "menu-active" : "")" data-tip="Payments" asp-controller="Payments" asp-action="Index">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="my-1.5 inline-block size-4">
                                 <rect width="20" height="12" x="2" y="6" rx="2" />
                                 <circle cx="12" cy="12" r="2" />
@@ -120,17 +117,15 @@
                         </a>
                     </li>
 
-                    <!-- List Movies item -->
                     <li>
-                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Movies" asp-controller="Movies" asp-action="Index">
+                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right @(ViewContext.RouteData.Values["controller"]?.ToString() == "Movies" ? "menu-active" : "")" data-tip="Movies" asp-controller="Movies" asp-action="Index">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="my-1.5 inline-block size-4"><path d="m12.296 3.464 3.02 3.956" /><path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3z" /><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="m6.18 5.276 3.1 3.899" /></svg>
                             <span class="is-drawer-close:hidden">Movies</span>
                         </a>
                     </li>
 
-                    <!-- List Showtimes item -->
                     <li>
-                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Showtimes" asp-controller="Showtime" asp-action="Index">
+                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right @(ViewContext.RouteData.Values["controller"]?.ToString() == "Showtime" ? "menu-active" : "")" data-tip="Showtimes" asp-controller="Showtime" asp-action="Index">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="my-1.5 inline-block size-4">
                                 <path d="M18 8a2 2 0 0 0 0-4 2 2 0 0 0-4 0 2 2 0 0 0-4 0 2 2 0 0 0-4 0 2 2 0 0 0 0 4" />
                                 <path d="M10 22 9 8" />
@@ -141,10 +136,8 @@
                         </a>
                     </li>
 
-                    <!-- List Hall item -->
                     <li>
-                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Halls" asp-controller="Hall" asp-action="Index">
-                            <!-- Hall icon -->
+                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right @(ViewContext.RouteData.Values["controller"]?.ToString() == "Hall" ? "menu-active" : "")" data-tip="Halls" asp-controller="Hall" asp-action="Index">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="my-1.5 inline-block size-4">
                                 <path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3" />
                                 <path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z" />
@@ -155,9 +148,8 @@
                         </a>
                     </li>
 
-                    <!-- List Users item -->
                     <li>
-                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Users" asp-controller="AdminUserManagement" asp-action="Index">
+                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right @(ViewContext.RouteData.Values["controller"]?.ToString() == "AdminUserManagement" ? "menu-active" : "")" data-tip="Users" asp-controller="AdminUserManagement" asp-action="Index">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="my-1.5 inline-block size-4">
                                 <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
                                 <circle cx="9" cy="7" r="4" />
@@ -168,9 +160,8 @@
                         </a>
                     </li>
 
-                    <!-- List Roles item -->
                     <li>
-                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Roles" asp-controller="Role" asp-action="Index">
+                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right @(ViewContext.RouteData.Values["controller"]?.ToString() == "Role" ? "menu-active" : "")" data-tip="Roles" asp-controller="Role" asp-action="Index">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="my-1.5 inline-block size-4">
                                 <path d="M12 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" />
                                 <path d="M6.8 17a3.5 3.5 0 0 1 3.5-3.5h3.4a3.5 3.5 0 0 1 3.5 3.5" />
