@@ -4,10 +4,10 @@
         <div class="flex items-center justify-between border-b border-base-300 pb-3">
             <h2 class="card-title">Showtimes</h2>
             <div class="flex items-center gap-2">
-                <div class="msf-track" id="viewToggle" role="tablist">
-                    <span class="msf-pill" aria-hidden="true"></span>
-                    <button type="button" class="msf-btn is-active" role="tab" aria-selected="true" data-view="table">Table</button>
-                    <button type="button" class="msf-btn" role="tab" aria-selected="false" data-view="timeline">Timeline</button>
+                <div class="tl-view-tabs" id="viewToggle" role="tablist">
+                    <button type="button" class="tl-view-tab is-active" role="tab" aria-selected="true" data-view="table">Table</button>
+                    <button type="button" class="tl-view-tab" role="tab" aria-selected="false" data-view="timeline">Timeline</button>
+                    <div class="tl-view-underline" aria-hidden="true"></div>
                 </div>
                 <button onclick="openModal('createForm', '/showtime/upsert')" class="btn btn-primary">Create New +</button>
             </div>
@@ -93,9 +93,9 @@
     <script type="module">
         import { renderTimeline, enterEditMode, exitEditMode, setOnSave } from '/js/showtime-timeline.js';
 
-        const toggleBtns = document.querySelectorAll('#viewToggle .msf-btn');
+        const toggleBtns = document.querySelectorAll('#viewToggle .tl-view-tab');
         const toggleTrack = document.getElementById('viewToggle');
-        const togglePill = toggleTrack?.querySelector('.msf-pill');
+        const toggleUnderline = toggleTrack?.querySelector('.tl-view-underline');
         const tableView = document.getElementById('tableView');
         const timelineView = document.getElementById('timelineView');
         const dataTableEl = document.getElementById('DataTable');
@@ -119,10 +119,10 @@
 
         async function switchView(view) {
             toggleBtns.forEach(b => b.classList.toggle('is-active', b.dataset.view === view));
-            const active = toggleTrack?.querySelector('.msf-btn.is-active');
-            if (togglePill && active) {
-                togglePill.style.width = `${active.offsetWidth}px`;
-                togglePill.style.transform = `translateX(${active.offsetLeft}px)`;
+            const active = toggleTrack?.querySelector('.tl-view-tab.is-active');
+            if (toggleUnderline && active) {
+                toggleUnderline.style.width = `${active.offsetWidth}px`;
+                toggleUnderline.style.left = `${active.offsetLeft}px`;
             }
 
             if (view === 'table') {
@@ -230,31 +230,31 @@
             btn.addEventListener('click', () => switchView(btn.dataset.view));
         });
 
-        function initViewTogglePill() {
-            if (!togglePill || !toggleTrack) return;
-            const active = toggleTrack.querySelector('.msf-btn.is-active');
+        function initViewToggle() {
+            if (!toggleUnderline || !toggleTrack) return;
+            const active = toggleTrack.querySelector('.tl-view-tab.is-active');
             if (active) {
-                togglePill.style.width = `${active.offsetWidth}px`;
-                togglePill.style.transform = `translateX(${active.offsetLeft}px)`;
+                toggleUnderline.style.width = `${active.offsetWidth}px`;
+                toggleUnderline.style.left = `${active.offsetLeft}px`;
             }
             toggleBtns.forEach(item => {
                 item.addEventListener('mouseenter', () => {
-                    togglePill.style.width = `${item.offsetWidth}px`;
-                    togglePill.style.transform = `translateX(${item.offsetLeft}px)`;
+                    toggleUnderline.style.width = `${item.offsetWidth}px`;
+                    toggleUnderline.style.left = `${item.offsetLeft}px`;
                 });
                 item.addEventListener('focus', () => {
-                    togglePill.style.width = `${item.offsetWidth}px`;
-                    togglePill.style.transform = `translateX(${item.offsetLeft}px)`;
+                    toggleUnderline.style.width = `${item.offsetWidth}px`;
+                    toggleUnderline.style.left = `${item.offsetLeft}px`;
                 });
             });
             toggleTrack.addEventListener('mouseleave', () => {
-                const activeBtn = toggleTrack.querySelector('.msf-btn.is-active');
+                const activeBtn = toggleTrack.querySelector('.tl-view-tab.is-active');
                 if (activeBtn) {
-                    togglePill.style.width = `${activeBtn.offsetWidth}px`;
-                    togglePill.style.transform = `translateX(${activeBtn.offsetLeft}px)`;
+                    toggleUnderline.style.width = `${activeBtn.offsetWidth}px`;
+                    toggleUnderline.style.left = `${activeBtn.offsetLeft}px`;
                 }
             });
         }
-        initViewTogglePill();
+        initViewToggle();
     </script>
 }
