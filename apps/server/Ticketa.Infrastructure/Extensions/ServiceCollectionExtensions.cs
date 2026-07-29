@@ -70,6 +70,10 @@ namespace Ticketa.Infrastructure.Extensions
           policy.WaitAndRetryAsync(3, retryAttempt =>
               TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
 
+      // Dashboard + Notifications
+      services.AddScoped<IDashboardService, DashboardService>();
+      services.AddScoped<INotificationService, NotificationService>();
+
       // Background services
       services.AddHostedService<ShowtimeCompletionService>();
 
