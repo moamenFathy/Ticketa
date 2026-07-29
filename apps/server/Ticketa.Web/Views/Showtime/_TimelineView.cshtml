@@ -1,0 +1,37 @@
+@{
+    var today = DateOnly.FromDateTime(DateTime.UtcNow);
+}
+
+<div class="space-y-4">
+    <div class="flex items-center gap-3">
+        <label class="text-sm font-medium">Date</label>
+        <input type="date" id="timelineDate"
+               class="input input-bordered input-sm w-44"
+               value="@today.ToString("yyyy-MM-dd")" />
+    </div>
+    <div id="timelineContainer" class="bg-base-100 rounded-box border border-base-300 shadow-sm p-4">
+        <div class="timeline-empty">Loading...</div>
+    </div>
+</div>
+
+<script type="module">
+    import { renderTimeline } from '/js/showtime-timeline.js';
+
+    const container = document.getElementById('timelineContainer');
+    const dateInput = document.getElementById('timelineDate');
+
+    async function loadTimeline(dateStr) {
+        container.innerHTML = '<div class="timeline-empty">Loading...</div>';
+        try {
+            const res = await fetch(`/Showtime/GetByDate?date=${encodeURIComponent(dateStr)}`);
+            if (!res.ok) throw new Error('Failed to load');
+            const data = await res.json();
+            renderTimeline(container, data, dateStr);
+        } catch {
+            container.innerHTML = '<div class="timeline-empty text-error">Failed to load timeline.</div>';
+        }
+    }
+
+    loadTimeline(dateInput.value);
+    dateInput.addEventListener('change', () => loadTimeline(dateInput.value));
+</script>
