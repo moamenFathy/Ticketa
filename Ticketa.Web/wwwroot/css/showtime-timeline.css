@@ -1,9 +1,9 @@
 .timeline-wrapper {
   --tl-hall-label: 140px;
-  --tl-hour-width: 90px;
+  --tl-hour-width: 70px;
   --tl-row-height: 68px;
-  --tl-hours-start: 8;
-  --tl-hours-end: 23;
+  --tl-hours-start: 0;
+  --tl-hours-end: 24;
   --tl-total-hours: calc(var(--tl-hours-end) - var(--tl-hours-start));
   user-select: none;
   position: relative;
@@ -355,7 +355,7 @@
 .tl-picker {
   position: absolute;
   z-index: 50;
-  background: var(--fallback-b1, oklch(var(--b1)));
+  background-color: white;
   border: 1px solid var(--fallback-b2, oklch(var(--b2)));
   border-radius: 8px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.15);
