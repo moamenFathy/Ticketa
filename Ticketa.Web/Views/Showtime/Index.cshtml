@@ -4,11 +4,16 @@
         <div class="flex items-center justify-between border-b border-base-300 pb-3">
             <h2 class="card-title">Showtimes</h2>
             <div class="flex items-center gap-2">
+                <div class="msf-track" id="viewToggle" role="tablist">
+                    <span class="msf-pill" aria-hidden="true"></span>
+                    <button type="button" class="msf-btn is-active" role="tab" aria-selected="true" data-view="table">Table</button>
+                    <button type="button" class="msf-btn" role="tab" aria-selected="false" data-view="timeline">Timeline</button>
+                </div>
                 <button onclick="openModal('createForm', '/showtime/upsert')" class="btn btn-primary">Create New +</button>
             </div>
         </div>
 
-        <div class="">
+        <div id="tableView">
             <table id="DataTable" class="w-full border-separate border-spacing-y-4">
                 <thead class="hidden">
                     <tr>
@@ -17,6 +22,9 @@
                 </thead>
                 <tbody></tbody>
             </table>
+        </div>
+
+        <div id="timelineView" class="hidden">
         </div>
     </div>
 </div>
@@ -70,6 +78,10 @@
 
 @Html.AntiForgeryToken()
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/showtime-timeline.css" asp-append-version="true" />
+}
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
@@ -78,4 +90,171 @@
         ).value;
     </script>
     <script type="module" src="~/js/AdminTables/Showtime.js" asp-append-version="true"></script>
+    <script type="module">
+        import { renderTimeline, enterEditMode, exitEditMode, setOnSave } from '/js/showtime-timeline.js';
+
+        const toggleBtns = document.querySelectorAll('#viewToggle .msf-btn');
+        const toggleTrack = document.getElementById('viewToggle');
+        const togglePill = toggleTrack?.querySelector('.msf-pill');
+        const tableView = document.getElementById('tableView');
+        const timelineView = document.getElementById('timelineView');
+        const dataTableEl = document.getElementById('DataTable');
+        let timelineLoaded = false;
+
+        async function loadTimeline(dateStr, container) {
+            container.innerHTML = '<div class="timeline-empty">Loading...</div>';
+            try {
+                const res = await fetch(`/Showtime/GetByDate?date=${encodeURIComponent(dateStr)}`);
+                if (!res.ok) throw new Error('Failed');
+                const data = await res.json();
+                renderTimeline(container, data, dateStr);
+            } catch {
+                container.innerHTML = '<div class="timeline-empty text-error">Failed to load timeline.</div>';
+            }
+        }
+
+        function getEditModeContainer() {
+            return document.getElementById('timelineContainer');
+        }
+
+        async function switchView(view) {
+            toggleBtns.forEach(b => b.classList.toggle('is-active', b.dataset.view === view));
+            const active = toggleTrack?.querySelector('.msf-btn.is-active');
+            if (togglePill && active) {
+                togglePill.style.width = `${active.offsetWidth}px`;
+                togglePill.style.transform = `translateX(${active.offsetLeft}px)`;
+            }
+
+            if (view === 'table') {
+                tableView.classList.remove('hidden');
+                timelineView.classList.add('hidden');
+                if (dataTableEl && window.$ && window.$.fn.dataTable.isDataTable('#DataTable')) {
+                    const api = window.$('#DataTable').DataTable();
+                    api.columns.adjust().responsive.recalc();
+                }
+            } else {
+                tableView.classList.add('hidden');
+                timelineView.classList.remove('hidden');
+
+                if (!timelineLoaded) {
+                    timelineView.innerHTML = `
+                        <div class="space-y-4">
+                            <div class="flex flex-wrap items-center gap-3">
+                                <label class="text-sm font-medium">Date</label>
+                                <input type="date" id="timelineDate" class="input input-bordered input-sm w-44"
+                                       value="${(() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); })()}" />
+                                <div class="flex-1"></div>
+                                <div id="editModeBar" class="flex items-center gap-2 hidden">
+                                    <span class="text-xs text-base-content/50">Drag bars to reorder, click + to add, ✕ to delete</span>
+                                    <button id="saveBtn" class="btn btn-sm btn-success">Save</button>
+                                    <button id="cancelBtn" class="btn btn-sm btn-ghost border border-base-300">Cancel</button>
+                                </div>
+                                <button id="editBtn" class="btn btn-sm btn-outline">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+                                    Edit
+                                </button>
+                            </div>
+                            <div id="timelineContainer" class="bg-base-100 rounded-box border border-base-300 shadow-sm p-4">
+                                <div class="timeline-empty">Loading...</div>
+                            </div>
+                        </div>`;
+
+                    const container = document.getElementById('timelineContainer');
+                    const dateInput = document.getElementById('timelineDate');
+                    const editBtn = document.getElementById('editBtn');
+                    const saveBtn = document.getElementById('saveBtn');
+                    const cancelBtn = document.getElementById('cancelBtn');
+                    const editModeBar = document.getElementById('editModeBar');
+                    const editSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>';
+
+                    function setEditBtnText(text) {
+                        editBtn.innerHTML = editSvg + ' ' + text;
+                    }
+
+                    function isEditBtnEdit() {
+                        return !editBtn.classList.contains('btn-warning');
+                    }
+
+                    setOnSave((dateStr) => {
+                        setEditBtnText('Edit');
+                        editBtn.classList.add('btn-outline');
+                        editBtn.classList.remove('btn-warning');
+                        editBtn.disabled = false;
+                        editModeBar.classList.add('hidden');
+                        timelineLoaded = false;
+                        loadTimeline(dateStr, container);
+                    });
+
+                    editBtn.addEventListener('click', () => {
+                        if (isEditBtnEdit()) {
+                            enterEditMode(container);
+                            setEditBtnText('Exit Edit');
+                            editBtn.classList.remove('btn-outline');
+                            editBtn.classList.add('btn-warning');
+                            editModeBar.classList.remove('hidden');
+                        } else {
+                            exitEditMode(container);
+                            setEditBtnText('Edit');
+                            editBtn.classList.add('btn-outline');
+                            editBtn.classList.remove('btn-warning');
+                            editModeBar.classList.add('hidden');
+                        }
+                    });
+
+                    saveBtn.addEventListener('click', () => {
+                        import('/js/showtime-timeline.js').then(mod => {
+                            const wrapper = container.querySelector('.timeline-wrapper');
+                            if (wrapper) {
+                                const dateStr = dateInput.value;
+                                mod.saveChanges(wrapper, dateStr);
+                            }
+                        });
+                    });
+
+                    cancelBtn.addEventListener('click', () => {
+                        exitEditMode(container);
+                        setEditBtnText('Edit');
+                        editBtn.classList.add('btn-outline');
+                        editBtn.classList.remove('btn-warning');
+                        editModeBar.classList.add('hidden');
+                    });
+
+                    loadTimeline(dateInput.value, container);
+                    dateInput.addEventListener('change', () => loadTimeline(dateInput.value, container));
+                    timelineLoaded = true;
+                }
+            }
+        }
+
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', () => switchView(btn.dataset.view));
+        });
+
+        function initViewTogglePill() {
+            if (!togglePill || !toggleTrack) return;
+            const active = toggleTrack.querySelector('.msf-btn.is-active');
+            if (active) {
+                togglePill.style.width = `${active.offsetWidth}px`;
+                togglePill.style.transform = `translateX(${active.offsetLeft}px)`;
+            }
+            toggleBtns.forEach(item => {
+                item.addEventListener('mouseenter', () => {
+                    togglePill.style.width = `${item.offsetWidth}px`;
+                    togglePill.style.transform = `translateX(${item.offsetLeft}px)`;
+                });
+                item.addEventListener('focus', () => {
+                    togglePill.style.width = `${item.offsetWidth}px`;
+                    togglePill.style.transform = `translateX(${item.offsetLeft}px)`;
+                });
+            });
+            toggleTrack.addEventListener('mouseleave', () => {
+                const activeBtn = toggleTrack.querySelector('.msf-btn.is-active');
+                if (activeBtn) {
+                    togglePill.style.width = `${activeBtn.offsetWidth}px`;
+                    togglePill.style.transform = `translateX(${activeBtn.offsetLeft}px)`;
+                }
+            });
+        }
+        initViewTogglePill();
+    </script>
 }
