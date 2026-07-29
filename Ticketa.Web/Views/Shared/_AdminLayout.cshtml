@@ -42,6 +42,18 @@
                 </svg>
             </label>
 
+            <div class="dropdown dropdown-end">
+                <button tabindex="0" role="button" class="btn btn-ghost btn-circle relative" aria-label="Notifications">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                    <span id="notificationDot" class="hidden absolute top-0.5 right-0.5 size-2.5 rounded-full bg-red-500 animate-pulse"></span>
+                </button>
+                <div tabindex="-1" class="dropdown-content bg-base-100 rounded-box z-1 mt-3 w-80 p-2 shadow border border-base-200">
+                    <ul id="notificationList" class="max-h-96 overflow-y-auto">
+                        <li class="px-4 py-4 text-sm text-base-content/50 text-center">Loading...</li>
+                    </ul>
+                </div>
+            </div>
+
             @if (User.Identity?.IsAuthenticated == true)
             {
                 <div class="hidden lg:flex gap-3">
@@ -84,10 +96,8 @@
             <div class="flex h-full flex-col items-start bg-base-200 is-drawer-close:w-14 is-drawer-open:w-64">
                 <!-- Sidebar content here -->
                 <ul class="menu w-full grow">
-                    <!-- List Dashboard item -->
                     <li>
-                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Homepage" asp-controller="Dashboard" asp-action="Index">
-                            <!-- Home icon -->
+                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "menu-active font-bold" : "")" data-tip="Homepage" asp-controller="Dashboard" asp-action="Index">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="my-1.5 inline-block size-4">
                                 <path d="M3 3v16a2 2 0 0 0 2 2h16" />
                                 <path d="M7 11.207a.5.5 0 0 1 .146-.353l2-2a.5.5 0 0 1 .708 0l3.292 3.292a.5.5 0 0 0 .708 0l4.292-4.292a.5.5 0 0 1 .854.353V16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1z" />
@@ -96,9 +106,8 @@
                         </a>
                     </li>
 
-                    <!-- List Payments item -->
                     <li>
-                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Payments" asp-controller="Payments" asp-action="Index">
+                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right @(ViewContext.RouteData.Values["controller"]?.ToString() == "Payments" ? "menu-active font-bold" : "")" data-tip="Payments" asp-controller="Payments" asp-action="Index">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="my-1.5 inline-block size-4">
                                 <rect width="20" height="12" x="2" y="6" rx="2" />
                                 <circle cx="12" cy="12" r="2" />
@@ -108,17 +117,15 @@
                         </a>
                     </li>
 
-                    <!-- List Movies item -->
                     <li>
-                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Movies" asp-controller="Movies" asp-action="Index">
+                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right @(ViewContext.RouteData.Values["controller"]?.ToString() == "Movies" ? "menu-active font-bold" : "")" data-tip="Movies" asp-controller="Movies" asp-action="Index">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="my-1.5 inline-block size-4"><path d="m12.296 3.464 3.02 3.956" /><path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3z" /><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="m6.18 5.276 3.1 3.899" /></svg>
                             <span class="is-drawer-close:hidden">Movies</span>
                         </a>
                     </li>
 
-                    <!-- List Showtimes item -->
                     <li>
-                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Showtimes" asp-controller="Showtime" asp-action="Index">
+                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right @(ViewContext.RouteData.Values["controller"]?.ToString() == "Showtime" ? "menu-active font-bold" : "")" data-tip="Showtimes" asp-controller="Showtime" asp-action="Index">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="my-1.5 inline-block size-4">
                                 <path d="M18 8a2 2 0 0 0 0-4 2 2 0 0 0-4 0 2 2 0 0 0-4 0 2 2 0 0 0-4 0 2 2 0 0 0 0 4" />
                                 <path d="M10 22 9 8" />
@@ -129,10 +136,8 @@
                         </a>
                     </li>
 
-                    <!-- List Hall item -->
                     <li>
-                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Halls" asp-controller="Hall" asp-action="Index">
-                            <!-- Hall icon -->
+                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right @(ViewContext.RouteData.Values["controller"]?.ToString() == "Hall" ? "menu-active font-bold" : "")" data-tip="Halls" asp-controller="Hall" asp-action="Index">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="my-1.5 inline-block size-4">
                                 <path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3" />
                                 <path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z" />
@@ -143,9 +148,8 @@
                         </a>
                     </li>
 
-                    <!-- List Users item -->
                     <li>
-                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Users" asp-controller="AdminUserManagement" asp-action="Index">
+                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right @(ViewContext.RouteData.Values["controller"]?.ToString() == "AdminUserManagement" ? "menu-active font-bold" : "")" data-tip="Users" asp-controller="AdminUserManagement" asp-action="Index">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="my-1.5 inline-block size-4">
                                 <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
                                 <circle cx="9" cy="7" r="4" />
@@ -156,9 +160,8 @@
                         </a>
                     </li>
 
-                    <!-- List Roles item -->
                     <li>
-                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Roles" asp-controller="Role" asp-action="Index">
+                        <a class="is-drawer-close:tooltip is-drawer-close:tooltip-right @(ViewContext.RouteData.Values["controller"]?.ToString() == "Role" ? "menu-active font-bold" : "")" data-tip="Roles" asp-controller="Role" asp-action="Index">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor" class="my-1.5 inline-block size-4">
                                 <path d="M12 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" />
                                 <path d="M6.8 17a3.5 3.5 0 0 1 3.5-3.5h3.4a3.5 3.5 0 0 1 3.5 3.5" />
@@ -217,6 +220,74 @@
 
         drawerToggle.addEventListener("change", syncDrawerSwap);
         syncDrawerSwap();
+    </script>
+    <script>
+        var ls = window.localStorage;
+        var seenSoldOutIds = (function() {
+            try { return new Set(JSON.parse(ls.getItem('ticketaSeenSoldOutIds') || '[]').map(String)); }
+            catch (e) { return new Set(); }
+        })();
+        var lastSoldOutIds = [];
+
+        function saveSeenIds() {
+            try { ls.setItem('ticketaSeenSoldOutIds', JSON.stringify([...seenSoldOutIds])); } catch (e) {}
+        }
+
+        function updateNotifications(data) {
+            var soldOutIds = (data.soldOut || []).map(function(s) { return String(s.showtimeId); });
+            lastSoldOutIds = soldOutIds;
+
+            var hasUnseen = soldOutIds.some(function(id) { return !seenSoldOutIds.has(id); });
+            var dot = document.getElementById('notificationDot');
+            if (dot) dot.classList.toggle('hidden', !hasUnseen);
+
+            var list = document.getElementById('notificationList');
+            if (!list) return;
+
+            var icons = { soldOut: '\uD83D\uDCB0', running: '\uD83D\uDFE2', completed: '\u2705' };
+            var all = [];
+            (data.soldOut || []).forEach(function(s) { all.push(Object.assign({}, s, { _t: 'soldOut' })); });
+            (data.currentlyRunning || []).forEach(function(s) { all.push(Object.assign({}, s, { _t: 'running' })); });
+            (data.recentlyCompleted || []).forEach(function(s) { all.push(Object.assign({}, s, { _t: 'completed' })); });
+
+            all.sort(function(a, b) { return new Date(b.startTime) - new Date(a.startTime); });
+
+            var activeIds = {};
+            all.forEach(function(n) { activeIds[n.showtimeId] = true; });
+            var pruned = [];
+            seenSoldOutIds.forEach(function(id) { if (activeIds[id]) pruned.push(id); });
+            seenSoldOutIds = new Set(pruned);
+            saveSeenIds();
+
+            var html = '';
+            all.slice(0, 10).forEach(function(item) {
+                var extra = '';
+                if (item._t === 'completed') extra = new Date(item.archivedAt).toLocaleString();
+                html += '<li class="px-4 py-2 hover:bg-base-200 text-sm flex items-start gap-2"' + (item.showtimeId ? ' data-showtime-id="' + item.showtimeId + '"' : '') + '>' +
+                    '<span>' + icons[item._t] + '</span>' +
+                    '<div>' +
+                        '<p class="font-medium">' + item.movieTitle + '</p>' +
+                        '<p class="text-xs text-base-content/50">' + item.hallName + ' · ' + new Date(item.startTime).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) + (extra ? ' · ' + extra : '') + '</p>' +
+                    '</div>' +
+                '</li>';
+            });
+            list.innerHTML = html || '<li class="px-4 py-4 text-sm text-base-content/50 text-center">No notifications</li>';
+        }
+
+        document.querySelector('[aria-label="Notifications"]')?.addEventListener('focus', function() {
+            lastSoldOutIds.forEach(function(id) { seenSoldOutIds.add(id); });
+            saveSeenIds();
+            var dot = document.getElementById('notificationDot');
+            if (dot) dot.classList.add('hidden');
+        });
+
+        (function pollNotifications() {
+            fetch('/Dashboard/NotificationSummary')
+                .then(function(r) { return r.json(); })
+                .then(function(data) { updateNotifications(data); })
+                .catch(function() {});
+            setTimeout(pollNotifications, 15000);
+        })();
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

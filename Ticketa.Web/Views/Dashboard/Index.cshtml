@@ -1,6 +1,330 @@
-﻿
+﻿@model Ticketa.Core.DTOs.Dashboard.DashboardSummaryDto
+@using Ticketa.Core.Enums
+
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Dashboard";
+    var currencyFormat = new System.Globalization.CultureInfo("en-US");
 }
 
-<h1>Index</h1>
+<div class="space-y-6">
+    <h1 class="text-2xl font-bold">Dashboard</h1>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="stat bg-base-100 rounded-box shadow-sm border border-base-200">
+            <div class="stat-figure text-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div class="stat-title">Revenue (30 days)</div>
+            <div class="stat-value text-success" id="statRevenue">@Model.Revenue30Days.ToString("C0", currencyFormat)</div>
+            <div class="stat-desc"><span id="statRevenueDays">@Model.RevenueTrend.Count</span> days of data</div>
+        </div>
+
+        <div class="stat bg-base-100 rounded-box shadow-sm border border-base-200">
+            <div class="stat-figure text-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-8"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>
+            </div>
+            <div class="stat-title">Bookings Today</div>
+            <div class="stat-value text-primary" id="statBookingsToday">@Model.BookingsToday</div>
+            <div class="stat-desc"><span id="statBookingsWeek">@Model.BookingsThisWeek</span> this week</div>
+        </div>
+
+        <div class="stat bg-base-100 rounded-box shadow-sm border border-base-200">
+            <div class="stat-figure text-warning">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-8"><path d="M2 9a3 3 0 1 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 1 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M9 9h.01"/><path d="m15 9-6 6"/><path d="M15 15h.01"/></svg>
+            </div>
+            <div class="stat-title">Sold Out</div>
+            <div class="stat-value text-warning" id="statSoldOut">@Model.SoldOutShowtimeCount</div>
+            <div class="stat-desc">showtimes sold out</div>
+        </div>
+
+        <div class="stat bg-base-100 rounded-box shadow-sm border border-base-200">
+            <div class="stat-figure text-info">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-8"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+            </div>
+            <div class="stat-title">Occupancy</div>
+            <div class="stat-value text-info" id="statOccupancy">@Model.AverageOccupancyPercent%</div>
+            <div class="stat-desc">avg seats filled</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div class="xl:col-span-2 bg-base-100 rounded-box shadow-sm border border-base-200 p-4">
+            <h2 class="text-lg font-semibold mb-4">Revenue Trend (30 days)</h2>
+            <div class="relative h-64">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-base-100 rounded-box shadow-sm border border-base-200 p-4">
+            <h2 class="text-lg font-semibold mb-4">Top Movies</h2>
+            <div id="topMoviesList">
+            @if (Model.TopMovies.Count == 0)
+            {
+                <p class="text-base-content/50 text-sm">No data yet.</p>
+            }
+            else
+            {
+                <div class="space-y-3">
+                    @foreach (var movie in Model.TopMovies.Select((m, i) => new { m, i }))
+                    {
+                        <div class="flex items-center gap-3">
+                            <span class="text-lg font-bold text-base-content/30 w-6">@(movie.i + 1)</span>
+                            @if (!string.IsNullOrEmpty(movie.m.PosterPath))
+                            {
+                                <img src="https://image.tmdb.org/t/p/w92@(movie.m.PosterPath)" alt="@movie.m.Title" class="size-10 rounded object-cover" />
+                            }
+                            else
+                            {
+                                <div class="size-10 rounded bg-base-300 flex items-center justify-center text-xs text-base-content/50">N/A</div>
+                            }
+                            <div class="flex-1 min-w-0">
+                                <p class="truncate font-medium text-sm">@movie.m.Title</p>
+                                <p class="text-xs text-base-content/50">@movie.m.BookingCount bookings</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+        </div>
+    </div>
+
+    <div class="bg-base-100 rounded-box shadow-sm border border-base-200 p-4">
+        <h2 class="text-lg font-semibold mb-4">Today's Showtimes</h2>
+        @if (Model.TodayShowtimes.Count == 0)
+        {
+            <p class="text-base-content/50 text-sm">No showtimes scheduled for today.</p>
+        }
+        else
+        {
+            <div class="overflow-x-auto">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Movie</th>
+                            <th>Hall</th>
+                            <th>Status</th>
+                            <th>Seats</th>
+                            <th>Occupancy</th>
+                        </tr>
+                    </thead>
+                    <tbody id="todayShowtimesBody">
+                        @foreach (var st in Model.TodayShowtimes)
+                        {
+                            var isRunning = st.Status == ShowtimeStatus.Scheduled && st.StartTime <= DateTime.UtcNow && st.EndTime > DateTime.UtcNow;
+                            var statusLabel = isRunning ? "Running"
+                                : st.Status == ShowtimeStatus.SoldOut ? "Sold Out"
+                                : st.Status == ShowtimeStatus.Completed ? "Completed"
+                                : st.Status == ShowtimeStatus.Scheduled ? "Scheduled"
+                                : st.Status.ToString();
+
+                            var statusClass = isRunning ? "badge-success"
+                                : st.Status == ShowtimeStatus.SoldOut ? "badge-warning"
+                                : st.Status == ShowtimeStatus.Completed ? "badge-ghost"
+                                : "badge-info";
+
+                            var widthPercent = Math.Min(st.OccupancyPercent, 100);
+
+                            <tr>
+                                <td class="whitespace-nowrap">
+                                    @st.StartTime.ToLocalTime().ToString("HH:mm") – @st.EndTime.ToLocalTime().ToString("HH:mm")
+                                </td>
+                                <td class="font-medium">@st.MovieTitle</td>
+                                <td>@st.HallName</td>
+                                <td><span class="badge @statusClass badge-sm">@statusLabel</span></td>
+                                <td>@st.BookedSeats / @st.VisibleSeats</td>
+                                <td>
+                                    <div class="flex items-center gap-2">
+                                        <progress class="progress w-20 @(st.OccupancyPercent >= 90 ? "progress-error" : st.OccupancyPercent >= 70 ? "progress-warning" : "progress-success")" value="@st.OccupancyPercent" max="100"></progress>
+                                        <span class="text-xs">@st.OccupancyPercent%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    <div class="bg-base-100 rounded-box shadow-sm border border-base-200 p-4">
+        <h2 class="text-lg font-semibold mb-4">Recent Activity</h2>
+        @if (Model.RecentActivity.Count == 0)
+        {
+            <p class="text-base-content/50 text-sm">No recent activity.</p>
+        }
+        else
+        {
+            <div class="overflow-x-auto">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentActivityBody">
+                        @foreach (var activity in Model.RecentActivity)
+                        {
+                            <tr>
+                                <td>
+                                    @if (activity.Type == "Refund")
+                                    {
+                                        <span class="badge badge-error badge-sm">Refund</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-success badge-sm">Payment</span>
+                                    }
+                                </td>
+                                <td>@activity.Description</td>
+                                <td>@(activity.Amount?.ToString("C0", currencyFormat) ?? "—")</td>
+                                <td class="text-base-content/50 text-sm">@activity.Timestamp.ToLocalTime().ToString("g")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .stat-value { font-size: 2rem; }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script>
+        const currencyFmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 });
+
+        const trendData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueTrend, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+        const chartCtx = document.getElementById('revenueChart').getContext('2d');
+
+        window.revenueChart = new Chart(chartCtx, {
+            type: 'line',
+            data: {
+                labels: trendData.map(d => d.date),
+                datasets: [{
+                    label: 'Revenue',
+                    data: trendData.map(d => d.amount),
+                    borderColor: '#22c55e',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 3,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { callback: v => '$' + Number(v).toLocaleString() }
+                    }
+                }
+            }
+        });
+
+        function renderTodayShowtimes(showtimes) {
+            if (!showtimes || showtimes.length === 0) return '';
+            const now = new Date();
+            return showtimes.map(st => {
+                const start = new Date(st.startTime);
+                const end = new Date(st.endTime);
+                const isRunning = st.status === 0 && start <= now && end > now;
+                const label = isRunning ? 'Running' : st.status === 1 ? 'Sold Out' : st.status === 2 ? 'Completed' : 'Scheduled';
+                const cls = isRunning ? 'badge-success' : st.status === 1 ? 'badge-warning' : st.status === 2 ? 'badge-ghost' : 'badge-info';
+                const pcls = st.occupancyPercent >= 90 ? 'progress-error' : st.occupancyPercent >= 70 ? 'progress-warning' : 'progress-success';
+                return `<tr>
+                    <td class="whitespace-nowrap">${start.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} – ${end.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</td>
+                    <td class="font-medium">${st.movieTitle}</td>
+                    <td>${st.hallName}</td>
+                    <td><span class="badge ${cls} badge-sm">${label}</span></td>
+                    <td>${st.bookedSeats} / ${st.visibleSeats}</td>
+                    <td><div class="flex items-center gap-2"><progress class="progress w-20 ${pcls}" value="${st.occupancyPercent}" max="100"></progress><span class="text-xs">${st.occupancyPercent}%</span></div></td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderTopMovies(movies) {
+            if (!movies || movies.length === 0) return '<p class="text-base-content/50 text-sm">No data yet.</p>';
+            let html = '<div class="space-y-3">';
+            movies.forEach((m, i) => {
+                html += `<div class="flex items-center gap-3">
+                    <span class="text-lg font-bold text-base-content/30 w-6">${i + 1}</span>
+                    ${m.posterPath ? `<img src="https://image.tmdb.org/t/p/w92${m.posterPath}" alt="${m.title}" class="size-10 rounded object-cover" />` : `<div class="size-10 rounded bg-base-300 flex items-center justify-center text-xs text-base-content/50">N/A</div>`}
+                    <div class="flex-1 min-w-0">
+                        <p class="truncate font-medium text-sm">${m.title}</p>
+                        <p class="text-xs text-base-content/50">${m.bookingCount} bookings</p>
+                    </div>
+                </div>`;
+            });
+            return html + '</div>';
+        }
+
+        function renderRecentActivity(activities) {
+            if (!activities || activities.length === 0) return '';
+            return activities.map(a => {
+                const badge = a.type === 'Refund' ? '<span class="badge badge-error badge-sm">Refund</span>' : '<span class="badge badge-success badge-sm">Payment</span>';
+                return `<tr>
+                    <td>${badge}</td>
+                    <td>${a.description}</td>
+                    <td>${a.amount != null ? currencyFmt.format(a.amount) : '—'}</td>
+                    <td class="text-base-content/50 text-sm">${new Date(a.timestamp).toLocaleString()}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function updateDashboard(summary) {
+            document.getElementById('statRevenue').textContent = currencyFmt.format(summary.revenue30Days);
+            document.getElementById('statRevenueDays').textContent = summary.revenueTrend?.length ?? 0;
+            document.getElementById('statBookingsToday').textContent = summary.bookingsToday;
+            document.getElementById('statBookingsWeek').textContent = summary.bookingsThisWeek;
+            document.getElementById('statSoldOut').textContent = summary.soldOutShowtimeCount;
+            document.getElementById('statOccupancy').textContent = summary.averageOccupancyPercent + '%';
+
+            const tb = document.getElementById('todayShowtimesBody');
+            if (tb) {
+                const parent = tb.closest('.overflow-x-auto');
+                const empty = parent?.querySelector('.text-base-content\\/50');
+                if (summary.todayShowtimes?.length > 0) {
+                    tb.innerHTML = renderTodayShowtimes(summary.todayShowtimes);
+                    if (empty) empty.remove();
+                } else if (!tb.innerHTML) {
+                    if (parent && !parent.querySelector('.text-base-content\\/50'))
+                        parent.innerHTML += '<p class="text-base-content/50 text-sm">No showtimes scheduled for today.</p>';
+                }
+            }
+
+            const ml = document.getElementById('topMoviesList');
+            if (ml) ml.innerHTML = renderTopMovies(summary.topMovies);
+
+            const ra = document.getElementById('recentActivityBody');
+            if (ra) ra.innerHTML = renderRecentActivity(summary.recentActivity);
+
+            if (window.revenueChart && summary.revenueTrend) {
+                window.revenueChart.data.labels = summary.revenueTrend.map(d => d.date);
+                window.revenueChart.data.datasets[0].data = summary.revenueTrend.map(d => d.amount);
+                window.revenueChart.update('none');
+            }
+        }
+
+        function pollDashboard() {
+            fetch('/Dashboard/Summary')
+                .then(r => r.json())
+                .then(s => updateDashboard(s))
+                .catch(() => {});
+        }
+
+        pollDashboard();
+        setInterval(pollDashboard, 15000);
+    </script>
+}
