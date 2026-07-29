@@ -10,7 +10,7 @@ using Ticketa.Core.Specifications;
 
 namespace Ticketa.Infrastructure.Service
 {
-  public class BookingService(IUnitOfWork uow, ILogger<BookingService> logger) : IBookingService
+  public class BookingService(IUnitOfWork uow, ILogger<BookingService> logger, TimeConversions timeConversions) : IBookingService
   {
     private readonly IUnitOfWork _uow = uow;
     private readonly ILogger<BookingService> _logger = logger;
@@ -104,11 +104,11 @@ namespace Ticketa.Infrastructure.Service
         CustomerEmail = booking.User.Email!,
         CustomerFirstName = booking.User.FirstName,
         Status = booking.Status,
-        BookedAt = booking.BookedAt,
+        BookedAt = timeConversions.EnsureUtcKind(booking.BookedAt),
         TotalAmount = booking.TotalAmount,
         MovieTitle = booking.Showtime.Movie.Title,
         MoviePosterPath = booking.Showtime.Movie.PosterPath,
-        StartsAt = booking.Showtime.StartTime,
+        StartsAt = timeConversions.EnsureUtcKind(booking.Showtime.StartTime),
         HallName = booking.Showtime.Hall.Name,
         HallType = booking.Showtime.Hall.Type.ToString(),
         Seats = booking.BookedSeats.Select(s => new BookingDetailsSeatDto

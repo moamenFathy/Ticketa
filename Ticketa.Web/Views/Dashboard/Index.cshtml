@@ -1,5 +1,7 @@
 ﻿@model Ticketa.Core.DTOs.Dashboard.DashboardSummaryDto
 @using Ticketa.Core.Enums
+@using Ticketa.Core.Helpers
+@inject TimeConversions TimeConversions
 
 @{
     ViewData["Title"] = "Dashboard";
@@ -128,7 +130,7 @@
 
                             <tr>
                                 <td class="whitespace-nowrap">
-                                    @st.StartTime.ToLocalTime().ToString("HH:mm") – @st.EndTime.ToLocalTime().ToString("HH:mm")
+                                    @TimeConversions.ConvertFromUtc(st.StartTime).ToString("HH:mm") – @TimeConversions.ConvertFromUtc(st.EndTime).ToString("HH:mm")
                                 </td>
                                 <td class="font-medium">@st.MovieTitle</td>
                                 <td>@st.HallName</td>
@@ -182,7 +184,7 @@
                                 </td>
                                 <td>@activity.Description</td>
                                 <td>@(activity.Amount?.ToString("C0", currencyFormat) ?? "—")</td>
-                                <td class="text-base-content/50 text-sm">@activity.Timestamp.ToLocalTime().ToString("g")</td>
+                                <td class="text-base-content/50 text-sm">@TimeConversions.ConvertFromUtc(activity.Timestamp).ToString("g")</td>
                             </tr>
                         }
                     </tbody>
