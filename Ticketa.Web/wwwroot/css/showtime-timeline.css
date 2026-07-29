@@ -418,3 +418,46 @@
   margin-bottom: 8px;
   display: none;
 }
+
+/* ── View Toggle (Table | Timeline) ──────────────────────────── */
+
+.tl-view-tabs {
+  position: relative;
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid color-mix(in srgb, var(--fallback-b2, #e5e7eb) 50%, transparent);
+  align-self: center;
+}
+
+.tl-view-tab {
+  padding: 6px 18px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--fallback-bc, #333) 45%, transparent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+  position: relative;
+  z-index: 1;
+}
+
+.tl-view-tab:hover {
+  color: var(--fallback-bc, #333);
+}
+
+.tl-view-tab.is-active {
+  color: var(--fallback-p, #6366f1);
+}
+
+.tl-view-underline {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  height: 2px;
+  background: var(--fallback-p, #6366f1);
+  transition: left 0.3s cubic-bezier(.22, 1, .36, 1), width 0.3s cubic-bezier(.22, 1, .36, 1);
+  z-index: 2;
+  border-radius: 1px;
+  pointer-events: none;
+}
