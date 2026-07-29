@@ -2,13 +2,14 @@ using Microsoft.AspNetCore.Identity;
 using Ticketa.Core.DTOs.Common;
 using Ticketa.Core.DTOs.Profile;
 using Ticketa.Core.Entities;
+using Ticketa.Core.Helpers;
 using Ticketa.Core.Interfaces;
 using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Infrastructure.Specification;
 
 namespace Ticketa.Infrastructure.Service
 {
-  public class ProfileService(UserManager<AppUser> userManager, IUnitOfWork uow) : IProfileService
+  public class ProfileService(UserManager<AppUser> userManager, IUnitOfWork uow, TimeConversions timeConversions) : IProfileService
   {
     private readonly UserManager<AppUser> _userManager = userManager;
     private readonly IUnitOfWork _uow = uow;
@@ -77,7 +78,7 @@ namespace Ticketa.Infrastructure.Service
           BookingReference = b.BookingRefrence,
           MovieTitle = b.Showtime.Movie.Title,
           MoviePosterPath = b.Showtime.Movie.PosterPath,
-          ShowtimeStartsAt = b.Showtime.StartTime,
+          ShowtimeStartsAt = timeConversions.EnsureUtcKind(b.Showtime.StartTime),
           SeatCount = b.BookedSeats.Count,
           TotalAmount = b.TotalAmount,
           Status = b.Status

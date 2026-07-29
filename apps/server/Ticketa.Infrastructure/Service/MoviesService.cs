@@ -3,6 +3,7 @@ using Ticketa.Core.DTOs;
 using Ticketa.Core.DTOs.Common;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Enums;
+using Ticketa.Core.Helpers;
 using Ticketa.Core.Interfaces;
 using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Core.Interfaces.Services;
@@ -15,12 +16,14 @@ namespace Ticketa.Infrastructure.Service
     private readonly IUnitOfWork _uow;
     private readonly ITmdbService _tmdbService;
     private readonly IMapper _mapper;
+    private readonly TimeConversions _timeConversions;
 
-    public MoviesService(IUnitOfWork uow, ITmdbService tmdbService, IMapper mapper)
+    public MoviesService(IUnitOfWork uow, ITmdbService tmdbService, IMapper mapper, TimeConversions timeConversions)
     {
       _uow = uow;
       _tmdbService = tmdbService;
       _mapper = mapper;
+      _timeConversions = timeConversions;
     }
 
     public async Task<string?> DeleteAsync(int id)
@@ -344,7 +347,7 @@ namespace Ticketa.Infrastructure.Service
       return MapToActiveMovieDto(movie, showtimes, includeCast: true);
     }
 
-    private static ActiveMovieWithDetailsDto MapToActiveMovieDto(
+    private ActiveMovieWithDetailsDto MapToActiveMovieDto(
         Movie movie,
         IEnumerable<Showtime> showtimes,
         bool includeCast = false)
@@ -377,7 +380,7 @@ namespace Ticketa.Infrastructure.Service
                   Order = c.Order
                 }).ToList()
             : [],
-        Showtimes = showtimeList.Select(s => s.StartTime).OrderBy(t => t).ToList(),
+        Showtimes = showtimeList.Select(s => _timeConversions.EnsureUtcKind(s.StartTime)).OrderBy(t => t).ToList(),
         HallType = ResolvePrimaryHallType(showtimeList).ToString()
       };
     }

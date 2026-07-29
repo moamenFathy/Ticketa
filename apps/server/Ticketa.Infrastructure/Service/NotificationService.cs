@@ -1,13 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using Ticketa.Core.DTOs.Notifications;
 using Ticketa.Core.Enums;
+using Ticketa.Core.Helpers;
 using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Infrastructure.Data;
 
 namespace Ticketa.Infrastructure.Service
 {
     public class NotificationService(
-        ApplicationDbContext context) : INotificationService
+        ApplicationDbContext context,
+        TimeConversions timeConversions) : INotificationService
     {
         public async Task<NotificationCenterDto> GetNotificationCenterAsync(CancellationToken ct = default)
         {
@@ -32,9 +34,9 @@ namespace Ticketa.Infrastructure.Service
                     ShowtimeId = s.Id,
                     MovieTitle = s.Movie.Title,
                     HallName = s.Hall.Name,
-                    StartTime = s.StartTime,
-                    EndTime = s.EndTime,
-                    ArchivedAt = s.ArchivedAt
+                    StartTime = timeConversions.EnsureUtcKind(s.StartTime),
+                    EndTime = timeConversions.EnsureUtcKind(s.EndTime),
+                    ArchivedAt = s.ArchivedAt.HasValue ? timeConversions.EnsureUtcKind(s.ArchivedAt.Value) : null
                 };
 
                 if (s.Status == ShowtimeStatus.SoldOut && !s.IsArchived)

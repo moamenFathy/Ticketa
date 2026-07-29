@@ -70,8 +70,8 @@ namespace Ticketa.Infrastructure.Service
                 ShowtimeId = s.Id,
                 MovieTitle = s.Movie.Title,
                 HallName = s.Hall.Name,
-                StartTime = s.StartTime,
-                EndTime = s.EndTime,
+                StartTime = timeConversions.EnsureUtcKind(s.StartTime),
+                EndTime = timeConversions.EnsureUtcKind(s.EndTime),
                 Status = s.Status,
                 BookedSeats = bookedCounts.GetValueOrDefault(s.Id, 0),
                 VisibleSeats = HallTypeHelper.GetTemplate(s.Hall.Type).VisibleSeatCount
