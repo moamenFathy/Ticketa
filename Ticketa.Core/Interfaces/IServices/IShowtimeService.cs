@@ -25,5 +25,9 @@ namespace Ticketa.Core.Interfaces.IServices
     Task<ShowtimeSeatDto?> GetSeatMapAsync(int showtimeId, CancellationToken ct = default);
 
     public Task<string?> DeleteAsync(int id);
+
+    Task<IEnumerable<HallTimelineDto>> GetByDateAsync(DateOnly date, CancellationToken ct = default);
+
+    Task<ShowtimeBatchResultDto> SaveBatchAsync(ShowtimeBatchSaveDto dto, CancellationToken ct = default);
   }
 }
