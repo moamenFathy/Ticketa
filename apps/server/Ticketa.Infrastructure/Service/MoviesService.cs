@@ -250,7 +250,7 @@ namespace Ticketa.Infrastructure.Service
       var movies = await _uow.Movies.GetAllWithSpecAsync(
           new MovieSpecification(MovieStatus.Active, null));
 
-      return movies.Select(m => new MovieDropdownDto
+      return movies.OrderBy(m => m.Title).Select(m => new MovieDropdownDto
       {
         Id = m.Id,
         Title = m.Title,

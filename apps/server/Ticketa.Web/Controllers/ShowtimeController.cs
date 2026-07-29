@@ -32,7 +32,7 @@ namespace Ticketa.Web.Controllers
     }
 
     [HttpGet]
-    public async Task<IActionResult> Upsert(int? id)
+    public async Task<IActionResult> Upsert(int? id, int? hallId)
     {
       var vm = new ShowtimeUpsertVM
       {
@@ -40,15 +40,21 @@ namespace Ticketa.Web.Controllers
         Movies = await _moviesService.GetAllActiveAsync()
       };
 
-      if (!id.HasValue)
-        return PartialView("_CreateShowtimeModal", vm);
+      if (id.HasValue)
+      {
+        var dto = await _showtimeService.GetForUpsertAsync(id.Value);
+        if (dto == null)
+          return NotFound();
+        vm.Form = dto;
+        return PartialView("_EditShowtimeModal", vm);
+      }
 
-      var dto = await _showtimeService.GetForUpsertAsync(id.Value);
-      if (dto == null)
-        return NotFound();
+      if (hallId.HasValue)
+      {
+        vm.Form = new ShowtimeUpsertDto { HallId = hallId.Value };
+      }
 
-      vm.Form = dto;
-      return PartialView("_EditShowtimeModal", vm);
+      return PartialView("_CreateShowtimeModal", vm);
     }
 
     [HttpPost]
@@ -114,6 +120,35 @@ namespace Ticketa.Web.Controllers
 
       TempData["success"] = "Showtime deleted successfully";
       return Json(new { success = true });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetByDate(string date, CancellationToken ct)
+    {
+      if (!DateOnly.TryParse(date, out var parsed))
+        return BadRequest("Invalid date.");
+
+      var result = await _showtimeService.GetByDateAsync(parsed, ct);
+      return Json(result);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [RequirePermission(Showtimes.Edit)]
+    public async Task<IActionResult> SaveBatch([FromBody] ShowtimeBatchSaveDto dto, CancellationToken ct)
+    {
+      if (dto.Changes is null || dto.Changes.Count == 0)
+        return Json(new ShowtimeBatchResultDto { Success = true });
+
+      var result = await _showtimeService.SaveBatchAsync(dto, ct);
+      return Json(result);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ActiveMoviesDropdown()
+    {
+      var movies = await _moviesService.GetAllActiveAsync();
+      return Json(movies);
     }
   }
 }
