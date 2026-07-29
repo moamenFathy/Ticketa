@@ -1,8 +1,8 @@
 const COLORS = 12;
-const HOUR_WIDTH = 90;
+const HOUR_WIDTH = 70;
 const ROW_HEIGHT = 68;
-const AXIS_START = 8;
-const AXIS_END = 23;
+const AXIS_START = 0;
+const AXIS_END = 24;
 const TOTAL_HOURS = AXIS_END - AXIS_START;
 const SNAP_MINUTES = 15;
 const SNAP_PX = (SNAP_MINUTES / 60) * HOUR_WIDTH;
@@ -21,15 +21,15 @@ function getMovieColor(movieId) {
   return `timeline-palette-${Math.abs(movieId) % COLORS}`;
 }
 
-function formatTimeAmPm(isoString) {
+function formatTime24(isoString) {
   const d = new Date(isoString);
-  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
-function formatHourAmPm(hour) {
+function formatHour24(hour) {
   const d = new Date();
   d.setHours(hour, 0, 0, 0);
-  return d.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true });
+  return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
 function snapToGrid(px) {
@@ -84,7 +84,7 @@ function renderNowLine(headerHeight, totalHeight) {
   const left = (hours - AXIS_START) * HOUR_WIDTH;
   return `
     <div class="tl-now-line" style="left:${left}px">
-      <div class="tl-now-label">${formatHourAmPm(Math.floor(hours))}</div>
+      <div class="tl-now-label">${formatHour24(Math.floor(hours))}</div>
       <div class="tl-now-bar" style="height:${totalHeight}px"></div>
     </div>`;
 }
@@ -271,7 +271,7 @@ function createInlinePicker(targetEl, hallId, dateStr) {
             <div class="tl-status-dot tl-status-scheduled"></div>
             <div class="tl-bar-content">
               <div class="tl-bar-title">${movie.title}</div>
-              <div class="tl-bar-time">${formatTimeAmPm(startDate.toISOString())}</div>
+              <div class="tl-bar-time">${formatTime24(startDate.toISOString())}</div>
             </div>
           </div>`;
 
@@ -433,8 +433,8 @@ function endDrag(e) {
   const startDate = new Date(newTime);
   const titleEl = bar.querySelector('.tl-bar-title');
   const timeEl = bar.querySelector('.tl-bar-time');
-  if (timeEl) timeEl.textContent = formatTimeAmPm(startDate.toISOString());
-  if (titleEl) bar.title = titleEl.textContent + '\n' + formatTimeAmPm(startDate.toISOString());
+  if (timeEl) timeEl.textContent = formatTime24(startDate.toISOString());
+  if (titleEl) bar.title = titleEl.textContent + '\n' + formatTime24(startDate.toISOString());
 
   // Re-sort bars in the row by position
   const bars = Array.from(row.querySelectorAll('.timeline-bar:not(.is-deleted)'));
@@ -591,9 +591,9 @@ export function renderTimeline(container, halls, dateStr) {
           <div class="timeline-header" style="height:${headerHeight}px">
             ${Array.from({ length: TOTAL_HOURS }, (_, i) => {
               const hour = AXIS_START + i;
-              return `<div class="tl-hour ${hour === 12 ? 'tl-hour-mid' : ''}">${formatHourAmPm(hour)}</div>`;
+              return `<div class="tl-hour ${hour === 12 ? 'tl-hour-mid' : ''}">${formatHour24(hour)}</div>`;
             }).join('')}
-            <div class="tl-hour tl-hour-end">${formatHourAmPm(AXIS_END)}</div>
+            <div class="tl-hour tl-hour-end">${formatHour24(AXIS_END)}</div>
           </div>
 
           ${isToday ? renderNowLine(headerHeight, totalRowsHeight) : ''}
@@ -609,7 +609,7 @@ export function renderTimeline(container, halls, dateStr) {
                 const bookingsClass = st.hasBookings ? 'has-bookings' : '';
 
                 const timeLabel = width > 120
-                  ? `<div class="tl-bar-time">${formatTimeAmPm(st.startTime)} – ${formatTimeAmPm(st.endTime)}</div>`
+                  ? `<div class="tl-bar-time">${formatTime24(st.startTime)} – ${formatTime24(st.endTime)}</div>`
                   : '';
 
                 return `<div class="timeline-bar ${colorClass} ${statusClass} ${pinnedClass} ${bookingsClass}"
@@ -626,7 +626,7 @@ export function renderTimeline(container, halls, dateStr) {
                   data-status="${st.status}"
                   data-runtime="${st.runtimeMinutes}"
                   style="left:${left}px;width:${width}px"
-                  title="${st.movieTitle}\n${formatTimeAmPm(st.startTime)} – ${formatTimeAmPm(st.endTime)}">
+                  title="${st.movieTitle}\n${formatTime24(st.startTime)} – ${formatTime24(st.endTime)}">
                   ${getStatusDot(st.status, st.isArchived)}
                   <div class="tl-bar-content">
                     <div class="tl-bar-title">${st.movieTitle}</div>
