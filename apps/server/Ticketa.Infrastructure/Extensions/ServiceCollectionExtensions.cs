@@ -8,14 +8,13 @@ using Polly;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Helpers;
 using Ticketa.Core.Interfaces;
-using Ticketa.Core.Interfaces.IRepositories;
 using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Core.Interfaces.Services;
 using Ticketa.Core.Mapping;
 using Ticketa.Core.Settings;
 using Ticketa.Infrastructure.Authorization;
-using Ticketa.Infrastructure.Data;
 using Ticketa.Infrastructure.BackgroundServices;
+using Ticketa.Infrastructure.Data;
 using Ticketa.Infrastructure.ExternalService;
 using Ticketa.Infrastructure.Repositories;
 using Ticketa.Infrastructure.Service;
@@ -44,17 +43,18 @@ namespace Ticketa.Infrastructure.Extensions
       // Core services
       services.AddSingleton<TimeConversions>();
       services.AddScoped<IUnitOfWork, UnitOfWork>();
-      services.AddScoped<IMoviesService, MoviesService>();
-      services.AddScoped<IShowtimeService, ShowtimeService>();
-      services.AddScoped<IAuthService, AuthService>();
-      services.AddScoped<IBookingService, BookingService>();
-      services.AddScoped<IRoleService, RoleService>();
-      services.AddScoped<IPaymentManagementService, PaymentManagementService>();
+      services.Scan(scan => scan
+        .FromAssemblyOf<MoviesService>()
+        .AddClasses(c => c.Where(t => t.Name.EndsWith("Service")
+          && t.Name != "ShowtimeCompletionService"
+          && t.Name != "TmdbService"))
+        .AsImplementedInterfaces()
+        .WithScopedLifetime()
+      );
 
       // Email
       services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
       services.AddScoped(sp => sp.GetRequiredService<IOptions<EmailSettings>>().Value);
-      services.AddScoped<IEmailService, EmailService>();
 
       // AutoMapper
       services.AddAutoMapper(cfg =>
@@ -69,10 +69,6 @@ namespace Ticketa.Infrastructure.Extensions
       .AddTransientHttpErrorPolicy(policy =>
           policy.WaitAndRetryAsync(3, retryAttempt =>
               TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
-
-      // Dashboard + Notifications
-      services.AddScoped<IDashboardService, DashboardService>();
-      services.AddScoped<INotificationService, NotificationService>();
 
       // Background services
       services.AddHostedService<ShowtimeCompletionService>();
