@@ -8,7 +8,8 @@ namespace Ticketa.Web.Controllers
 {
   public class DashboardController(
       IDashboardService dashboardService,
-      INotificationService notificationService) : Controller
+      INotificationService notificationService,
+      IShowtimeService showtimeService) : Controller
   {
     [RequirePermission(Dashboard.View)]
     public async Task<IActionResult> Index(CancellationToken ct)
@@ -31,6 +32,15 @@ namespace Ticketa.Web.Controllers
     {
       var summary = await dashboardService.GetDashboardSummaryAsync(ct);
       return Json(summary);
+    }
+
+    [RequirePermission(Dashboard.View)]
+    [HttpGet("Dashboard/Timeline")]
+    public async Task<IActionResult> Timeline(DateOnly? date, CancellationToken ct)
+    {
+      var d = date ?? DateOnly.FromDateTime(DateTime.UtcNow);
+      var result = await showtimeService.GetByDateAsync(d, ct);
+      return Json(result);
     }
   }
 }

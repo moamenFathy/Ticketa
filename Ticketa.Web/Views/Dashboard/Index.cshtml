@@ -91,112 +91,21 @@
         </div>
     </div>
 
-    <div class="bg-base-100 rounded-box shadow-sm border border-base-200 p-4">
-        <h2 class="text-lg font-semibold mb-4">Today's Showtimes</h2>
-        @if (Model.TodayShowtimes.Count == 0)
-        {
-            <p class="text-base-content/50 text-sm">No showtimes scheduled for today.</p>
-        }
-        else
-        {
-            <div class="overflow-x-auto">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>Time</th>
-                            <th>Movie</th>
-                            <th>Hall</th>
-                            <th>Status</th>
-                            <th>Seats</th>
-                            <th>Occupancy</th>
-                        </tr>
-                    </thead>
-                    <tbody id="todayShowtimesBody">
-                        @foreach (var st in Model.TodayShowtimes)
-                        {
-                            var isRunning = st.Status == ShowtimeStatus.Scheduled && st.StartTime <= DateTime.UtcNow && st.EndTime > DateTime.UtcNow;
-                            var statusLabel = isRunning ? "Running"
-                                : st.Status == ShowtimeStatus.SoldOut ? "Sold Out"
-                                : st.Status == ShowtimeStatus.Completed ? "Completed"
-                                : st.Status == ShowtimeStatus.Scheduled ? "Scheduled"
-                                : st.Status.ToString();
-
-                            var statusClass = isRunning ? "badge-success"
-                                : st.Status == ShowtimeStatus.SoldOut ? "badge-warning"
-                                : st.Status == ShowtimeStatus.Completed ? "badge-ghost"
-                                : "badge-info";
-
-                            var widthPercent = Math.Min(st.OccupancyPercent, 100);
-
-                            <tr>
-                                <td class="whitespace-nowrap">
-                                    @TimeConversions.ConvertFromUtc(st.StartTime).ToString("HH:mm") – @TimeConversions.ConvertFromUtc(st.EndTime).ToString("HH:mm")
-                                </td>
-                                <td class="font-medium">@st.MovieTitle</td>
-                                <td>@st.HallName</td>
-                                <td><span class="badge @statusClass badge-sm">@statusLabel</span></td>
-                                <td>@st.BookedSeats / @st.VisibleSeats</td>
-                                <td>
-                                    <div class="flex items-center gap-2">
-                                        <progress class="progress w-20 @(st.OccupancyPercent >= 90 ? "progress-error" : st.OccupancyPercent >= 70 ? "progress-warning" : "progress-success")" value="@st.OccupancyPercent" max="100"></progress>
-                                        <span class="text-xs">@st.OccupancyPercent%</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-    </div>
-
-    <div class="bg-base-100 rounded-box shadow-sm border border-base-200 p-4">
-        <h2 class="text-lg font-semibold mb-4">Recent Activity</h2>
-        @if (Model.RecentActivity.Count == 0)
-        {
-            <p class="text-base-content/50 text-sm">No recent activity.</p>
-        }
-        else
-        {
-            <div class="overflow-x-auto">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Description</th>
-                            <th>Amount</th>
-                            <th>Time</th>
-                        </tr>
-                    </thead>
-                    <tbody id="recentActivityBody">
-                        @foreach (var activity in Model.RecentActivity)
-                        {
-                            <tr>
-                                <td>
-                                    @if (activity.Type == "Refund")
-                                    {
-                                        <span class="badge badge-error badge-sm">Refund</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge badge-success badge-sm">Payment</span>
-                                    }
-                                </td>
-                                <td>@activity.Description</td>
-                                <td>@(activity.Amount?.ToString("C0", currencyFormat) ?? "—")</td>
-                                <td class="text-base-content/50 text-sm">@TimeConversions.ConvertFromUtc(activity.Timestamp).ToString("g")</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
+    <div class="bg-base-100 rounded-box shadow-sm border border-base-200 p-4" style="min-height:250px">
+        <h2 class="text-lg font-semibold mb-4">Today's Timeline</h2>
+        <div id="dashboardTimeline">
+            <div class="timeline-empty">Loading...</div>
+        </div>
     </div>
 </div>
 
 @section Styles {
+    <link rel="stylesheet" href="~/css/showtime-timeline.css" asp-append-version="true" />
     <style>
         .stat-value { font-size: 2rem; }
+        #dashboardTimeline { min-height: 200px; }
+        #dashboardTimeline .timeline-wrapper { --tl-hall-label: 110px; --tl-hour-width: 70px; --tl-row-height: 52px; }
+        #dashboardTimeline .tl-bar-delete-btn { display: none; }
     </style>
 }
 
@@ -204,6 +113,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script>
         const currencyFmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 });
+        const todayStr = (() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); })();
 
         const trendData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueTrend, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
         const chartCtx = document.getElementById('revenueChart').getContext('2d');
@@ -235,27 +145,6 @@
             }
         });
 
-        function renderTodayShowtimes(showtimes) {
-            if (!showtimes || showtimes.length === 0) return '';
-            const now = new Date();
-            return showtimes.map(st => {
-                const start = new Date(st.startTime);
-                const end = new Date(st.endTime);
-                const isRunning = st.status === 0 && start <= now && end > now;
-                const label = isRunning ? 'Running' : st.status === 1 ? 'Sold Out' : st.status === 2 ? 'Completed' : 'Scheduled';
-                const cls = isRunning ? 'badge-success' : st.status === 1 ? 'badge-warning' : st.status === 2 ? 'badge-ghost' : 'badge-info';
-                const pcls = st.occupancyPercent >= 90 ? 'progress-error' : st.occupancyPercent >= 70 ? 'progress-warning' : 'progress-success';
-                return `<tr>
-                    <td class="whitespace-nowrap">${start.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} – ${end.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</td>
-                    <td class="font-medium">${st.movieTitle}</td>
-                    <td>${st.hallName}</td>
-                    <td><span class="badge ${cls} badge-sm">${label}</span></td>
-                    <td>${st.bookedSeats} / ${st.visibleSeats}</td>
-                    <td><div class="flex items-center gap-2"><progress class="progress w-20 ${pcls}" value="${st.occupancyPercent}" max="100"></progress><span class="text-xs">${st.occupancyPercent}%</span></div></td>
-                </tr>`;
-            }).join('');
-        }
-
         function renderTopMovies(movies) {
             if (!movies || movies.length === 0) return '<p class="text-base-content/50 text-sm">No data yet.</p>';
             let html = '<div class="space-y-3">';
@@ -272,19 +161,6 @@
             return html + '</div>';
         }
 
-        function renderRecentActivity(activities) {
-            if (!activities || activities.length === 0) return '';
-            return activities.map(a => {
-                const badge = a.type === 'Refund' ? '<span class="badge badge-error badge-sm">Refund</span>' : '<span class="badge badge-success badge-sm">Payment</span>';
-                return `<tr>
-                    <td>${badge}</td>
-                    <td>${a.description}</td>
-                    <td>${a.amount != null ? currencyFmt.format(a.amount) : '—'}</td>
-                    <td class="text-base-content/50 text-sm">${new Date(a.timestamp).toLocaleString()}</td>
-                </tr>`;
-            }).join('');
-        }
-
         function updateDashboard(summary) {
             document.getElementById('statRevenue').textContent = currencyFmt.format(summary.revenue30Days);
             document.getElementById('statRevenueDays').textContent = summary.revenueTrend?.length ?? 0;
@@ -293,24 +169,8 @@
             document.getElementById('statSoldOut').textContent = summary.soldOutShowtimeCount;
             document.getElementById('statOccupancy').textContent = summary.averageOccupancyPercent + '%';
 
-            const tb = document.getElementById('todayShowtimesBody');
-            if (tb) {
-                const parent = tb.closest('.overflow-x-auto');
-                const empty = parent?.querySelector('.text-base-content\\/50');
-                if (summary.todayShowtimes?.length > 0) {
-                    tb.innerHTML = renderTodayShowtimes(summary.todayShowtimes);
-                    if (empty) empty.remove();
-                } else if (!tb.innerHTML) {
-                    if (parent && !parent.querySelector('.text-base-content\\/50'))
-                        parent.innerHTML += '<p class="text-base-content/50 text-sm">No showtimes scheduled for today.</p>';
-                }
-            }
-
             const ml = document.getElementById('topMoviesList');
             if (ml) ml.innerHTML = renderTopMovies(summary.topMovies);
-
-            const ra = document.getElementById('recentActivityBody');
-            if (ra) ra.innerHTML = renderRecentActivity(summary.recentActivity);
 
             if (window.revenueChart && summary.revenueTrend) {
                 window.revenueChart.data.labels = summary.revenueTrend.map(d => d.date);
@@ -328,5 +188,14 @@
 
         pollDashboard();
         setInterval(pollDashboard, 15000);
+    </script>
+    <script type="module">
+        import { renderTimeline } from '/js/showtime-timeline.js';
+
+        const container = document.getElementById('dashboardTimeline');
+        fetch('/Dashboard/Timeline?date=' + encodeURIComponent(todayStr))
+            .then(r => r.json())
+            .then(data => renderTimeline(container, data, todayStr))
+            .catch(() => { container.innerHTML = '<div class="timeline-empty text-error">Failed to load timeline.</div>'; });
     </script>
 }

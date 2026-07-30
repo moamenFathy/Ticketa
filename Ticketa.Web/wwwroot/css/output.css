@@ -4132,17 +4132,6 @@
       }
     }
   }
-  .table-sm {
-    @layer daisyui.l1.l2 {
-      :not(thead, tfoot) tr {
-        font-size: 0.75rem;
-      }
-      :where(th, td) {
-        padding-inline: calc(0.25rem * 3);
-        padding-block: calc(0.25rem * 2);
-      }
-    }
-  }
   .px-1 {
     padding-inline: calc(var(--spacing) * 1);
   }
@@ -4359,21 +4348,6 @@
           }
         }
       }
-    }
-  }
-  .progress-error {
-    @layer daisyui.l1.l2 {
-      color: var(--color-error);
-    }
-  }
-  .progress-success {
-    @layer daisyui.l1.l2 {
-      color: var(--color-success);
-    }
-  }
-  .progress-warning {
-    @layer daisyui.l1.l2 {
-      color: var(--color-warning);
     }
   }
   .text-amber-400 {
@@ -4723,28 +4697,10 @@
       --size: calc(var(--size-field, 0.25rem) * 8);
     }
   }
-  .badge-error {
-    @layer daisyui.l1.l2 {
-      --badge-color: var(--color-error);
-      --badge-fg: var(--color-error-content);
-    }
-  }
-  .badge-info {
-    @layer daisyui.l1.l2 {
-      --badge-color: var(--color-info);
-      --badge-fg: var(--color-info-content);
-    }
-  }
   .badge-primary {
     @layer daisyui.l1.l2 {
       --badge-color: var(--color-primary);
       --badge-fg: var(--color-primary-content);
-    }
-  }
-  .badge-success {
-    @layer daisyui.l1.l2 {
-      --badge-color: var(--color-success);
-      --badge-fg: var(--color-success-content);
     }
   }
   .badge-warning {
