@@ -99,6 +99,9 @@ namespace Ticketa.Web.Controllers
     [RequirePermission(Users.Delete)]
     public async Task<IActionResult> DeleteConfirmation(string id)
     {
+      var currentUserId = userManager.GetUserId(User);
+      if (id == currentUserId) return Forbid();
+
       var user = await userManager.FindByIdAsync(id);
       if (user is null) return NotFound();
       return PartialView("_DeleteUserModal", user);
@@ -109,6 +112,12 @@ namespace Ticketa.Web.Controllers
     [RequirePermission(Users.Delete)]
     public async Task<IActionResult> Delete(string id)
     {
+      var currentUserId = userManager.GetUserId(User);
+      if (id == currentUserId)
+      {
+        return Json(new { success = false, message = "You cannot delete your own account." });
+      }
+
       var user = await userManager.FindByIdAsync(id);
       if (user is null)
       {
