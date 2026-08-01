@@ -4509,6 +4509,9 @@
   .uppercase {
     text-transform: uppercase;
   }
+  .italic {
+    font-style: italic;
+  }
   .link-hover {
     @layer daisyui.l1.l2 {
       text-decoration-line: none;

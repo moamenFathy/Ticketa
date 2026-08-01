@@ -7,7 +7,7 @@ namespace Ticketa.Core.Specifications
   {
     public ShowtimeCompletionSpecification()
     {
-      AddCriteria(s => s.Status == ShowtimeStatus.Scheduled && !s.IsArchived && s.EndTime < DateTime.UtcNow);
+      AddCriteria(s => s.Status == ShowtimeStatus.Completed && !s.IsArchived && s.EndTime < DateTime.UtcNow);
     }
   }
 }

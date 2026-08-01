@@ -27,18 +27,40 @@ namespace Ticketa.Infrastructure.BackgroundServices
       {
         try
         {
-          await CompleteExpiredShowtimesAsync(stoppingToken);
+          await CloseBookingsAsync(stoppingToken);
+          await ArchiveExpiredShowtimesAsync(stoppingToken);
         }
         catch (Exception ex)
         {
-          _logger.LogError(ex, "Error completing expired showtimes");
+          _logger.LogError(ex, "Error in showtime completion cycle");
         }
 
         await Task.Delay(_checkInterval, stoppingToken);
       }
     }
 
-    private async Task CompleteExpiredShowtimesAsync(CancellationToken ct)
+    private async Task CloseBookingsAsync(CancellationToken ct)
+    {
+      using var scope = _scopeFactory.CreateScope();
+      var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+
+      var spec = new ShowtimeCloseBookingsSpecification();
+      var showtimes = await uow.Showtimes.GetAllWithSpecAsync(spec, ct);
+
+      if (showtimes.Count == 0)
+        return;
+
+      foreach (var showtime in showtimes)
+      {
+        showtime.Status = ShowtimeStatus.Completed;
+      }
+
+      await uow.SaveAsync();
+
+      _logger.LogInformation("Closed bookings for {Count} showtime(s)", showtimes.Count);
+    }
+
+    private async Task ArchiveExpiredShowtimesAsync(CancellationToken ct)
     {
       using var scope = _scopeFactory.CreateScope();
       var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
@@ -51,14 +73,13 @@ namespace Ticketa.Infrastructure.BackgroundServices
 
       foreach (var showtime in expiredShowtimes)
       {
-        showtime.Status = ShowtimeStatus.Completed;
         showtime.IsArchived = true;
         showtime.ArchivedAt = DateTime.UtcNow;
       }
 
       await uow.SaveAsync();
 
-      _logger.LogInformation("Completed {Count} expired showtime(s)", expiredShowtimes.Count);
+      _logger.LogInformation("Archived {Count} expired showtime(s)", expiredShowtimes.Count);
     }
   }
 }
