@@ -365,3 +365,4 @@ FodyWeavers.xsd
 **/appsettings.Development.json
 **/appsettings.Production.json
 /Ticketa.Web/appsettings.Development.json
+/Ticketa.Web/dotnet-tools.json

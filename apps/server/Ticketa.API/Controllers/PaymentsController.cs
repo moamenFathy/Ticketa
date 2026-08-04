@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Interfaces.IServices;
@@ -7,6 +8,7 @@ namespace Ticketa.API.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
+  [Authorize]
   public class PaymentsController(IPaymentService paymentService) : ControllerBase
   {
     private readonly IPaymentService _paymentService = paymentService;
