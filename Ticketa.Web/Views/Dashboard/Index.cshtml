@@ -91,6 +91,65 @@
         </div>
     </div>
 
+    <div class="bg-base-100 rounded-box shadow-sm border border-base-200 p-4">
+        <h2 class="text-lg font-semibold mb-4">Today's Showtimes</h2>
+        <div id="todayShowtimesContainer">
+        @if (Model.TodayShowtimes.Count == 0)
+        {
+            <p class="text-base-content/50 text-sm">No showtimes scheduled for today.</p>
+        }
+        else
+        {
+            <div class="overflow-x-auto">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Movie</th>
+                            <th>Hall</th>
+                            <th>Status</th>
+                            <th>Seats</th>
+                            <th>Occupancy</th>
+                        </tr>
+                    </thead>
+                    <tbody id="todayShowtimesBody">
+                        @foreach (var st in Model.TodayShowtimes)
+                        {
+                            var isRunning = st.Status == ShowtimeStatus.Scheduled && st.StartTime <= DateTime.UtcNow && st.EndTime > DateTime.UtcNow;
+                            var statusLabel = isRunning ? "Running"
+                                : st.Status == ShowtimeStatus.SoldOut ? "Sold Out"
+                                : st.Status == ShowtimeStatus.Completed ? "Completed"
+                                : st.Status == ShowtimeStatus.Scheduled ? "Scheduled"
+                                : st.Status.ToString();
+
+                            var statusClass = isRunning ? "badge-success"
+                                : st.Status == ShowtimeStatus.SoldOut ? "badge-warning"
+                                : st.Status == ShowtimeStatus.Completed ? "badge-ghost"
+                                : "badge-info";
+
+                            <tr>
+                                <td class="whitespace-nowrap">
+                                    @st.StartTime.ToLocalTime().ToString("HH:mm") – @st.EndTime.ToLocalTime().ToString("HH:mm")
+                                </td>
+                                <td class="font-medium">@st.MovieTitle</td>
+                                <td>@st.HallName</td>
+                                <td><span class="badge @statusClass badge-sm">@statusLabel</span></td>
+                                <td>@st.BookedSeats / @st.VisibleSeats</td>
+                                <td>
+                                    <div class="flex items-center gap-2">
+                                        <progress class="progress w-20 @(st.OccupancyPercent >= 90 ? "progress-error" : st.OccupancyPercent >= 70 ? "progress-warning" : "progress-success")" value="@st.OccupancyPercent" max="100"></progress>
+                                        <span class="text-xs">@st.OccupancyPercent%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        </div>
+    </div>
+
     <div class="bg-base-100 rounded-box shadow-sm border border-base-200 p-4" style="min-height:250px">
         <h2 class="text-lg font-semibold mb-4">Today's Timeline</h2>
         <div id="dashboardTimeline">
@@ -161,6 +220,27 @@
             return html + '</div>';
         }
 
+        function renderTodayShowtimes(showtimes) {
+            if (!showtimes || showtimes.length === 0) return '';
+            const now = new Date();
+            return showtimes.map(st => {
+                const start = new Date(st.startTime);
+                const end = new Date(st.endTime);
+                const isRunning = st.status === 0 && start <= now && end > now;
+                const label = isRunning ? 'Running' : st.status === 1 ? 'Sold Out' : st.status === 2 ? 'Completed' : 'Scheduled';
+                const cls = isRunning ? 'badge-success' : st.status === 1 ? 'badge-warning' : st.status === 2 ? 'badge-ghost' : 'badge-info';
+                const pcls = st.occupancyPercent >= 90 ? 'progress-error' : st.occupancyPercent >= 70 ? 'progress-warning' : 'progress-success';
+                return `<tr>
+                    <td class="whitespace-nowrap">${start.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} – ${end.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</td>
+                    <td class="font-medium">${st.movieTitle}</td>
+                    <td>${st.hallName}</td>
+                    <td><span class="badge ${cls} badge-sm">${label}</span></td>
+                    <td>${st.bookedSeats} / ${st.visibleSeats}</td>
+                    <td><div class="flex items-center gap-2"><progress class="progress w-20 ${pcls}" value="${st.occupancyPercent}" max="100"></progress><span class="text-xs">${st.occupancyPercent}%</span></div></td>
+                </tr>`;
+            }).join('');
+        }
+
         function updateDashboard(summary) {
             document.getElementById('statRevenue').textContent = currencyFmt.format(summary.revenue30Days);
             document.getElementById('statRevenueDays').textContent = summary.revenueTrend?.length ?? 0;
@@ -171,6 +251,22 @@
 
             const ml = document.getElementById('topMoviesList');
             if (ml) ml.innerHTML = renderTopMovies(summary.topMovies);
+
+            const tc = document.getElementById('todayShowtimesContainer');
+            if (tc) {
+                const showtimes = summary.todayShowtimes ?? [];
+                if (showtimes.length > 0) {
+                    const rows = renderTodayShowtimes(showtimes);
+                    const tb = document.getElementById('todayShowtimesBody');
+                    if (tb) {
+                        tb.innerHTML = rows;
+                    } else {
+                        tc.innerHTML = `<div class="overflow-x-auto"><table class="table table-sm"><thead><tr><th>Time</th><th>Movie</th><th>Hall</th><th>Status</th><th>Seats</th><th>Occupancy</th></tr></thead><tbody id="todayShowtimesBody">${rows}</tbody></table></div>`;
+                    }
+                } else if (document.getElementById('todayShowtimesBody')) {
+                    tc.innerHTML = '<p class="text-base-content/50 text-sm">No showtimes scheduled for today.</p>';
+                }
+            }
 
             if (window.revenueChart && summary.revenueTrend) {
                 window.revenueChart.data.labels = summary.revenueTrend.map(d => d.date);
