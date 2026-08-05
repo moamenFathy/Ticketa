@@ -86,6 +86,9 @@ namespace Ticketa.Infrastructure.Service
             var scanUrl = $"{clientBaseUrl.TrimEnd('/')}/bookings/{result.BookingReference}";
             var qrBytes = _qrCodeService.GeneratePng(scanUrl);
             const string cid = "ticket-qr";
+            var backdropUrl = string.IsNullOrEmpty(details.MovieBackdropPath)
+                ? null
+                : $"https://image.tmdb.org/t/p/w780{details.MovieBackdropPath}";
 
             var html = EmailTemplates.BookingConfirmation(
                 details.CustomerFirstName,
@@ -95,7 +98,8 @@ namespace Ticketa.Infrastructure.Service
                 details.Seats.Select(s => $"{RowToLetter(s.Row)}{s.SeatNumber}"),
                 details.TotalAmount,
                 result.BookingReference!,
-                cid);
+                cid,
+                backdropUrl);
 
             await _emailService.SendEmailWithInlineImageAsync(
                 details.CustomerEmail,
