@@ -96,9 +96,14 @@
     public static string BookingConfirmation(
         string name, string movieTitle, DateTime showtimeStart,
         string hallName, IEnumerable<string> seats,
-        decimal totalAmount, string bookingReference, string qrContentId)
+        decimal totalAmount, string bookingReference, string qrContentId, string? backdropUrl)
     {
       var content = $"""
+            {(string.IsNullOrEmpty(backdropUrl) ? "" : $"""
+            <div style="text-align:center;margin:0 0 16px 0">
+              <img src="{backdropUrl}" alt="{movieTitle} backdrop" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px" />
+            </div>
+            """)}
             <p>Your ticket for <strong>{movieTitle}</strong> is confirmed!</p>
             <table style="width:100%;margin:16px 0;font-size:14px;border-collapse:collapse">
               <tr><td style="padding:8px 0;color:#64748b">Showtime</td><td style="padding:8px 0;font-weight:600">{showtimeStart:ddd, MMM d — h:mm tt}</td></tr>

@@ -108,6 +108,7 @@ namespace Ticketa.Infrastructure.Service
         TotalAmount = booking.TotalAmount,
         MovieTitle = booking.Showtime.Movie.Title,
         MoviePosterPath = booking.Showtime.Movie.PosterPath,
+        MovieBackdropPath = booking.Showtime.Movie.BackdropPath,
         StartsAt = timeConversions.EnsureUtcKind(booking.Showtime.StartTime),
         HallName = booking.Showtime.Hall.Name,
         HallType = booking.Showtime.Hall.Type.ToString(),

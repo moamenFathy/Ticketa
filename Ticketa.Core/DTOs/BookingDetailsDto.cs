@@ -15,6 +15,7 @@ namespace Ticketa.Core.DTOs
 
     public string MovieTitle { get; set; } = string.Empty;
     public string? MoviePosterPath { get; set; }
+    public string? MovieBackdropPath { get; set; }
 
     public DateTime StartsAt { get; set; }
 
