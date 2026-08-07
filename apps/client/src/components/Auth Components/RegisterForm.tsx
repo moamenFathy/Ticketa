@@ -9,6 +9,7 @@ import {
   Lock,
   Mail,
   Sparkles,
+  User,
 } from "lucide-react";
 import ErrorBanner from "./ErrorBanner";
 import {
@@ -35,6 +36,14 @@ import { cn, iconClass, errorBorderClass } from "@/lib/utils";
 
 const formSchema = z
   .object({
+    firstName: z
+      .string()
+      .min(1, "First name is required")
+      .max(50, "First name must be 50 characters or less"),
+    lastName: z
+      .string()
+      .min(1, "Last name is required")
+      .max(50, "Last name must be 50 characters or less"),
     email: z
       .string()
       .min(1, "Email is required")
@@ -78,6 +87,8 @@ const RegisterForm = ({
     resolver: zodResolver(formSchema),
     mode: "onBlur",
     defaultValues: {
+      firstName: "",
+      lastName: "",
       email: "",
       dateOfBirth: "",
       password: "",
@@ -97,6 +108,8 @@ const RegisterForm = ({
   const onSubmit = (values: FormValues) => {
     register(
       {
+        firstName: values.firstName,
+        lastName: values.lastName,
         email: values.email,
         password: values.password,
         dateOfBirth: values.dateOfBirth,
@@ -124,8 +137,69 @@ const RegisterForm = ({
       >
         <FieldSet>
           <FieldGroup>
-            {/* Email */}
+            {/* First & Last Name */}
             <motion.div custom={0} variants={fieldVariants}>
+              <div className="grid grid-cols-2 gap-3">
+                <Field
+                  data-invalid={!!errors.firstName}
+                  data-disabled={isPending || undefined}
+                >
+                  <FieldLabel
+                    htmlFor="firstName"
+                    className="text-[11px] font-bold text-muted-foreground/60 uppercase tracking-[0.15em]"
+                  >
+                    First Name
+                  </FieldLabel>
+                  <div className="relative">
+                    <User
+                      className={`absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 z-10 transition-colors ${iconClass(errors.firstName?.message, touchedFields.firstName)}`}
+                    />
+                    <Input
+                      id="firstName"
+                      placeholder="John"
+                      autoComplete="given-name"
+                      disabled={isPending}
+                      className={`h-14 pl-12 pr-4 rounded-2xl text-sm shadow-xs transition-all duration-300 ${errorBorderClass(errors.firstName?.message, touchedFields.firstName)}`}
+                      {...form.register("firstName")}
+                    />
+                  </div>
+                  <FieldError
+                    errors={errors.firstName ? [errors.firstName] : undefined}
+                  />
+                </Field>
+
+                <Field
+                  data-invalid={!!errors.lastName}
+                  data-disabled={isPending || undefined}
+                >
+                  <FieldLabel
+                    htmlFor="lastName"
+                    className="text-[11px] font-bold text-muted-foreground/60 uppercase tracking-[0.15em]"
+                  >
+                    Last Name
+                  </FieldLabel>
+                  <div className="relative">
+                    <User
+                      className={`absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 z-10 transition-colors ${iconClass(errors.lastName?.message, touchedFields.lastName)}`}
+                    />
+                    <Input
+                      id="lastName"
+                      placeholder="Doe"
+                      autoComplete="family-name"
+                      disabled={isPending}
+                      className={`h-14 pl-12 pr-4 rounded-2xl text-sm shadow-xs transition-all duration-300 ${errorBorderClass(errors.lastName?.message, touchedFields.lastName)}`}
+                      {...form.register("lastName")}
+                    />
+                  </div>
+                  <FieldError
+                    errors={errors.lastName ? [errors.lastName] : undefined}
+                  />
+                </Field>
+              </div>
+            </motion.div>
+
+            {/* Email */}
+            <motion.div custom={1} variants={fieldVariants}>
               <Field
                 data-invalid={!!errors.email}
                 data-disabled={isPending || undefined}
@@ -163,7 +237,7 @@ const RegisterForm = ({
             </motion.div>
 
             {/* Date of Birth */}
-            <motion.div custom={1} variants={fieldVariants}>
+            <motion.div custom={2} variants={fieldVariants}>
               <Field
                 data-invalid={!!errors.dateOfBirth}
                 data-disabled={isPending || undefined}
@@ -243,7 +317,7 @@ const RegisterForm = ({
             </motion.div>
 
             {/* Password */}
-            <motion.div custom={2} variants={fieldVariants}>
+            <motion.div custom={3} variants={fieldVariants}>
               <Field
                 data-invalid={!!errors.password}
                 data-disabled={isPending || undefined}
@@ -285,7 +359,7 @@ const RegisterForm = ({
             </motion.div>
 
             {/* Confirm Password */}
-            <motion.div custom={3} variants={fieldVariants}>
+            <motion.div custom={4} variants={fieldVariants}>
               <Field
                 data-invalid={!!errors.confirmPassword}
                 data-disabled={isPending || undefined}
