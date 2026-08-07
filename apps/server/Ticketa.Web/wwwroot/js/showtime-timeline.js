@@ -58,6 +58,8 @@ function pixelsToTime(px, dateStr) {
   let h = Math.floor(hours);
   let m = Math.round((hours - h) * 60);
   if (m === 60) { h += 1; m = 0; }
+  if (h < 0) { h = 0; m = 0; }
+  if (h >= 24) { h = 23; m = 55; }
   const pad = n => String(n).padStart(2, '0');
   return `${dateStr}T${pad(h)}:${pad(m)}`;
 }
@@ -165,6 +167,8 @@ async function saveChanges(wrapper, dateStr) {
         if (el) {
           el.classList.add('save-error');
           el.dataset.errorMsg = err.message;
+          const existingTitle = el.getAttribute('title') || '';
+          el.title = err.message + (existingTitle ? '\n' + existingTitle : '');
         }
       });
 
@@ -176,12 +180,21 @@ async function saveChanges(wrapper, dateStr) {
         isSaving = false;
         return;
       }
+
+      // All changes failed — surface the first server error instead of a generic message
+      showErrorToast(result.errors[0].message || 'Save failed. Please try again.');
+      if (btn) { btn.disabled = false; btn.textContent = 'Save'; }
+      isSaving = false;
+      return;
     }
 
     if (result.success) {
       changes = [];
       isSaving = false;
       resetEditMode();
+      if (typeof window.showToast === 'function') {
+        window.showToast('Timeline saved successfully.', 'success');
+      }
       if (typeof onSaveCallback === 'function') onSaveCallback(dateStr);
     } else {
       showErrorToast('Save failed. Please try again.');
@@ -256,6 +269,7 @@ function createInlinePicker(targetEl, hallId, dateStr) {
           const pickerSnapPx = (5 / 60) * HOUR_WIDTH;
           const anchorEnd = parseInt(targetEl.style.left, 10);
           let barLeft = Math.ceil((anchorEnd - 1e-6) / pickerSnapPx) * pickerSnapPx;
+          barLeft = Math.min(barLeft, (AXIS_END - SNAP_MINUTES / 60) * HOUR_WIDTH);
 
           const startLocal = pixelsToTime(barLeft, dateStr);
           const startDate = new Date(startLocal);

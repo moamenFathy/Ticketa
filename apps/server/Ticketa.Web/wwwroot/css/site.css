@@ -216,9 +216,13 @@ form label.input:has(input.input-validation-error) {
     z-index: 9999;
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 0.5rem;
     top: 1rem;
-    right: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: calc(100vw - 2rem);
 }
 
 .toast-enter {
@@ -232,22 +236,22 @@ form label.input:has(input.input-validation-error) {
 @keyframes toast-slide-in {
     from {
         opacity: 0;
-        transform: translateX(100%);
+        transform: translateY(-100%);
     }
     to {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateY(0);
     }
 }
 
 @keyframes toast-slide-out {
     from {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateY(0);
     }
     to {
         opacity: 0;
-        transform: translateX(100%);
+        transform: translateY(-100%);
     }
 }
 
