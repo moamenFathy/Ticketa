@@ -2,9 +2,11 @@ import {
   CalendarIcon,
   ChevronRight,
   Clock,
+  History,
   Loader2,
   MapPin,
   Receipt,
+  Ticket,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Skeleton } from "./ui/skeleton";
@@ -15,8 +17,14 @@ import { Badge } from "./ui/badge";
 import { useEffect, useRef } from "react";
 import { useBookingHistory } from "@/hooks/useProfile";
 import { useNavigate } from "react-router-dom";
+import type { BookingHistoryFilter } from "@/types/profile";
 
-const BookingHistory = () => {
+interface BookingHistoryProps {
+  filter?: BookingHistoryFilter;
+  title?: string;
+}
+
+const BookingHistory = ({ filter = "all", title = "Booking History" }: BookingHistoryProps) => {
   const navigate = useNavigate();
   const {
     data: bookingData,
@@ -24,7 +32,7 @@ const BookingHistory = () => {
     fetchNextPage: fetchNextBookingPage,
     hasNextPage: hasNextBookingPage,
     isFetchingNextPage: isFetchingNextBookingPage,
-  } = useBookingHistory(10);
+  } = useBookingHistory(10, filter);
 
   const allBookings = bookingData?.pages.flatMap(p => p.items) ?? [];
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -48,7 +56,7 @@ const BookingHistory = () => {
     <Card>
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
-          Booking History
+          {title}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -60,15 +68,43 @@ const BookingHistory = () => {
           </div>
         ) : allBookings.length === 0 ? (
           <div className="text-center py-12">
-            <Receipt className="w-12 h-12 mx-auto text-muted-foreground/40 mb-3" />
-            <p className="text-muted-foreground font-medium">No bookings yet</p>
-            <Button
-              variant="link"
-              onClick={() => navigate("/showtimes")}
-              className="mt-1"
-            >
-              Browse movies
-            </Button>
+            {filter === "upcoming" ? (
+              <>
+                <Ticket className="w-12 h-12 mx-auto text-muted-foreground/40 mb-3" />
+                <p className="text-muted-foreground font-medium">
+                  No upcoming tickets
+                </p>
+                <Button
+                  variant="link"
+                  onClick={() => navigate("/showtimes")}
+                  className="mt-1"
+                >
+                  Browse movies
+                </Button>
+              </>
+            ) : filter === "past" ? (
+              <>
+                <History className="w-12 h-12 mx-auto text-muted-foreground/40 mb-3" />
+                <p className="text-muted-foreground font-medium">
+                  No past tickets
+                </p>
+                <p className="text-xs text-muted-foreground/70 mt-1">
+                  Movies you&apos;ve attended will show up here
+                </p>
+              </>
+            ) : (
+              <>
+                <Receipt className="w-12 h-12 mx-auto text-muted-foreground/40 mb-3" />
+                <p className="text-muted-foreground font-medium">No bookings yet</p>
+                <Button
+                  variant="link"
+                  onClick={() => navigate("/showtimes")}
+                  className="mt-1"
+                >
+                  Browse movies
+                </Button>
+              </>
+            )}
           </div>
         ) : (
           <>

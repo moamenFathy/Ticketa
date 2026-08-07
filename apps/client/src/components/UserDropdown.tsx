@@ -1,4 +1,4 @@
-import { ChevronDown, LogOut, User } from "lucide-react";
+import { ChevronDown, LogOut, Ticket, User } from "lucide-react";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -61,6 +61,13 @@ const UserDropdown = ({ name, email, handleLogout }: Props) => {
         >
           <User size={18} className="text-zinc-500" />
           <span className="font-medium">My Profile</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => navigate("/my-tickets")}
+          className="rounded-xl gap-3 h-10 px-3 cursor-pointer transition-colors focus:bg-primary/10 focus:text-primary dark:focus:bg-primary/20"
+        >
+          <Ticket size={18} className="text-zinc-500" />
+          <span className="font-medium">My Tickets</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-900 mx-1" />
         <DropdownMenuItem

@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Scan from "./pages/Scan";
 import Profile from "./pages/Profile";
+import MyTickets from "./pages/MyTickets";
 import ForgetPassword from "./pages/ForgetPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Movies from "./pages/Movies";
@@ -31,6 +32,7 @@ const App = () => {
         <Route path="reset-password" element={<ResetPassword />} />
         <Route path="register" element={<Register />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="my-tickets" element={<MyTickets />} />
         <Route path="bookings/:reference" element={<Scan />} />
         <Route path="*" element={<NotFound />} />
       </Route>

@@ -1,7 +1,7 @@
 import { profileApi } from "@/api/profile.api";
 import { queryKeys } from "@/api/queryKeys";
 import { useAuth } from "@/hooks/useAuth";
-import type { ProfileUpdateDto, ChangePasswordDto } from "@/types/profile";
+import type { ProfileUpdateDto, ChangePasswordDto, BookingHistoryFilter } from "@/types/profile";
 import { useMutation, useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -41,12 +41,12 @@ export const useChangePassword = () =>
     },
   });
 
-export const useBookingHistory = (pageSize: number = 10) => {
+export const useBookingHistory = (pageSize: number = 10, filter: BookingHistoryFilter = "all") => {
   const { isLoggedIn, isInitializing } = useAuth();
 
   return useInfiniteQuery({
-    queryKey: queryKeys.profile.bookings,
-    queryFn: ({ signal, pageParam }) => profileApi.getBookingHistory(pageParam, pageSize, { signal }),
+    queryKey: queryKeys.profile.bookings(filter),
+    queryFn: ({ signal, pageParam }) => profileApi.getBookingHistory(pageParam, pageSize, filter, { signal }),
     enabled: isLoggedIn && !isInitializing,
     getNextPageParam: (lastPage) => lastPage.hasMore ? lastPage.page + 1 : undefined,
     initialPageParam: 1,

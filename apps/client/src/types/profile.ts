@@ -19,6 +19,8 @@ export type ChangePasswordDto = {
   confirmNewPassword: string;
 };
 
+export type BookingHistoryFilter = "all" | "upcoming" | "past";
+
 export type BookingHistoryItemDto = {
   bookingReference: string;
   movieTitle: string;

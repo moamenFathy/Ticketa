@@ -3,8 +3,6 @@ import { useProfile } from "@/hooks/useProfile";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import ErrorState from "@/components/ErrorState";
-import { motion } from "framer-motion";
-import BookingHistory from "@/components/BookingHistory";
 import { useNavigate } from "react-router-dom";
 import ProfileManagement from "@/components/ProfileManagement";
 
@@ -49,19 +47,11 @@ const Profile = () => {
       <div>
         <h1 className="text-3xl font-black tracking-tight">My Profile</h1>
         <p className="text-muted-foreground mt-1">
-          Manage your account details and view your booking history.
+          Manage your account details.
         </p>
       </div>
 
       <ProfileManagement profile={profile} />
-
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <BookingHistory />
-      </motion.div>
     </div>
   );
 };

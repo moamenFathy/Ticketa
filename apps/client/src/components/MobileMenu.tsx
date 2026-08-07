@@ -130,6 +130,17 @@ const MobileMenu = ({
                             </span>
                           </Button>
                         </Link>
+                        <Link to="/my-tickets" onClick={() => setIsOpen(false)}>
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-start gap-4 rounded-xl h-12 text-muted-foreground hover:text-foreground hover:bg-accent px-4"
+                          >
+                            <Ticket size={20} className="text-primary" />
+                            <span className="text-sm font-medium">
+                              My Tickets
+                            </span>
+                          </Button>
+                        </Link>
                         <Button
                           variant="ghost"
                           onClick={handleLogout}
