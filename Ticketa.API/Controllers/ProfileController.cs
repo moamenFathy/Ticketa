@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Ticketa.Core.DTOs.Profile;
+using Ticketa.Core.Enums;
 using Ticketa.Core.Interfaces.IServices;
 
 namespace Ticketa.API.Controllers
@@ -43,13 +44,19 @@ namespace Ticketa.API.Controllers
 
     [HttpGet("bookings")]
     public async Task<IActionResult> GetBookingHistory(
-        CancellationToken ct, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        CancellationToken ct, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? filter = null)
     {
       if (page < 1) page = 1;
       if (pageSize < 1) pageSize = 10;
 
+      var historyFilter = BookingHistoryFilter.All;
+      if (!string.IsNullOrWhiteSpace(filter))
+      {
+        Enum.TryParse(filter, true, out historyFilter);
+      }
+
       var userId = User.FindFirstValue("uid");
-      var result = await _profileService.GetBookingHistoryAsync(userId!, page, pageSize, ct);
+      var result = await _profileService.GetBookingHistoryAsync(userId!, page, pageSize, historyFilter, ct);
       return Ok(result);
     }
   }
