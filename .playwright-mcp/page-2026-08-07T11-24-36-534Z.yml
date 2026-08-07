@@ -1,0 +1,67 @@
+- generic [active] [ref=f8e1]:
+  - navigation [ref=f8e2]:
+    - generic "open sidebar" [ref=f8e4] [cursor=pointer]
+    - link "Admin Dashboard" [ref=f8e9] [cursor=pointer]:
+      - /url: /Hall?area=Admin
+    - generic [ref=f8e10]:
+      - generic [ref=f8e11] [cursor=pointer]:
+        - checkbox
+      - button "Notifications" [ref=f8e17] [cursor=pointer]
+      - button "User menu" [ref=f8e23] [cursor=pointer]:
+        - img "User avatar" [ref=f8e25]
+  - generic [ref=f8e26]:
+    - main [ref=f8e29]:
+      - generic [ref=f8e31]:
+        - generic [ref=f8e32]:
+          - heading "Showtimes" [level=2] [ref=f8e33]
+          - generic [ref=f8e34]:
+            - tablist [ref=f8e35]:
+              - tab "Table" [selected] [ref=f8e36] [cursor=pointer]
+              - tab "Timeline" [ref=f8e37] [cursor=pointer]
+            - button "Create New +" [ref=f8e38] [cursor=pointer]
+        - generic [ref=f8e40]:
+          - generic [ref=f8e41]:
+            - generic [ref=f8e43]:
+              - combobox "entries per page" [ref=f8e44]:
+                - option "10" [selected]
+                - option "25"
+                - option "50"
+                - option "100"
+              - generic [ref=f8e45]: entries per page
+            - generic [ref=f8e47]:
+              - text: "Search:"
+              - searchbox "Search:" [ref=f8e48]
+          - table [ref=f8e49]:
+            - rowgroup [ref=f8e52]:
+              - row [ref=f8e53]:
+                - cell "Loading..." [ref=f8e54]
+          - generic:
+            - status
+            - generic:
+              - generic:
+                - navigation "pagination"
+      - checkbox "Close"
+    - generic [ref=f8e55]:
+      - generic "close sidebar"
+      - list [ref=f8e57]:
+        - listitem [ref=f8e58]:
+          - link "Homepage" [ref=f8e59] [cursor=pointer]:
+            - /url: /
+        - listitem [ref=f8e63]:
+          - link "Payments" [ref=f8e64] [cursor=pointer]:
+            - /url: /Payments
+        - listitem [ref=f8e68]:
+          - link "Movies" [ref=f8e69] [cursor=pointer]:
+            - /url: /Movies
+        - listitem [ref=f8e75]:
+          - link "Showtimes" [ref=f8e76] [cursor=pointer]:
+            - /url: /Showtime
+        - listitem [ref=f8e82]:
+          - link "Halls" [ref=f8e83] [cursor=pointer]:
+            - /url: /Hall
+        - listitem [ref=f8e87]:
+          - link "Users" [ref=f8e88] [cursor=pointer]:
+            - /url: /AdminUserManagement
+        - listitem [ref=f8e94]:
+          - link "Roles" [ref=f8e95] [cursor=pointer]:
+            - /url: /Role

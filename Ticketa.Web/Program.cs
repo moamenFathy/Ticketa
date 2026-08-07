@@ -58,10 +58,7 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Dashboard}/{action=Index}/{id?}");
 
-if (app.Environment.IsDevelopment())
-{
-  app.MapGet("/env", (IWebHostEnvironment env) => new { env.EnvironmentName });
-}
+app.MapGet("/env", (IWebHostEnvironment env) => new { env.EnvironmentName });
 
 //using (var scope = app.Services.CreateScope())
 //{
