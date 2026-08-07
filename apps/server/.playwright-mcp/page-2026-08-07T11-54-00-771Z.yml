@@ -1,0 +1,97 @@
+- generic [active] [ref=f18e1]:
+  - navigation [ref=f18e2]:
+    - generic "open sidebar" [ref=f18e4] [cursor=pointer]
+    - link "Admin Dashboard" [ref=f18e9] [cursor=pointer]:
+      - /url: /Hall?area=Admin
+    - generic [ref=f18e10]:
+      - generic [ref=f18e11] [cursor=pointer]:
+        - checkbox
+      - button "Notifications" [ref=f18e17] [cursor=pointer]
+      - button "User menu" [ref=f18e23] [cursor=pointer]:
+        - img "User avatar" [ref=f18e25]
+  - generic [ref=f18e26]:
+    - main [ref=f18e29]:
+      - generic [ref=f18e31]:
+        - generic [ref=f18e32]:
+          - heading "Showtimes" [level=2] [ref=f18e33]
+          - generic [ref=f18e34]:
+            - tablist [ref=f18e35]:
+              - tab "Table" [selected] [ref=f18e36] [cursor=pointer]
+              - tab "Timeline" [ref=f18e37] [cursor=pointer]
+            - button "Create New +" [ref=f18e38] [cursor=pointer]
+        - text: Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Edit Trailer View Seat Map Edit Trailer View Seat Map Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete Cannot edit within 5 hours of starting Trailer View Seat Map Delete
+        - generic [ref=f18e223]:
+          - generic [ref=f18e224]:
+            - generic [ref=f18e225]: Date
+            - textbox [ref=f18e226]: 2026-08-07
+            - button "Edit" [ref=f18e227] [cursor=pointer]
+          - generic [ref=f18e233]:
+            - generic "Standard" [ref=f18e236]: hall3
+            - generic [ref=f18e240]:
+              - generic [ref=f18e241]:
+                - generic [ref=f18e242]: 00:00
+                - generic [ref=f18e243]: 01:00
+                - generic [ref=f18e244]: 02:00
+                - generic [ref=f18e245]: 03:00
+                - generic [ref=f18e246]: 04:00
+                - generic [ref=f18e247]: 05:00
+                - generic [ref=f18e248]: 06:00
+                - generic [ref=f18e249]: 07:00
+                - generic [ref=f18e250]: 08:00
+                - generic [ref=f18e251]: 09:00
+                - generic [ref=f18e252]: 10:00
+                - generic [ref=f18e253]: 11:00
+                - generic [ref=f18e254]: 12:00
+                - generic [ref=f18e255]: 13:00
+                - generic [ref=f18e256]: 14:00
+                - generic [ref=f18e257]: 15:00
+                - generic [ref=f18e258]: 16:00
+                - generic [ref=f18e259]: 17:00
+                - generic [ref=f18e260]: 18:00
+                - generic [ref=f18e261]: 19:00
+                - generic [ref=f18e262]: 20:00
+                - generic [ref=f18e263]: 21:00
+                - generic [ref=f18e264]: 22:00
+                - generic [ref=f18e265]: 23:00
+                - generic [ref=f18e266]: 00:00
+              - generic: 14:00
+              - generic [ref=f18e268]:
+                - generic "The Mandalorian and Grogu 07:21 – 09:48" [ref=f18e269]:
+                  - generic "Completed" [ref=f18e270]
+                  - generic [ref=f18e271]:
+                    - generic [ref=f18e272]: The Mandalorian and Grogu
+                    - generic [ref=f18e273]: 07:21 – 09:48
+                  - text: 🔒
+                - generic "Thunderbolts* 13:20 – 15:42" [ref=f18e274]:
+                  - generic "Scheduled" [ref=f18e275]
+                  - generic [ref=f18e276]:
+                    - generic [ref=f18e277]: Thunderbolts*
+                    - generic [ref=f18e278]: 13:20 – 15:42
+                  - text: 🔒
+                - generic "Click to add showtime" [ref=f18e279] [cursor=pointer]: +
+                - generic "Click to add showtime" [ref=f18e280] [cursor=pointer]: +
+      - checkbox "Close"
+    - generic [ref=f18e55]:
+      - generic "close sidebar"
+      - list [ref=f18e57]:
+        - listitem [ref=f18e58]:
+          - link "Homepage" [ref=f18e59] [cursor=pointer]:
+            - /url: /
+        - listitem [ref=f18e63]:
+          - link "Payments" [ref=f18e64] [cursor=pointer]:
+            - /url: /Payments
+        - listitem [ref=f18e68]:
+          - link "Movies" [ref=f18e69] [cursor=pointer]:
+            - /url: /Movies
+        - listitem [ref=f18e75]:
+          - link "Showtimes" [ref=f18e76] [cursor=pointer]:
+            - /url: /Showtime
+        - listitem [ref=f18e82]:
+          - link "Halls" [ref=f18e83] [cursor=pointer]:
+            - /url: /Hall
+        - listitem [ref=f18e87]:
+          - link "Users" [ref=f18e88] [cursor=pointer]:
+            - /url: /AdminUserManagement
+        - listitem [ref=f18e94]:
+          - link "Roles" [ref=f18e95] [cursor=pointer]:
+            - /url: /Role

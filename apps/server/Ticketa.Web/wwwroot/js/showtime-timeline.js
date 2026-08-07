@@ -53,6 +53,15 @@ function pixelsToLocalTime(px, dateStr) {
   return `${dateStr}T${pad(finalH)}:${pad(finalM)}`;
 }
 
+function pixelsToTime(px, dateStr) {
+  const hours = AXIS_START + px / HOUR_WIDTH;
+  let h = Math.floor(hours);
+  let m = Math.round((hours - h) * 60);
+  if (m === 60) { h += 1; m = 0; }
+  const pad = n => String(n).padStart(2, '0');
+  return `${dateStr}T${pad(h)}:${pad(m)}`;
+}
+
 function durationPixels(startIso, endIso) {
   const start = new Date(startIso);
   const end = new Date(endIso);
@@ -111,7 +120,12 @@ function getClientId() {
 
 async function saveChanges(wrapper, dateStr) {
   if (isSaving) return;
-  if (changes.length === 0) return;
+  if (changes.length === 0) {
+    if (wrapper.querySelector('.timeline-bar.save-error')) {
+      showErrorToast('Fix the highlighted showtimes and try again.');
+    }
+    return;
+  }
 
   const btn = document.getElementById('saveBtn');
   if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
@@ -211,8 +225,6 @@ function createInlinePicker(targetEl, hallId, dateStr) {
   picker.innerHTML = '<div class="tl-picker-loading">Loading movies...</div>';
   targetEl.closest('.timeline-wrapper').appendChild(picker);
 
-  const left = parseInt(targetEl.style.left, 10);
-
   fetch('/Showtime/ActiveMoviesDropdown')
     .then(r => r.json())
     .then(movies => {
@@ -231,18 +243,28 @@ function createInlinePicker(targetEl, hallId, dateStr) {
           const movie = movies.find(m => m.id === movieId);
           if (!movie) return;
 
-          const startLocal = pixelsToLocalTime(left, dateStr);
+          const row = targetEl.closest('.tl-row');
+          const existing = Array.from(row.querySelectorAll('.timeline-bar:not(.is-deleted)'))
+            .map(b => ({
+              movieId: parseInt(b.dataset.movieId, 10),
+              left: parseInt(b.style.left, 10),
+              width: parseInt(b.style.width, 10)
+            }))
+            .sort((a, b) => a.left - b.left);
+
+          // Place right after the last showtime in the hall (the bar before the clicked slot), snapped up on a 5-minute grid
+          const pickerSnapPx = (5 / 60) * HOUR_WIDTH;
+          const anchorEnd = parseInt(targetEl.style.left, 10);
+          let barLeft = Math.ceil((anchorEnd - 1e-6) / pickerSnapPx) * pickerSnapPx;
+
+          const startLocal = pixelsToTime(barLeft, dateStr);
           const startDate = new Date(startLocal);
           const endDate = new Date(startDate.getTime() + (runtime + 15) * 60000);
           const width = durationPixels(startDate.toISOString(), endDate.toISOString());
 
-          // Check available space in the row
-          const row = targetEl.closest('.tl-row');
-          const existing = Array.from(row.querySelectorAll('.timeline-bar:not(.is-deleted)'))
-            .map(b => ({ left: parseInt(b.style.left, 10), width: parseInt(b.style.width, 10) }))
-            .sort((a, b) => a.left - b.left);
-          const nextBar = existing.find(b => b.left > left);
-          const availableWidth = nextBar ? nextBar.left - left : Infinity;
+          // Check available space in the row (must not overlap the next showtime)
+          const nextBar = existing.find(b => b.left > barLeft);
+          const availableWidth = nextBar ? nextBar.left - barLeft : row.offsetWidth - barLeft;
 
           if (width > availableWidth) {
             picker.innerHTML = '<div class="tl-picker-item" style="color:#ef4444;justify-content:center">Not enough space for this movie</div><div class="tl-picker-cancel">Cancel</div>';
@@ -266,7 +288,7 @@ function createInlinePicker(targetEl, hallId, dateStr) {
             data-hall-id="${hallId}"
             data-start="${startLocal}"
             data-price="10.00"
-            style="left:${left}px;width:${width}px"
+            style="left:${barLeft}px;width:${width}px"
             title="${movie.title}">
             <div class="tl-status-dot tl-status-scheduled"></div>
             <div class="tl-bar-content">
@@ -410,7 +432,7 @@ function endDrag(e) {
     return;
   }
 
-  bar.classList.remove('has-conflict', 'is-valid');
+  bar.classList.remove('has-conflict', 'is-valid', 'save-error');
   const newTime = pixelsToLocalTime(newLeft, currentDateStr);
   const showtimeId = parseInt(bar.dataset.showtimeId);
   const clientId = bar.dataset.clientId;
@@ -426,7 +448,19 @@ function endDrag(e) {
     bar.classList.add('is-staged');
   } else if (clientId) {
     const existing = changes.find(c => c.clientId === clientId);
-    if (existing) existing.startTime = newTime;
+    if (existing) {
+      existing.startTime = newTime;
+    } else {
+      // Change was dropped from the list after a failed save — re-add it so it saves again
+      changes.push({
+        action: 'create',
+        clientId,
+        movieId: parseInt(bar.dataset.movieId, 10),
+        hallId: parseInt(bar.dataset.hallId, 10),
+        startTime: newTime,
+        price: parseFloat(bar.dataset.price)
+      });
+    }
     bar.dataset.start = newTime;
   }
 

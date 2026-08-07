@@ -1,0 +1,116 @@
+- generic [active] [ref=f17e1]:
+  - navigation [ref=f17e2]:
+    - generic "open sidebar" [ref=f17e4] [cursor=pointer]
+    - link "Admin Dashboard" [ref=f17e9] [cursor=pointer]:
+      - /url: /Hall?area=Admin
+    - generic [ref=f17e10]:
+      - generic [ref=f17e11] [cursor=pointer]:
+        - checkbox
+      - button "Notifications" [ref=f17e17] [cursor=pointer]
+      - button "User menu" [ref=f17e23] [cursor=pointer]:
+        - img "User avatar" [ref=f17e25]
+  - generic [ref=f17e26]:
+    - main [ref=f17e29]:
+      - generic [ref=f17e30]:
+        - heading "Dashboard" [level=1] [ref=f17e31]
+        - generic [ref=f17e32]:
+          - generic [ref=f17e33]:
+            - generic [ref=f17e37]: Revenue (30 days)
+            - generic [ref=f17e38]: $6,025
+            - generic [ref=f17e39]: 9 days of data
+          - generic [ref=f17e40]:
+            - generic [ref=f17e45]: Bookings Today
+            - generic [ref=f17e46]: "1"
+            - generic [ref=f17e47]: 6 this week
+          - generic [ref=f17e48]:
+            - generic [ref=f17e53]: Sold Out
+            - generic [ref=f17e54]: "0"
+            - generic [ref=f17e55]: showtimes sold out
+          - generic [ref=f17e56]:
+            - generic [ref=f17e60]: Occupancy
+            - generic [ref=f17e61]: 0.9%
+            - generic [ref=f17e62]: avg seats filled
+        - generic [ref=f17e63]:
+          - heading "Revenue Trend (30 days)" [level=2] [ref=f17e65]
+          - generic [ref=f17e68]:
+            - heading "Top Movies" [level=2] [ref=f17e69]
+            - generic [ref=f17e71]:
+              - generic [ref=f17e72]:
+                - generic [ref=f17e73]: "1"
+                - img "Backrooms" [ref=f17e74]
+                - generic [ref=f17e75]:
+                  - paragraph [ref=f17e76]: Backrooms
+                  - paragraph [ref=f17e77]: 186 bookings
+              - generic [ref=f17e78]:
+                - generic [ref=f17e79]: "2"
+                - img "The Batman" [ref=f17e80]
+                - generic [ref=f17e81]:
+                  - paragraph [ref=f17e82]: The Batman
+                  - paragraph [ref=f17e83]: 85 bookings
+              - generic [ref=f17e84]:
+                - generic [ref=f17e85]: "3"
+                - img "Whiplash" [ref=f17e86]
+                - generic [ref=f17e87]:
+                  - paragraph [ref=f17e88]: Whiplash
+                  - paragraph [ref=f17e89]: 41 bookings
+              - generic [ref=f17e90]:
+                - generic [ref=f17e91]: "4"
+                - img "The Odyssey" [ref=f17e92]
+                - generic [ref=f17e93]:
+                  - paragraph [ref=f17e94]: The Odyssey
+                  - paragraph [ref=f17e95]: 32 bookings
+              - generic [ref=f17e96]:
+                - generic [ref=f17e97]: "5"
+                - img "Black Swan" [ref=f17e98]
+                - generic [ref=f17e99]:
+                  - paragraph [ref=f17e100]: Black Swan
+                  - paragraph [ref=f17e101]: 23 bookings
+        - generic [ref=f17e102]:
+          - heading "Today's Showtimes" [level=2] [ref=f17e103]
+          - table [ref=f17e106]:
+            - rowgroup [ref=f17e107]:
+              - row [ref=f17e108]:
+                - columnheader "Time" [ref=f17e109]
+                - columnheader "Movie" [ref=f17e110]
+                - columnheader "Hall" [ref=f17e111]
+                - columnheader "Status" [ref=f17e112]
+                - columnheader "Seats" [ref=f17e113]
+                - columnheader "Occupancy" [ref=f17e114]
+            - rowgroup [ref=f17e115]:
+              - row [ref=f17e116]:
+                - cell "13:20 – 15:42" [ref=f17e117]
+                - cell "Thunderbolts*" [ref=f17e118]
+                - cell "hall3" [ref=f17e119]
+                - cell "Completed" [ref=f17e120]
+                - cell "0 / 182" [ref=f17e122]
+                - cell "0 0%" [ref=f17e123]:
+                  - generic [ref=f17e124]:
+                    - progressbar [ref=f17e125]
+                    - generic [ref=f17e126]: 0%
+        - generic [ref=f17e127]:
+          - heading "Today's Timeline" [level=2] [ref=f17e128]
+          - generic [ref=f17e129]: Loading...
+    - generic [ref=f17e131]:
+      - generic "close sidebar"
+      - list [ref=f17e133]:
+        - listitem [ref=f17e134]:
+          - link "Homepage" [ref=f17e135] [cursor=pointer]:
+            - /url: /
+        - listitem [ref=f17e139]:
+          - link "Payments" [ref=f17e140] [cursor=pointer]:
+            - /url: /Payments
+        - listitem [ref=f17e144]:
+          - link "Movies" [ref=f17e145] [cursor=pointer]:
+            - /url: /Movies
+        - listitem [ref=f17e151]:
+          - link "Showtimes" [ref=f17e152] [cursor=pointer]:
+            - /url: /Showtime
+        - listitem [ref=f17e158]:
+          - link "Halls" [ref=f17e159] [cursor=pointer]:
+            - /url: /Hall
+        - listitem [ref=f17e163]:
+          - link "Users" [ref=f17e164] [cursor=pointer]:
+            - /url: /AdminUserManagement
+        - listitem [ref=f17e170]:
+          - link "Roles" [ref=f17e171] [cursor=pointer]:
+            - /url: /Role

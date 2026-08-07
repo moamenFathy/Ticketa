@@ -1,0 +1,51 @@
+- generic [active] [ref=f6e1]:
+  - navigation [ref=f6e2]:
+    - generic "open sidebar" [ref=f6e4] [cursor=pointer]
+    - link "Admin Dashboard" [ref=f6e9] [cursor=pointer]:
+      - /url: /Hall?area=Admin
+    - generic [ref=f6e10]:
+      - generic [ref=f6e11] [cursor=pointer]:
+        - checkbox
+      - button "Notifications" [ref=f6e17] [cursor=pointer]
+      - button "User menu" [ref=f6e23] [cursor=pointer]:
+        - img "User avatar" [ref=f6e25]
+  - generic [ref=f6e26]:
+    - main [ref=f6e29]:
+      - generic [ref=f6e31]:
+        - generic [ref=f6e32]:
+          - heading "Halls" [level=2] [ref=f6e33]
+          - button "Create New +" [ref=f6e34] [cursor=pointer]
+        - table [ref=f6e36]:
+          - rowgroup [ref=f6e37]:
+            - row [ref=f6e38]:
+              - columnheader "ID" [ref=f6e39]
+              - columnheader "Name" [ref=f6e40]
+              - columnheader "Type" [ref=f6e41]
+              - columnheader "Layout" [ref=f6e42]
+              - columnheader "Actions" [ref=f6e43]
+          - rowgroup
+      - checkbox "Close"
+    - generic [ref=f6e44]:
+      - generic "close sidebar"
+      - list [ref=f6e46]:
+        - listitem [ref=f6e47]:
+          - link "Homepage" [ref=f6e48] [cursor=pointer]:
+            - /url: /
+        - listitem [ref=f6e52]:
+          - link "Payments" [ref=f6e53] [cursor=pointer]:
+            - /url: /Payments
+        - listitem [ref=f6e57]:
+          - link "Movies" [ref=f6e58] [cursor=pointer]:
+            - /url: /Movies
+        - listitem [ref=f6e64]:
+          - link "Showtimes" [ref=f6e65] [cursor=pointer]:
+            - /url: /Showtime
+        - listitem [ref=f6e71]:
+          - link "Halls" [ref=f6e72] [cursor=pointer]:
+            - /url: /Hall
+        - listitem [ref=f6e76]:
+          - link "Users" [ref=f6e77] [cursor=pointer]:
+            - /url: /AdminUserManagement
+        - listitem [ref=f6e83]:
+          - link "Roles" [ref=f6e84] [cursor=pointer]:
+            - /url: /Role

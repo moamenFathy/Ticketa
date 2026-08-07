@@ -103,3 +103,52 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
+
+// Keep DaisyUI tooltips inside the viewport (clamp horizontally at the screen edges)
+(function () {
+    const tooltipMargin = 8;
+
+    function clampTooltip(tip) {
+        if (tip.classList.contains('tooltip-bottom') ||
+            tip.classList.contains('tooltip-left') ||
+            tip.classList.contains('tooltip-right')) {
+            return;
+        }
+
+        let width = parseFloat(getComputedStyle(tip, '::before').width);
+        const content = tip.querySelector('.tooltip-content');
+        if ((!width || isNaN(width)) && content) {
+            width = content.getBoundingClientRect().width;
+        }
+        if (!width || isNaN(width)) return;
+
+        const rect = tip.getBoundingClientRect();
+        const viewportWidth = document.documentElement.clientWidth;
+        const overhang = (width - rect.width) / 2;
+        const leftEdge = rect.left - overhang;
+        const rightEdge = rect.right + overhang;
+
+        let shift = 0;
+        if (leftEdge < tooltipMargin) {
+            shift = tooltipMargin - leftEdge;
+        } else if (rightEdge > viewportWidth - tooltipMargin) {
+            shift = viewportWidth - tooltipMargin - rightEdge;
+        }
+
+        tip.style.setProperty('--tt-shift', shift + 'px');
+    }
+
+    document.addEventListener('pointerover', function (e) {
+        const tip = e.target.closest('.tooltip');
+        if (tip) clampTooltip(tip);
+    });
+
+    document.addEventListener('focusin', function (e) {
+        const tip = e.target.closest('.tooltip');
+        if (tip) clampTooltip(tip);
+    });
+
+    window.addEventListener('resize', function () {
+        document.querySelectorAll('.tooltip').forEach(t => t.style.removeProperty('--tt-shift'));
+    });
+})();

@@ -22,9 +22,19 @@
                 url: url,
                 type: 'GET',
                 data: (d) => {
+                    for (const key of Object.keys(d)) {
+                        if (key.startsWith('columns[')) delete d[key];
+                    }
                     if (typeof (ajaxData) === "function") {
                         Object.assign(d, ajaxData());
                     }
+                },
+                error: (xhr) => {
+                    if (xhr.status === 401 || xhr.status === 403) {
+                        window.location.href = '/Auth/Login';
+                        return;
+                    }
+                    console.error('DataTable AJAX error:', xhr.status, xhr.responseText?.substring(0, 200));
                 }
             },
             columns,
