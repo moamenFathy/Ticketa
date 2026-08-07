@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Ticketa.Core.DTOs.Common;
 using Ticketa.Core.DTOs.Profile;
 using Ticketa.Core.Entities;
+using Ticketa.Core.Enums;
 using Ticketa.Core.Helpers;
 using Ticketa.Core.Interfaces;
 using Ticketa.Core.Interfaces.IServices;
@@ -61,15 +62,15 @@ namespace Ticketa.Infrastructure.Service
     }
 
     public async Task<PagedResultDto<BookingHistoryItemDto>> GetBookingHistoryAsync(
-        string userId, int page, int pageSize, CancellationToken ct = default)
+        string userId, int page, int pageSize, BookingHistoryFilter filter = BookingHistoryFilter.All, CancellationToken ct = default)
     {
       pageSize = Math.Min(pageSize, 25);
 
       var totalCount = await _uow.Bookings.CountAsync(
-          new BookingHistoryCountSpecification(userId));
+          new BookingHistoryCountSpecification(userId, filter));
 
       var items = await _uow.Bookings.GetAllWithSpecAsync(
-          new BookingHistorySpecification(userId, page, pageSize), ct);
+          new BookingHistorySpecification(userId, page, pageSize, filter), ct);
 
       return new PagedResultDto<BookingHistoryItemDto>
       {
