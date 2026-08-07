@@ -103,13 +103,15 @@
 
         async function loadTimeline(dateStr, container) {
             container.innerHTML = '<div class="timeline-empty">Loading...</div>';
+            let res;
             try {
-                const res = await fetch(`/Showtime/GetByDate?date=${encodeURIComponent(dateStr)}`);
-                if (!res.ok) throw new Error('Failed');
+                res = await fetch(`/Showtime/GetByDate?date=${encodeURIComponent(dateStr)}`);
+                if (!res.ok) throw new Error(`Server returned ${res.status}${res.statusText ? ' ' + res.statusText : ''}`);
                 const data = await res.json();
                 renderTimeline(container, data, dateStr);
-            } catch {
-                container.innerHTML = '<div class="timeline-empty text-error">Failed to load timeline.</div>';
+            } catch (err) {
+                const detail = (err && err.message) ? ` — ${err.message}` : '';
+                container.innerHTML = `<div class="timeline-empty text-error">Failed to load timeline${detail}</div>`;
             }
         }
 

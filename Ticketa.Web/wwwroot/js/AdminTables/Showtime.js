@@ -276,7 +276,7 @@ if (dataTableElement) {
             data: null,
             orderable: false,
             searchable: false,
-            className: "p-0 border-0 bg-transparent align-top",
+            className: "p-0 border-0 bg-transparent align-top bg-white",
             render: function (data, type, row) {
                 if (type === 'display') {
                     const poster = row.posterPath ? `<img src="${imageBase}${row.posterPath}" alt="Poster" class="w-12 h-16 object-cover rounded shadow-sm shrink-0" />` : `<div class="w-12 h-16 bg-base-300 rounded flex items-center justify-center text-[10px] text-base-content/50 shrink-0 border border-base-300">
