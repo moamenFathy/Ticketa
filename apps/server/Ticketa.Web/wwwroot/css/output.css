@@ -2438,13 +2438,6 @@
   .inset-0 {
     inset: calc(var(--spacing) * 0);
   }
-  .toast-end {
-    @layer daisyui.l1.l2 {
-      inset-inline-start: auto;
-      inset-inline-end: calc(0.25rem * 4);
-      --toast-x: 0;
-    }
-  }
   .\!start {
     inset-inline-start: var(--spacing) !important;
   }
@@ -2481,13 +2474,6 @@
   }
   .end {
     inset-inline-end: var(--spacing);
-  }
-  .toast-top {
-    @layer daisyui.l1.l2 {
-      top: calc(0.25rem * 4);
-      bottom: auto;
-      --toast-y: 0;
-    }
   }
   .-top-1 {
     top: calc(var(--spacing) * -1);
@@ -3312,6 +3298,9 @@
     width: calc(var(--spacing) * 10);
     height: calc(var(--spacing) * 10);
   }
+  .h-3 {
+    height: calc(var(--spacing) * 3);
+  }
   .h-3\.5 {
     height: calc(var(--spacing) * 3.5);
   }
@@ -3323,6 +3312,9 @@
   }
   .h-6 {
     height: calc(var(--spacing) * 6);
+  }
+  .h-8 {
+    height: calc(var(--spacing) * 8);
   }
   .h-9 {
     height: calc(var(--spacing) * 9);
@@ -3388,11 +3380,29 @@
       width: calc(var(--size-selector, 0.25rem) * 5);
     }
   }
+  .w-1\/2 {
+    width: calc(1 / 2 * 100%);
+  }
+  .w-1\/3 {
+    width: calc(1 / 3 * 100%);
+  }
+  .w-2\/3 {
+    width: calc(2 / 3 * 100%);
+  }
   .w-3\.5 {
     width: calc(var(--spacing) * 3.5);
   }
+  .w-3\/4 {
+    width: calc(3 / 4 * 100%);
+  }
+  .w-3\/5 {
+    width: calc(3 / 5 * 100%);
+  }
   .w-4 {
     width: calc(var(--spacing) * 4);
+  }
+  .w-4\/5 {
+    width: calc(4 / 5 * 100%);
   }
   .w-5 {
     width: calc(var(--spacing) * 5);
@@ -3426,6 +3436,9 @@
   }
   .w-24 {
     width: calc(var(--spacing) * 24);
+  }
+  .w-28 {
+    width: calc(var(--spacing) * 28);
   }
   .w-32 {
     width: calc(var(--spacing) * 32);
@@ -3625,6 +3638,13 @@
   }
   .gap-6 {
     gap: calc(var(--spacing) * 6);
+  }
+  .space-y-2 {
+    :where(& > :not(:last-child)) {
+      --tw-space-y-reverse: 0;
+      margin-block-start: calc(calc(var(--spacing) * 2) * var(--tw-space-y-reverse));
+      margin-block-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)));
+    }
   }
   .space-y-3 {
     :where(& > :not(:last-child)) {
