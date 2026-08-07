@@ -71,12 +71,12 @@ const MovieCard = ({ movie, compact }: Props) => {
 
         {/* Unified Bottom Content (Title, Genres, & Button) */}
         <motion.div
-          animate={{ y: isHovered ? 0 : 56 }}
+          animate={{ y: isHovered ? 0 : 44 }}
           transition={{ duration: 0.4, ease: [0.33, 1, 0.68, 1] }}
-          className="absolute inset-x-0 bottom-0 px-5 pb-5 pt-10 bg-linear-to-t from-black via-black/90 to-transparent flex flex-col gap-4"
+          className="absolute inset-x-0 bottom-0 px-4 pb-4 pt-8 bg-linear-to-t from-black via-black/90 to-transparent flex flex-col gap-4"
         >
           <div className="space-y-1">
-            <h3 className={`${compact ? "text-base" : "text-2xl"} font-bold text-white leading-tight drop-shadow-lg`}>
+            <h3 className={`${compact ? "text-sm" : "text-xl"} font-bold text-white leading-tight drop-shadow-lg`}>
               {movie.title}
             </h3>
             <div className="flex items-center gap-2 text-[8px] font-bold text-gray-300 uppercase tracking-widest">
@@ -88,7 +88,7 @@ const MovieCard = ({ movie, compact }: Props) => {
             animate={{ opacity: isHovered ? 1 : 0 }}
             transition={{ duration: 0.2 }}
           >
-            <Button className="w-full bg-primary hover:bg-primary/90 text-white font-bold rounded-xl py-3 transition-all active:scale-95 shadow-lg shadow-primary/25 gap-2">
+            <Button className="w-full bg-primary hover:bg-primary/90 text-white font-bold rounded-xl py-2.5 transition-all active:scale-95 shadow-lg shadow-primary/25 gap-2">
               <Ticket className="w-4 h-4" />
               Grab Tickets
             </Button>

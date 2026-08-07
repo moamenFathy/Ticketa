@@ -132,15 +132,6 @@ const MobileMenu = ({
                         </Link>
                         <Button
                           variant="ghost"
-                          className="w-full justify-start gap-4 rounded-xl h-12 text-muted-foreground hover:text-foreground hover:bg-accent px-4"
-                        >
-                          <Ticket size={18} className="text-primary" />
-                          <span className="text-sm font-medium">
-                            My Tickets
-                          </span>
-                        </Button>
-                        <Button
-                          variant="ghost"
                           onClick={handleLogout}
                           className="w-full justify-start gap-4 rounded-xl h-12 text-destructive hover:text-destructive hover:bg-destructive/10 px-4"
                         >

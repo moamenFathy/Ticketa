@@ -26,7 +26,7 @@ export function MovieList({ movies, comingSoon }: MovieListProps) {
           {movies.map((movie) => (
             <CarouselItem
               key={movie.id}
-              className="pl-4 basis-[60%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 shrink-0"
+              className="pl-4 basis-[50%] sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6 shrink-0"
             >
               <Link to={`/movies/${movie.id}`} className="block w-full h-full">
                 {comingSoon ? (
