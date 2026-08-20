@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Identity;
+using Stripe;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Infrastructure.Authorization;
+using Ticketa.Infrastructure.Data;
 using Ticketa.Infrastructure.Extensions;
 using Ticketa.Infrastructure.Service;
 
@@ -12,6 +14,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddTicketaInfrastructure(builder.Configuration);
 builder.Services.AddScoped<IAdminManagementService, AdminManagementService>();
+
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 builder.Services.ConfigureApplicationCookie(opt =>
 {
@@ -29,6 +33,9 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 });
 
 var app = builder.Build();
+
+// Seed Admin role with all current permissions
+await DbInitializer.SeedAdminPermissionsAsync(app.Services);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -51,10 +58,7 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Dashboard}/{action=Index}/{id?}");
 
-if (app.Environment.IsDevelopment())
-{
-  app.MapGet("/env", (IWebHostEnvironment env) => new { env.EnvironmentName });
-}
+app.MapGet("/env", (IWebHostEnvironment env) => new { env.EnvironmentName });
 
 //using (var scope = app.Services.CreateScope())
 //{

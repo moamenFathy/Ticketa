@@ -5,16 +5,23 @@ namespace Ticketa.Core.Specifications
 {
   public class MovieSpecification : BaseSpecification<Movie>
   {
-    public MovieSpecification()
+    public MovieSpecification(bool? archivedOnly = false)
     {
+      if (archivedOnly.HasValue)
+      {
+        if (archivedOnly.Value)
+          AddCriteria(m => m.IsArchived);
+        else
+          AddCriteria(m => !m.IsArchived);
+      }
     }
 
-    public MovieSpecification(MovieStatus? status, string? search) : this()
+    public MovieSpecification(MovieStatus? status, string? search, bool? archivedOnly = false) : this(archivedOnly)
     {
       ApplyFilters(status, search);
     }
 
-    public MovieSpecification(MovieStatus? status, string? search, bool includeGenres, bool includeCast) : this(status, search)
+    public MovieSpecification(MovieStatus? status, string? search, bool includeGenres, bool includeCast, bool? archivedOnly = false) : this(status, search, archivedOnly)
     {
       if (includeGenres)
         AddInclude(m => m.Genres);
@@ -29,9 +36,19 @@ namespace Ticketa.Core.Specifications
         AddInclude(m => m.Cast);
     }
 
-    public MovieSpecification(MovieStatus? status, string? search, int orderColumn, string orderDir, int skip, int take) : this(status, search)
+    public MovieSpecification(MovieStatus? status, string? search, int orderColumn, string orderDir, int skip, int take, bool? archivedOnly = false, bool orderByStatus = false) : this(status, search, archivedOnly)
     {
-      ApplyOrdering(orderColumn, orderDir);
+      if (orderByStatus)
+        AddOrderBy(m => m.Status);
+      else
+        ApplyOrdering(orderColumn, orderDir);
+      ApplyPaging(skip, take);
+    }
+
+    public MovieSpecification(MovieStatus? status, string? search, bool includeGenres, bool includeCast, int skip, int take, bool? archivedOnly = false)
+        : this(status, search, includeGenres, includeCast, archivedOnly)
+    {
+      AddOrderByDesc(m => m.ReleaseDate);
       ApplyPaging(skip, take);
     }
 

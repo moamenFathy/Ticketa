@@ -115,13 +115,9 @@ namespace Ticketa.Web.Controllers
     [RequirePermission(Movies.Delete)]
     public async Task<IActionResult> Delete(int id)
     {
-      var movie = await _movieService.GetByIdAsync(id);
-      if (movie is null)
-        return NotFound();
-
-      var success = await _movieService.DeleteAsync(id);
-      if (!success)
-        return Json(new { success = false, message = "Failed to delete movie." });
+      var error = await _movieService.DeleteAsync(id);
+      if (error is not null)
+        return Json(new { success = false, message = error });
 
       TempData["success"] = "Movie deleted successfully";
       return Json(new { success = true });

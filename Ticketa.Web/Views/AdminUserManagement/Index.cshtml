@@ -2,6 +2,7 @@
     Layout = "_AdminLayout";
     ViewData["Title"] = "User Management";
 }
+@using System.Security.Claims
 
 <div class="card bg-base-100 border border-base-300 shadow-sm">
     <div class="card-body gap-4">
@@ -28,7 +29,9 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                    @await Html.PartialAsync("_TableSkeleton", new Ticketa.Web.ViewModels.TableSkeletonVM { ColumnCount = 4 })
+                </tbody>
             </table>
         </div>
     </div>
@@ -51,6 +54,7 @@
         window.csrfToken = document.querySelector(
         'input[name="__RequestVerificationToken"]'
         ).value;
+        window.currentUserId = '@User.FindFirstValue(ClaimTypes.NameIdentifier)';
     </script>
     <script type="module" src="~/js/AdminTables/UserManagement.js" asp-append-version="true"></script>
 }

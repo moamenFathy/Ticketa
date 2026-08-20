@@ -1,6 +1,4 @@
-﻿using Ticketa.Core.DTOs;
-using Ticketa.Core.Entities;
-using Ticketa.Core.Specifications;
+﻿using Ticketa.Core.Entities;
 
 namespace Ticketa.Core.Interfaces.IRepositories
 {
@@ -8,6 +6,5 @@ namespace Ticketa.Core.Interfaces.IRepositories
   {
     Task<bool> HasConflictAsync(int hallId, DateTime startTime, DateTime endTime, int? excludeShowtimeId = null);
     Task UpdateAsync(Showtime showtime);
-    Task<IEnumerable<ShowtimeListItemDto>> GetShowtimeListAsync(ShowtimeSpecification spec);
   }
 }

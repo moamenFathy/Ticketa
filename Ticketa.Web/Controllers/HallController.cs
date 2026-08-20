@@ -32,16 +32,21 @@ namespace Ticketa.Web.Controllers
     {
       var spec = new HallSpecification();
       var halls = await _uow.Halls.GetAllWithSpecAsync(spec);
-      var result = halls.Select((h, index) => new
+      var result = halls.Select((h, index) =>
       {
-        rowNumber = index + 1,
-        id = h.Id,
-        name = h.Name,
-        hallType = h.Type.ToString(),
-        totalRows = h.TotalRows,
-        seatsPerRow = h.SeatsPerRow,
-        totalSeats = h.TotalSeats,
-        hasShowtimes = h.Showtimes.Any()
+        var template = HallTypeHelper.GetTemplate(h.Type);
+        return new
+        {
+          rowNumber = index + 1,
+          id = h.Id,
+          name = h.Name,
+          hallType = h.Type.ToString(),
+          totalRows = h.TotalRows,
+          seatsPerRow = h.SeatsPerRow,
+          totalSeats = h.TotalSeats,
+          visibleSeatCount = template.VisibleSeatCount,
+          hasShowtimes = h.Showtimes.Any()
+        };
       }).ToList();
       return Json(new { data = result });
     }
@@ -125,7 +130,8 @@ namespace Ticketa.Web.Controllers
             hallType = hall.Type.ToString(),
             totalRows = hall.TotalRows,
             seatsPerRow = hall.SeatsPerRow,
-            totalSeats = hall.TotalSeats
+            totalSeats = hall.TotalSeats,
+            visibleSeatCount = HallTypeHelper.GetTemplate(hall.Type).VisibleSeatCount
           }
         });
       }
@@ -197,7 +203,21 @@ namespace Ticketa.Web.Controllers
       if (hall is null)
         return NotFound();
 
-      return PartialView("_ViewHallMapModal", hall);
+      var template = HallTypeHelper.GetTemplate(hall.Type);
+      var vm = new ShowtimeSeatDto
+      {
+        ShowtimeId = 0,
+        MovieTitle = "",
+        HallName = hall.Name,
+        HallType = hall.Type.ToString(),
+        Rows = template.Rows,
+        SeatsPerRow = template.SeatsPerRow,
+        RowCategoryMap = template.RowCategoryMap
+                     .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString()),
+        BookedSeats = []
+      };
+
+      return PartialView("_ViewHallMapModal", vm);
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────

@@ -216,9 +216,13 @@ form label.input:has(input.input-validation-error) {
     z-index: 9999;
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 0.5rem;
     top: 1rem;
-    right: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: calc(100vw - 2rem);
 }
 
 .toast-enter {
@@ -232,22 +236,22 @@ form label.input:has(input.input-validation-error) {
 @keyframes toast-slide-in {
     from {
         opacity: 0;
-        transform: translateX(100%);
+        transform: translateY(-100%);
     }
     to {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateY(0);
     }
 }
 
 @keyframes toast-slide-out {
     from {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateY(0);
     }
     to {
         opacity: 0;
-        transform: translateX(100%);
+        transform: translateY(-100%);
     }
 }
 
@@ -421,6 +425,21 @@ body.trailer-modal-lock {
     will-change: transform, width;
 }
 
+.msf-track--view .msf-pill {
+    @apply bg-base-100 border border-success/50;
+    box-shadow: 0 4px 10px -2px rgb(34 197 94 / 0.15);
+}
+
+.msf-track--view .msf-btn {
+    @apply text-base-content/60;
+}
+
+.msf-track--view .msf-btn:hover,
+.msf-track--view .msf-btn:focus-visible,
+.msf-track--view .msf-btn.is-active {
+    @apply text-base-content;
+}
+
 .msf-btn {
     position: relative;
     z-index: 1;
@@ -452,4 +471,8 @@ input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
+}
+
+table.dataTable > tbody > tr > th, table.dataTable > tbody > tr > td {
+    padding: 0px;
 }

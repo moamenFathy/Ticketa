@@ -1,0 +1,51 @@
+- generic [active] [ref=f9e1]:
+  - navigation [ref=f9e2]:
+    - generic "open sidebar" [ref=f9e4] [cursor=pointer]
+    - link "Admin Dashboard" [ref=f9e9] [cursor=pointer]:
+      - /url: /Hall?area=Admin
+    - generic [ref=f9e10]:
+      - generic [ref=f9e11] [cursor=pointer]:
+        - checkbox
+      - button "Notifications" [ref=f9e17] [cursor=pointer]
+      - button "User menu" [ref=f9e23] [cursor=pointer]:
+        - img "User avatar" [ref=f9e25]
+  - generic [ref=f9e26]:
+    - main [ref=f9e29]:
+      - generic [ref=f9e31]:
+        - heading "Payments" [level=2] [ref=f9e33]
+        - table [ref=f9e35]:
+          - rowgroup [ref=f9e36]:
+            - row [ref=f9e37]:
+              - columnheader "User" [ref=f9e38]
+              - columnheader "Email" [ref=f9e39]
+              - columnheader "Movie" [ref=f9e40]
+              - columnheader "Amount" [ref=f9e41]
+              - columnheader "Status" [ref=f9e42]
+              - columnheader "Date" [ref=f9e43]
+              - columnheader "Actions" [ref=f9e44]
+          - rowgroup
+      - checkbox "× Cancel Close"
+    - generic [ref=f9e45]:
+      - generic "close sidebar"
+      - list [ref=f9e47]:
+        - listitem [ref=f9e48]:
+          - link "Homepage" [ref=f9e49] [cursor=pointer]:
+            - /url: /
+        - listitem [ref=f9e53]:
+          - link "Payments" [ref=f9e54] [cursor=pointer]:
+            - /url: /Payments
+        - listitem [ref=f9e58]:
+          - link "Movies" [ref=f9e59] [cursor=pointer]:
+            - /url: /Movies
+        - listitem [ref=f9e65]:
+          - link "Showtimes" [ref=f9e66] [cursor=pointer]:
+            - /url: /Showtime
+        - listitem [ref=f9e72]:
+          - link "Halls" [ref=f9e73] [cursor=pointer]:
+            - /url: /Hall
+        - listitem [ref=f9e77]:
+          - link "Users" [ref=f9e78] [cursor=pointer]:
+            - /url: /AdminUserManagement
+        - listitem [ref=f9e84]:
+          - link "Roles" [ref=f9e85] [cursor=pointer]:
+            - /url: /Role

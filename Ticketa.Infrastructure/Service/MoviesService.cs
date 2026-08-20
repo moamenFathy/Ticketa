@@ -1,7 +1,9 @@
 using AutoMapper;
 using Ticketa.Core.DTOs;
+using Ticketa.Core.DTOs.Common;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Enums;
+using Ticketa.Core.Helpers;
 using Ticketa.Core.Interfaces;
 using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Core.Interfaces.Services;
@@ -14,28 +16,30 @@ namespace Ticketa.Infrastructure.Service
     private readonly IUnitOfWork _uow;
     private readonly ITmdbService _tmdbService;
     private readonly IMapper _mapper;
+    private readonly TimeConversions _timeConversions;
 
-    public MoviesService(IUnitOfWork uow, ITmdbService tmdbService, IMapper mapper)
+    public MoviesService(IUnitOfWork uow, ITmdbService tmdbService, IMapper mapper, TimeConversions timeConversions)
     {
       _uow = uow;
       _tmdbService = tmdbService;
       _mapper = mapper;
+      _timeConversions = timeConversions;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<string?> DeleteAsync(int id)
     {
       var movie = await _uow.Movies.GetAsync(m => m.Id == id);
 
       if (movie is null)
-        return false;
+        return "Movie not found.";
 
-      if (await _uow.Showtimes.AnyAsync(s => s.MovieId == id))
-        return false; // Prevention logic
+      var hasShowtimes = await _uow.Showtimes.AnyAsync(s => s.MovieId == id);
+      if (hasShowtimes)
+        return "Can't remove this movie — it still has showtimes.";
 
       _uow.Movies.Delete(movie);
       await _uow.SaveAsync();
-
-      return true;
+      return null;
     }
 
     public async Task<object> GetAllAsync(
@@ -45,15 +49,27 @@ namespace Ticketa.Infrastructure.Service
         string orderDir,
         string? segmentedFilter)
     {
+      return await GetAllDataAsync(request, search, orderColumn, orderDir, segmentedFilter);
+    }
+
+    private async Task<object> GetAllDataAsync(
+        DataTableRequestsDto request,
+        string? search,
+        int orderColumn,
+        string orderDir,
+        string? segmentedFilter)
+    {
       var status = MapStatus(segmentedFilter);
       var searchValue = string.IsNullOrWhiteSpace(search) ? null : search;
+      var archivedOnly = status == null ? (bool?)null : false;
+      var orderByStatus = status == null;
 
       // 1. Total count (no filters)
-      var totalSpec = new MovieSpecification();
+      var totalSpec = new MovieSpecification(archivedOnly: archivedOnly);
       var total = await _uow.Movies.CountAsync(totalSpec);
 
       // 2. Filtered count
-      var countSpec = new MovieSpecification(status, searchValue);
+      var countSpec = new MovieSpecification(status, searchValue, archivedOnly: archivedOnly);
       var filtered = await _uow.Movies.CountAsync(countSpec);
 
       // 3. Data with paging
@@ -63,30 +79,27 @@ namespace Ticketa.Infrastructure.Service
           orderColumn,
           orderDir,
           request.Start,
-          request.Length);
+          request.Length,
+          archivedOnly: archivedOnly,
+          orderByStatus: orderByStatus);
 
       var movies = await _uow.Movies.GetAllWithSpecAsync(spec);
 
-      var dataList = new List<object>();
-      foreach (var m in movies)
+      var dataList = movies.Select(m => new
       {
-        bool hasShowtimes = await _uow.Showtimes.AnyAsync(s => s.MovieId == m.Id);
-        dataList.Add(new
-        {
-          m.Id,
-          m.Title,
-          m.Status,
-          m.PosterPath,
-          m.Overview,
-          m.ReleaseDate,
-          m.VoteAverage,
-          m.ImportedAt,
-          m.RuntimeMinutes,
-          m.TmdbId,
-          m.TrailerKey,
-          hasShowtimes
-        });
-      }
+        m.Id,
+        m.Title,
+        m.Status,
+        m.PosterPath,
+        m.Overview,
+        m.ReleaseDate,
+        m.VoteAverage,
+        m.ImportedAt,
+        m.RuntimeMinutes,
+        m.TrailerKey,
+        m.IsArchived,
+        m.ArchivedAt
+      }).ToList();
 
       // 4. DataTables response
       return new
@@ -215,6 +228,17 @@ namespace Ticketa.Infrastructure.Service
 
       movie.Status = status;
 
+      if (status == MovieStatus.Archived)
+      {
+        movie.IsArchived = true;
+        movie.ArchivedAt = DateTime.UtcNow;
+      }
+      else
+      {
+        movie.IsArchived = false;
+        movie.ArchivedAt = null;
+      }
+
       await _uow.Movies.UpdateAsync(movie);
       await _uow.SaveAsync();
 
@@ -226,7 +250,7 @@ namespace Ticketa.Infrastructure.Service
       var movies = await _uow.Movies.GetAllWithSpecAsync(
           new MovieSpecification(MovieStatus.Active, null));
 
-      return movies.Select(m => new MovieDropdownDto
+      return movies.OrderBy(m => m.Title).Select(m => new MovieDropdownDto
       {
         Id = m.Id,
         Title = m.Title,
@@ -235,26 +259,39 @@ namespace Ticketa.Infrastructure.Service
       });
     }
 
-    public async Task<IEnumerable<ActiveMovieWithDetailsDto>> GetAllActiveWithDetailsAsync(CancellationToken ct = default)
+    public async Task<PagedResultDto<ActiveMovieWithDetailsDto>> GetAllActiveWithDetailsAsync(int page, int pageSize, CancellationToken ct = default)
     {
-      // Pass 'true' to include genres, and set status to Active
-      var spec = new MovieSpecification(MovieStatus.Active, null, includeGenres: true, includeCast: false);
-      var movies = await _uow.Movies.GetAllWithSpecAsync(spec, ct);
+      pageSize = Math.Min(pageSize, 25);
+      page = Math.Max(page, 1);
 
-      return movies.Select(m => new ActiveMovieWithDetailsDto
+      var countSpec = new MovieSpecification(MovieStatus.Active, null);
+      var totalCount = await _uow.Movies.CountAsync(countSpec);
+
+      var dataSpec = new MovieSpecification(MovieStatus.Active, null, includeGenres: true, includeCast: false,
+          skip: (page - 1) * pageSize, take: pageSize);
+      var movies = await _uow.Movies.GetAllWithSpecAsync(dataSpec, ct);
+
+      return new PagedResultDto<ActiveMovieWithDetailsDto>
       {
-        Id = m.Id,
-        Title = m.Title,
-        Overview = m.Overview,
-        PosterPath = m.PosterPath,
-        BackdropPath = m.BackdropPath,
-        VoteAverage = m.VoteAverage,
-        TrailerKey = m.TrailerKey,
-        Runtime = m.RuntimeMinutes,
-        ReleaseDate = DateOnly.FromDateTime(m.ReleaseDate),
-        Language = m.Language,
-        Genres = m.Genres.Select(g => g.Name).ToList()
-      });
+        Items = movies.Select(m => new ActiveMovieWithDetailsDto
+        {
+          Id = m.Id,
+          Title = m.Title,
+          Overview = m.Overview,
+          PosterPath = m.PosterPath,
+          BackdropPath = m.BackdropPath,
+          VoteAverage = m.VoteAverage,
+          TrailerKey = m.TrailerKey,
+          Runtime = m.RuntimeMinutes,
+          ReleaseDate = DateOnly.FromDateTime(m.ReleaseDate),
+          Language = m.Language,
+          Genres = m.Genres.Select(g => g.Name).ToList()
+        }),
+        Page = page,
+        PageSize = pageSize,
+        TotalCount = totalCount,
+        HasMore = (page * pageSize) < totalCount
+      };
     }
 
     public async Task<IEnumerable<ActiveMovieWithDetailsDto>> GetNowShowingMoviesAsync(CancellationToken ct = default)
@@ -310,17 +347,19 @@ namespace Ticketa.Infrastructure.Service
       return MapToActiveMovieDto(movie, showtimes, includeCast: true);
     }
 
-    private static ActiveMovieWithDetailsDto MapToActiveMovieDto(
+    private ActiveMovieWithDetailsDto MapToActiveMovieDto(
         Movie movie,
         IEnumerable<Showtime> showtimes,
         bool includeCast = false)
     {
       var showtimeList = showtimes.ToList();
 
-      return new ActiveMovieWithDetailsDto
+      return new MovieDetailsDto
       {
         Id = movie.Id,
         Title = movie.Title,
+        TmdbId = movie.TmdbId,
+        ImdbId = movie.ImdbId,
         Overview = movie.Overview,
         PosterPath = movie.PosterPath,
         BackdropPath = movie.BackdropPath,
@@ -341,7 +380,7 @@ namespace Ticketa.Infrastructure.Service
                   Order = c.Order
                 }).ToList()
             : [],
-        Showtimes = showtimeList.Select(s => s.StartTime).OrderBy(t => t).ToList(),
+        Showtimes = showtimeList.Select(s => _timeConversions.EnsureUtcKind(s.StartTime)).OrderBy(t => t).ToList(),
         HallType = ResolvePrimaryHallType(showtimeList).ToString()
       };
     }
@@ -353,6 +392,8 @@ namespace Ticketa.Infrastructure.Service
       if (types.Contains(HallType.Gold)) return HallType.Gold;
       return HallType.Standard;
     }
+    public async Task<List<TopBookedMovieDto>> GetTopBookedMoviesAsync(int count = 6, CancellationToken ct = default) =>
+      await _uow.Movies.GetTopBookedMoviesAsync(count, ct);
 
     private static MovieStatus? MapStatus(string? segmentedFilter)
     {
@@ -364,5 +405,6 @@ namespace Ticketa.Infrastructure.Service
         _ => null
       };
     }
+
   }
 }

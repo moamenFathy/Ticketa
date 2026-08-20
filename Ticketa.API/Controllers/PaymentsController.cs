@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Interfaces.IServices;
@@ -7,6 +8,7 @@ namespace Ticketa.API.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
+  [Authorize]
   public class PaymentsController(IPaymentService paymentService) : ControllerBase
   {
     private readonly IPaymentService _paymentService = paymentService;
@@ -30,7 +32,7 @@ namespace Ticketa.API.Controllers
       var userId = User.FindFirstValue("uid");
       var result = await _paymentService.ConfirmAsync(dto.PaymentIntentId, userId!, ct);
 
-      if (!result.Succeeded && result.ConflictingSeats.Count > 0)
+      if (!result.Succeeded)
         return BadRequest(new { message = result.Message, conflictingSeats = result.ConflictingSeats });
 
       return Ok(result);

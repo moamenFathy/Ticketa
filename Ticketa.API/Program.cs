@@ -14,7 +14,10 @@ StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(opt =>
+        opt.JsonSerializerOptions.Converters.Add(
+            new System.Text.Json.Serialization.JsonStringEnumConverter()));
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -25,6 +28,8 @@ builder.Services.Configure<JwtSettings>(jwtSettings);
 builder.Services.AddScoped<ITokenService, Ticketa.Infrastructure.Service.TokenService>();
 builder.Services.AddScoped<IAuthApiService, AuthApiService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IQrCodeService, QrCodeService>();
 
 builder.Services.AddAuthentication(options =>
 {

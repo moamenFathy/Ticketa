@@ -70,16 +70,32 @@ namespace Ticketa.Infrastructure.Service
           UserName = payload.Email,
           Email = payload.Email,
           EmailConfirmed = true,
-          Theme = "light"
+          Theme = "light",
+          FirstName = payload.GivenName ?? "",
+          LastName = payload.FamilyName ?? ""
         };
         var result = await _userManager.CreateAsync(user);
         if (!result.Succeeded)
           return AuthResultDto.Failure("Failed to create user account.");
       }
-      else if (!user.EmailConfirmed)
+      else
       {
-        user.EmailConfirmed = true;
-        await _userManager.UpdateAsync(user);
+        var namesChanged = false;
+        if (!string.IsNullOrEmpty(payload.GivenName) && user.FirstName != payload.GivenName)
+        {
+          user.FirstName = payload.GivenName;
+          namesChanged = true;
+        }
+        if (!string.IsNullOrEmpty(payload.FamilyName) && user.LastName != payload.FamilyName)
+        {
+          user.LastName = payload.FamilyName;
+          namesChanged = true;
+        }
+        if (!user.EmailConfirmed || namesChanged)
+        {
+          user.EmailConfirmed = true;
+          await _userManager.UpdateAsync(user);
+        }
       }
 
       return await IssueTokensAsync(user);
@@ -129,6 +145,8 @@ namespace Ticketa.Infrastructure.Service
       {
         UserName = dto.Email,
         Email = dto.Email,
+        FirstName = dto.FirstName,
+        LastName = dto.LastName,
         DateOfBirth = dto.DateOfBirth,
         Theme = "light"
       };

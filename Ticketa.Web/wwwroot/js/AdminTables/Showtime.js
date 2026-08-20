@@ -267,20 +267,21 @@ const observeModalForTomSelect = () => {
 
 observeModalForTomSelect();
 
+let currentUrl = "/Showtime/GetAll";
+
 if (dataTableElement) {
     let currentFilter = "all";
-    initDataTable("/Showtime/GetAll", [
+    initDataTable(currentUrl, [
         {
             data: null,
             orderable: false,
-            className: "p-0 border-0 bg-transparent align-top",
+            searchable: false,
+            className: "p-0 border-0 bg-transparent align-top bg-white",
             render: function (data, type, row) {
                 if (type === 'display') {
                     const poster = row.posterPath ? `<img src="${imageBase}${row.posterPath}" alt="Poster" class="w-12 h-16 object-cover rounded shadow-sm shrink-0" />` : `<div class="w-12 h-16 bg-base-300 rounded flex items-center justify-center text-[10px] text-base-content/50 shrink-0 border border-base-300">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-30"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
                     </div>`;
-
-                    const initials = row.title.substring(0, 2).toUpperCase();
 
                     let showtimesHtml = '';
                     if (row.showtimes && row.showtimes.length > 0) {
@@ -295,38 +296,25 @@ if (dataTableElement) {
 
                             const priceFormatted = `${st.price.toFixed(2)} $`;
 
-                            const scheduledSel = st.status === 0 ? "selected" : "";
-                            const soldOutSel = st.status === 1 ? "selected" : "";
-                            const completedSel = st.status === 2 ? "selected" : "";
+                            let statusText = "";
+                            if (st.status === 0) statusText = "• Scheduled";
+                            else if (st.status === 1) statusText = "• Sold Out";
+                            else if (st.status === 2) statusText = "• Completed";
 
                             let colorClass = "";
-                            if (st.status === 0) colorClass = "text-blue-700 bg-blue-100 border-blue-200";
-                            else if (st.status === 1) colorClass = "text-yellow-700 bg-yellow-100 border-yellow-200";
-                            else if (st.status === 2) colorClass = "text-green-700 bg-green-100 border-green-200";
+                            if (st.status === 0) colorClass = "text-blue-700 bg-blue-100";
+                            else if (st.status === 1) colorClass = "text-yellow-700 bg-yellow-100";
+                            else if (st.status === 2) colorClass = "text-green-700 bg-green-100";
 
                             const statusHtml = `
-                                <div class="relative inline-flex items-center">
-                                    <select class="select select-sm select-bordered w-36 rounded-full font-semibold focus:outline-none transition-all duration-200 ${colorClass}" onchange="updateShowtimeStatus(${st.id}, this)">
-                                        <option value="0" ${scheduledSel}>• Scheduled</option>
-                                        <option value="1" ${soldOutSel}>• Sold Out</option>
-                                        <option value="2" ${completedSel}>• Completed</option>
-                                    </select>
-                                    <span class="status-indicator absolute -right-1 -top-1 hidden"></span>
-                                </div>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${colorClass}">
+                                    ${statusText}
+                                </span>
                             `;
 
                             const fiveHoursFromNow = new Date(new Date().getTime() + (5 * 60 * 60 * 1000));
-                            const canEditTime = start > fiveHoursFromNow;
-                            const canEditStatus = st.status !== 2 && st.status !== 1;
-                            let canEdit = true;
-                            let tooltipMsg = "Edit";
-                            if (!canEditStatus) {
-                                canEdit = false;
-                                tooltipMsg = "Cannot edit this status right now";
-                            } else if (!canEditTime) {
-                                canEdit = false;
-                                tooltipMsg = "Cannot edit within 5 hours of starting";
-                            }
+                            const canEdit = start > fiveHoursFromNow;
+                            const tooltipMsg = canEdit ? "Edit" : "Cannot edit within 5 hours of starting";
 
                             const editButton = canEdit
                                 ? `<button type="button" class="btn btn-square btn-outline btn-sm border-base-300 text-violet-500 hover:bg-violet-50 hover:bg-base-200 hover:border-base-400 tooltip" data-tip="${tooltipMsg}" onclick="openModal('createForm', '/showtime/Upsert/' + ${st.id}, 'showtime')">
@@ -336,15 +324,11 @@ if (dataTableElement) {
                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
                                    </button>`;
 
-                            const canDelete = st.status === 2;
-                            const deleteTooltipMsg = canDelete ? "Delete" : "Cannot delete incomplete showtimes";
-                            const deleteBtnClass = canDelete ? "btn-square btn-outline btn-sm border-base-300 text-red-500 hover:bg-red-50 hover:border-red-200" : "btn-square btn-outline btn-sm border-base-300 text-base-content/30 cursor-not-allowed";
-                            const deleteOnclick = canDelete ? `onclick="openModal('deleteForm', '/Showtime/DeleteConfirmation/${st.id}', 'showtime')"` : "disabled";
-
-                            const deleteButton = `
-                                <button type="button" class="btn ${deleteBtnClass} tooltip" data-tip="${deleteTooltipMsg}" ${deleteOnclick}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16" /></svg>
-                                </button>`;
+                            const deleteButton = st.isArchived
+                                ? `<button type="button" class="btn btn-square btn-outline btn-sm border-base-300 text-red-500 hover:bg-red-50 hover:border-red-200 tooltip" data-tip="Delete" onclick="openModal('deleteForm', '/Showtime/DeleteConfirmation/${st.id}', 'showtime')">
+                                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16" /></svg>
+                                   </button>`
+                                : '';
 
                             const trailerButton = `
                                 <button type="button" class="btn btn-square btn-outline btn-sm border-base-300 text-indigo-600 hover:bg-blue-50 hover:border-base-400 tooltip" data-tip="Trailer" onclick="openMovieTrailer(this, '${(row.title ?? "Movie").replace(/'/g, "&#39;")}', '${st.trailerKey ?? ""}', '${row.tmdbId ?? ""}')">
@@ -354,16 +338,16 @@ if (dataTableElement) {
                                 </button>`;
 
                             const mapButton = `
-                                <button type="button" class="btn btn-square btn-outline btn-sm border-base-300 text-blue-500 hover:bg-blue-50 hover:border-base-400 tooltip" data-tip="View Hall Map" onclick="openModal('viewMapForm', '/hall/ViewMap/${st.hallId}', 'seat map')">
+                                <button type="button" class="btn btn-square btn-outline btn-sm border-base-300 text-blue-500 hover:bg-blue-50 hover:border-base-400 tooltip" data-tip="View Seat Map" onclick="openModal('viewMapForm', '/showtime/ViewSeatMap/${st.id}', 'seat map')">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 12h18"/><path d="M12 3v18"/></svg>
                                 </button>`;
 
                             return `
-                                <div class="flex p-10 items-center flex-wrap md:flex-nowrap gap-6 p-5 border-b border-base-300 last:border-b-0 hover:bg-base-200/30 transition-colors">
+                                <div class="flex items-center flex-wrap md:flex-nowrap gap-6 p-5 border-b border-base-300 last:border-b-0 hover:bg-base-200/30 transition-colors">
                                     <div class="flex flex-col min-w-[120px]">
                                         <span class="text-[10px] font-bold text-base-content/60 uppercase tracking-wider mb-1">Hall</span>
                                         <span class="font-bold text-base">${st.hallName}</span>
-                                        <span class="text-xs text-base-content/60 mt-0.5">${st.totalSeats} seats</span>
+                                        <span class="text-xs text-base-content/60 mt-0.5">${st.visibleSeatCount} bookable</span>
                                     </div>
                                     
                                     <div class="flex flex-col min-w-[140px]">
@@ -383,6 +367,13 @@ if (dataTableElement) {
                                         <span class="font-bold text-base">${priceFormatted}</span>
                                     </div>
                                     
+                                    ${st.archivedAt ? `
+                                    <div class="flex flex-col min-w-[130px]">
+                                        <span class="text-[10px] font-bold text-base-content/60 uppercase tracking-wider mb-1">Completed At</span>
+                                        <span class="text-xs text-base-content/60">${toDataTableDate(st.archivedAt)}</span>
+                                    </div>
+                                    ` : ''}
+                                    
                                     <div class="flex-1 flex justify-center min-w-[150px]">
                                         ${statusHtml}
                                     </div>
@@ -399,7 +390,7 @@ if (dataTableElement) {
                     }
 
                     return `
-                    <details class="group border border-base-300 bg-base-100 rounded-xl overflow-hidden [&_summary::-webkit-details-marker]:hidden mb-4 shadow-sm w-full block">
+                    <details class="group border bg-base-100 rounded-xl overflow-hidden [&_summary::-webkit-details-marker]:hidden mb-4 shadow-sm w-full block">
                         <summary class="flex items-center gap-4 p-4 cursor-pointer hover:bg-base-200/50 transition-colors list-none outline-none">
                             ${poster}
                             <div class="flex-1 font-semibold text-xl truncate">${row.title}</div>
@@ -415,87 +406,30 @@ if (dataTableElement) {
                     `;
                 }
 
-                // For filter/search
-                return row.title + " " + (row.showtimes || []).map(st => st.hallName).join(" ");
+                return row.title;
             }
         }
     ], {
+        ordering: false,
+        bSort: false,
         ajaxData: function () {
             return { segmentedFilter: currentFilter };
         },
         initComplete: function () {
             const api = this.api();
+
             initSegmentedFilter((filter) => {
                 currentFilter = filter;
                 api.ajax.reload();
             });
         },
-        serverSide: false,
-        responsive: false,
-        ordering: false,
-        bSort: false
+        serverSide: true,
+        stateLoadParams: (settings, data) => {
+            if (data.columns.length !== 1) {
+                localStorage.removeItem(`DataTables_${settings.sTableId}_${window.location.pathname}`);
+                return false;
+            }
+        }
     });
 }
 
-window.updateShowtimeStatus = async function (id, selectEl) {
-    const newStatus = parseInt(selectEl.value, 10);
-    const wrapper = selectEl.parentElement;
-    const indicator = wrapper.querySelector('.status-indicator');
-
-    let colorClass = "";
-    if (newStatus === 0) colorClass = "text-blue-700 bg-blue-100 border-blue-200";
-    else if (newStatus === 1) colorClass = "text-yellow-700 bg-yellow-100 border-yellow-200";
-    else if (newStatus === 2) colorClass = "text-green-700 bg-green-100 border-green-200";
-
-    selectEl.className = "select select-sm select-bordered w-36 rounded-full font-semibold focus:outline-none transition-all duration-200 " + colorClass;
-
-    selectEl.disabled = true;
-    selectEl.style.opacity = '0.7';
-    selectEl.style.cursor = 'wait';
-    indicator.innerHTML = '⟳';
-    indicator.className = 'status-indicator absolute -right-1 -top-1 text-xs animate-spin text-violet-600';
-    indicator.classList.remove('hidden');
-
-    try {
-        const formData = new FormData();
-        formData.append('id', id);
-        formData.append('status', newStatus);
-
-        const response = await fetch('/Showtime/UpdateStatus', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                "RequestVerificationToken": window.csrfToken
-            }
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            if (data.success) {
-                indicator.innerHTML = '✓';
-                indicator.className = 'status-indicator absolute -right-1 -top-1 text-xs text-green-600';
-                setTimeout(() => indicator.classList.add('hidden'), 1500);
-            } else {
-                showError();
-            }
-        } else {
-            showError();
-        }
-    } catch (err) {
-        showError();
-    } finally {
-        selectEl.disabled = false;
-        selectEl.style.opacity = '1';
-        selectEl.style.cursor = 'default';
-    }
-
-    function showError() {
-        indicator.innerHTML = '✕';
-        indicator.className = 'status-indicator absolute -right-1 -top-1 text-xs text-red-600';
-        selectEl.classList.add('animate-pulse');
-        setTimeout(() => {
-            indicator.classList.add('hidden');
-            selectEl.classList.remove('animate-pulse');
-        }, 2000);
-    }
-};

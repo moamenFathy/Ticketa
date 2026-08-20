@@ -1,11 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using Ticketa.Core.DTOs;
 using Ticketa.Core.Entities;
 using Ticketa.Core.Enums;
 using Ticketa.Core.Interfaces.IRepositories;
-using Ticketa.Core.Specifications;
 using Ticketa.Infrastructure.Data;
-using Ticketa.Infrastructure.Specification;
 
 namespace Ticketa.Infrastructure.Repositories
 {
@@ -30,20 +27,6 @@ namespace Ticketa.Infrastructure.Repositories
       return Task.CompletedTask;
     }
 
-    public async Task<IEnumerable<ShowtimeListItemDto>> GetShowtimeListAsync(ShowtimeSpecification spec)
-    {
-      return await SpecificationEvaluator<Showtime>.GetQuery(_context.Showtimes, spec)
-      .Select(s => new ShowtimeListItemDto
-      {
-        Id = s.Id,
-        HallName = s.Hall.Name,
-        TotalSeats = s.Hall.TotalSeats,
-        StartTime = s.StartTime,
-        EndTime = s.EndTime,
-        Price = s.Price,
-        Status = s.Status,
-        HallId = s.HallId
-      }).ToListAsync();
-    }
+
   }
 }

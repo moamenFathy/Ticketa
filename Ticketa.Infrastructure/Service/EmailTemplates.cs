@@ -92,5 +92,32 @@
       """;
       return EmailLayout("Password Reset Request", content);
     }
+
+    public static string BookingConfirmation(
+        string name, string movieTitle, DateTime showtimeStart,
+        string hallName, IEnumerable<string> seats,
+        decimal totalAmount, string bookingReference, string qrContentId, string? backdropUrl)
+    {
+      var content = $"""
+            {(string.IsNullOrEmpty(backdropUrl) ? "" : $"""
+            <div style="text-align:center;margin:0 0 16px 0">
+              <img src="{backdropUrl}" alt="{movieTitle} backdrop" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px" />
+            </div>
+            """)}
+            <p>Your ticket for <strong>{movieTitle}</strong> is confirmed!</p>
+            <table style="width:100%;margin:16px 0;font-size:14px;border-collapse:collapse">
+              <tr><td style="padding:8px 0;color:#64748b">Showtime</td><td style="padding:8px 0;font-weight:600">{showtimeStart:ddd, MMM d — h:mm tt}</td></tr>
+              <tr><td style="padding:8px 0;color:#64748b">Hall</td><td style="padding:8px 0;font-weight:600">{hallName}</td></tr>
+              <tr><td style="padding:8px 0;color:#64748b">Seats</td><td style="padding:8px 0;font-weight:600">{string.Join(", ", seats)}</td></tr>
+              <tr><td style="padding:8px 0;color:#64748b">Total</td><td style="padding:8px 0;font-weight:600">{totalAmount:C}</td></tr>
+              <tr><td style="padding:8px 0;color:#64748b">Reference</td><td style="padding:8px 0;font-weight:600">{bookingReference}</td></tr>
+            </table>
+            <div style="text-align:center;margin:24px 0">
+              <img src="cid:{qrContentId}" alt="Ticket QR Code" style="width:200px;height:200px" />
+              <p style="font-size:12px;color:#94a3b8">Show this at the entrance</p>
+            </div>
+        """;
+      return EmailLayout("Booking Confirmation", content);
+    }
   }
 }

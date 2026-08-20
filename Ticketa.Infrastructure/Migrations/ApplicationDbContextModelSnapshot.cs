@@ -449,13 +449,24 @@ namespace Ticketa.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime?>("ArchivedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("BackdropPath")
                         .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
 
+                    b.Property<string>("ImdbId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<DateTime>("ImportedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Language")
                         .IsRequired()
@@ -498,6 +509,9 @@ namespace Ticketa.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IsArchived")
+                        .HasFilter("[IsArchived] = 0");
+
                     b.HasIndex("TmdbId")
                         .IsUnique();
 
@@ -511,6 +525,9 @@ namespace Ticketa.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BookingReference")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ClientSecret")
                         .IsRequired()
@@ -608,11 +625,17 @@ namespace Ticketa.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime?>("ArchivedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("HallId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("bit");
 
                     b.Property<int>("MovieId")
                         .HasColumnType("int");
@@ -629,6 +652,9 @@ namespace Ticketa.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("HallId");
+
+                    b.HasIndex("IsArchived")
+                        .HasFilter("[IsArchived] = 0");
 
                     b.HasIndex("MovieId");
 

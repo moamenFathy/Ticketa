@@ -6,6 +6,7 @@ namespace Ticketa.Core.Entities
   {
     public int Id { get; set; }
     public int TmdbId { get; set; }
+    public string ImdbId { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
     public string Overview { get; set; } = string.Empty;
     public string PosterPath { get; set; } = string.Empty;   // relative path from TMDB
@@ -16,6 +17,8 @@ namespace Ticketa.Core.Entities
     public int RuntimeMinutes { get; set; }
     public string Language { get; set; } = string.Empty;
     public MovieStatus Status { get; set; } = MovieStatus.Active;
+    public bool IsArchived { get; set; }
+    public DateTime? ArchivedAt { get; set; }
     public DateTime ImportedAt { get; set; } = DateTime.UtcNow;
 
     public ICollection<Genre> Genres { get; set; } = new List<Genre>();

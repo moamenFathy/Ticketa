@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Ticketa.Core.DTOs;
 using Ticketa.Core.Entities;
+using Ticketa.Core.Enums;
 using Ticketa.Core.Helpers;
 using Ticketa.Core.Interfaces;
 using Ticketa.Core.Interfaces.IRepositories;
@@ -9,7 +10,7 @@ using Ticketa.Core.Specifications;
 
 namespace Ticketa.Infrastructure.Service
 {
-  public class BookingService(IUnitOfWork uow, ILogger<BookingService> logger) : IBookingService
+  public class BookingService(IUnitOfWork uow, ILogger<BookingService> logger, TimeConversions timeConversions) : IBookingService
   {
     private readonly IUnitOfWork _uow = uow;
     private readonly ILogger<BookingService> _logger = logger;
@@ -67,6 +68,16 @@ namespace Ticketa.Infrastructure.Service
 
       await _uow.Bookings.CreateAsync(booking);
 
+      var existingBookedCount = await _uow.BookedSeats.CountAsync(
+          new BookedSeatByShowtimeIdSpecification(dto.ShowtimeId));
+      var totalSeats = template.VisibleSeatCount;
+
+      if (existingBookedCount + dto.Seats.Count >= totalSeats)
+      {
+        showtime.Status = ShowtimeStatus.SoldOut;
+        await _uow.Showtimes.UpdateAsync(showtime);
+      }
+
       try
       {
         await _uow.SaveAsync();
@@ -90,13 +101,15 @@ namespace Ticketa.Infrastructure.Service
       {
         UserId = booking.UserId,
         UserEmail = booking.User.UserName!,
-        BookingRefrence = booking.BookingRefrence,
+        CustomerEmail = booking.User.Email!,
+        CustomerFirstName = booking.User.FirstName,
         Status = booking.Status,
-        BookedAt = booking.BookedAt,
+        BookedAt = timeConversions.EnsureUtcKind(booking.BookedAt),
         TotalAmount = booking.TotalAmount,
         MovieTitle = booking.Showtime.Movie.Title,
         MoviePosterPath = booking.Showtime.Movie.PosterPath,
-        StartsAt = booking.Showtime.StartTime,
+        MovieBackdropPath = booking.Showtime.Movie.BackdropPath,
+        StartsAt = timeConversions.EnsureUtcKind(booking.Showtime.StartTime),
         HallName = booking.Showtime.Hall.Name,
         HallType = booking.Showtime.Hall.Type.ToString(),
         Seats = booking.BookedSeats.Select(s => new BookingDetailsSeatDto
@@ -107,6 +120,71 @@ namespace Ticketa.Infrastructure.Service
           Price = s.Price
         }).ToList(),
       };
+    }
+
+    public async Task<(bool Success, string Message)> CancelBookingsForPaymentAsync(int showtimeId, IEnumerable<PaymentSeat> paymentSeats)
+    {
+      var showtimeSpec = new ShowtimeByIdSpecification(showtimeId);
+      var showtime = await _uow.Showtimes.GetEntityWithSpecAsync(showtimeSpec);
+
+      if (showtime is null)
+        return (false, "Showtime not found.");
+
+      var paymentSeatList = paymentSeats.ToList();
+      if (paymentSeatList.Count == 0)
+        return (false, "No seats associated with this payment.");
+
+      var seatPairs = paymentSeatList.Select(s => (s.Row, s.SeatNumber)).ToList();
+
+      var allBookedSeats = (await _uow.BookedSeats.GetByShowtimeIdAsync(showtimeId)).ToList();
+
+      var matchedSeats = allBookedSeats
+          .Where(bs => seatPairs.Any(sp => sp.Row == bs.Row && sp.SeatNumber == bs.SeatNumber))
+          .ToList();
+
+      if (matchedSeats.Count == 0)
+        return (false, "No matching booked seats found for this payment.");
+
+      var matchedBookingIds = matchedSeats.Select(s => s.BookingId).Distinct().ToList();
+      var bookings = new List<Booking>();
+      foreach (var id in matchedBookingIds)
+      {
+        var b = await _uow.Bookings.GetAsync(b => b.Id == id);
+        if (b is not null) bookings.Add(b);
+      }
+
+      foreach (var seat in matchedSeats)
+      {
+        _uow.BookedSeats.Delete(seat);
+      }
+
+      foreach (var booking in bookings)
+      {
+        var remainingForBooking = allBookedSeats
+            .Count(bs => bs.BookingId == booking.Id && !matchedSeats.Contains(bs));
+        if (remainingForBooking == 0)
+        {
+          booking.Status = BookingStatus.Cancelled;
+        }
+      }
+
+      await _uow.SaveAsync();
+
+      if (showtime.Status == ShowtimeStatus.SoldOut)
+      {
+        var template = HallTypeHelper.GetTemplate(showtime.Hall.Type);
+        var remainingSeatsCount = await _uow.BookedSeats.CountAsync(
+            new BookedSeatByShowtimeIdSpecification(showtimeId));
+
+        if (remainingSeatsCount < template.VisibleSeatCount)
+        {
+          showtime.Status = ShowtimeStatus.Scheduled;
+        }
+
+        await _uow.SaveAsync();
+      }
+
+      return (true, "Bookings cancelled successfully.");
     }
 
     private static string GenerateRefrence() => $"TKT-{DateTime.UtcNow:yyyyMMdd}-{Random.Shared.Next(1000, 9999)}";
