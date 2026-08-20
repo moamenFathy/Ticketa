@@ -92,6 +92,41 @@
     </div>
 
     <div class="bg-base-100 rounded-box shadow-sm border border-base-200 p-4">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold">Site Analytics (30 days)</h2>
+            <span class="text-xs text-base-content/50">via Vercel Web Analytics</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="stat bg-base-200/50 rounded-box">
+                <div class="stat-title">Page Views</div>
+                <div class="stat-value text-info" id="statPageViews">—</div>
+            </div>
+            <div class="stat bg-base-200/50 rounded-box">
+                <div class="stat-title">Visitors</div>
+                <div class="stat-value text-secondary" id="statVisitors">—</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-4">
+            <div>
+                <h3 class="text-sm font-medium mb-2 text-base-content/70">By Country</h3>
+                <div class="relative h-48"><canvas id="analyticsCountryChart"></canvas></div>
+            </div>
+            <div>
+                <h3 class="text-sm font-medium mb-2 text-base-content/70">By Device</h3>
+                <div class="relative h-48"><canvas id="analyticsDeviceChart"></canvas></div>
+            </div>
+            <div>
+                <h3 class="text-sm font-medium mb-2 text-base-content/70">By OS</h3>
+                <div class="relative h-48"><canvas id="analyticsOsChart"></canvas></div>
+            </div>
+            <div>
+                <h3 class="text-sm font-medium mb-2 text-base-content/70">By Browser</h3>
+                <div class="relative h-48"><canvas id="analyticsBrowserChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-base-100 rounded-box shadow-sm border border-base-200 p-4">
         <h2 class="text-lg font-semibold mb-4">Today's Showtimes</h2>
         <div id="todayShowtimesContainer">
         @if (Model.TodayShowtimes.Count == 0)
@@ -284,6 +319,74 @@
 
         pollDashboard();
         setInterval(pollDashboard, 15000);
+
+        const analyticsCharts = {};
+
+        function renderAnalyticsChart(id, items) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const wrap = el.parentElement;
+            const empty = !items || items.length === 0;
+
+            wrap.querySelector('.analytics-empty')?.remove();
+
+            if (empty) {
+                if (analyticsCharts[id]) { analyticsCharts[id].destroy(); delete analyticsCharts[id]; }
+                const p = document.createElement('p');
+                p.className = 'analytics-empty text-base-content/50 text-sm';
+                p.textContent = 'No data yet.';
+                wrap.appendChild(p);
+                return;
+            }
+
+            const labels = items.map(i => i.label);
+            const data = items.map(i => i.visitors);
+
+            if (analyticsCharts[id]) {
+                analyticsCharts[id].data.labels = labels;
+                analyticsCharts[id].data.datasets[0].data = data;
+                analyticsCharts[id].update('none');
+            } else {
+                analyticsCharts[id] = new Chart(el.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: 'Visitors',
+                            data,
+                            backgroundColor: '#0ea5e9',
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                    }
+                });
+            }
+        }
+
+        function updateAnalytics(a) {
+            if (!a) return;
+            document.getElementById('statPageViews').textContent = (a.pageViews ?? 0).toLocaleString();
+            document.getElementById('statVisitors').textContent = (a.visitors ?? 0).toLocaleString();
+            renderAnalyticsChart('analyticsCountryChart', a.byCountry ?? []);
+            renderAnalyticsChart('analyticsDeviceChart', a.byDevice ?? []);
+            renderAnalyticsChart('analyticsOsChart', a.byOs ?? []);
+            renderAnalyticsChart('analyticsBrowserChart', a.byBrowser ?? []);
+        }
+
+        function pollAnalytics() {
+            fetch('/Dashboard/Analytics')
+                .then(r => r.json())
+                .then(a => updateAnalytics(a))
+                .catch(() => {});
+        }
+
+        pollAnalytics();
+        setInterval(pollAnalytics, 60000);
     </script>
     <script type="module">
         import { renderTimeline } from '/js/showtime-timeline.js';
