@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Ticketa.Core.DTOs.Notifications;
+using Ticketa.Core.Helpers;
 using Ticketa.Core.Interfaces.IServices;
 using Ticketa.Infrastructure.Authorization;
 using static Ticketa.Core.Helpers.Permissions;
@@ -9,7 +10,9 @@ namespace Ticketa.Web.Controllers
   public class DashboardController(
       IDashboardService dashboardService,
       INotificationService notificationService,
-      IShowtimeService showtimeService) : Controller
+      IShowtimeService showtimeService,
+      IVercelAnalyticsService vercelAnalyticsService,
+      TimeConversions timeConversions) : Controller
   {
     [RequirePermission(Dashboard.View)]
     public async Task<IActionResult> Index(CancellationToken ct)
@@ -41,6 +44,16 @@ namespace Ticketa.Web.Controllers
       var d = date ?? DateOnly.FromDateTime(DateTime.UtcNow);
       var result = await showtimeService.GetByDateAsync(d, ct);
       return Json(result);
+    }
+
+    [RequirePermission(Dashboard.View)]
+    [HttpGet("Dashboard/Analytics")]
+    public async Task<IActionResult> Analytics(CancellationToken ct)
+    {
+      var localToday = DateOnly.FromDateTime(timeConversions.ConvertFromUtc(DateTime.UtcNow));
+      var since = localToday.AddDays(-30);
+      var summary = await vercelAnalyticsService.GetSummaryAsync(since, localToday.AddDays(1), ct);
+      return Json(summary);
     }
   }
 }

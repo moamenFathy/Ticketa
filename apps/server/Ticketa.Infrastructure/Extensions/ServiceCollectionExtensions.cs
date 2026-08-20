@@ -47,7 +47,8 @@ namespace Ticketa.Infrastructure.Extensions
         .FromAssemblyOf<MoviesService>()
         .AddClasses(c => c.Where(t => t.Name.EndsWith("Service")
           && t.Name != "ShowtimeCompletionService"
-          && t.Name != "TmdbService"))
+          && t.Name != "TmdbService"
+          && t.Name != "VercelAnalyticsService"))
         .AsImplementedInterfaces()
         .WithScopedLifetime()
       );
@@ -69,6 +70,14 @@ namespace Ticketa.Infrastructure.Extensions
       .AddTransientHttpErrorPolicy(policy =>
           policy.WaitAndRetryAsync(3, retryAttempt =>
               TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
+
+      // Vercel Web Analytics
+      services.Configure<VercelAnalyticsOptions>(configuration.GetSection("Vercel"));
+      services.AddHttpClient<IVercelAnalyticsService, VercelAnalyticsService>(opt =>
+      {
+        opt.BaseAddress = new Uri("https://api.vercel.com/");
+        opt.Timeout = TimeSpan.FromSeconds(10);
+      });
 
       // Background services
       services.AddHostedService<ShowtimeCompletionService>();
