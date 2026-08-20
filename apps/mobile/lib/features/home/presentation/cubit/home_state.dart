@@ -9,8 +9,13 @@ class HomeLoading extends HomeState {}
 class HomeLoaded extends HomeState {
   final List<Movie> nowShowing;
   final List<Movie> comingSoon;
+  final List<Movie> topBooked;
 
-  HomeLoaded({required this.nowShowing, required this.comingSoon});
+  HomeLoaded({
+    required this.nowShowing,
+    required this.comingSoon,
+    required this.topBooked,
+  });
 }
 
 class HomeError extends HomeState {

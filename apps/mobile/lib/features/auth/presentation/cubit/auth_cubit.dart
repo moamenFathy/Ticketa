@@ -1,6 +1,8 @@
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ticketa/core/constants/app_constants.dart';
+import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/features/auth/data/auth_repository.dart';
 import 'package:ticketa/features/auth/presentation/cubit/auth_state.dart';
 
@@ -19,7 +21,8 @@ class AuthCubit extends Cubit<AuthState> {
       emit(AuthLoginSuccess(message));
     } catch (e) {
       final msg = e.toString().replaceFirst('Exception: ', '');
-      if (msg.contains('Email not confirmed') || msg.contains('not confirmed')) {
+      if (msg.contains('Email not confirmed') ||
+          msg.contains('not confirmed')) {
         emit(AuthEmailConfirmRequired(email: email, message: msg));
       } else {
         emit(AuthError(msg));
@@ -27,11 +30,24 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  Future<void> register(String email, String password, String dateOfBirth) async {
+  Future<void> register(
+    String email,
+    String password,
+    String dateOfBirth,
+    String firstName,
+    String lastName,
+  ) async {
     emit(AuthLoading());
     try {
-      final result = await _repository.register(email, password, dateOfBirth);
-      final message = result['message']?.toString() ?? 'Registration successful';
+      final result = await _repository.register(
+        email,
+        password,
+        dateOfBirth,
+        firstName,
+        lastName,
+      );
+      final message =
+          result['message']?.toString() ?? 'Registration successful';
       emit(AuthRegisterSuccess(message));
     } catch (e) {
       emit(AuthError(e.toString().replaceFirst('Exception: ', '')));
@@ -73,7 +89,8 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthLoading());
     try {
       final result = await _repository.forgotPassword(email);
-      final message = result['message']?.toString() ?? 'Reset link sent to your email';
+      final message =
+          result['message']?.toString() ?? 'Reset link sent to your email';
       emit(AuthForgotPasswordSuccess(message));
     } catch (e) {
       emit(AuthError(e.toString().replaceFirst('Exception: ', '')));
@@ -81,11 +98,17 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> logout() async {
+    try {
+      await _repository.logout();
+    } catch (e) {
+      // best-effort: clear local session even if the API call fails
+    }
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(AppConstants.isGuestKey);
     await prefs.remove(AppConstants.isLoggedInKey);
     await prefs.remove(AppConstants.userEmailKey);
     await prefs.remove(AppConstants.tokenKey);
+    await getIt<CookieJar>().deleteAll();
     emit(AuthInitial());
   }
 

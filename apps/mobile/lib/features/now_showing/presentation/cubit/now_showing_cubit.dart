@@ -10,7 +10,10 @@ class NowShowingCubit extends Cubit<NowShowingState> {
   Future<void> fetchNowShowing() async {
     emit(NowShowingLoading());
     try {
-      final movies = await _repository.getNowShowing();
+      var movies = await _repository.getNowShowing();
+      if (movies.isEmpty) {
+        movies = await _repository.getAllMovies(pageSize: 20);
+      }
       emit(NowShowingLoaded(movies));
     } catch (e) {
       emit(NowShowingError(e.toString()));

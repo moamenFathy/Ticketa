@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:ticketa/core/di/injection.dart';
+import 'package:ticketa/core/services/message_service.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
-import 'package:ticketa/l10n/app_localizations.dart';
+import 'package:ticketa/features/booking/data/models/seat_dto.dart';
+import 'package:ticketa/features/payment/data/models/payment_models.dart';
+import 'package:ticketa/features/payment/data/payment_repository.dart';
+import 'package:ticketa/features/payment/presentation/cubit/payment_cubit.dart';
 import 'package:ticketa/features/payment/presentation/screens/booking_success_page.dart';
 import 'package:ticketa/features/payment/presentation/widgets/order_summary.dart';
 import 'package:ticketa/features/payment/presentation/widgets/card_input_form.dart';
 import 'package:ticketa/features/payment/presentation/widgets/payment_method_selector.dart';
+import 'package:ticketa/l10n/app_localizations.dart';
 
 class PaymentPage extends StatefulWidget {
   final double totalAmount;
   final String movieTitle;
-  final List<String> selectedSeats;
+  final List<SeatDto> seats;
   final String date;
   final String time;
   final String? bookingReference;
@@ -21,7 +30,7 @@ class PaymentPage extends StatefulWidget {
     super.key,
     required this.totalAmount,
     required this.movieTitle,
-    required this.selectedSeats,
+    required this.seats,
     required this.date,
     required this.time,
     this.bookingReference,
@@ -36,75 +45,81 @@ class PaymentPage extends StatefulWidget {
 
 class _PaymentPageState extends State<PaymentPage> {
   int _selectedMethod = 0;
-  bool _isProcessing = false;
+
+  static const String _fallbackPublishableKey =
+      'pk_test_51TjmWwRFtQmaK3YIn0wPIZz2f3Zob8aUwvcZzeW2RkKngGTi6pPXiCjCqXqtQpiogz8lvcjQqM89kG6VwpF9kMv7006Yv3TyGG';
 
   @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
-
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: Text(l10n.paymentMethod, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            OrderSummary(
-              movieTitle: widget.movieTitle,
-              date: widget.date,
-              time: widget.time,
-              selectedSeats: widget.selectedSeats,
-              totalAmount: widget.totalAmount,
-            ),
-            const SizedBox(height: 32),
-
-            Text(
-              l10n.paymentMethod,
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
-            ),
-            const SizedBox(height: 16),
-
-            PaymentMethodSelector(
-              index: 0,
-              title: l10n.creditCard,
-              icon: Icons.credit_card_rounded,
-              isSelected: _selectedMethod == 0,
-              onTap: () => setState(() => _selectedMethod = 0),
-            ),
-
-            AnimatedCrossFade(
-              firstChild: const SizedBox(width: double.infinity),
-              secondChild: const CardInputForm(),
-              crossFadeState: _selectedMethod == 0 ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-              duration: const Duration(milliseconds: 300),
-            ),
-
-            const SizedBox(height: 12),
-            PaymentMethodSelector(
-              index: 1,
-              title: "Apple Pay",
-              icon: Icons.apple_rounded,
-              isSelected: _selectedMethod == 1,
-              onTap: () => setState(() => _selectedMethod = 1),
-            ),
-
-            const SizedBox(height: 40),
-            _buildPayButton(l10n, theme),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
-    );
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _setupStripe());
   }
 
-  void _handlePaymentSuccess() {
+  Future<void> _setupStripe() async {
+    try {
+      final config = await getIt<PaymentRepository>().getConfig();
+      if (config.publishableKey.isNotEmpty) {
+        Stripe.publishableKey = config.publishableKey;
+      } else {
+        Stripe.publishableKey = _fallbackPublishableKey;
+      }
+      await Stripe.instance.applySettings();
+    } catch (_) {
+      Stripe.publishableKey = _fallbackPublishableKey;
+    }
+  }
+
+  List<String> get _seatLabels =>
+      widget.seats.map((s) => 'R${s.row}-S${s.seatNumber}').toList();
+
+  Future<void> _onPayPressed() async {
+    final cubit = context.read<PaymentCubit>();
+    var state = cubit.state;
+
+    if (state is! PaymentIntentReady) {
+      await cubit.createIntent(CreatePaymentIntentDto(
+        showtimeId: widget.showtimeId,
+        seats: widget.seats,
+      ));
+      state = cubit.state;
+    }
+
+    if (state is! PaymentIntentReady) return;
+
+    final theme = Theme.of(context);
+    try {
+      await Stripe.instance.initPaymentSheet(
+        paymentSheetParameters: SetupPaymentSheetParameters(
+          paymentIntentClientSecret: state.intent.clientSecret,
+          merchantDisplayName: 'Ticketa',
+          style: theme.brightness == Brightness.dark
+              ? ThemeMode.dark
+              : ThemeMode.light,
+        ),
+      );
+      await Stripe.instance.presentPaymentSheet();
+    } on PlatformException catch (e) {
+      if (!mounted) return;
+      MessageService.showWarning(
+        context: context,
+        message: e.code == 'PaymentSheetCancelled'
+            ? 'Payment cancelled'
+            : 'Payment failed: ${e.message ?? ''}',
+      );
+      return;
+    } catch (_) {
+      if (!mounted) return;
+      MessageService.showWarning(
+        context: context,
+        message: 'Payment failed, please try again.',
+      );
+      return;
+    }
+
+    await cubit.confirmPayment(state.intent.paymentIntentId);
+  }
+
+  void _handlePaymentSuccess(ConfirmPaymentResultDto result) {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -112,34 +127,116 @@ class _PaymentPageState extends State<PaymentPage> {
           movieTitle: widget.movieTitle,
           date: widget.date,
           time: widget.time,
-          seats: widget.selectedSeats,
-          totalAmount: widget.totalAmount,
-          bookingReference: widget.bookingReference,
+          seats: _seatLabels,
+          totalAmount: result.totalAmount ?? widget.totalAmount,
+          bookingReference: result.bookingReference ?? widget.bookingReference,
         ),
       ),
     );
   }
 
-  Widget _buildPayButton(AppLocalizations l10n, ThemeData theme) {
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+
+    return BlocProvider(
+      create: (_) => getIt<PaymentCubit>(),
+      child: BlocConsumer<PaymentCubit, PaymentState>(
+        listener: (context, state) {
+          if (state is PaymentSuccess) {
+            _handlePaymentSuccess(state.result);
+          } else if (state is PaymentFailure) {
+            MessageService.showWarning(context: context, message: state.message);
+          }
+        },
+        builder: (context, state) {
+          final isProcessing = state is PaymentLoading;
+
+          return Scaffold(
+            backgroundColor: theme.scaffoldBackgroundColor,
+            appBar: AppBar(
+              title: Text(
+                  l10n.paymentMethod,
+                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900)),
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              centerTitle: true,
+            ),
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  OrderSummary(
+                    movieTitle: widget.movieTitle,
+                    date: widget.date,
+                    time: widget.time,
+                    selectedSeats: _seatLabels,
+                    totalAmount: state is PaymentIntentReady
+                        ? state.intent.totalAmount
+                        : widget.totalAmount,
+                  ),
+                  const SizedBox(height: 32),
+
+                  Text(
+                    l10n.paymentMethod,
+                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+                  ),
+                  const SizedBox(height: 16),
+
+                  PaymentMethodSelector(
+                    index: 0,
+                    title: l10n.creditCard,
+                    icon: Icons.credit_card_rounded,
+                    isSelected: _selectedMethod == 0,
+                    onTap: () => setState(() => _selectedMethod = 0),
+                  ),
+
+                  AnimatedCrossFade(
+                    firstChild: const SizedBox(width: double.infinity),
+                    secondChild: const CardInputForm(),
+                    crossFadeState: _selectedMethod == 0
+                        ? CrossFadeState.showSecond
+                        : CrossFadeState.showFirst,
+                    duration: const Duration(milliseconds: 300),
+                  ),
+
+                  const SizedBox(height: 12),
+                  PaymentMethodSelector(
+                    index: 1,
+                    title: "Apple Pay",
+                    icon: Icons.apple_rounded,
+                    isSelected: _selectedMethod == 1,
+                    onTap: () => setState(() => _selectedMethod = 1),
+                  ),
+
+                  const SizedBox(height: 40),
+                  _buildPayButton(l10n, theme, isProcessing),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildPayButton(
+      AppLocalizations l10n, ThemeData theme, bool isProcessing) {
     return SizedBox(
       width: double.infinity,
       height: 60,
       child: ElevatedButton(
-        onPressed: _isProcessing ? null : () {
-          setState(() => _isProcessing = true);
-          Future.delayed(const Duration(milliseconds: 800), () {
-            if (!mounted) return;
-            setState(() => _isProcessing = false);
-            _handlePaymentSuccess();
-          });
-        },
+        onPressed: isProcessing ? null : _onPayPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.warmOrange,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           elevation: 10,
           shadowColor: AppColors.warmOrange.withValues(alpha: 0.5),
         ),
-        child: _isProcessing
+        child: isProcessing
             ? const CircularProgressIndicator(color: Colors.white)
             : Text(
                 l10n.payNow,

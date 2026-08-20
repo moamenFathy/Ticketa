@@ -43,6 +43,26 @@ class ApiService {
     }
   }
 
+  // PUT Request
+  Future<Response> put(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+  }) async {
+    try {
+      final response = await _dio.put(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+      return response;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // Error Handling
   Exception _handleError(DioException e) {
     String? message;

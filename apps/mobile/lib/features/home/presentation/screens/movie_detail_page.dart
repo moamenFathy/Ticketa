@@ -4,8 +4,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ticketa/core/di/injection.dart';
+import 'package:ticketa/core/services/message_service.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/core/utils/app_responsive.dart';
+import 'package:ticketa/core/utils/localization_helper.dart';
 import 'package:ticketa/core/utils/youtube_utils.dart';
 import 'package:ticketa/features/booking/presentation/screens/seat_selection_page.dart';
 import 'package:ticketa/features/home/data/models/movie.dart';
@@ -15,7 +17,8 @@ import 'package:ticketa/features/home/presentation/screens/see_all_cast_page.dar
 import 'package:ticketa/features/home/presentation/widgets/movie_cast_list.dart';
 import 'package:ticketa/features/home/presentation/widgets/movie_date_selector.dart';
 import 'package:ticketa/features/home/presentation/widgets/movie_detail_header.dart';
-import 'package:ticketa/features/home/presentation/widgets/movie_detail_skeleton.dart' as ticketa_movie_skeleton;
+import 'package:ticketa/features/home/presentation/widgets/movie_detail_skeleton.dart'
+    as ticketa_movie_skeleton;
 import 'package:ticketa/features/home/presentation/widgets/movie_info_tag.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 
@@ -43,12 +46,15 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     final movie = widget.movie;
 
     return BlocProvider(
-      create: (context) => getIt<MovieDetailCubit>()..fetchMovieDetails(widget.movie.id),
+      create: (context) =>
+          getIt<MovieDetailCubit>()..fetchMovieDetails(widget.movie.id),
       child: BlocBuilder<MovieDetailCubit, MovieDetailState>(
         builder: (context, state) {
           final isLoaded = state is MovieDetailLoaded;
           final raw = isLoaded ? state.movie : widget.movie;
-          final hasValidShowtimes = raw.showtimeInfos.isNotEmpty && raw.showtimeInfos.any((s) => s.id > 0);
+          final hasValidShowtimes =
+              raw.showtimeInfos.isNotEmpty &&
+              raw.showtimeInfos.any((s) => s.id > 0);
           final displayMovie = (isLoaded && !hasValidShowtimes)
               ? Movie(
                   id: raw.id,
@@ -66,7 +72,8 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                   cast: raw.cast,
                 )
               : raw;
-          final isLoading = state is MovieDetailInitial || state is MovieDetailLoading;
+          final isLoading =
+              state is MovieDetailInitial || state is MovieDetailLoading;
 
           return AnimatedSwitcher(
             duration: const Duration(milliseconds: 600),
@@ -91,8 +98,10 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded,
-              color: theme.colorScheme.onSurface),
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: theme.colorScheme.onSurface,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -101,7 +110,12 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     );
   }
 
-  Widget _buildContent(ThemeData theme, AppLocalizations l10n, Movie movie, Movie displayMovie) {
+  Widget _buildContent(
+    ThemeData theme,
+    AppLocalizations l10n,
+    Movie movie,
+    Movie displayMovie,
+  ) {
     return Scaffold(
       key: const ValueKey('content'),
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -119,14 +133,18 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
               _buildMovieInfoSection(theme, l10n, displayMovie),
             ],
           ),
-          _buildBottomBar(theme, l10n, movie),
+          _buildBottomBar(theme, l10n, displayMovie),
           _buildTrailerOverlay(displayMovie),
         ],
       ),
     );
   }
 
-  Widget _buildMovieInfoSection(ThemeData theme, AppLocalizations l10n, Movie displayMovie) {
+  Widget _buildMovieInfoSection(
+    ThemeData theme,
+    AppLocalizations l10n,
+    Movie displayMovie,
+  ) {
     return SliverToBoxAdapter(
       child: Padding(
         padding: AppResponsive.screenPadding(context),
@@ -134,54 +152,69 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 10),
-            _staggeredSection(0.00, Text(
-              displayMovie.title,
-              style: theme.textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.5,
-                color: theme.colorScheme.onSurface,
+            _staggeredSection(
+              0.00,
+              Text(
+                displayMovie.title,
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.5,
+                  color: theme.colorScheme.onSurface,
+                ),
               ),
-            )),
+            ),
             const SizedBox(height: 12),
             _staggeredSection(0.08, _buildInfoTags(theme, displayMovie)),
             const SizedBox(height: 32),
             _staggeredSection(0.16, _SectionHeader(title: l10n.storyLine)),
             const SizedBox(height: 12),
-            _staggeredSection(0.16, Text(
-              displayMovie.overview.isNotEmpty
-                  ? displayMovie.overview
-                  : l10n.storyLine,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                height: 1.6,
-                fontWeight: FontWeight.w500,
+            _staggeredSection(
+              0.16,
+              Text(
+                displayMovie.overview.isNotEmpty
+                    ? displayMovie.overview
+                    : l10n.storyLine,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                  height: 1.6,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            )),
+            ),
             const SizedBox(height: 32),
-            _staggeredSection(0.24, _SectionHeader(title: l10n.cast, onSeeAll: displayMovie.cast.length >= 3
-                ? () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => SeeAllCastPage(cast: displayMovie.cast),
-                      ),
-                    )
-                : null)),
+            _staggeredSection(
+              0.24,
+              _SectionHeader(
+                title: l10n.cast,
+                onSeeAll: displayMovie.cast.length >= 3
+                    ? () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              SeeAllCastPage(cast: displayMovie.cast),
+                        ),
+                      )
+                    : null,
+              ),
+            ),
             const SizedBox(height: 16),
             _staggeredSection(0.24, MovieCastList(cast: displayMovie.cast)),
             const SizedBox(height: 32),
             _staggeredSection(0.32, _SectionHeader(title: 'Show Time')),
             const SizedBox(height: 16),
-            _staggeredSection(0.32,
+            _staggeredSection(
+              0.32,
               displayMovie.showtimeInfos.isNotEmpty
                   ? MovieDateSelector(
-                      showtimes: displayMovie.showtimeInfos,
-                      onShowtimeSelected: (st) =>
-                          setState(() => _selectedShowtime = st),
-                    ) as Widget
+                          showtimes: displayMovie.showtimeInfos,
+                          onShowtimeSelected: (st) =>
+                              setState(() => _selectedShowtime = st),
+                        )
+                        as Widget
                   : const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text("No showtimes available yet."),
-                  ),
+                      padding: EdgeInsets.all(8.0),
+                      child: Text("No showtimes available yet."),
+                    ),
             ),
             const SizedBox(height: 140),
           ],
@@ -214,27 +247,35 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       child: Row(
         children: [
           MovieInfoTag(
-              label: displayMovie.rating.toStringAsFixed(1),
-              icon: Icons.star_rounded,
-              color: Colors.amber),
+            label: displayMovie.rating.toStringAsFixed(1),
+            icon: Icons.star_rounded,
+            color: Colors.amber,
+          ),
           const SizedBox(width: 10),
           MovieInfoTag(
-              label: displayMovie.genre.isNotEmpty ? displayMovie.genre.split(', ')[0] : 'Action',
-              icon: Icons.movie_filter_outlined,
-              color: AppColors.warmOrange),
+            label: displayMovie.genre.isNotEmpty
+                ? displayMovie.genre.split(', ')[0]
+                : 'Action',
+            icon: Icons.movie_filter_outlined,
+            color: AppColors.warmOrange,
+          ),
           const SizedBox(width: 10),
           MovieInfoTag(
-              label: displayMovie.duration > 60
-                  ? "${displayMovie.duration ~/ 60}h ${displayMovie.duration % 60}m"
-                  : "${displayMovie.duration}m",
-              icon: Icons.timer_outlined,
-              color: Colors.grey),
+            label: displayMovie.duration > 60
+                ? "${displayMovie.duration ~/ 60}h ${displayMovie.duration % 60}m"
+                : "${displayMovie.duration}m",
+            icon: Icons.timer_outlined,
+            color: Colors.grey,
+          ),
         ],
       ),
     );
   }
 
   Widget _buildBottomBar(ThemeData theme, AppLocalizations l10n, Movie movie) {
+    final selectedShowtime =
+        _selectedShowtime ??
+        (movie.showtimeInfos.isNotEmpty ? movie.showtimeInfos.first : null);
     return Positioned(
       bottom: 0,
       left: 0,
@@ -271,7 +312,9 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                   ),
                 ),
                 Text(
-                  "EGP ${(_selectedShowtime?.price ?? (movie.showtimeInfos.isNotEmpty ? movie.showtimeInfos.first.price : 0)).toStringAsFixed(2)}",
+                  selectedShowtime != null
+                      ? "EGP ${selectedShowtime.price.toStringAsFixed(2)}"
+                      : '--',
                   style: theme.textTheme.titleLarge?.copyWith(
                     color: AppColors.warmOrange,
                     fontWeight: FontWeight.w900,
@@ -293,17 +336,26 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                 ),
                 child: ElevatedButton(
                   onPressed: () {
-                    final st = _selectedShowtime ?? (movie.showtimeInfos.isNotEmpty ? movie.showtimeInfos.first : null);
-                    if (st == null) return;
+                    if (selectedShowtime == null) {
+                      MessageService.showWarning(
+                        context: context,
+                        message: localeCopy(
+                          context,
+                          'No showtimes available for this movie yet',
+                          'لا توجد عروض متاحة لهذا الفيلم حالياً',
+                        ),
+                      );
+                      return;
+                    }
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) => SeatSelectionPage(
                           movieTitle: movie.title,
-                          showtimeId: st.id,
+                          showtimeId: selectedShowtime.id,
                           showtimeInfos: movie.showtimeInfos,
-                          basePrice: st.price,
-                          hallName: st.hallName,
+                          basePrice: selectedShowtime.price,
+                          hallName: selectedShowtime.hallName,
                           moviePoster: movie.posterUrl,
                         ),
                       ),
@@ -314,15 +366,17 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                     backgroundColor: AppColors.warmOrange,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                     elevation: 0,
                   ),
                   child: Text(
                     l10n.bookTickets,
                     style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1,
+                    ),
                   ),
                 ),
               ),
@@ -373,7 +427,9 @@ class _SectionHeader extends StatelessWidget {
       children: [
         Text(
           title,
-          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w900,
+          ),
         ),
         if (onSeeAll != null)
           TextButton(
@@ -397,14 +453,15 @@ class _FullScreenInlinePlayer extends StatefulWidget {
   final VoidCallback onClose;
 
   const _FullScreenInlinePlayer({
-    super.key, 
-    required this.trailerKey, 
+    super.key,
+    required this.trailerKey,
     required this.posterUrl,
     required this.onClose,
   });
 
   @override
-  State<_FullScreenInlinePlayer> createState() => _FullScreenInlinePlayerState();
+  State<_FullScreenInlinePlayer> createState() =>
+      _FullScreenInlinePlayerState();
 }
 
 class _FullScreenInlinePlayerState extends State<_FullScreenInlinePlayer> {
@@ -422,8 +479,17 @@ class _FullScreenInlinePlayerState extends State<_FullScreenInlinePlayer> {
         showControls: true,
         showFullscreenButton: true,
         playsInline: true,
+        mute: true,
       ),
     );
+    _controller.listen((value) {
+      if (value.playerState == PlayerState.playing) _unmuteSoon();
+    });
+  }
+
+  Future<void> _unmuteSoon() async {
+    await Future.delayed(const Duration(milliseconds: 900));
+    await _controller.unMute();
   }
 
   @override
@@ -458,12 +524,10 @@ class _FullScreenInlinePlayerState extends State<_FullScreenInlinePlayer> {
           Positioned.fill(
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-              child: Container(
-                color: Colors.black.withValues(alpha: 0.6),
-              ),
+              child: Container(color: Colors.black.withValues(alpha: 0.6)),
             ),
           ),
-          
+
           SafeArea(
             child: Stack(
               children: [
@@ -478,7 +542,11 @@ class _FullScreenInlinePlayerState extends State<_FullScreenInlinePlayer> {
                   top: 16,
                   left: 16,
                   child: IconButton(
-                    icon: const Icon(Icons.close_rounded, color: Colors.white, size: 32),
+                    icon: const Icon(
+                      Icons.close_rounded,
+                      color: Colors.white,
+                      size: 32,
+                    ),
                     onPressed: _handleClose,
                   ),
                 ),

@@ -16,8 +16,11 @@ class RegisterPage extends StatefulWidget {
   State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderStateMixin {
+class _RegisterPageState extends State<RegisterPage>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _dateController = TextEditingController();
@@ -36,14 +39,17 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
     _slideUp = Tween<double>(begin: 40, end: 0).animate(
       CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
     );
-    _fadeIn = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
-    );
+    _fadeIn = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
     _animController.forward();
   }
 
   @override
   void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _dateController.dispose();
@@ -88,7 +94,20 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
                             children: [
                               const SizedBox(height: 40),
                               _buildHeader(theme),
-                              const SizedBox(height: 48),
+                              const SizedBox(height: 28),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: _buildFirstNameField(theme, isDark),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _buildLastNameField(theme, isDark),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
                               _buildInputLabel(theme, 'Email'),
                               const SizedBox(height: 8),
                               _buildEmailField(theme, isDark),
@@ -141,7 +160,11 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
               ),
             ],
           ),
-          child: const Icon(Icons.person_add_rounded, color: Colors.white, size: 36),
+          child: const Icon(
+            Icons.person_add_rounded,
+            color: Colors.white,
+            size: 36,
+          ),
         ),
         const SizedBox(height: 20),
         Text(
@@ -176,13 +199,70 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
     );
   }
 
+  Widget _buildFirstNameField(ThemeData theme, bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildInputLabel(theme, 'First Name'),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: _firstNameController,
+          textCapitalization: TextCapitalization.words,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
+          ],
+          style: TextStyle(color: theme.colorScheme.onSurface),
+          decoration: _inputDecoration(
+            theme,
+            isDark,
+            hint: 'First name',
+            icon: Icons.person_outline,
+          ),
+          validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLastNameField(ThemeData theme, bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildInputLabel(theme, 'Last Name'),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: _lastNameController,
+          textCapitalization: TextCapitalization.words,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
+          ],
+          style: TextStyle(color: theme.colorScheme.onSurface),
+          decoration: _inputDecoration(
+            theme,
+            isDark,
+            hint: 'Last name',
+            icon: Icons.person_outline,
+          ),
+          validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
+        ),
+      ],
+    );
+  }
+
   Widget _buildEmailField(ThemeData theme, bool isDark) {
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
-      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\x00-\x7F]'))],
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r'[\x00-\x7F]')),
+      ],
       style: TextStyle(color: theme.colorScheme.onSurface),
-      decoration: _inputDecoration(theme, isDark, hint: 'your@email.com', icon: Icons.email_outlined),
+      decoration: _inputDecoration(
+        theme,
+        isDark,
+        hint: 'your@email.com',
+        icon: Icons.email_outlined,
+      ),
       validator: (v) => v == null || v.isEmpty ? 'Email is required' : null,
     );
   }
@@ -191,15 +271,20 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
     return TextFormField(
       controller: _passwordController,
       obscureText: _obscurePassword,
-      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\x00-\x7F]'))],
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r'[\x00-\x7F]')),
+      ],
       style: TextStyle(color: theme.colorScheme.onSurface),
       decoration: _inputDecoration(
-        theme, isDark,
+        theme,
+        isDark,
         hint: 'Minimum 6 characters',
         icon: Icons.lock_outlined,
         suffix: IconButton(
           icon: Icon(
-            _obscurePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+            _obscurePassword
+                ? Icons.visibility_off_rounded
+                : Icons.visibility_rounded,
             color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
             size: 20,
           ),
@@ -221,12 +306,17 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
       onTap: _pickDate,
       style: TextStyle(color: theme.colorScheme.onSurface),
       decoration: _inputDecoration(
-        theme, isDark,
+        theme,
+        isDark,
         hint: 'Select your date of birth',
         icon: Icons.cake_outlined,
-        suffix: Icon(Icons.arrow_drop_down_rounded, color: AppColors.warmOrange.withValues(alpha: 0.6)),
+        suffix: Icon(
+          Icons.arrow_drop_down_rounded,
+          color: AppColors.warmOrange.withValues(alpha: 0.6),
+        ),
       ),
-      validator: (v) => v == null || v.isEmpty ? 'Date of birth is required' : null,
+      validator: (v) =>
+          v == null || v.isEmpty ? 'Date of birth is required' : null,
     );
   }
 
@@ -236,7 +326,11 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
         if (state is AuthRegisterSuccess) {
           final email = _emailController.text.trim();
           MessageService.showSuccess(context: context, message: state.message);
-          Navigator.pushReplacementNamed(context, '/confirm-email', arguments: email);
+          Navigator.pushReplacementNamed(
+            context,
+            '/confirm-email',
+            arguments: email,
+          );
         } else if (state is AuthError) {
           MessageService.showError(context: context, message: state.message);
         }
@@ -263,31 +357,48 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
               ],
             ),
             child: ElevatedButton(
-              onPressed: isLoading ? null : () {
-                if (_formKey.currentState!.validate()) {
-                  context.read<AuthCubit>().register(
-                    _emailController.text.trim(),
-                    _passwordController.text,
-                    _dateController.text.trim(),
-                  );
-                }
-              },
+              onPressed: isLoading
+                  ? null
+                  : () {
+                      if (_formKey.currentState!.validate()) {
+                        context.read<AuthCubit>().register(
+                          _emailController.text.trim(),
+                          _passwordController.text,
+                          _dateController.text.trim(),
+                          _firstNameController.text.trim(),
+                          _lastNameController.text.trim(),
+                        );
+                      }
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.transparent,
                 shadowColor: Colors.transparent,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
                 elevation: 0,
               ),
               child: isLoading
                   ? const SizedBox(
-                      height: 22, width: 22,
-                      child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                      height: 22,
+                      width: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: Colors.white,
+                      ),
                     )
                   : const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('Create Account', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+                        Text(
+                          'Create Account',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
                         SizedBox(width: 8),
                         Icon(Icons.arrow_forward_rounded, size: 20),
                       ],
@@ -305,7 +416,10 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
       children: [
         Text(
           'Already have an account? ',
-          style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.45), fontSize: 13),
+          style: TextStyle(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
+            fontSize: 13,
+          ),
         ),
         GestureDetector(
           onTap: () => Navigator.pushReplacementNamed(context, '/login'),
@@ -324,15 +438,23 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
     );
   }
 
-  InputDecoration _inputDecoration(ThemeData theme, bool isDark, {
+  InputDecoration _inputDecoration(
+    ThemeData theme,
+    bool isDark, {
     required String hint,
     required IconData icon,
     Widget? suffix,
   }) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.25)),
-      prefixIcon: Icon(icon, size: 20, color: AppColors.warmOrange.withValues(alpha: 0.6)),
+      hintStyle: TextStyle(
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.25),
+      ),
+      prefixIcon: Icon(
+        icon,
+        size: 20,
+        color: AppColors.warmOrange.withValues(alpha: 0.6),
+      ),
       suffixIcon: suffix,
       filled: true,
       fillColor: isDark
@@ -340,11 +462,15 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
           : Colors.white.withValues(alpha: 0.8),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: theme.colorScheme.onSurface.withValues(alpha: 0.06)),
+        borderSide: BorderSide(
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.06),
+        ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: theme.colorScheme.onSurface.withValues(alpha: 0.06)),
+        borderSide: BorderSide(
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.06),
+        ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),

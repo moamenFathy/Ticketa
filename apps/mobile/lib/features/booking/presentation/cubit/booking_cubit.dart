@@ -7,15 +7,21 @@ import 'package:ticketa/features/booking/presentation/cubit/booking_state.dart';
 
 class BookingCubit extends Cubit<BookingState> {
   final BookingRepository _repository;
+  SeatMapLoaded? _lastLoaded;
 
   BookingCubit(this._repository) : super(BookingInitial());
+
+  SeatMapLoaded? get lastLoaded => _lastLoaded;
 
   Future<void> loadSeatMap(int showtimeId) async {
     emit(BookingLoading());
     try {
       final seatMap = await _repository.getSeatMap(showtimeId);
-      emit(SeatMapLoaded(seatMap: seatMap));
+      final loaded = SeatMapLoaded(seatMap: seatMap);
+      _lastLoaded = loaded;
+      emit(loaded);
     } catch (e) {
+      _lastLoaded = null;
       emit(BookingError(e.toString().replaceFirst('Exception: ', '')));
     }
   }
@@ -29,7 +35,9 @@ class BookingCubit extends Cubit<BookingState> {
     } else {
       seats.add(seatId);
     }
-    emit(SeatMapLoaded(seatMap: current.seatMap, selectedSeats: seats));
+    final updated = SeatMapLoaded(seatMap: current.seatMap, selectedSeats: seats);
+    _lastLoaded = updated;
+    emit(updated);
   }
 
   Future<void> createBooking(int showtimeId, List<SeatDto> seats) async {

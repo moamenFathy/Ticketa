@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ticketa/core/constants/app_constants.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 
 class HomeHeader extends StatelessWidget {
-  const HomeHeader({super.key});
+  final VoidCallback? onAvatarTap;
+
+  const HomeHeader({super.key, this.onAvatarTap});
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +59,16 @@ class HomeHeader extends StatelessWidget {
               shape: const CircleBorder(),
               child: InkWell(
                 customBorder: const CircleBorder(),
-                onTap: () => Navigator.of(context).pushNamed('/edit-profile'),
+                onTap: () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  final isGuest =
+                      prefs.getBool(AppConstants.isGuestKey) ?? true;
+                  if (isGuest && onAvatarTap != null) {
+                    onAvatarTap!();
+                  } else {
+                    Navigator.of(context).pushNamed('/edit-profile');
+                  }
+                },
                 child: Container(
                   width: 48,
                   height: 48,

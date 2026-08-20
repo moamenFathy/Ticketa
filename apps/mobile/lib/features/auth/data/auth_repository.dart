@@ -16,10 +16,22 @@ class AuthRepository {
         : {};
   }
 
-  Future<Map<String, dynamic>> register(String email, String password, String dateOfBirth) async {
+  Future<Map<String, dynamic>> register(
+    String email,
+    String password,
+    String dateOfBirth,
+    String firstName,
+    String lastName,
+  ) async {
     final response = await _apiService.post(
       ApiConstants.registerEndpoint,
-      data: {'email': email, 'password': password, 'dateOfBirth': dateOfBirth},
+      data: {
+        'email': email,
+        'password': password,
+        'dateOfBirth': dateOfBirth,
+        'firstName': firstName,
+        'lastName': lastName,
+      },
     );
     return response.data is Map<String, dynamic>
         ? response.data as Map<String, dynamic>
@@ -61,6 +73,33 @@ class AuthRepository {
     final response = await _apiService.post(
       ApiConstants.forgotPasswordEndpoint,
       data: {'email': email},
+    );
+    return response.data is Map<String, dynamic>
+        ? response.data as Map<String, dynamic>
+        : {};
+  }
+
+  Future<Map<String, dynamic>> getProfile() async {
+    final response = await _apiService.get(ApiConstants.profileEndpoint);
+    return response.data is Map<String, dynamic>
+        ? response.data as Map<String, dynamic>
+        : {};
+  }
+
+  Future<Map<String, dynamic>> updateProfile({
+    required String firstName,
+    required String lastName,
+    required String dateOfBirth,
+    required String theme,
+  }) async {
+    final response = await _apiService.put(
+      ApiConstants.profileEndpoint,
+      data: {
+        'firstName': firstName,
+        'lastName': lastName,
+        'dateOfBirth': dateOfBirth,
+        'theme': theme,
+      },
     );
     return response.data is Map<String, dynamic>
         ? response.data as Map<String, dynamic>

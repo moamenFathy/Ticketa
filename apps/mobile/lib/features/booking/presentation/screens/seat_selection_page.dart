@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,6 +43,56 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
   List<SeatDto> _pendingSeats = [];
   int _selectedDateIndex = 0;
   int _selectedTimeIndex = 0;
+
+  List<DateTime> get _availableDays {
+    if (widget.showtimeInfos.isEmpty) {
+      return List.generate(14, (i) => DateTime.now().add(Duration(days: i)));
+    }
+    final days = <DateTime>{};
+    for (final s in widget.showtimeInfos) {
+      days.add(DateTime(s.startTime.year, s.startTime.month, s.startTime.day));
+    }
+    final sorted = days.toList()..sort();
+    return sorted;
+  }
+
+  List<ShowtimeInfo> get _dayTimes {
+    final days = _availableDays;
+    if (days.isEmpty) return const [];
+    final day = days[_selectedDateIndex.clamp(0, days.length - 1)];
+    return widget.showtimeInfos
+        .where((s) =>
+            s.startTime.year == day.year &&
+            s.startTime.month == day.month &&
+            s.startTime.day == day.day)
+        .toList()
+      ..sort((a, b) => a.startTime.compareTo(b.startTime));
+  }
+
+  ShowtimeInfo? get _activeShowtime {
+    final times = _dayTimes;
+    if (times.isEmpty) return null;
+    return times[_selectedTimeIndex.clamp(0, times.length - 1)];
+  }
+
+  void _onDateSelected(BuildContext ctx, int index) {
+    setState(() {
+      _selectedDateIndex = index;
+      _selectedTimeIndex = 0;
+    });
+    final showtime = _activeShowtime;
+    if (showtime != null) {
+      ctx.read<BookingCubit>().loadSeatMap(showtime.id);
+    }
+  }
+
+  void _onTimeSelected(BuildContext ctx, int index) {
+    setState(() => _selectedTimeIndex = index);
+    final showtime = _activeShowtime;
+    if (showtime != null) {
+      ctx.read<BookingCubit>().loadSeatMap(showtime.id);
+    }
+  }
 
   Future<void> _requireAuth(BuildContext actionContext) async {
     final prefs = await SharedPreferences.getInstance();
@@ -142,24 +193,6 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
                   SnackBar(content: Text('${state.conflictingSeatIds.length} seat(s) already booked.')),
                 );
                 context.read<BookingCubit>().loadSeatMap(widget.showtimeId);
-              } else if (state is BookingCreated) {
-                final seatLabels = _pendingSeats.map((s) => 'R${s.row}-S${s.seatNumber}').toList();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => PaymentPage(
-                      totalAmount: state.totalAmount,
-                      movieTitle: widget.movieTitle,
-                      selectedSeats: seatLabels,
-                      date: '',
-                      time: '',
-                      bookingReference: state.bookingReference,
-                      showtimeId: widget.showtimeId,
-                      moviePoster: widget.moviePoster,
-                      hallName: widget.hallName,
-                    ),
-                  ),
-                );
               } else if (state is BookingError) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(state.message)),
@@ -168,6 +201,28 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
             },
             builder: (context, state) {
               if (state is BookingLoading) {
+                final prev = context.read<BookingCubit>().lastLoaded;
+                if (prev != null) {
+                  return Stack(
+                    children: [
+                      IgnorePointer(
+                        child: Opacity(
+                          opacity: 0.35,
+                          child: _buildContent(context, l10n, theme, isDark, prev),
+                        ),
+                      ),
+                      const Positioned.fill(
+                        child: Center(
+                          child: SizedBox(
+                            width: 28,
+                            height: 28,
+                            child: CircularProgressIndicator(strokeWidth: 3),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }
                 return const Center(
                   child: SizedBox(
                     width: 28, height: 28,
@@ -251,10 +306,8 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
           // Dates Section
           SeatDateSelector(
             selectedIndex: _selectedDateIndex,
-            onDateSelected: (index) {
-              setState(() => _selectedDateIndex = index);
-            },
-            showtimeDate: seatMap.startsAt,
+            onDateSelected: (index) => _onDateSelected(context, index),
+            dates: _availableDays,
           ),
 
           const SizedBox(height: 20),
@@ -262,14 +315,9 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
           // Times Section
           TimeSelector(
             selectedIndex: _selectedTimeIndex,
-            onTimeSelected: (index) {
-              setState(() => _selectedTimeIndex = index);
-              if (index < widget.showtimeInfos.length) {
-                context.read<BookingCubit>().loadSeatMap(widget.showtimeInfos[index].id);
-              }
-            },
-            showtimes: widget.showtimeInfos,
-            showtimeTime: seatMap.startsAt,
+            onTimeSelected: (index) => _onTimeSelected(context, index),
+            showtimes: _dayTimes,
+            showtimeTime: _activeShowtime?.startTime,
           ),
 
           const SizedBox(height: 8),
@@ -446,7 +494,26 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
                         seatNumber: int.tryParse(parts[1]) ?? 0,
                       );
                     }).toList();
-                    ctx.read<BookingCubit>().createBooking(widget.showtimeId, _pendingSeats);
+                    final active = _activeShowtime;
+                    Navigator.push(
+                      ctx,
+                      MaterialPageRoute(
+                        builder: (_) => PaymentPage(
+                          totalAmount: total,
+                          movieTitle: widget.movieTitle,
+                          seats: _pendingSeats,
+                          date: active != null
+                              ? DateFormat('dd MMM yyyy').format(active.startTime)
+                              : '',
+                          time: active != null
+                              ? DateFormat('h:mm a').format(active.startTime)
+                              : '',
+                          showtimeId: active?.id ?? widget.showtimeId,
+                          moviePoster: widget.moviePoster,
+                          hallName: widget.hallName,
+                        ),
+                      ),
+                    );
                   }
                 : null,
             child: AnimatedContainer(

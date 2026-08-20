@@ -16,7 +16,9 @@ import 'package:ticketa/features/home/presentation/cubit/home_state.dart';
 import 'package:ticketa/features/home/presentation/screens/see_all_movies_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final VoidCallback? onProfileAvatarTap;
+
+  const HomePage({super.key, this.onProfileAvatarTap});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -47,10 +49,9 @@ class _HomePageState extends State<HomePage> {
 
             final nowShowing = state is HomeLoaded ? state.nowShowing : <Movie>[];
             final comingSoon = state is HomeLoaded ? state.comingSoon : <Movie>[];
+            final topBooked = state is HomeLoaded ? state.topBooked : <Movie>[];
 
-            final topRatedMovies = List<Movie>.from(nowShowing)
-              ..sort((a, b) => b.rating.compareTo(a.rating));
-            final heroMovies = topRatedMovies.take(6).toList();
+            final heroMovies = topBooked.take(6).toList();
 
             final l10n = AppLocalizations.of(context)!;
             final isDark = theme.brightness == Brightness.dark;
@@ -117,7 +118,7 @@ class _HomePageState extends State<HomePage> {
                       height: MediaQuery.of(context).padding.top + 8,
                     ),
                   ),
-                  _staggeredSliver(0.00, const HomeHeader()),
+                  _staggeredSliver(0.00, HomeHeader(onAvatarTap: widget.onProfileAvatarTap)),
                   if (heroMovies.isNotEmpty)
                     _staggeredSliver(0.10, HomeHeroSection(
                       movies: heroMovies,

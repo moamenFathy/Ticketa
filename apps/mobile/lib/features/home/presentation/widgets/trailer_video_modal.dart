@@ -3,21 +3,22 @@ import 'package:ticketa/core/utils/youtube_utils.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
-Future<void> showTrailerVideoModal(BuildContext context, String trailerKey) async {
+Future<void> showTrailerVideoModal(
+  BuildContext context,
+  String trailerKey,
+) async {
   final l10n = AppLocalizations.of(context)!;
   final videoId = extractYoutubeVideoId(trailerKey);
   if (videoId == null || videoId.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.trailerNotAvailable)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l10n.trailerNotAvailable)));
     return;
   }
 
   await Navigator.push(
     context,
-    MaterialPageRoute(
-      builder: (_) => _TrailerFullScreenPage(videoId: videoId),
-    ),
+    MaterialPageRoute(builder: (_) => _TrailerFullScreenPage(videoId: videoId)),
   );
 }
 
@@ -36,7 +37,7 @@ class _TrailerFullScreenPageState extends State<_TrailerFullScreenPage> {
   @override
   void initState() {
     super.initState();
-    
+
     _controller = YoutubePlayerController.fromVideoId(
       videoId: widget.videoId,
       autoPlay: true,
@@ -44,12 +45,21 @@ class _TrailerFullScreenPageState extends State<_TrailerFullScreenPage> {
         showControls: true,
         showFullscreenButton: true,
         playsInline: false, // false to indicate it's meant to be full screen
-        mute: false,
+        mute: true,
         enableCaption: false,
         strictRelatedVideos: true,
         pointerEvents: PointerEvents.auto,
       ),
     );
+
+    _controller.listen((value) {
+      if (value.playerState == PlayerState.playing) _unmuteSoon();
+    });
+  }
+
+  Future<void> _unmuteSoon() async {
+    await Future.delayed(const Duration(milliseconds: 900));
+    await _controller.unMute();
   }
 
   @override

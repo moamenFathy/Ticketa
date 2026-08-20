@@ -27,7 +27,13 @@ class _MainPageState extends State<MainPage> {
     final isDark = theme.brightness == Brightness.dark;
 
     final List<Widget> pages = [
-      const HomePage(),
+      HomePage(
+        onProfileAvatarTap: () {
+          setState(() {
+            _currentIndex = 3;
+          });
+        },
+      ),
       const NowShowingPage(),
       const OffersPage(),
       const SettingsPage(),

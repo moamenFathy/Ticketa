@@ -53,7 +53,7 @@ class ShowtimeInfo {
         startTime: DateTime.tryParse(json['startTime']?.toString() ?? '') ?? DateTime.now(),
         price: (json['price'] as num?)?.toDouble() ?? 0.0,
         hallName: json['hallName'] ?? '',
-        totalSeats: json['totalSeats'] ?? 0,
+        totalSeats: json['totalSeats'] ?? json['visibleSeatCount'] ?? 0,
       );
 }
 

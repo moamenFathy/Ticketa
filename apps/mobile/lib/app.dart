@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:ticketa/core/di/injection.dart';
+import 'package:ticketa/core/services/navigation_service.dart';
 import 'package:ticketa/core/theme/app_theme.dart';
 import 'package:ticketa/core/services/locale_service.dart';
 import 'package:ticketa/core/services/theme_service.dart';
@@ -45,6 +47,7 @@ class MyApp extends StatelessWidget {
               GlobalCupertinoLocalizations.delegate,
             ],
             supportedLocales: const [Locale('en'), Locale('ar')],
+            navigatorKey: getIt<NavigationService>().navigatorKey,
             home: const SplashScreen(),
             routes: {
               '/login': (context) => const LoginPage(),

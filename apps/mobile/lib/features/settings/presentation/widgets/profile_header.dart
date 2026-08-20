@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/core/constants/app_constants.dart';
+import 'package:ticketa/core/di/injection.dart';
+import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/features/auth/data/auth_repository.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 
 class ProfileHeader extends StatefulWidget {
@@ -15,6 +17,8 @@ class _ProfileHeaderState extends State<ProfileHeader> {
   bool _isGuest = true;
   bool _isLoading = true;
   String _email = '';
+  String _firstName = '';
+  String _lastName = '';
 
   @override
   void initState() {
@@ -24,12 +28,29 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
   Future<void> _loadAuth() async {
     final prefs = await SharedPreferences.getInstance();
+    final email = prefs.getString(AppConstants.userEmailKey) ?? '';
+    String firstName = '';
+    String lastName = '';
+    try {
+      final profile = await getIt<AuthRepository>().getProfile();
+      firstName = profile['firstName'] as String? ?? '';
+      lastName = profile['lastName'] as String? ?? '';
+    } catch (e) {
+      // ignore: profile fetch failure, keep email only
+    }
     if (!mounted) return;
     setState(() {
       _isGuest = prefs.getBool(AppConstants.isGuestKey) ?? true;
-      _email = prefs.getString(AppConstants.userEmailKey) ?? '';
+      _email = email;
+      _firstName = firstName;
+      _lastName = lastName;
       _isLoading = false;
     });
+  }
+
+  String get _displayName {
+    final fullName = '$_firstName $_lastName'.trim();
+    return fullName.isNotEmpty ? fullName : _email;
   }
 
   @override
@@ -57,10 +78,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   theme.colorScheme.surface,
                   theme.colorScheme.surface.withValues(alpha: 0.8),
                 ]
-              : [
-                  Colors.white,
-                  AppColors.lightCream.withValues(alpha: 0.8),
-                ],
+              : [Colors.white, AppColors.lightCream.withValues(alpha: 0.8)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -116,7 +134,8 @@ class _ProfileHeaderState extends State<ProfileHeader> {
             width: double.infinity,
             height: 50,
             child: ElevatedButton(
-              onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
+              onPressed: () =>
+                  Navigator.pushReplacementNamed(context, '/login'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.warmOrange,
                 foregroundColor: Colors.white,
@@ -127,10 +146,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
               ),
               child: const Text(
                 'Sign In',
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 15,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15),
               ),
             ),
           ),
@@ -152,10 +168,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   theme.colorScheme.surface,
                   theme.colorScheme.surface.withValues(alpha: 0.8),
                 ]
-              : [
-                  Colors.white,
-                  AppColors.lightCream.withValues(alpha: 0.8),
-                ],
+              : [Colors.white, AppColors.lightCream.withValues(alpha: 0.8)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -187,7 +200,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   children: [
                     Flexible(
                       child: Text(
-                        _email.contains('@') ? _email.split('@')[0] : _email,
+                        _displayName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.titleMedium?.copyWith(
@@ -226,6 +239,21 @@ class _ProfileHeaderState extends State<ProfileHeader> {
     );
   }
 
+  static String _initials(String name) {
+    final parts = name
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((p) => p.isNotEmpty)
+        .toList();
+    if (parts.isEmpty) return '';
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return parts[0].length >= 2
+        ? parts[0].substring(0, 2).toUpperCase()
+        : parts[0].toUpperCase();
+  }
+
   Widget _buildAvatar(ThemeData theme, bool isDark) {
     return Stack(
       alignment: Alignment.bottomRight,
@@ -241,7 +269,9 @@ class _ProfileHeaderState extends State<ProfileHeader> {
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.warmOrange.withValues(alpha: isDark ? 0.25 : 0.15),
+                color: AppColors.warmOrange.withValues(
+                  alpha: isDark ? 0.25 : 0.15,
+                ),
                 blurRadius: 16,
                 spreadRadius: 2,
               ),
@@ -255,10 +285,14 @@ class _ProfileHeaderState extends State<ProfileHeader> {
               shape: BoxShape.circle,
             ),
             child: Center(
-              child: Icon(
-                Icons.person_rounded,
-                size: 34,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+              child: Text(
+                _initials(_displayName),
+                style: TextStyle(
+                  color: AppColors.warmOrange,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1,
+                ),
               ),
             ),
           ),
@@ -268,10 +302,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
           decoration: BoxDecoration(
             color: AppColors.warmOrange,
             shape: BoxShape.circle,
-            border: Border.all(
-              color: theme.scaffoldBackgroundColor,
-              width: 2,
-            ),
+            border: Border.all(color: theme.scaffoldBackgroundColor, width: 2),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.1),
@@ -279,11 +310,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
               ),
             ],
           ),
-          child: const Icon(
-            Icons.star_rounded,
-            color: Colors.white,
-            size: 10,
-          ),
+          child: const Icon(Icons.star_rounded, color: Colors.white, size: 10),
         ),
       ],
     );
