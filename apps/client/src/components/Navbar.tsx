@@ -15,8 +15,10 @@ const navLinks = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [dark, setDark] = useState(
-    () => localStorage.getItem("theme") === "dark"
-      || (!localStorage.getItem("theme") && matchMedia("(prefers-color-scheme: dark)").matches),
+    () =>
+      localStorage.getItem("theme") === "dark" ||
+      (!localStorage.getItem("theme") &&
+        matchMedia("(prefers-color-scheme: dark)").matches),
   );
   const [userPreference, setUserPreference] = useState(
     () => !!localStorage.getItem("theme"),
@@ -77,6 +79,7 @@ export default function Navbar() {
               <NavLink
                 key={link.to}
                 to={link.to}
+                prefetch="viewport"
                 className={({ isActive }) =>
                   `relative px-4 py-1.5 rounded-full font-bold transition-all duration-300 overflow-hidden group
                   ${
