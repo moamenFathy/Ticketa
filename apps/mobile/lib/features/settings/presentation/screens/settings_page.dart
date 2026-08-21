@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/core/constants/app_constants.dart';
 import 'package:ticketa/core/services/theme_service.dart';
+import 'package:ticketa/features/booking/data/booking_repository.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 import '../widgets/profile_header.dart';
 
@@ -20,11 +22,15 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   bool _isLoading = true;
   bool _isGuest = true;
+  int _upcomingTickets = 0;
+  int _pastTickets = 0;
+  bool _ticketsLoaded = false;
 
   @override
   void initState() {
     super.initState();
     _loadAuth();
+    _loadTicketCounts();
   }
 
   Future<void> _loadAuth() async {
@@ -34,6 +40,25 @@ class _SettingsPageState extends State<SettingsPage> {
       _isGuest = prefs.getBool(AppConstants.isGuestKey) ?? true;
       _isLoading = false;
     });
+  }
+
+  Future<void> _loadTicketCounts() async {
+    try {
+      final repo = getIt<BookingRepository>();
+      final results = await Future.wait([
+        repo.getBookingHistory(page: 1, pageSize: 1, filter: 'Upcoming'),
+        repo.getBookingHistory(page: 1, pageSize: 1, filter: 'Past'),
+      ]);
+      if (!mounted) return;
+      setState(() {
+        _upcomingTickets = results[0].totalCount;
+        _pastTickets = results[1].totalCount;
+        _ticketsLoaded = true;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _ticketsLoaded = false);
+    }
   }
 
   @override
@@ -216,7 +241,9 @@ class _SettingsPageState extends State<SettingsPage> {
                       SettingsTile(
                         icon: Icons.confirmation_number_outlined,
                         title: l10n.myTickets,
-                        subtitle: "8 upcoming • 4 past",
+                        subtitle: _ticketsLoaded
+                            ? "$_upcomingTickets upcoming • $_pastTickets past"
+                            : "Check your tickets",
                         onTap: () => Navigator.of(context).pushNamed('/my-tickets'),
                       ),
                       const SettingsTile(

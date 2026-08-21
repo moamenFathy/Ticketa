@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/features/booking/data/models/booking_history_dto.dart';
+import 'package:ticketa/features/booking/presentation/cubit/my_tickets_cubit.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 import 'package:ticketa/core/utils/localization_helper.dart';
 
@@ -11,116 +16,255 @@ class MyTicketsPage extends StatefulWidget {
 }
 
 class _MyTicketsPageState extends State<MyTicketsPage> {
+  final _scrollController = ScrollController();
   int _selectedFilter = 0;
+  BuildContext? _cubitContext;
+  MyTicketsLoaded? _cached;
 
-  final List<_TicketItem> _tickets = const [
-    _TicketItem(
-      movie: 'Dune: Part Two',
-      cinema: 'Vox Cinemas - Mall of Egypt',
-      date: 'Fri, 24 May',
-      time: '08:30 PM',
-      hall: 'IMAX 02',
-      seats: 'G7, G8',
-      status: _TicketStatus.upcoming,
-      price: '420 EGP',
-      code: 'TK-8402',
-    ),
-    _TicketItem(
-      movie: 'Inside Out 2',
-      cinema: 'Galaxy Cairo Festival',
-      date: 'Sat, 25 May',
-      time: '06:15 PM',
-      hall: 'Screen 05',
-      seats: 'C4, C5, C6',
-      status: _TicketStatus.upcoming,
-      price: '510 EGP',
-      code: 'TK-1918',
-    ),
-    _TicketItem(
-      movie: 'The Batman',
-      cinema: 'Point 90 Cinema',
-      date: '12 Apr 2026',
-      time: '09:00 PM',
-      hall: 'Screen 01',
-      seats: 'D10',
-      status: _TicketStatus.past,
-      price: '160 EGP',
-      code: 'TK-5541',
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 300) {
+      _cubitContext?.read<MyTicketsCubit>().loadMore();
+    }
+  }
+
+  void _onFilterChanged(int index, MyTicketsState state) {
+    setState(() => _selectedFilter = index);
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(0);
+    }
+    _cubitContext?.read<MyTicketsCubit>().changeFilter(
+          switch (index) {
+            1 => TicketsFilter.upcoming,
+            2 => TicketsFilter.past,
+            _ => TicketsFilter.all,
+          },
+        );
+  }
+
+  List<BookingHistoryItemDto> _visibleTickets(
+      List<BookingHistoryItemDto> tickets) {
+    switch (_selectedFilter) {
+      case 1:
+        return tickets.where((t) => t.isUpcoming).toList();
+      case 2:
+        return tickets.where((t) => t.isPast).toList();
+      default:
+        return tickets;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final tickets = _filteredTickets;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          SliverAppBar(
-            pinned: true,
-            backgroundColor: theme.scaffoldBackgroundColor,
-            elevation: 0,
-            surfaceTintColor: Colors.transparent,
-            title: Text(
-              l10n.myTickets,
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0,
-              ),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _TicketsSummary(
-                  upcoming: _tickets
-                      .where(
-                        (ticket) => ticket.status == _TicketStatus.upcoming,
-                      )
-                      .length,
-                  past: _tickets
-                      .where((ticket) => ticket.status == _TicketStatus.past)
-                      .length,
+      body: BlocProvider(
+        create: (_) => getIt<MyTicketsCubit>()..loadTickets(),
+        child: BlocBuilder<MyTicketsCubit, MyTicketsState>(
+          builder: (context, state) {
+            _cubitContext = context;
+            if (state is MyTicketsLoaded) {
+              _cached = state;
+            }
+            return CustomScrollView(
+              controller: _scrollController,
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                SliverAppBar(
+                  pinned: true,
+                  backgroundColor: theme.scaffoldBackgroundColor,
+                  elevation: 0,
+                  surfaceTintColor: Colors.transparent,
+                  title: Text(
+                    l10n.myTickets,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0,
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 18),
-                _FilterChips(
-                  selectedIndex: _selectedFilter,
-                  labels: [
-                    localeCopy(context, 'All', 'الكل'),
-                    localeCopy(context, 'Upcoming', 'القادمة'),
-                    localeCopy(context, 'Past', 'السابقة'),
-                  ],
-                  onChanged: (index) => setState(() => _selectedFilter = index),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      _TicketsSummary(
+                        upcoming: (state is MyTicketsLoaded
+                                ? state.upcomingCount
+                                : _cached?.upcomingCount) ??
+                            0,
+                        past: (state is MyTicketsLoaded
+                                ? state.pastCount
+                                : _cached?.pastCount) ??
+                            0,
+                      ),
+                      const SizedBox(height: 18),
+                      _FilterChips(
+                        selectedIndex: _selectedFilter,
+                        labels: [
+                          localeCopy(context, 'All', 'الكل'),
+                          localeCopy(context, 'Upcoming', 'القادمة'),
+                          localeCopy(context, 'Past', 'السابقة'),
+                        ],
+                        onChanged: (index) => _onFilterChanged(index, state),
+                      ),
+                      const SizedBox(height: 18),
+                      if (state is MyTicketsLoaded) ...[
+                        ..._visibleTickets(state.tickets).map(
+                          (ticket) => _TicketCard(ticket: ticket),
+                        ),
+                        if (state.isLoadingMore)
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 18),
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.warmOrange,
+                                strokeWidth: 2.5,
+                              ),
+                            ),
+                          ),
+                        if (_visibleTickets(state.tickets).isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 30),
+                            child: Center(
+                              child: Text(
+                                localeCopy(
+                                  context,
+                                  'No tickets in this category',
+                                  'لا توجد تذاكر في هذه الفئة',
+                                ),
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.onSurface
+                                      .withValues(alpha: 0.45),
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ] else if (state is MyTicketsLoading) ...[
+                        if (_cached == null)
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 60),
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.warmOrange,
+                              ),
+                            ),
+                          )
+                        else
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 24),
+                            child: Center(
+                              child: SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  color: AppColors.warmOrange,
+                                  strokeWidth: 2.5,
+                                ),
+                              ),
+                            ),
+                          ),
+                        if (_cached != null)
+                          ..._visibleTickets(_cached!.tickets).map(
+                            (ticket) => _TicketCard(ticket: ticket),
+                          ),
+                      ] else if (state is MyTicketsError) ...[
+                        if (_cached != null) ...[
+                          ..._visibleTickets(_cached!.tickets).map(
+                            (ticket) => _TicketCard(ticket: ticket),
+                          ),
+                          const SizedBox(height: 12),
+                          Center(
+                            child: Text(
+                              state.message,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurface
+                                    .withValues(alpha: 0.5),
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ] else ...[
+                          const SizedBox(height: 40),
+                          Icon(
+                            Icons.error_outline_rounded,
+                            size: 56,
+                            color: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.25),
+                          ),
+                          const SizedBox(height: 14),
+                          Center(
+                            child: Text(
+                              state.message,
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurface
+                                    .withValues(alpha: 0.55),
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+                          Center(
+                            child: TextButton.icon(
+                              onPressed: () => _cubitContext
+                                  ?.read<MyTicketsCubit>()
+                                  .loadTickets(refresh: true),
+                              icon: const Icon(Icons.refresh_rounded),
+                              label: const Text('Retry'),
+                            ),
+                          ),
+                        ],
+                      ] else if (state is MyTicketsEmpty) ...[
+                        if (_cached == null) ...[
+                          const SizedBox(height: 60),
+                          Icon(
+                            Icons.confirmation_number_rounded,
+                            size: 56,
+                            color: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.25),
+                          ),
+                          const SizedBox(height: 14),
+                          Center(
+                            child: Text(
+                              localeCopy(
+                                context,
+                                'No tickets yet',
+                                'لا توجد تذاكر بعد',
+                              ),
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurface
+                                    .withValues(alpha: 0.55),
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ]),
+                  ),
                 ),
-                const SizedBox(height: 18),
-                ...tickets.map((ticket) => _TicketCard(ticket: ticket)),
-              ]),
-            ),
-          ),
-        ],
+              ],
+            );
+          },
+        ),
       ),
     );
-  }
-
-  List<_TicketItem> get _filteredTickets {
-    if (_selectedFilter == 1) {
-      return _tickets
-          .where((ticket) => ticket.status == _TicketStatus.upcoming)
-          .toList();
-    }
-
-    if (_selectedFilter == 2) {
-      return _tickets
-          .where((ticket) => ticket.status == _TicketStatus.past)
-          .toList();
-    }
-
-    return _tickets;
   }
 }
 
@@ -167,7 +311,8 @@ class _TicketsSummary extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  localeCopy(context, 'Ready for movie night', 'جاهز لليلة السينما'),
+                  localeCopy(
+                      context, 'Ready for movie night', 'جاهز لليلة السينما'),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 17,
@@ -257,14 +402,15 @@ class _FilterChips extends StatelessWidget {
 }
 
 class _TicketCard extends StatelessWidget {
-  final _TicketItem ticket;
+  final BookingHistoryItemDto ticket;
 
   const _TicketCard({required this.ticket});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isPast = ticket.status == _TicketStatus.past;
+    final isPast = ticket.isPast;
+    final startsAt = ticket.showtimeStartsAt.toLocal();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -286,7 +432,9 @@ class _TicketCard extends StatelessWidget {
                   width: 58,
                   height: 74,
                   decoration: BoxDecoration(
-                    color: AppColors.warmOrange.withValues(alpha: 0.1),
+                    color: isPast
+                        ? theme.colorScheme.onSurface.withValues(alpha: 0.06)
+                        : AppColors.warmOrange.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(
@@ -306,7 +454,7 @@ class _TicketCard extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              ticket.movie,
+                              ticket.movieTitle,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: theme.textTheme.titleMedium?.copyWith(
@@ -315,18 +463,17 @@ class _TicketCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                          _StatusPill(status: ticket.status),
+                          _StatusPill(isPast: isPast),
                         ],
                       ),
                       const SizedBox(height: 7),
                       Text(
-                        ticket.cinema,
+                        ticket.bookingReference,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface.withValues(
-                            alpha: 0.52,
-                          ),
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: 0.52),
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -335,9 +482,18 @@ class _TicketCard extends StatelessWidget {
                         spacing: 8,
                         runSpacing: 8,
                         children: [
-                          _InfoChip(Icons.calendar_month_rounded, ticket.date),
-                          _InfoChip(Icons.schedule_rounded, ticket.time),
-                          _InfoChip(Icons.event_seat_rounded, ticket.seats),
+                          _InfoChip(
+                            Icons.calendar_month_rounded,
+                            DateFormat('dd MMM yyyy').format(startsAt),
+                          ),
+                          _InfoChip(
+                            Icons.schedule_rounded,
+                            DateFormat('h:mm a').format(startsAt),
+                          ),
+                          _InfoChip(
+                            Icons.event_seat_rounded,
+                            '${ticket.seatCount} seats',
+                          ),
                         ],
                       ),
                     ],
@@ -352,10 +508,14 @@ class _TicketCard extends StatelessWidget {
             child: Row(
               children: [
                 Expanded(
-                  child: _TicketMeta(label: ticket.hall, value: ticket.code),
+                  child: _TicketMeta(
+                    label: localeCopy(
+                        context, 'Reference', 'المرجع').toUpperCase(),
+                    value: ticket.bookingReference,
+                  ),
                 ),
                 Text(
-                  ticket.price,
+                  '${ticket.totalAmount.toStringAsFixed(0)} EGP',
                   style: const TextStyle(
                     color: AppColors.warmOrange,
                     fontSize: 15,
@@ -373,13 +533,12 @@ class _TicketCard extends StatelessWidget {
 }
 
 class _StatusPill extends StatelessWidget {
-  final _TicketStatus status;
+  final bool isPast;
 
-  const _StatusPill({required this.status});
+  const _StatusPill({required this.isPast});
 
   @override
   Widget build(BuildContext context) {
-    final isPast = status == _TicketStatus.past;
     final color = isPast ? Colors.grey : AppColors.success;
 
     return Container(
@@ -500,30 +659,3 @@ class _DashedDivider extends StatelessWidget {
     );
   }
 }
-
-enum _TicketStatus { upcoming, past }
-
-class _TicketItem {
-  final String movie;
-  final String cinema;
-  final String date;
-  final String time;
-  final String hall;
-  final String seats;
-  final _TicketStatus status;
-  final String price;
-  final String code;
-
-  const _TicketItem({
-    required this.movie,
-    required this.cinema,
-    required this.date,
-    required this.time,
-    required this.hall,
-    required this.seats,
-    required this.status,
-    required this.price,
-    required this.code,
-  });
-}
-

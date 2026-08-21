@@ -17,6 +17,7 @@ import 'package:ticketa/features/auth/data/auth_repository.dart';
 import 'package:ticketa/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:ticketa/features/booking/data/booking_repository.dart';
 import 'package:ticketa/features/booking/presentation/cubit/booking_cubit.dart';
+import 'package:ticketa/features/booking/presentation/cubit/my_tickets_cubit.dart';
 import 'package:ticketa/features/payment/data/payment_repository.dart';
 import 'package:ticketa/features/payment/presentation/cubit/payment_cubit.dart';
 
@@ -87,6 +88,7 @@ Future<void> initInjection() async {
   getIt.registerFactory(() => NowShowingCubit(getIt<MovieRepository>()));
   getIt.registerFactory(() => AuthCubit(getIt<AuthRepository>()));
   getIt.registerFactory(() => BookingCubit(getIt<BookingRepository>()));
+  getIt.registerFactory(() => MyTicketsCubit(getIt<BookingRepository>()));
   getIt.registerFactory(() => PaymentCubit(getIt<PaymentRepository>()));
 }
 

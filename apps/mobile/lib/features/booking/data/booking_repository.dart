@@ -2,6 +2,7 @@ import 'package:ticketa/core/constants/api_constants.dart';
 import 'package:ticketa/core/network/api_service.dart';
 import 'package:ticketa/features/booking/data/models/booking_create_dto.dart';
 import 'package:ticketa/features/booking/data/models/booking_details_dto.dart';
+import 'package:ticketa/features/booking/data/models/booking_history_dto.dart';
 import 'package:ticketa/features/booking/data/models/booking_result_dto.dart';
 import 'package:ticketa/features/booking/data/models/showtime_seat_dto.dart';
 
@@ -29,5 +30,21 @@ class BookingRepository {
       '${ApiConstants.bookingsEndpoint}/$reference',
     );
     return BookingDetailsDto.fromJson(response.data);
+  }
+
+  Future<PagedBookingHistoryDto> getBookingHistory({
+    int page = 1,
+    int pageSize = 10,
+    String filter = 'All',
+  }) async {
+    final response = await _apiService.get(
+      ApiConstants.profileBookingsEndpoint,
+      queryParameters: {
+        'page': page,
+        'pageSize': pageSize,
+        'filter': filter,
+      },
+    );
+    return PagedBookingHistoryDto.fromJson(response.data);
   }
 }

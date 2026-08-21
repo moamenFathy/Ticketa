@@ -16,8 +16,44 @@ class MainPage extends StatefulWidget {
   State<MainPage> createState() => _MainPageState();
 }
 
-class _MainPageState extends State<MainPage> {
+class _MainPageState extends State<MainPage>
+    with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
+  late final AnimationController _pageTransition;
+  late final Animation<double> _fade;
+  late final Animation<Offset> _slide;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageTransition = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 260),
+    )..forward();
+    _fade = CurvedAnimation(
+      parent: _pageTransition,
+      curve: Curves.easeOut,
+    );
+    _slide = Tween<Offset>(
+      begin: const Offset(0, 0.015),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _pageTransition,
+      curve: Curves.easeOutCubic,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _pageTransition.dispose();
+    super.dispose();
+  }
+
+  void _switchTab(int index) {
+    if (index == _currentIndex) return;
+    setState(() => _currentIndex = index);
+    _pageTransition.forward(from: 0);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +65,7 @@ class _MainPageState extends State<MainPage> {
     final List<Widget> pages = [
       HomePage(
         onProfileAvatarTap: () {
-          setState(() {
-            _currentIndex = 3;
-          });
+          _switchTab(3);
         },
       ),
       const NowShowingPage(),
@@ -44,22 +78,14 @@ class _MainPageState extends State<MainPage> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            switchInCurve: Curves.easeOutCubic,
-            switchOutCurve: Curves.easeInCubic,
-            transitionBuilder: (Widget child, Animation<double> animation) {
-              return FadeTransition(
-                opacity: animation,
-                child: ScaleTransition(
-                  scale: Tween<double>(begin: 0.96, end: 1.0).animate(animation),
-                  child: child,
-                ),
-              );
-            },
-            child: KeyedSubtree(
-              key: ValueKey<int>(_currentIndex),
-              child: pages[_currentIndex],
+          FadeTransition(
+            opacity: _fade,
+            child: SlideTransition(
+              position: _slide,
+              child: IndexedStack(
+                index: _currentIndex,
+                children: pages,
+              ),
             ),
           ),
           if (isIOS)
@@ -96,11 +122,7 @@ class _MainPageState extends State<MainPage> {
           ),
         ],
         currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+        onTap: _switchTab,
       ),
     );
   }
@@ -147,11 +169,7 @@ class _MainPageState extends State<MainPage> {
                 GButton(icon: Icons.person_rounded, text: l10n.account),
               ],
               selectedIndex: _currentIndex,
-              onTabChange: (index) {
-                setState(() {
-                  _currentIndex = index;
-                });
-              },
+              onTabChange: _switchTab,
             ),
           ),
         ),
