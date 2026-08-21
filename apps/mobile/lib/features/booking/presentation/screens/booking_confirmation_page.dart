@@ -12,7 +12,7 @@ class BookingConfirmationPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final movieTitle = bookingData['movie'] ?? 'Unknown Movie';
+    final movieTitle = bookingData['movie'] ?? l10n.unknownMovie;
     final seats = (bookingData['seats'] as List<String>).join(', ');
     final total = bookingData['total'] ?? 0.0;
 

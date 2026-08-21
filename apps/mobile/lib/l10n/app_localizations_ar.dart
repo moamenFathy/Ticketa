@@ -143,7 +143,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get bookTickets => 'حجز التذاكر';
 
   @override
-  String buyFor(Object price) {
+  String buyFor(String price) {
     return 'اشتري بـ E£$price';
   }
 
@@ -221,30 +221,249 @@ class AppLocalizationsAr extends AppLocalizations {
   String get trailerNotAvailable => 'التريلر مش متاح';
 
   @override
-  String get offerBadge1 => 'خصم 30%';
+  String get gold => 'ذهبي';
 
   @override
-  String get offerTitle1 => 'ليلة سينما نهاية الأسبوع';
+  String get email => 'البريد الإلكتروني';
 
   @override
-  String get offerDesc1 =>
-      'اشتري تذكرتين واحصل على خصم 30% على الوجبات الخفيفة';
+  String get enterEmail => 'أدخل بريدك الإلكتروني';
 
   @override
-  String get offerBadge2 => 'مجاني';
+  String get password => 'كلمة السر';
 
   @override
-  String get offerTitle2 => 'تذكرة مجانية لعيد الميلاد';
+  String get enterPassword => 'أدخل كلمة السر';
 
   @override
-  String get offerDesc2 => 'احتفل بعيد ميلادك بتذكرة سينما مجانية';
+  String get welcomeBack => 'مرحباً بعودتك';
 
   @override
-  String get offerBadge3 => 'خصم 20%';
+  String get signInToContinue => 'سجل دخولك للمتابعة';
 
   @override
-  String get offerTitle3 => 'خصم الطلاب';
+  String get emailRequired => 'البريد الإلكتروني مطلوب';
 
   @override
-  String get offerDesc3 => 'أظهر بطاقة الطالب واحصل على خصم 20% على أي تذكرة';
+  String get passwordRequired => 'كلمة السر مطلوبة';
+
+  @override
+  String get forgotPassword => 'نسيت كلمة السر؟';
+
+  @override
+  String get signIn => 'تسجيل الدخول';
+
+  @override
+  String get or => 'أو';
+
+  @override
+  String get continueAsGuest => 'المتابعة كضيف';
+
+  @override
+  String get dontHaveAccount => 'ليس لديك حساب؟ ';
+
+  @override
+  String get register => 'إنشاء حساب';
+
+  @override
+  String get dateOfBirth => 'تاريخ الميلاد';
+
+  @override
+  String get createAccount => 'إنشاء حساب';
+
+  @override
+  String get joinCinemaExperience => 'انضم لتجربة السينما';
+
+  @override
+  String get firstName => 'الاسم الأول';
+
+  @override
+  String get firstNameHint => 'الاسم الأول';
+
+  @override
+  String get lastName => 'الاسم الأخير';
+
+  @override
+  String get lastNameHint => 'الاسم الأخير';
+
+  @override
+  String get required => 'مطلوب';
+
+  @override
+  String get emailHint => 'your@email.com';
+
+  @override
+  String get minPasswordHint => '6 أحرف على الأقل';
+
+  @override
+  String get minPassword => '6 أحرف على الأقل';
+
+  @override
+  String get selectDOB => 'اختر تاريخ ميلادك';
+
+  @override
+  String get dobRequired => 'تاريخ الميلاد مطلوب';
+
+  @override
+  String get alreadyHaveAccount => 'لديك حساب بالفعل؟ ';
+
+  @override
+  String get confirmationCode => 'رمز التأكيد';
+
+  @override
+  String get verifyEmail => 'تأكيد البريد الإلكتروني';
+
+  @override
+  String get enterConfirmationCode =>
+      'أدخل رمز التأكيد المرسل إلى بريدك الإلكتروني';
+
+  @override
+  String get codeHint => '_ _ _ _ _ _';
+
+  @override
+  String get confirm => 'تأكيد';
+
+  @override
+  String get resendConfirmation => 'إعادة إرسال رمز التأكيد';
+
+  @override
+  String get forgotPasswordTitle => 'نسيت كلمة السر؟';
+
+  @override
+  String get forgotPasswordDesc =>
+      'أدخل بريدك الإلكتروني وسنرسل لك\nرابطاً لإعادة تعيين كلمة السر';
+
+  @override
+  String get sendResetLink => 'إرسال رابط إعادة التعيين';
+
+  @override
+  String get backToSignIn => 'العودة لتسجيل الدخول';
+
+  @override
+  String get signInToAccess =>
+      'سجل دخولك للوصول إلى تذاكرك\nوحجوزاتك وتفضيلاتك';
+
+  @override
+  String ticketCountSummary(String upcoming, String past) {
+    return '$upcoming قادمة • $past سابقة';
+  }
+
+  @override
+  String get checkYourTickets => 'تحقق من تذاكرك';
+
+  @override
+  String get retry => 'إعادة المحاولة';
+
+  @override
+  String seatCount(String count) {
+    return '$count مقاعد';
+  }
+
+  @override
+  String get showTime => 'موعد العرض';
+
+  @override
+  String get noShowtimes => 'لا توجد عروض متاحة بعد.';
+
+  @override
+  String get noMoviesShowing => 'لا توجد أفلام تُعرض الآن';
+
+  @override
+  String get genreFallback => 'أكشن';
+
+  @override
+  String durationHours(String hours, String minutes) {
+    return '$hoursس $minutesد';
+  }
+
+  @override
+  String durationMinutes(String minutes) {
+    return '$minutesد';
+  }
+
+  @override
+  String get currencySuffix => 'ج.م';
+
+  @override
+  String get locationPlaceholder => 'القاهرة، مصر';
+
+  @override
+  String get signInRequired => 'تسجيل الدخول مطلوب';
+
+  @override
+  String get signInToBook => 'يجب عليك تسجيل الدخول لحجز التذاكر.';
+
+  @override
+  String get cancel => 'إلغاء';
+
+  @override
+  String seatConflicting(String count) {
+    return '$count مقعد محجوز بالفعل.';
+  }
+
+  @override
+  String get unknownMovie => 'فيلم غير معروف';
+
+  @override
+  String get vip => 'VIP';
+
+  @override
+  String get paymentCancelled => 'تم إلغاء الدفع';
+
+  @override
+  String paymentFailed(String error) {
+    return 'فشل الدفع: $error';
+  }
+
+  @override
+  String get paymentFailedRetry => 'فشل الدفع، حاول مرة أخرى.';
+
+  @override
+  String get secure => 'آمن';
+
+  @override
+  String get stripePaymentDesc =>
+      'ستؤكد بطاقتك بشكل آمن داخل صفحة الدفع من Stripe.';
+
+  @override
+  String reference(String ref) {
+    return 'المرجع: $ref';
+  }
+
+  @override
+  String get sessionExpired => 'انتهت الجلسة. الرجاء تسجيل الدخول مرة أخرى.';
+
+  @override
+  String get loginSuccessful => 'تم تسجيل الدخول بنجاح';
+
+  @override
+  String get registrationSuccessful => 'تم إنشاء الحساب بنجاح';
+
+  @override
+  String get emailConfirmed => 'تم تأكيد البريد الإلكتروني';
+
+  @override
+  String get guest => 'ضيف';
+
+  @override
+  String get confirmationResent => 'تم إعادة إرسال رمز التأكيد';
+
+  @override
+  String get resetLinkSent =>
+      'تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني';
+
+  @override
+  String get paymentConfirmFailed => 'تعذر تأكيد الدفع';
+
+  @override
+  String get failedLoadTickets => 'فشل تحميل التذاكر.';
+
+  @override
+  String get editProfileTitle => 'تعديل الملف الشخصي';
+
+  @override
+  String get saveChanges => 'حفظ التغييرات';
+
+  @override
+  String get fieldRequired => 'هذا الحقل مطلوب';
 }

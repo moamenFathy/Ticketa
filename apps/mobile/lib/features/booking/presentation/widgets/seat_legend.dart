@@ -17,7 +17,7 @@ class SeatLegend extends StatelessWidget {
           _legendItem(l10n.available, theme.colorScheme.onSurface.withValues(alpha: 0.12), theme),
           _legendItem(l10n.selected, const Color(0xFF4CAF50), theme),
           _legendItem(l10n.occupied, Colors.yellow, theme),
-          _legendItem("VIP", const Color(0xFFE67E22), theme),
+          _legendItem(l10n.vip, const Color(0xFFE67E22), theme),
         ],
       ),
     );

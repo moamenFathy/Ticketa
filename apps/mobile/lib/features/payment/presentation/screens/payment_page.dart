@@ -61,6 +61,7 @@ class _PaymentPageState extends State<PaymentPage> {
   Future<void> _onPayPressed(BuildContext ctx) async {
     debugPrint('[payment] pay pressed, '
         'showtimeId=${widget.showtimeId} seats=${widget.seats.length}');
+    final l10n = AppLocalizations.of(context)!;
     final cubit = ctx.read<PaymentCubit>();
     var state = cubit.state;
 
@@ -91,15 +92,15 @@ class _PaymentPageState extends State<PaymentPage> {
       MessageService.showWarning(
         context: context,
         message: e.code == 'PaymentSheetCancelled'
-            ? 'Payment cancelled'
-            : 'Payment failed: ${e.message ?? ''}',
+            ? l10n.paymentCancelled
+            : l10n.paymentFailed(e.message ?? ''),
       );
       return;
     } catch (_) {
       if (!mounted) return;
       MessageService.showWarning(
         context: context,
-        message: 'Payment failed, please try again.',
+        message: l10n.paymentFailedRetry,
       );
       return;
     }
@@ -191,7 +192,7 @@ class _PaymentPageState extends State<PaymentPage> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'secure',
+                        l10n.secure,
                         style: theme.textTheme.labelSmall?.copyWith(
                             color: Colors.green, fontWeight: FontWeight.w700),
                       ),
@@ -199,7 +200,7 @@ class _PaymentPageState extends State<PaymentPage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'You will confirm your card securely inside the Stripe payment sheet.',
+                    l10n.stripePaymentDesc,
                     style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurface
                             .withValues(alpha: 0.45)),

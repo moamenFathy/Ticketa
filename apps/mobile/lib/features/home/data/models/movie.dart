@@ -90,6 +90,28 @@ class Movie {
 
   bool get hasTrailer => trailerKey != null && trailerKey!.isNotEmpty;
 
+  Movie copyWith({
+    List<ShowtimeInfo>? showtimeInfos,
+    List<DateTime>? showTimes,
+    String? hallType,
+  }) {
+    return Movie(
+      id: id,
+      title: title,
+      posterUrl: posterUrl,
+      backdropUrl: backdropUrl,
+      genre: genre,
+      rating: rating,
+      duration: duration,
+      showTimes: showTimes ?? this.showTimes,
+      showtimeInfos: showtimeInfos ?? this.showtimeInfos,
+      hallType: hallType ?? this.hallType,
+      overview: overview,
+      trailerKey: trailerKey,
+      cast: cast,
+    );
+  }
+
   /// Returns individual genres, handles both '|' (dummy) and ', ' (API) separators
   List<String> get genres {
     if (genre.isEmpty) return [];

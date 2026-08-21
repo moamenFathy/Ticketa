@@ -70,7 +70,7 @@ class BookingSuccessPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          'Ref: $bookingReference',
+                          l10n.reference(bookingReference!),
                           style: TextStyle(
                             color: AppColors.warmOrange,
                             fontWeight: FontWeight.w900,

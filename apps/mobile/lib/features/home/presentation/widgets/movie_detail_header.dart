@@ -39,20 +39,17 @@ class MovieDetailHeader extends StatelessWidget {
           StretchMode.zoomBackground,
           StretchMode.blurBackground,
         ],
-        background: Stack(
+background: Stack(
           fit: StackFit.expand,
           children: [
-            Hero(
-              tag: 'poster_${movie.id}',
-              child: CachedNetworkImage(
-                imageUrl: movie.posterUrl,
-                fit: BoxFit.cover,
-                memCacheWidth: 1080,
-                placeholder: (_, _) => Container(color: Colors.grey[900]),
-                errorWidget: (_, _, _) => Container(color: Colors.grey[900]),
+            CachedNetworkImage(
+              imageUrl: movie.posterUrl,
+              fit: BoxFit.cover,
+              memCacheWidth: 1080,
+              placeholder: (_, _) => Container(color: Colors.grey[900]),
+errorWidget: (_, _, _) => Container(color: Colors.grey[900]),
               ),
-            ),
-            // Bottom Gradient
+              // Bottom Gradient
             Positioned.fill(
               child: IgnorePointer(
                 child: DecoratedBox(

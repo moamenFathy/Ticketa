@@ -68,6 +68,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
   }
 
   Widget _buildGuestPrompt(ThemeData theme, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -114,7 +115,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Welcome to Ticketa',
+            l10n.welcomeMessage,
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w900,
               color: theme.colorScheme.onSurface,
@@ -122,7 +123,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Sign in to access your tickets,\nbookings and preferences',
+            l10n.signInToAccess,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
@@ -144,9 +145,9 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 ),
                 elevation: 0,
               ),
-              child: const Text(
-                'Sign In',
-                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15),
+              child: Text(
+                l10n.signIn,
+                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15),
               ),
             ),
           ),

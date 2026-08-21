@@ -7,6 +7,7 @@ import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/features/auth/presentation/widgets/auth_background.dart';
 import 'package:ticketa/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:ticketa/features/auth/presentation/cubit/auth_state.dart';
+import 'package:ticketa/l10n/app_localizations.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -52,6 +53,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return BlocProvider(
       create: (_) => getIt<AuthCubit>(),
@@ -74,25 +76,25 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const SizedBox(height: 40),
-                              _buildHeader(theme),
+                              _buildHeader(theme, l10n),
                               const SizedBox(height: 48),
-                              _buildInputLabel(theme, 'Email'),
+                              _buildInputLabel(theme, l10n.email),
                               const SizedBox(height: 8),
-                              _buildEmailField(theme, isDark),
+                              _buildEmailField(theme, isDark, l10n),
                               const SizedBox(height: 20),
-                              _buildInputLabel(theme, 'Password'),
+                              _buildInputLabel(theme, l10n.password),
                               const SizedBox(height: 8),
-                              _buildPasswordField(theme, isDark),
+                              _buildPasswordField(theme, isDark, l10n),
                               const SizedBox(height: 12),
-                              _buildForgotPassword(theme),
+                              _buildForgotPassword(theme, l10n),
                               const SizedBox(height: 32),
-                              _buildSignInButton(theme),
+                              _buildSignInButton(theme, l10n),
                               const SizedBox(height: 24),
-                              _buildDividerWithText(theme, isDark),
+                              _buildDividerWithText(theme, isDark, l10n),
                               const SizedBox(height: 24),
-                              _buildGuestButton(theme),
+                              _buildGuestButton(theme, l10n),
                               const SizedBox(height: 16),
-                              _buildRegisterRow(theme),
+                              _buildRegisterRow(theme, l10n),
                               const SizedBox(height: 40),
                             ],
                           ),
@@ -109,7 +111,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _buildHeader(ThemeData theme) {
+  Widget _buildHeader(ThemeData theme, AppLocalizations l10n) {
     return Column(
       children: [
         Container(
@@ -134,7 +136,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         ),
         const SizedBox(height: 20),
         Text(
-          'Welcome Back',
+          l10n.welcomeBack,
           style: theme.textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.w900,
             color: theme.colorScheme.onSurface,
@@ -143,7 +145,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         ),
         const SizedBox(height: 6),
         Text(
-          'Sign in to continue',
+          l10n.signInToContinue,
           style: theme.textTheme.bodyMedium?.copyWith(
             color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
           ),
@@ -165,7 +167,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _buildEmailField(ThemeData theme, bool isDark) {
+  Widget _buildEmailField(ThemeData theme, bool isDark, AppLocalizations l10n) {
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
@@ -173,14 +175,14 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       style: TextStyle(color: theme.colorScheme.onSurface),
       decoration: _inputDecoration(
         theme, isDark,
-        hint: 'Enter your email',
+        hint: l10n.enterEmail,
         icon: Icons.email_outlined,
       ),
-      validator: (v) => v == null || v.isEmpty ? 'Email is required' : null,
+      validator: (v) => v == null || v.isEmpty ? l10n.emailRequired : null,
     );
   }
 
-  Widget _buildPasswordField(ThemeData theme, bool isDark) {
+  Widget _buildPasswordField(ThemeData theme, bool isDark, AppLocalizations l10n) {
     return TextFormField(
       controller: _passwordController,
       obscureText: _obscurePassword,
@@ -188,7 +190,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       style: TextStyle(color: theme.colorScheme.onSurface),
       decoration: _inputDecoration(
         theme, isDark,
-        hint: 'Enter your password',
+        hint: l10n.enterPassword,
         icon: Icons.lock_outlined,
         suffix: IconButton(
           icon: Icon(
@@ -199,18 +201,18 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
         ),
       ),
-      validator: (v) => v == null || v.isEmpty ? 'Password is required' : null,
+      validator: (v) => v == null || v.isEmpty ? l10n.passwordRequired : null,
     );
   }
 
-  Widget _buildForgotPassword(ThemeData theme) {
+  Widget _buildForgotPassword(ThemeData theme, AppLocalizations l10n) {
     return Align(
       alignment: Alignment.centerRight,
       child: TextButton(
         onPressed: () => Navigator.pushNamed(context, '/forgot-password'),
         style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
         child: Text(
-          'Forgot password?',
+          l10n.forgotPassword,
           style: theme.textTheme.bodySmall?.copyWith(
             color: AppColors.warmOrange,
             fontWeight: FontWeight.w700,
@@ -220,7 +222,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _buildSignInButton(ThemeData theme) {
+  Widget _buildSignInButton(ThemeData theme, AppLocalizations l10n) {
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthLoginSuccess) {
@@ -273,12 +275,12 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                       height: 22, width: 22,
                       child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
                     )
-                  : const Row(
+                  : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('Sign In', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
-                        SizedBox(width: 8),
-                        Icon(Icons.arrow_forward_rounded, size: 20),
+                        Text(l10n.signIn, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+                        const SizedBox(width: 8),
+                        const Icon(Icons.arrow_forward_rounded, size: 20),
                       ],
                     ),
             ),
@@ -288,13 +290,13 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _buildDividerWithText(ThemeData theme, bool isDark) {
+  Widget _buildDividerWithText(ThemeData theme, bool isDark, AppLocalizations l10n) {
     return Row(
       children: [
         Expanded(child: Divider(color: theme.colorScheme.onSurface.withValues(alpha: 0.08))),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text('OR', style: TextStyle(
+          child: Text(l10n.or, style: TextStyle(
             color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
             fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1,
           )),
@@ -304,7 +306,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _buildGuestButton(ThemeData theme) {
+  Widget _buildGuestButton(ThemeData theme, AppLocalizations l10n) {
     return Builder(
       builder: (context) => SizedBox(
         width: double.infinity,
@@ -313,7 +315,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           onPressed: () => context.read<AuthCubit>().loginAsGuest(),
           icon: Icon(Icons.person_outline_rounded, size: 18, color: theme.colorScheme.onSurface.withValues(alpha: 0.5)),
           label: Text(
-            'Continue as Guest',
+            l10n.continueAsGuest,
             style: TextStyle(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
               fontWeight: FontWeight.w700,
@@ -329,18 +331,18 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _buildRegisterRow(ThemeData theme) {
+  Widget _buildRegisterRow(ThemeData theme, AppLocalizations l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          "Don't have an account? ",
+          l10n.dontHaveAccount,
           style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.45), fontSize: 13),
         ),
         GestureDetector(
           onTap: () => Navigator.pushReplacementNamed(context, '/register'),
           child: Text(
-            'Register',
+            l10n.register,
             style: TextStyle(
               color: AppColors.warmOrange,
               fontWeight: FontWeight.w900,

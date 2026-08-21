@@ -9,6 +9,8 @@ import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/core/utils/app_responsive.dart';
 import 'package:ticketa/core/utils/localization_helper.dart';
 import 'package:ticketa/core/utils/youtube_utils.dart';
+import 'package:ticketa/core/constants/app_constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ticketa/features/booking/presentation/screens/seat_selection_page.dart';
 import 'package:ticketa/features/home/data/models/movie.dart';
 import 'package:ticketa/features/home/presentation/cubit/movie_detail_cubit.dart';
@@ -45,6 +47,10 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     final l10n = AppLocalizations.of(context)!;
     final movie = widget.movie;
 
+    final passedHasShowtimes =
+        movie.showtimeInfos.isNotEmpty &&
+        movie.showtimeInfos.any((s) => s.id > 0);
+
     return BlocProvider(
       create: (context) =>
           getIt<MovieDetailCubit>()..fetchMovieDetails(widget.movie.id),
@@ -73,15 +79,17 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                 )
               : raw;
           final isLoading =
-              state is MovieDetailInitial || state is MovieDetailLoading;
+              (state is MovieDetailInitial || state is MovieDetailLoading);
+
+          final needsSkeleton = isLoading && !passedHasShowtimes;
 
           return AnimatedSwitcher(
-            duration: const Duration(milliseconds: 600),
+            duration: const Duration(milliseconds: 350),
             switchInCurve: Curves.easeIn,
             switchOutCurve: Curves.easeOut,
             transitionBuilder: (child, animation) =>
                 FadeTransition(opacity: animation, child: child),
-            child: isLoading
+            child: needsSkeleton
                 ? _buildLoadingSkeleton(theme)
                 : _buildContent(theme, l10n, movie, displayMovie),
           );
@@ -164,7 +172,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
               ),
             ),
             const SizedBox(height: 12),
-            _staggeredSection(0.08, _buildInfoTags(theme, displayMovie)),
+            _staggeredSection(0.08, _buildInfoTags(theme, l10n, displayMovie)),
             const SizedBox(height: 32),
             _staggeredSection(0.16, _SectionHeader(title: l10n.storyLine)),
             const SizedBox(height: 12),
@@ -200,7 +208,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
             const SizedBox(height: 16),
             _staggeredSection(0.24, MovieCastList(cast: displayMovie.cast)),
             const SizedBox(height: 32),
-            _staggeredSection(0.32, _SectionHeader(title: 'Show Time')),
+            _staggeredSection(0.32, _SectionHeader(title: l10n.showTime)),
             const SizedBox(height: 16),
             _staggeredSection(
               0.32,
@@ -211,9 +219,9 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                               setState(() => _selectedShowtime = st),
                         )
                         as Widget
-                  : const Padding(
+                  : Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: Text("No showtimes available yet."),
+                      child: Text(l10n.noShowtimes),
                     ),
             ),
             const SizedBox(height: 140),
@@ -241,7 +249,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     );
   }
 
-  Widget _buildInfoTags(ThemeData theme, Movie displayMovie) {
+  Widget _buildInfoTags(ThemeData theme, AppLocalizations l10n, Movie displayMovie) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
@@ -255,15 +263,18 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
           MovieInfoTag(
             label: displayMovie.genre.isNotEmpty
                 ? displayMovie.genre.split(', ')[0]
-                : 'Action',
+                : l10n.genreFallback,
             icon: Icons.movie_filter_outlined,
             color: AppColors.warmOrange,
           ),
           const SizedBox(width: 10),
           MovieInfoTag(
             label: displayMovie.duration > 60
-                ? "${displayMovie.duration ~/ 60}h ${displayMovie.duration % 60}m"
-                : "${displayMovie.duration}m",
+                ? l10n.durationHours(
+                    (displayMovie.duration ~/ 60).toString(),
+                    (displayMovie.duration % 60).toString(),
+                  )
+                : l10n.durationMinutes(displayMovie.duration.toString()),
             icon: Icons.timer_outlined,
             color: Colors.grey,
           ),
@@ -313,7 +324,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                 ),
                 Text(
                   selectedShowtime != null
-                      ? "EGP ${selectedShowtime.price.toStringAsFixed(2)}"
+                      ? "${l10n.currencySuffix} ${selectedShowtime.price.toStringAsFixed(2)}"
                       : '--',
                   style: theme.textTheme.titleLarge?.copyWith(
                     color: AppColors.warmOrange,
@@ -335,7 +346,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                   ],
                 ),
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (selectedShowtime == null) {
                       MessageService.showWarning(
                         context: context,
@@ -347,6 +358,22 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                       );
                       return;
                     }
+                    final prefs = await SharedPreferences.getInstance();
+                    final isGuest =
+                        prefs.getBool(AppConstants.isGuestKey) ?? true;
+                    if (isGuest) {
+                      if (!mounted) return;
+                      MessageService.showWarning(
+                        context: context,
+                        message: localeCopy(
+                          context,
+                          'Please sign in to book tickets',
+                          'سجل دخولك أولاً لحجز التذاكر',
+                        ),
+                      );
+                      return;
+                    }
+                    if (!mounted) return;
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -422,6 +449,7 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -435,7 +463,7 @@ class _SectionHeader extends StatelessWidget {
           TextButton(
             onPressed: onSeeAll,
             child: Text(
-              "See All",
+              l10n.seeAll,
               style: theme.textTheme.labelLarge?.copyWith(
                 color: AppColors.warmOrange,
                 fontWeight: FontWeight.w900,

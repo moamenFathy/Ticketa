@@ -49,6 +49,11 @@
   "price": "Price",
   "bookTickets": "Book Tickets",
   "buyFor": "Buy For E£{price}",
+  "@buyFor": {
+    "placeholders": {
+      "price": {"type": "String"}
+    }
+  },
   "cast": "Cast",
   "reviews": "Reviews",
   "editProfile": "Edit Profile",
@@ -73,13 +78,117 @@
   "time": "Time",
   "totalPayment": "Total Payment",
   "trailerNotAvailable": "Trailer not available",
-  "offerBadge1": "30% OFF",
-  "offerTitle1": "Weekend Movie Night",
-  "offerDesc1": "Buy 2 tickets and get 30% discount on snacks",
-  "offerBadge2": "FREE",
-  "offerTitle2": "Birthday Free Ticket",
-  "offerDesc2": "Celebrate your birthday with a free movie ticket",
-  "offerBadge3": "20% OFF",
-  "offerTitle3": "Student Discount",
-  "offerDesc3": "Show your student ID and get 20% off any ticket"
+  "gold": "GOLD",
+  "email": "Email",
+  "enterEmail": "Enter your email",
+  "password": "Password",
+  "enterPassword": "Enter your password",
+  "welcomeBack": "Welcome Back",
+  "signInToContinue": "Sign in to continue",
+  "emailRequired": "Email is required",
+  "passwordRequired": "Password is required",
+  "forgotPassword": "Forgot password?",
+  "signIn": "Sign In",
+  "or": "OR",
+  "continueAsGuest": "Continue as Guest",
+  "dontHaveAccount": "Don't have an account? ",
+  "register": "Register",
+  "dateOfBirth": "Date of Birth",
+  "createAccount": "Create Account",
+  "joinCinemaExperience": "Join the cinema experience",
+  "firstName": "First Name",
+  "firstNameHint": "First name",
+  "lastName": "Last Name",
+  "lastNameHint": "Last name",
+  "required": "Required",
+  "emailHint": "your@email.com",
+  "minPasswordHint": "Minimum 6 characters",
+  "minPassword": "At least 6 characters",
+  "selectDOB": "Select your date of birth",
+  "dobRequired": "Date of birth is required",
+  "alreadyHaveAccount": "Already have an account? ",
+  "confirmationCode": "Confirmation Code",
+  "verifyEmail": "Verify Email",
+  "enterConfirmationCode": "Enter the confirmation code sent to your email",
+  "codeHint": "_ _ _ _ _ _",
+  "confirm": "Confirm",
+  "resendConfirmation": "Resend confirmation code",
+  "forgotPasswordTitle": "Forgot Password?",
+  "forgotPasswordDesc": "Enter your email address and we'll send you\na link to reset your password",
+  "sendResetLink": "Send Reset Link",
+  "backToSignIn": "Back to Sign In",
+  "signInToAccess": "Sign in to access your tickets,\nbookings and preferences",
+  "ticketCountSummary": "{upcoming} upcoming • {past} past",
+  "@ticketCountSummary": {
+    "placeholders": {
+      "upcoming": {"type": "String"},
+      "past": {"type": "String"}
+    }
+  },
+  "checkYourTickets": "Check your tickets",
+  "retry": "Retry",
+  "seatCount": "{count} seats",
+  "@seatCount": {
+    "placeholders": {
+      "count": {"type": "String"}
+    }
+  },
+  "showTime": "Show Time",
+  "noShowtimes": "No showtimes available yet.",
+  "noMoviesShowing": "No movies showing right now",
+  "genreFallback": "Action",
+  "durationHours": "{hours}h {minutes}m",
+  "@durationHours": {
+    "placeholders": {
+      "hours": {"type": "String"},
+      "minutes": {"type": "String"}
+    }
+  },
+  "durationMinutes": "{minutes}m",
+  "@durationMinutes": {
+    "placeholders": {
+      "minutes": {"type": "String"}
+    }
+  },
+  "currencySuffix": "EGP",
+  "locationPlaceholder": "Cairo, Egypt",
+  "signInRequired": "Sign in required",
+  "signInToBook": "You need to sign in to book tickets.",
+  "cancel": "Cancel",
+  "seatConflicting": "{count} seat(s) already booked.",
+  "@seatConflicting": {
+    "placeholders": {
+      "count": {"type": "String"}
+    }
+  },
+  "unknownMovie": "Unknown Movie",
+  "vip": "VIP",
+  "paymentCancelled": "Payment cancelled",
+  "paymentFailed": "Payment failed: {error}",
+  "@paymentFailed": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "paymentFailedRetry": "Payment failed, please try again.",
+  "secure": "secure",
+  "stripePaymentDesc": "You will confirm your card securely inside the Stripe payment sheet.",
+  "reference": "Ref: {ref}",
+  "@reference": {
+    "placeholders": {
+      "ref": {"type": "String"}
+    }
+  },
+  "sessionExpired": "Session expired. Please sign in again.",
+  "loginSuccessful": "Login successful",
+  "registrationSuccessful": "Registration successful",
+  "emailConfirmed": "Email confirmed",
+  "guest": "Guest",
+  "confirmationResent": "Confirmation resent",
+  "resetLinkSent": "Reset link sent to your email",
+  "paymentConfirmFailed": "Payment could not be confirmed",
+  "failedLoadTickets": "Failed to load tickets.",
+  "editProfileTitle": "Edit Profile",
+  "saveChanges": "Save changes",
+  "fieldRequired": "This field is required"
 }

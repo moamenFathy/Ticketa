@@ -7,6 +7,7 @@ import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/features/auth/presentation/widgets/auth_background.dart';
 import 'package:ticketa/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:ticketa/features/auth/presentation/cubit/auth_state.dart';
+import 'package:ticketa/l10n/app_localizations.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -49,6 +50,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return BlocProvider(
       create: (_) => getIt<AuthCubit>(),
@@ -69,17 +71,17 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const SizedBox(height: 40),
-                            _buildHeader(theme),
+                            _buildHeader(theme, l10n),
                             const SizedBox(height: 48),
-                            _buildDescription(theme),
+                            _buildDescription(theme, l10n),
                             const SizedBox(height: 28),
-                            _buildInputLabel(theme, 'Email'),
+                            _buildInputLabel(theme, l10n.email),
                             const SizedBox(height: 8),
-                            _buildEmailField(theme, isDark),
+                            _buildEmailField(theme, isDark, l10n),
                             const SizedBox(height: 32),
-                            _buildSendButton(theme),
+                            _buildSendButton(theme, l10n),
                             const SizedBox(height: 20),
-                            _buildBackButton(theme),
+                            _buildBackButton(theme, l10n),
                             const SizedBox(height: 40),
                           ],
                         ),
@@ -95,7 +97,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
     );
   }
 
-  Widget _buildHeader(ThemeData theme) {
+  Widget _buildHeader(ThemeData theme, AppLocalizations l10n) {
     return Column(
       children: [
         Container(
@@ -120,7 +122,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
         ),
         const SizedBox(height: 20),
         Text(
-          'Forgot Password?',
+          l10n.forgotPasswordTitle,
           style: theme.textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.w900,
             color: theme.colorScheme.onSurface,
@@ -131,9 +133,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
     );
   }
 
-  Widget _buildDescription(ThemeData theme) {
+  Widget _buildDescription(ThemeData theme, AppLocalizations l10n) {
     return Text(
-      'Enter your email address and we\'ll send you\na link to reset your password',
+      l10n.forgotPasswordDesc,
       textAlign: TextAlign.center,
       style: theme.textTheme.bodyMedium?.copyWith(
         color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
@@ -155,14 +157,15 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
     );
   }
 
-  Widget _buildEmailField(ThemeData theme, bool isDark) {
+  Widget _buildEmailField(ThemeData theme, bool isDark, AppLocalizations l10n) {
     return TextFormField(
       controller: _emailController,
+      onChanged: (_) => setState(() {}),
       keyboardType: TextInputType.emailAddress,
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\x00-\x7F]'))],
       style: TextStyle(color: theme.colorScheme.onSurface),
       decoration: InputDecoration(
-        hintText: 'your@email.com',
+        hintText: l10n.emailHint,
         hintStyle: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.25)),
         prefixIcon: Icon(Icons.email_outlined, size: 20, color: AppColors.warmOrange.withValues(alpha: 0.6)),
         filled: true,
@@ -186,7 +189,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
     );
   }
 
-  Widget _buildSendButton(ThemeData theme) {
+  Widget _buildSendButton(ThemeData theme, AppLocalizations l10n) {
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthForgotPasswordSuccess) {
@@ -234,10 +237,10 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
                       height: 22, width: 22,
                       child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
                     )
-                  : const Row(
+                  : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('Send Reset Link', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+                        Text(l10n.sendResetLink, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
                         SizedBox(width: 8),
                         Icon(Icons.send_rounded, size: 20),
                       ],
@@ -249,7 +252,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
     );
   }
 
-  Widget _buildBackButton(ThemeData theme) {
+  Widget _buildBackButton(ThemeData theme, AppLocalizations l10n) {
     return TextButton(
       onPressed: () => Navigator.pop(context),
       child: Row(
@@ -258,7 +261,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
           Icon(Icons.arrow_back_rounded, size: 16, color: theme.colorScheme.onSurface.withValues(alpha: 0.45)),
           const SizedBox(width: 6),
           Text(
-            'Back to Sign In',
+            l10n.backToSignIn,
             style: TextStyle(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
               fontWeight: FontWeight.w700,

@@ -68,7 +68,7 @@ class MyTicketsCubit extends Cubit<MyTicketsState> {
       _tickets = refresh ? pageData.items : [..._tickets, ...pageData.items];
       _hasMore = pageData.hasMore;
 
-      if (_tickets.isEmpty) {
+      if (_filter == TicketsFilter.all && _tickets.isEmpty) {
         emit(MyTicketsEmpty());
         return;
       }

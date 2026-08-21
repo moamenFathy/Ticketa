@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ticketa/features/home/presentation/widgets/home_category_list.dart';
 import 'package:ticketa/features/home/presentation/widgets/home_header.dart';
 import 'package:ticketa/features/home/presentation/widgets/home_hero_section.dart';
 import 'package:ticketa/features/home/presentation/widgets/movie_horizontal_list.dart';
@@ -25,7 +24,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _currentPage = 0;
+  int _currentPage = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +50,19 @@ class _HomePageState extends State<HomePage> {
             final comingSoon = state is HomeLoaded ? state.comingSoon : <Movie>[];
             final topBooked = state is HomeLoaded ? state.topBooked : <Movie>[];
 
-            final heroMovies = topBooked.take(6).toList();
+            final heroMoviesTop = topBooked.take(6).toList();
+            final nowShowingById = {
+              for (final m in nowShowing) m.id: m,
+            };
+            final heroMovies = heroMoviesTop.map((movie) {
+              final match = nowShowingById[movie.id];
+              if (match == null) return movie;
+              return movie.copyWith(
+                showtimeInfos: match.showtimeInfos,
+                showTimes: match.showTimes,
+                hallType: match.hallType,
+              );
+            }).toList();
 
             final l10n = AppLocalizations.of(context)!;
             final isDark = theme.brightness == Brightness.dark;
@@ -67,6 +78,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildErrorState(ThemeData theme, BuildContext context, String message) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -80,7 +92,7 @@ class _HomePageState extends State<HomePage> {
           ElevatedButton(
             onPressed: () =>
                 context.read<HomeCubit>().fetchHomeData(),
-            child: const Text("Retry"),
+            child: Text(l10n.retry),
           ),
         ],
       ),
@@ -128,8 +140,7 @@ class _HomePageState extends State<HomePage> {
                         });
                       },
                     )),
-                  _staggeredSliver(0.20, const HomeCategoryList()),
-                  _staggeredSliver(0.30, MovieHorizontalList(
+                  _staggeredSliver(0.20, MovieHorizontalList(
                     title: l10n.nowShowing,
                     movies: nowShowing,
                     onSeeAll: () => Navigator.push(

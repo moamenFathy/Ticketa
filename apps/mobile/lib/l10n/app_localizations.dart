@@ -366,7 +366,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Buy For E£{price}'**
-  String buyFor(Object price);
+  String buyFor(String price);
 
   /// No description provided for @cast.
   ///
@@ -512,59 +512,461 @@ abstract class AppLocalizations {
   /// **'Trailer not available'**
   String get trailerNotAvailable;
 
-  /// No description provided for @offerBadge1.
+  /// No description provided for @gold.
   ///
   /// In en, this message translates to:
-  /// **'30% OFF'**
-  String get offerBadge1;
+  /// **'GOLD'**
+  String get gold;
 
-  /// No description provided for @offerTitle1.
+  /// No description provided for @email.
   ///
   /// In en, this message translates to:
-  /// **'Weekend Movie Night'**
-  String get offerTitle1;
+  /// **'Email'**
+  String get email;
 
-  /// No description provided for @offerDesc1.
+  /// No description provided for @enterEmail.
   ///
   /// In en, this message translates to:
-  /// **'Buy 2 tickets and get 30% discount on snacks'**
-  String get offerDesc1;
+  /// **'Enter your email'**
+  String get enterEmail;
 
-  /// No description provided for @offerBadge2.
+  /// No description provided for @password.
   ///
   /// In en, this message translates to:
-  /// **'FREE'**
-  String get offerBadge2;
+  /// **'Password'**
+  String get password;
 
-  /// No description provided for @offerTitle2.
+  /// No description provided for @enterPassword.
   ///
   /// In en, this message translates to:
-  /// **'Birthday Free Ticket'**
-  String get offerTitle2;
+  /// **'Enter your password'**
+  String get enterPassword;
 
-  /// No description provided for @offerDesc2.
+  /// No description provided for @welcomeBack.
   ///
   /// In en, this message translates to:
-  /// **'Celebrate your birthday with a free movie ticket'**
-  String get offerDesc2;
+  /// **'Welcome Back'**
+  String get welcomeBack;
 
-  /// No description provided for @offerBadge3.
+  /// No description provided for @signInToContinue.
   ///
   /// In en, this message translates to:
-  /// **'20% OFF'**
-  String get offerBadge3;
+  /// **'Sign in to continue'**
+  String get signInToContinue;
 
-  /// No description provided for @offerTitle3.
+  /// No description provided for @emailRequired.
   ///
   /// In en, this message translates to:
-  /// **'Student Discount'**
-  String get offerTitle3;
+  /// **'Email is required'**
+  String get emailRequired;
 
-  /// No description provided for @offerDesc3.
+  /// No description provided for @passwordRequired.
   ///
   /// In en, this message translates to:
-  /// **'Show your student ID and get 20% off any ticket'**
-  String get offerDesc3;
+  /// **'Password is required'**
+  String get passwordRequired;
+
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPassword;
+
+  /// No description provided for @signIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In'**
+  String get signIn;
+
+  /// No description provided for @or.
+  ///
+  /// In en, this message translates to:
+  /// **'OR'**
+  String get or;
+
+  /// No description provided for @continueAsGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue as Guest'**
+  String get continueAsGuest;
+
+  /// No description provided for @dontHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account? '**
+  String get dontHaveAccount;
+
+  /// No description provided for @register.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get register;
+
+  /// No description provided for @dateOfBirth.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of Birth'**
+  String get dateOfBirth;
+
+  /// No description provided for @createAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
+  String get createAccount;
+
+  /// No description provided for @joinCinemaExperience.
+  ///
+  /// In en, this message translates to:
+  /// **'Join the cinema experience'**
+  String get joinCinemaExperience;
+
+  /// No description provided for @firstName.
+  ///
+  /// In en, this message translates to:
+  /// **'First Name'**
+  String get firstName;
+
+  /// No description provided for @firstNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'First name'**
+  String get firstNameHint;
+
+  /// No description provided for @lastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Name'**
+  String get lastName;
+
+  /// No description provided for @lastNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name'**
+  String get lastNameHint;
+
+  /// No description provided for @required.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get required;
+
+  /// No description provided for @emailHint.
+  ///
+  /// In en, this message translates to:
+  /// **'your@email.com'**
+  String get emailHint;
+
+  /// No description provided for @minPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum 6 characters'**
+  String get minPasswordHint;
+
+  /// No description provided for @minPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 6 characters'**
+  String get minPassword;
+
+  /// No description provided for @selectDOB.
+  ///
+  /// In en, this message translates to:
+  /// **'Select your date of birth'**
+  String get selectDOB;
+
+  /// No description provided for @dobRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of birth is required'**
+  String get dobRequired;
+
+  /// No description provided for @alreadyHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? '**
+  String get alreadyHaveAccount;
+
+  /// No description provided for @confirmationCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmation Code'**
+  String get confirmationCode;
+
+  /// No description provided for @verifyEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify Email'**
+  String get verifyEmail;
+
+  /// No description provided for @enterConfirmationCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the confirmation code sent to your email'**
+  String get enterConfirmationCode;
+
+  /// No description provided for @codeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'_ _ _ _ _ _'**
+  String get codeHint;
+
+  /// No description provided for @confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirm;
+
+  /// No description provided for @resendConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend confirmation code'**
+  String get resendConfirmation;
+
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot Password?'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email address and we\'ll send you\na link to reset your password'**
+  String get forgotPasswordDesc;
+
+  /// No description provided for @sendResetLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Reset Link'**
+  String get sendResetLink;
+
+  /// No description provided for @backToSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Sign In'**
+  String get backToSignIn;
+
+  /// No description provided for @signInToAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to access your tickets,\nbookings and preferences'**
+  String get signInToAccess;
+
+  /// No description provided for @ticketCountSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{upcoming} upcoming • {past} past'**
+  String ticketCountSummary(String upcoming, String past);
+
+  /// No description provided for @checkYourTickets.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your tickets'**
+  String get checkYourTickets;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @seatCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} seats'**
+  String seatCount(String count);
+
+  /// No description provided for @showTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Time'**
+  String get showTime;
+
+  /// No description provided for @noShowtimes.
+  ///
+  /// In en, this message translates to:
+  /// **'No showtimes available yet.'**
+  String get noShowtimes;
+
+  /// No description provided for @noMoviesShowing.
+  ///
+  /// In en, this message translates to:
+  /// **'No movies showing right now'**
+  String get noMoviesShowing;
+
+  /// No description provided for @genreFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Action'**
+  String get genreFallback;
+
+  /// No description provided for @durationHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours}h {minutes}m'**
+  String durationHours(String hours, String minutes);
+
+  /// No description provided for @durationMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes}m'**
+  String durationMinutes(String minutes);
+
+  /// No description provided for @currencySuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'EGP'**
+  String get currencySuffix;
+
+  /// No description provided for @locationPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Cairo, Egypt'**
+  String get locationPlaceholder;
+
+  /// No description provided for @signInRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in required'**
+  String get signInRequired;
+
+  /// No description provided for @signInToBook.
+  ///
+  /// In en, this message translates to:
+  /// **'You need to sign in to book tickets.'**
+  String get signInToBook;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @seatConflicting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} seat(s) already booked.'**
+  String seatConflicting(String count);
+
+  /// No description provided for @unknownMovie.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown Movie'**
+  String get unknownMovie;
+
+  /// No description provided for @vip.
+  ///
+  /// In en, this message translates to:
+  /// **'VIP'**
+  String get vip;
+
+  /// No description provided for @paymentCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment cancelled'**
+  String get paymentCancelled;
+
+  /// No description provided for @paymentFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment failed: {error}'**
+  String paymentFailed(String error);
+
+  /// No description provided for @paymentFailedRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment failed, please try again.'**
+  String get paymentFailedRetry;
+
+  /// No description provided for @secure.
+  ///
+  /// In en, this message translates to:
+  /// **'secure'**
+  String get secure;
+
+  /// No description provided for @stripePaymentDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'You will confirm your card securely inside the Stripe payment sheet.'**
+  String get stripePaymentDesc;
+
+  /// No description provided for @reference.
+  ///
+  /// In en, this message translates to:
+  /// **'Ref: {ref}'**
+  String reference(String ref);
+
+  /// No description provided for @sessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Session expired. Please sign in again.'**
+  String get sessionExpired;
+
+  /// No description provided for @loginSuccessful.
+  ///
+  /// In en, this message translates to:
+  /// **'Login successful'**
+  String get loginSuccessful;
+
+  /// No description provided for @registrationSuccessful.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration successful'**
+  String get registrationSuccessful;
+
+  /// No description provided for @emailConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Email confirmed'**
+  String get emailConfirmed;
+
+  /// No description provided for @guest.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest'**
+  String get guest;
+
+  /// No description provided for @confirmationResent.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmation resent'**
+  String get confirmationResent;
+
+  /// No description provided for @resetLinkSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset link sent to your email'**
+  String get resetLinkSent;
+
+  /// No description provided for @paymentConfirmFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment could not be confirmed'**
+  String get paymentConfirmFailed;
+
+  /// No description provided for @failedLoadTickets.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load tickets.'**
+  String get failedLoadTickets;
+
+  /// No description provided for @editProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get editProfileTitle;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get saveChanges;
+
+  /// No description provided for @fieldRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get fieldRequired;
 }
 
 class _AppLocalizationsDelegate

@@ -105,4 +105,19 @@ class AuthRepository {
         ? response.data as Map<String, dynamic>
         : {};
   }
+
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmNewPassword,
+  }) async {
+    await _apiService.put(
+      ApiConstants.profilePasswordEndpoint,
+      data: {
+        'currentPassword': currentPassword,
+        'newPassword': newPassword,
+        'confirmNewPassword': confirmNewPassword,
+      },
+    );
+  }
 }

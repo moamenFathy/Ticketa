@@ -115,7 +115,7 @@ class NowShowingCard extends StatelessWidget {
     final normalized = hallType.toLowerCase();
     final format = switch (normalized) {
       'imax' => l10n.imax,
-      'gold' => 'GOLD',
+      'gold' => l10n.gold,
       _ => l10n.standard,
     };
     final color = switch (normalized) {

@@ -143,7 +143,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookTickets => 'Book Tickets';
 
   @override
-  String buyFor(Object price) {
+  String buyFor(String price) {
     return 'Buy For E£$price';
   }
 
@@ -221,29 +221,248 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trailerNotAvailable => 'Trailer not available';
 
   @override
-  String get offerBadge1 => '30% OFF';
+  String get gold => 'GOLD';
 
   @override
-  String get offerTitle1 => 'Weekend Movie Night';
+  String get email => 'Email';
 
   @override
-  String get offerDesc1 => 'Buy 2 tickets and get 30% discount on snacks';
+  String get enterEmail => 'Enter your email';
 
   @override
-  String get offerBadge2 => 'FREE';
+  String get password => 'Password';
 
   @override
-  String get offerTitle2 => 'Birthday Free Ticket';
+  String get enterPassword => 'Enter your password';
 
   @override
-  String get offerDesc2 => 'Celebrate your birthday with a free movie ticket';
+  String get welcomeBack => 'Welcome Back';
 
   @override
-  String get offerBadge3 => '20% OFF';
+  String get signInToContinue => 'Sign in to continue';
 
   @override
-  String get offerTitle3 => 'Student Discount';
+  String get emailRequired => 'Email is required';
 
   @override
-  String get offerDesc3 => 'Show your student ID and get 20% off any ticket';
+  String get passwordRequired => 'Password is required';
+
+  @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
+  String get signIn => 'Sign In';
+
+  @override
+  String get or => 'OR';
+
+  @override
+  String get continueAsGuest => 'Continue as Guest';
+
+  @override
+  String get dontHaveAccount => 'Don\'t have an account? ';
+
+  @override
+  String get register => 'Register';
+
+  @override
+  String get dateOfBirth => 'Date of Birth';
+
+  @override
+  String get createAccount => 'Create Account';
+
+  @override
+  String get joinCinemaExperience => 'Join the cinema experience';
+
+  @override
+  String get firstName => 'First Name';
+
+  @override
+  String get firstNameHint => 'First name';
+
+  @override
+  String get lastName => 'Last Name';
+
+  @override
+  String get lastNameHint => 'Last name';
+
+  @override
+  String get required => 'Required';
+
+  @override
+  String get emailHint => 'your@email.com';
+
+  @override
+  String get minPasswordHint => 'Minimum 6 characters';
+
+  @override
+  String get minPassword => 'At least 6 characters';
+
+  @override
+  String get selectDOB => 'Select your date of birth';
+
+  @override
+  String get dobRequired => 'Date of birth is required';
+
+  @override
+  String get alreadyHaveAccount => 'Already have an account? ';
+
+  @override
+  String get confirmationCode => 'Confirmation Code';
+
+  @override
+  String get verifyEmail => 'Verify Email';
+
+  @override
+  String get enterConfirmationCode =>
+      'Enter the confirmation code sent to your email';
+
+  @override
+  String get codeHint => '_ _ _ _ _ _';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get resendConfirmation => 'Resend confirmation code';
+
+  @override
+  String get forgotPasswordTitle => 'Forgot Password?';
+
+  @override
+  String get forgotPasswordDesc =>
+      'Enter your email address and we\'ll send you\na link to reset your password';
+
+  @override
+  String get sendResetLink => 'Send Reset Link';
+
+  @override
+  String get backToSignIn => 'Back to Sign In';
+
+  @override
+  String get signInToAccess =>
+      'Sign in to access your tickets,\nbookings and preferences';
+
+  @override
+  String ticketCountSummary(String upcoming, String past) {
+    return '$upcoming upcoming • $past past';
+  }
+
+  @override
+  String get checkYourTickets => 'Check your tickets';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String seatCount(String count) {
+    return '$count seats';
+  }
+
+  @override
+  String get showTime => 'Show Time';
+
+  @override
+  String get noShowtimes => 'No showtimes available yet.';
+
+  @override
+  String get noMoviesShowing => 'No movies showing right now';
+
+  @override
+  String get genreFallback => 'Action';
+
+  @override
+  String durationHours(String hours, String minutes) {
+    return '${hours}h ${minutes}m';
+  }
+
+  @override
+  String durationMinutes(String minutes) {
+    return '${minutes}m';
+  }
+
+  @override
+  String get currencySuffix => 'EGP';
+
+  @override
+  String get locationPlaceholder => 'Cairo, Egypt';
+
+  @override
+  String get signInRequired => 'Sign in required';
+
+  @override
+  String get signInToBook => 'You need to sign in to book tickets.';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String seatConflicting(String count) {
+    return '$count seat(s) already booked.';
+  }
+
+  @override
+  String get unknownMovie => 'Unknown Movie';
+
+  @override
+  String get vip => 'VIP';
+
+  @override
+  String get paymentCancelled => 'Payment cancelled';
+
+  @override
+  String paymentFailed(String error) {
+    return 'Payment failed: $error';
+  }
+
+  @override
+  String get paymentFailedRetry => 'Payment failed, please try again.';
+
+  @override
+  String get secure => 'secure';
+
+  @override
+  String get stripePaymentDesc =>
+      'You will confirm your card securely inside the Stripe payment sheet.';
+
+  @override
+  String reference(String ref) {
+    return 'Ref: $ref';
+  }
+
+  @override
+  String get sessionExpired => 'Session expired. Please sign in again.';
+
+  @override
+  String get loginSuccessful => 'Login successful';
+
+  @override
+  String get registrationSuccessful => 'Registration successful';
+
+  @override
+  String get emailConfirmed => 'Email confirmed';
+
+  @override
+  String get guest => 'Guest';
+
+  @override
+  String get confirmationResent => 'Confirmation resent';
+
+  @override
+  String get resetLinkSent => 'Reset link sent to your email';
+
+  @override
+  String get paymentConfirmFailed => 'Payment could not be confirmed';
+
+  @override
+  String get failedLoadTickets => 'Failed to load tickets.';
+
+  @override
+  String get editProfileTitle => 'Edit Profile';
+
+  @override
+  String get saveChanges => 'Save changes';
+
+  @override
+  String get fieldRequired => 'This field is required';
 }

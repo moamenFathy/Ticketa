@@ -7,6 +7,7 @@ import 'package:ticketa/core/constants/app_constants.dart';
 import 'package:ticketa/core/services/theme_service.dart';
 import 'package:ticketa/features/booking/data/booking_repository.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
+import 'package:ticketa/core/utils/localization_helper.dart';
 import '../widgets/profile_header.dart';
 
 import '../widgets/settings_tile.dart';
@@ -76,6 +77,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildGuestView(ThemeData theme, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
@@ -99,7 +101,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 const SizedBox(height: 28),
                 Text(
-                  'Welcome to Ticketa',
+                  l10n.welcomeMessage,
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w900,
                     color: theme.colorScheme.onSurface,
@@ -107,7 +109,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Sign in to access your tickets,\nbookings and preferences',
+                  l10n.signInToAccess,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyLarge?.copyWith(
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
@@ -128,8 +130,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
-                      'Sign In',
+                    child: Text(
+                      l10n.signIn,
                       style: TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 16,
@@ -151,8 +153,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: const Text(
-                      'Create Account',
+                    child: Text(
+                      l10n.createAccount,
                       style: TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 16,
@@ -242,21 +244,33 @@ class _SettingsPageState extends State<SettingsPage> {
                         icon: Icons.confirmation_number_outlined,
                         title: l10n.myTickets,
                         subtitle: _ticketsLoaded
-                            ? "$_upcomingTickets upcoming • $_pastTickets past"
-                            : "Check your tickets",
-                        onTap: () => Navigator.of(context).pushNamed('/my-tickets'),
-                      ),
-                      const SettingsTile(
-                        icon: Icons.favorite_border_rounded,
-                        title: "Watchlist",
-                        subtitle: "15 movies saved",
-                      ),
-                      SettingsTile(
-                        icon: Icons.notifications_none_rounded,
-                        title: l10n.notifications,
-                        subtitle: l10n.manageNotifications,
+                            ? l10n.ticketCountSummary(
+                                _upcomingTickets.toString(),
+                                _pastTickets.toString(),
+                              )
+                            : l10n.checkYourTickets,
+                        trailing: _ticketsLoaded
+                            ? Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 9, vertical: 5),
+                                decoration: BoxDecoration(
+                                  color: AppColors.warmOrange.withValues(
+                                      alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  (_upcomingTickets + _pastTickets)
+                                      .toString(),
+                                  style: const TextStyle(
+                                    color: AppColors.warmOrange,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                              )
+                            : null,
                         onTap: () =>
-                            Navigator.of(context).pushNamed('/notifications'),
+                            Navigator.of(context).pushNamed('/my-tickets'),
                       ),
                     ],
                   ),
@@ -268,16 +282,15 @@ class _SettingsPageState extends State<SettingsPage> {
                     icon: Icons.security_rounded,
                     children: [
                       SettingsTile(
-                        icon: Icons.lock_outline_rounded,
-                        title: "Password",
-                        subtitle: "Update your credentials",
-                        onTap: () => Navigator.of(context).pushNamed('/security'),
-                      ),
-                      SettingsTile(
-                        icon: Icons.description_outlined,
-                        title: l10n.privacyPolicy,
-                        subtitle: "Read our terms of service",
-                        onTap: () => Navigator.of(context).pushNamed('/privacy'),
+                        icon: Icons.lock_reset_rounded,
+                        title: localeCopy(
+                            context, 'Change Password', 'تغيير كلمة السر'),
+                        subtitle: localeCopy(
+                            context,
+                            'Update your credentials',
+                            'تحديث بيانات الدخول'),
+                        onTap: () =>
+                            Navigator.of(context).pushNamed('/change-password'),
                       ),
                     ],
                   ),

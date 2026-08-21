@@ -7,6 +7,7 @@ import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/features/auth/presentation/widgets/auth_background.dart';
 import 'package:ticketa/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:ticketa/features/auth/presentation/cubit/auth_state.dart';
+import 'package:ticketa/l10n/app_localizations.dart';
 
 class ConfirmEmailPage extends StatefulWidget {
   const ConfirmEmailPage({super.key});
@@ -59,6 +60,7 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> with SingleTickerPr
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return BlocProvider(
       create: (_) => getIt<AuthCubit>(),
@@ -79,17 +81,17 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> with SingleTickerPr
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const SizedBox(height: 40),
-                            _buildHeader(theme),
+                            _buildHeader(theme, l10n),
                             const SizedBox(height: 40),
                             _buildEmailChip(theme, isDark),
                             const SizedBox(height: 32),
-                            _buildInputLabel(theme, 'Confirmation Code'),
+                            _buildInputLabel(theme, l10n.confirmationCode),
                             const SizedBox(height: 8),
-                            _buildCodeField(theme, isDark),
+                            _buildCodeField(theme, isDark, l10n),
                             const SizedBox(height: 32),
-                            _buildConfirmButton(theme),
+                            _buildConfirmButton(theme, l10n),
                             const SizedBox(height: 16),
-                            _buildResendButton(theme),
+                            _buildResendButton(theme, l10n),
                             const SizedBox(height: 40),
                           ],
                         ),
@@ -105,7 +107,7 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> with SingleTickerPr
     );
   }
 
-  Widget _buildHeader(ThemeData theme) {
+  Widget _buildHeader(ThemeData theme, AppLocalizations l10n) {
     return Column(
       children: [
         Container(
@@ -130,7 +132,7 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> with SingleTickerPr
         ),
         const SizedBox(height: 20),
         Text(
-          'Verify Email',
+          l10n.verifyEmail,
           style: theme.textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.w900,
             color: theme.colorScheme.onSurface,
@@ -139,7 +141,7 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> with SingleTickerPr
         ),
         const SizedBox(height: 6),
         Text(
-          'Enter the confirmation code sent to your email',
+          l10n.enterConfirmationCode,
           textAlign: TextAlign.center,
           style: theme.textTheme.bodyMedium?.copyWith(
             color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
@@ -189,7 +191,7 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> with SingleTickerPr
     );
   }
 
-  Widget _buildCodeField(ThemeData theme, bool isDark) {
+  Widget _buildCodeField(ThemeData theme, bool isDark, AppLocalizations l10n) {
     return TextFormField(
       controller: _codeController,
       textAlign: TextAlign.center,
@@ -204,7 +206,7 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> with SingleTickerPr
       ),
       decoration: InputDecoration(
         counterText: '',
-        hintText: '_ _ _ _ _ _',
+        hintText: l10n.codeHint,
         hintStyle: TextStyle(
           color: theme.colorScheme.onSurface.withValues(alpha: 0.15),
           fontSize: 24,
@@ -232,7 +234,7 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> with SingleTickerPr
     );
   }
 
-  Widget _buildConfirmButton(ThemeData theme) {
+  Widget _buildConfirmButton(ThemeData theme, AppLocalizations l10n) {
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthEmailConfirmed) {
@@ -280,10 +282,10 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> with SingleTickerPr
                       height: 22, width: 22,
                       child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
                     )
-                  : const Row(
+                  : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('Confirm', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+                        Text(l10n.confirm, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
                         SizedBox(width: 8),
                         Icon(Icons.check_circle_outline_rounded, size: 20),
                       ],
@@ -295,7 +297,7 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> with SingleTickerPr
     );
   }
 
-  Widget _buildResendButton(ThemeData theme) {
+  Widget _buildResendButton(ThemeData theme, AppLocalizations l10n) {
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, state) {
         final isLoading = state is AuthLoading;
@@ -306,7 +308,7 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> with SingleTickerPr
                   ? null
                   : () => context.read<AuthCubit>().resendConfirmation(_email!),
               child: Text(
-                'Resend confirmation code',
+                l10n.resendConfirmation,
                 style: TextStyle(
                   color: AppColors.warmOrange,
                   fontWeight: FontWeight.w700,

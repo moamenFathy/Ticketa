@@ -37,7 +37,7 @@ class TicketCard extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(child: _ticketRow(l10n.date, date, theme)),
-                    Expanded(child: _ticketRow("Time", time, theme)),
+                    Expanded(child: _ticketRow(l10n.time, time, theme)),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -96,7 +96,7 @@ class TicketCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  "TICKET ID: #${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}",
+                  "${l10n.ticketId}: #${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}",
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.2), 
                     letterSpacing: 2,

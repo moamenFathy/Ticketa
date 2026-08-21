@@ -101,6 +101,7 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
     if (isLoggedIn && token != null && token.isNotEmpty) return;
     if (!mounted || !actionContext.mounted) return;
     final theme = Theme.of(actionContext);
+    final l10n = AppLocalizations.of(actionContext)!;
     await showDialog(
       context: actionContext,
       barrierDismissible: false,
@@ -121,12 +122,12 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Sign in required',
+              l10n.signInRequired,
               style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
             ),
             const SizedBox(height: 12),
             Text(
-              'You need to sign in to book tickets.',
+              l10n.signInToBook,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
@@ -146,7 +147,7 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
               ),
               onPressed: () => Navigator.of(ctx).pop(),
               child: Text(
-                'Cancel',
+                l10n.cancel,
                 style: TextStyle(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   fontWeight: FontWeight.w600,
@@ -168,7 +169,7 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
                 Navigator.of(actionContext).pop();
                 Navigator.of(actionContext).pushNamed('/login');
               },
-              child: const Text('Sign In', style: TextStyle(fontWeight: FontWeight.w600)),
+              child: Text(l10n.signIn, style: const TextStyle(fontWeight: FontWeight.w600)),
             ),
           ),
         ],
@@ -190,7 +191,13 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
             listener: (context, state) {
               if (state is BookingSeatConflict) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('${state.conflictingSeatIds.length} seat(s) already booked.')),
+                  SnackBar(
+                    content: Text(
+                      l10n.seatConflicting(
+                        state.conflictingSeatIds.length.toString(),
+                      ),
+                    ),
+                  ),
                 );
                 context.read<BookingCubit>().loadSeatMap(widget.showtimeId);
               } else if (state is BookingError) {
@@ -244,7 +251,7 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () => context.read<BookingCubit>().loadSeatMap(widget.showtimeId),
-                        child: const Text('Retry'),
+                        child: Text(l10n.retry),
                       ),
                     ],
                   ),

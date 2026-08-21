@@ -10,9 +10,6 @@ import 'package:ticketa/features/main/presentation/screens/main_page.dart';
 import 'package:ticketa/features/settings/presentation/screens/change_password_page.dart';
 import 'package:ticketa/features/settings/presentation/screens/edit_profile_page.dart';
 import 'package:ticketa/features/settings/presentation/screens/my_tickets_page.dart';
-import 'package:ticketa/features/settings/presentation/screens/notifications_page.dart';
-import 'package:ticketa/features/settings/presentation/screens/privacy_page.dart';
-import 'package:ticketa/features/settings/presentation/screens/security_page.dart';
 import 'package:ticketa/features/settings/presentation/screens/settings_page.dart';
 import 'package:ticketa/features/splash/presentation/screens/splash_screen.dart';
 import 'package:ticketa/features/auth/presentation/screens/login_page.dart';
@@ -35,6 +32,8 @@ class MyApp extends StatelessWidget {
         builder: (context, localeService, themeService, child) {
           return MaterialApp(
             title: 'Ticketa',
+            onGenerateTitle: (context) =>
+                AppLocalizations.of(context)?.appName ?? 'Ticketa',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
@@ -57,9 +56,6 @@ class MyApp extends StatelessWidget {
               '/main': (context) => const MainPage(),
               '/settings': (context) => const SettingsPage(),
               '/my-tickets': (context) => const MyTicketsPage(),
-              '/notifications': (context) => const NotificationsPage(),
-              '/privacy': (context) => const PrivacyPage(),
-              '/security': (context) => const SecurityPage(),
               '/change-password': (context) => const ChangePasswordPage(),
               '/edit-profile': (context) => const EditProfilePage(),
             },

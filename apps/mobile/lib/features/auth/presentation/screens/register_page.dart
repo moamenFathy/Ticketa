@@ -8,6 +8,7 @@ import 'package:ticketa/core/widgets/custom_date_picker.dart';
 import 'package:ticketa/features/auth/presentation/widgets/auth_background.dart';
 import 'package:ticketa/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:ticketa/features/auth/presentation/cubit/auth_state.dart';
+import 'package:ticketa/l10n/app_localizations.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -71,6 +72,7 @@ class _RegisterPageState extends State<RegisterPage>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return BlocProvider(
       create: (_) => getIt<AuthCubit>(),
@@ -93,36 +95,36 @@ class _RegisterPageState extends State<RegisterPage>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const SizedBox(height: 40),
-                              _buildHeader(theme),
+                              _buildHeader(theme, l10n),
                               const SizedBox(height: 28),
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Expanded(
-                                    child: _buildFirstNameField(theme, isDark),
+                                    child: _buildFirstNameField(theme, isDark, l10n),
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
-                                    child: _buildLastNameField(theme, isDark),
+                                    child: _buildLastNameField(theme, isDark, l10n),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 20),
-                              _buildInputLabel(theme, 'Email'),
+                              _buildInputLabel(theme, l10n.email),
                               const SizedBox(height: 8),
-                              _buildEmailField(theme, isDark),
+                              _buildEmailField(theme, isDark, l10n),
                               const SizedBox(height: 20),
-                              _buildInputLabel(theme, 'Password'),
+                              _buildInputLabel(theme, l10n.password),
                               const SizedBox(height: 8),
-                              _buildPasswordField(theme, isDark),
+                              _buildPasswordField(theme, isDark, l10n),
                               const SizedBox(height: 20),
-                              _buildInputLabel(theme, 'Date of Birth'),
+                              _buildInputLabel(theme, l10n.dateOfBirth),
                               const SizedBox(height: 8),
-                              _buildDateField(theme, isDark),
+                              _buildDateField(theme, isDark, l10n),
                               const SizedBox(height: 32),
-                              _buildRegisterButton(theme),
+                              _buildRegisterButton(theme, l10n),
                               const SizedBox(height: 24),
-                              _buildLoginRow(theme),
+                              _buildLoginRow(theme, l10n),
                               const SizedBox(height: 40),
                             ],
                           ),
@@ -139,7 +141,7 @@ class _RegisterPageState extends State<RegisterPage>
     );
   }
 
-  Widget _buildHeader(ThemeData theme) {
+  Widget _buildHeader(ThemeData theme, AppLocalizations l10n) {
     return Column(
       children: [
         Container(
@@ -168,7 +170,7 @@ class _RegisterPageState extends State<RegisterPage>
         ),
         const SizedBox(height: 20),
         Text(
-          'Create Account',
+          l10n.createAccount,
           style: theme.textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.w900,
             color: theme.colorScheme.onSurface,
@@ -177,7 +179,7 @@ class _RegisterPageState extends State<RegisterPage>
         ),
         const SizedBox(height: 6),
         Text(
-          'Join the cinema experience',
+          l10n.joinCinemaExperience,
           style: theme.textTheme.bodyMedium?.copyWith(
             color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
           ),
@@ -199,11 +201,11 @@ class _RegisterPageState extends State<RegisterPage>
     );
   }
 
-  Widget _buildFirstNameField(ThemeData theme, bool isDark) {
+  Widget _buildFirstNameField(ThemeData theme, bool isDark, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildInputLabel(theme, 'First Name'),
+        _buildInputLabel(theme, l10n.firstName),
         const SizedBox(height: 8),
         TextFormField(
           controller: _firstNameController,
@@ -215,20 +217,21 @@ class _RegisterPageState extends State<RegisterPage>
           decoration: _inputDecoration(
             theme,
             isDark,
-            hint: 'First name',
+            hint: l10n.firstNameHint,
             icon: Icons.person_outline,
           ),
-          validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
+          validator: (v) =>
+              v == null || v.trim().isEmpty ? l10n.required : null,
         ),
       ],
     );
   }
 
-  Widget _buildLastNameField(ThemeData theme, bool isDark) {
+  Widget _buildLastNameField(ThemeData theme, bool isDark, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildInputLabel(theme, 'Last Name'),
+        _buildInputLabel(theme, l10n.lastName),
         const SizedBox(height: 8),
         TextFormField(
           controller: _lastNameController,
@@ -240,16 +243,17 @@ class _RegisterPageState extends State<RegisterPage>
           decoration: _inputDecoration(
             theme,
             isDark,
-            hint: 'Last name',
+            hint: l10n.lastNameHint,
             icon: Icons.person_outline,
           ),
-          validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
+          validator: (v) =>
+              v == null || v.trim().isEmpty ? l10n.required : null,
         ),
       ],
     );
   }
 
-  Widget _buildEmailField(ThemeData theme, bool isDark) {
+  Widget _buildEmailField(ThemeData theme, bool isDark, AppLocalizations l10n) {
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
@@ -260,14 +264,15 @@ class _RegisterPageState extends State<RegisterPage>
       decoration: _inputDecoration(
         theme,
         isDark,
-        hint: 'your@email.com',
+        hint: l10n.emailHint,
         icon: Icons.email_outlined,
       ),
-      validator: (v) => v == null || v.isEmpty ? 'Email is required' : null,
+      validator: (v) =>
+          v == null || v.isEmpty ? l10n.emailRequired : null,
     );
   }
 
-  Widget _buildPasswordField(ThemeData theme, bool isDark) {
+  Widget _buildPasswordField(ThemeData theme, bool isDark, AppLocalizations l10n) {
     return TextFormField(
       controller: _passwordController,
       obscureText: _obscurePassword,
@@ -278,7 +283,7 @@ class _RegisterPageState extends State<RegisterPage>
       decoration: _inputDecoration(
         theme,
         isDark,
-        hint: 'Minimum 6 characters',
+        hint: l10n.minPasswordHint,
         icon: Icons.lock_outlined,
         suffix: IconButton(
           icon: Icon(
@@ -292,14 +297,14 @@ class _RegisterPageState extends State<RegisterPage>
         ),
       ),
       validator: (v) {
-        if (v == null || v.isEmpty) return 'Password is required';
-        if (v.length < 6) return 'At least 6 characters';
+        if (v == null || v.isEmpty) return l10n.passwordRequired;
+        if (v.length < 6) return l10n.minPassword;
         return null;
       },
     );
   }
 
-  Widget _buildDateField(ThemeData theme, bool isDark) {
+  Widget _buildDateField(ThemeData theme, bool isDark, AppLocalizations l10n) {
     return TextFormField(
       controller: _dateController,
       readOnly: true,
@@ -308,7 +313,7 @@ class _RegisterPageState extends State<RegisterPage>
       decoration: _inputDecoration(
         theme,
         isDark,
-        hint: 'Select your date of birth',
+        hint: l10n.selectDOB,
         icon: Icons.cake_outlined,
         suffix: Icon(
           Icons.arrow_drop_down_rounded,
@@ -316,11 +321,11 @@ class _RegisterPageState extends State<RegisterPage>
         ),
       ),
       validator: (v) =>
-          v == null || v.isEmpty ? 'Date of birth is required' : null,
+          v == null || v.isEmpty ? l10n.dobRequired : null,
     );
   }
 
-  Widget _buildRegisterButton(ThemeData theme) {
+  Widget _buildRegisterButton(ThemeData theme, AppLocalizations l10n) {
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthRegisterSuccess) {
@@ -388,11 +393,11 @@ class _RegisterPageState extends State<RegisterPage>
                         color: Colors.white,
                       ),
                     )
-                  : const Row(
+                  : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Create Account',
+                          l10n.createAccount,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w900,
@@ -410,12 +415,12 @@ class _RegisterPageState extends State<RegisterPage>
     );
   }
 
-  Widget _buildLoginRow(ThemeData theme) {
+  Widget _buildLoginRow(ThemeData theme, AppLocalizations l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          'Already have an account? ',
+          l10n.alreadyHaveAccount,
           style: TextStyle(
             color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
             fontSize: 13,
@@ -424,7 +429,7 @@ class _RegisterPageState extends State<RegisterPage>
         GestureDetector(
           onTap: () => Navigator.pushReplacementNamed(context, '/login'),
           child: Text(
-            'Sign In',
+            l10n.signIn,
             style: TextStyle(
               color: AppColors.warmOrange,
               fontWeight: FontWeight.w900,

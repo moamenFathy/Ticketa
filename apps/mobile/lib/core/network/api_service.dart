@@ -66,8 +66,25 @@ class ApiService {
   // Error Handling
   Exception _handleError(DioException e) {
     String? message;
-    if (e.response?.data is Map) {
-      message = (e.response?.data as Map)['message']?.toString();
+    final data = e.response?.data;
+    if (data is Map) {
+      message = data['message']?.toString();
+      if ((message == null || message.isEmpty) && data['errors'] is List) {
+        final errors = (data['errors'] as List)
+            .where((e) => e != null)
+            .map((e) => e.toString())
+            .where((e) => e.isNotEmpty)
+            .toList();
+        if (errors.isNotEmpty) message = errors.join('\n');
+      }
+      if ((message == null || message.isEmpty) && data['Errors'] is List) {
+        final errors = (data['Errors'] as List)
+            .where((e) => e != null)
+            .map((e) => e.toString())
+            .where((e) => e.isNotEmpty)
+            .toList();
+        if (errors.isNotEmpty) message = errors.join('\n');
+      }
     }
     message ??= e.message;
     return Exception(message ?? "Something went wrong");

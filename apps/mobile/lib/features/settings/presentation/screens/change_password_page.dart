@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:ticketa/core/di/injection.dart';
+import 'package:ticketa/core/services/message_service.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/core/utils/localization_helper.dart';
+import 'package:ticketa/features/auth/data/auth_repository.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -18,6 +21,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   bool _hideCurrent = true;
   bool _hideNew = true;
   bool _hideConfirm = true;
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -25,6 +29,48 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_isSubmitting) return;
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    setState(() => _isSubmitting = true);
+    try {
+      await getIt<AuthRepository>().changePassword(
+        currentPassword: _currentPasswordController.text,
+        newPassword: _newPasswordController.text,
+        confirmNewPassword: _confirmPasswordController.text,
+      );
+      if (!mounted) return;
+      MessageService.showSuccess(
+        context: context,
+        message: localeCopy(
+          context,
+          'Password updated successfully',
+          'تم تحديث كلمة السر بنجاح',
+        ),
+      );
+      _currentPasswordController.clear();
+      _newPasswordController.clear();
+      _confirmPasswordController.clear();
+      setState(() {});
+    } catch (e) {
+      if (!mounted) return;
+      final message = e.toString().replaceFirst('Exception: ', '');
+      MessageService.showError(
+        context: context,
+        message: message.isEmpty
+            ? localeCopy(
+                context,
+                'Failed to update password',
+                'فشل تحديث كلمة السر',
+              )
+            : message,
+      );
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 
   @override
@@ -121,26 +167,19 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       ),
                       const SizedBox(height: 18),
                       _SaveButton(
-                        label: localeCopy(
-                          context,
-                          'Update password',
-                          'تحديث كلمة السر',
-                        ),
-                        onTap: () {
-                          if (_formKey.currentState?.validate() ?? false) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  localeCopy(
-                                    context,
-                                    'Password updated successfully',
-                                    'تم تحديث كلمة السر بنجاح',
-                                  ),
-                                ),
+                        label: _isSubmitting
+                            ? localeCopy(
+                                context,
+                                'Updating...',
+                                'جارٍ التحديث...',
+                              )
+                            : localeCopy(
+                                context,
+                                'Update password',
+                                'تحديث كلمة السر',
                               ),
-                            );
-                          }
-                        },
+                        onTap: _submit,
+                        isLoading: _isSubmitting,
                       ),
                     ],
                   ),
@@ -316,6 +355,13 @@ class _PasswordStrength extends StatelessWidget {
       localeCopy(context, 'Strong', 'قوية'),
     ][score];
 
+    final color = switch (score) {
+      1 => Colors.redAccent,
+      2 => AppColors.warmOrange,
+      3 => AppColors.success,
+      _ => theme.colorScheme.onSurface.withValues(alpha: 0.35),
+    };
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -340,8 +386,8 @@ class _PasswordStrength extends StatelessWidget {
               ),
               Text(
                 label,
-                style: const TextStyle(
-                  color: AppColors.warmOrange,
+                style: TextStyle(
+                  color: color,
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
                 ),
@@ -352,12 +398,13 @@ class _PasswordStrength extends StatelessWidget {
           Row(
             children: List.generate(4, (index) {
               return Expanded(
-                child: Container(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
                   height: 5,
                   margin: EdgeInsetsDirectional.only(end: index == 3 ? 0 : 6),
                   decoration: BoxDecoration(
-                    color: index <= score
-                        ? AppColors.warmOrange
+                    color: index < score
+                        ? color
                         : theme.colorScheme.onSurface.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(999),
                   ),
@@ -371,19 +418,27 @@ class _PasswordStrength extends StatelessWidget {
   }
 
   int _scorePassword(String password) {
-    if (password.length < 8) return 0;
-    var score = 1;
-    if (RegExp(r'[A-Z]').hasMatch(password)) score++;
-    if (RegExp(r'[0-9]|[^A-Za-z]').hasMatch(password)) score++;
-    return score.clamp(0, 3);
+    if (password.isEmpty) return 0;
+    if (password.length < 8) return 1;
+    var score = 2;
+    if (RegExp(r'[A-Z]').hasMatch(password) &&
+        RegExp(r'[0-9]').hasMatch(password)) {
+      score = 3;
+    }
+    return score;
   }
 }
 
 class _SaveButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
+  final bool isLoading;
 
-  const _SaveButton({required this.label, required this.onTap});
+  const _SaveButton({
+    required this.label,
+    required this.onTap,
+    this.isLoading = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -391,7 +446,7 @@ class _SaveButton extends StatelessWidget {
       width: double.infinity,
       height: 56,
       child: ElevatedButton(
-        onPressed: onTap,
+        onPressed: isLoading ? null : onTap,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.warmOrange,
           foregroundColor: Colors.white,
@@ -400,7 +455,16 @@ class _SaveButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(18),
           ),
         ),
-        child: Text(label, style: const TextStyle(fontWeight: FontWeight.w900)),
+        child: isLoading
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.5,
+                ),
+              )
+            : Text(label, style: const TextStyle(fontWeight: FontWeight.w900)),
       ),
     );
   }

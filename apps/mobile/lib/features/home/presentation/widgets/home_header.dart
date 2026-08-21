@@ -40,7 +40,7 @@ class HomeHeader extends StatelessWidget {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    "Cairo, Egypt",
+                    l10n.locationPlaceholder,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurface.withValues(
                         alpha: 0.52,

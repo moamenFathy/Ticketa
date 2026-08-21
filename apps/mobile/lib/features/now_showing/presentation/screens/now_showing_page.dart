@@ -97,7 +97,7 @@ class _NowShowingView extends StatelessWidget {
                       child: FadeTransition(opacity: animation, child: child),
                     );
                   },
-                  child: _buildBody(context, state, theme),
+                  child: _buildBody(context, state, theme, l10n),
                 );
               },
             ),
@@ -111,6 +111,7 @@ class _NowShowingView extends StatelessWidget {
     BuildContext context,
     NowShowingState state,
     ThemeData theme,
+    AppLocalizations l10n,
   ) {
     if (state is NowShowingInitial || state is NowShowingLoading) {
       return const ticketa_now_skeleton.NowShowingSkeleton(
@@ -135,7 +136,7 @@ class _NowShowingView extends StatelessWidget {
               ElevatedButton(
                 onPressed: () =>
                     context.read<NowShowingCubit>().fetchNowShowing(),
-                child: const Text('Retry'),
+                child: Text(l10n.retry),
               ),
             ],
           ),
@@ -149,7 +150,7 @@ class _NowShowingView extends StatelessWidget {
       return Center(
         key: const ValueKey('empty'),
         child: Text(
-          'No movies showing right now',
+          l10n.noMoviesShowing,
           style: theme.textTheme.titleMedium,
         ),
       );
