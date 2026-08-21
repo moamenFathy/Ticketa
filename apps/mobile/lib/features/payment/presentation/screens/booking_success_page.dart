@@ -29,8 +29,10 @@ class BookingSuccessPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
+        bottom: false,
         child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
+          physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics()),
           padding: const EdgeInsets.symmetric(vertical: 24),
           child: Column(
             children: [
@@ -82,7 +84,7 @@ class BookingSuccessPage extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 40),
+              const SizedBox(height: 24),
 
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -95,32 +97,19 @@ class BookingSuccessPage extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 40),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Column(
-                  children: [
-                    _buildButton(
-                      l10n.downloadTicket,
-                      Icons.file_download_outlined,
-                      AppColors.warmOrange,
-                      Colors.white,
-                      () {},
-                    ),
-                    const SizedBox(height: 16),
-                    _buildButton(
-                      l10n.backToHome,
-                      null,
-                      theme.colorScheme.surface,
-                      theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                      () => Navigator.of(context).popUntil((route) => route.isFirst),
-                    ),
-                  ],
-                ),
-              ),
+              const SizedBox(height: 24),
             ],
           ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(32, 8, 32, 16),
+        child: _buildButton(
+          l10n.backToHome,
+          Icons.home_outlined,
+          theme.colorScheme.surface,
+          theme.colorScheme.onSurface.withValues(alpha: 0.6),
+          () => Navigator.of(context).popUntil((route) => route.isFirst),
         ),
       ),
     );

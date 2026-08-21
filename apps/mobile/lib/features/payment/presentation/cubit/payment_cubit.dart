@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ticketa/features/payment/data/models/payment_models.dart';
 import 'package:ticketa/features/payment/data/payment_repository.dart';
@@ -35,8 +36,10 @@ class PaymentCubit extends Cubit<PaymentState> {
     emit(PaymentLoading());
     try {
       final intent = await _repository.createIntent(dto);
+      debugPrint('[payment] intent created: ${intent.paymentIntentId}');
       emit(PaymentIntentReady(intent));
     } catch (e) {
+      debugPrint('[payment] createIntent failed: $e');
       emit(PaymentFailure(e.toString().replaceFirst('Exception: ', '')));
     }
   }

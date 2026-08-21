@@ -7,12 +7,9 @@ import 'package:ticketa/core/services/message_service.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/features/booking/data/models/seat_dto.dart';
 import 'package:ticketa/features/payment/data/models/payment_models.dart';
-import 'package:ticketa/features/payment/data/payment_repository.dart';
 import 'package:ticketa/features/payment/presentation/cubit/payment_cubit.dart';
 import 'package:ticketa/features/payment/presentation/screens/booking_success_page.dart';
 import 'package:ticketa/features/payment/presentation/widgets/order_summary.dart';
-import 'package:ticketa/features/payment/presentation/widgets/card_input_form.dart';
-import 'package:ticketa/features/payment/presentation/widgets/payment_method_selector.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 
 class PaymentPage extends StatefulWidget {
@@ -44,9 +41,7 @@ class PaymentPage extends StatefulWidget {
 }
 
 class _PaymentPageState extends State<PaymentPage> {
-  int _selectedMethod = 0;
-
-  static const String _fallbackPublishableKey =
+  static const String _publishableKey =
       'pk_test_51TjmWwRFtQmaK3YIn0wPIZz2f3Zob8aUwvcZzeW2RkKngGTi6pPXiCjCqXqtQpiogz8lvcjQqM89kG6VwpF9kMv7006Yv3TyGG';
 
   @override
@@ -56,24 +51,17 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   Future<void> _setupStripe() async {
-    try {
-      final config = await getIt<PaymentRepository>().getConfig();
-      if (config.publishableKey.isNotEmpty) {
-        Stripe.publishableKey = config.publishableKey;
-      } else {
-        Stripe.publishableKey = _fallbackPublishableKey;
-      }
-      await Stripe.instance.applySettings();
-    } catch (_) {
-      Stripe.publishableKey = _fallbackPublishableKey;
-    }
+    Stripe.publishableKey = _publishableKey;
+    await Stripe.instance.applySettings();
   }
 
   List<String> get _seatLabels =>
       widget.seats.map((s) => 'R${s.row}-S${s.seatNumber}').toList();
 
-  Future<void> _onPayPressed() async {
-    final cubit = context.read<PaymentCubit>();
+  Future<void> _onPayPressed(BuildContext ctx) async {
+    debugPrint('[payment] pay pressed, '
+        'showtimeId=${widget.showtimeId} seats=${widget.seats.length}');
+    final cubit = ctx.read<PaymentCubit>();
     var state = cubit.state;
 
     if (state is! PaymentIntentReady) {
@@ -83,7 +71,7 @@ class _PaymentPageState extends State<PaymentPage> {
       ));
       state = cubit.state;
     }
-
+    debugPrint('[payment] after createIntent -> ${state.runtimeType}');
     if (state is! PaymentIntentReady) return;
 
     final theme = Theme.of(context);
@@ -183,36 +171,42 @@ class _PaymentPageState extends State<PaymentPage> {
                     l10n.paymentMethod,
                     style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
                   ),
-                  const SizedBox(height: 16),
-
-                  PaymentMethodSelector(
-                    index: 0,
-                    title: l10n.creditCard,
-                    icon: Icons.credit_card_rounded,
-                    isSelected: _selectedMethod == 0,
-                    onTap: () => setState(() => _selectedMethod = 0),
-                  ),
-
-                  AnimatedCrossFade(
-                    firstChild: const SizedBox(width: double.infinity),
-                    secondChild: const CardInputForm(),
-                    crossFadeState: _selectedMethod == 0
-                        ? CrossFadeState.showSecond
-                        : CrossFadeState.showFirst,
-                    duration: const Duration(milliseconds: 300),
-                  ),
-
                   const SizedBox(height: 12),
-                  PaymentMethodSelector(
-                    index: 1,
-                    title: "Apple Pay",
-                    icon: Icons.apple_rounded,
-                    isSelected: _selectedMethod == 1,
-                    onTap: () => setState(() => _selectedMethod = 1),
+
+                  Row(
+                    children: [
+                      Icon(Icons.credit_card_rounded,
+                          color: AppColors.warmOrange, size: 20),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          l10n.creditCard,
+                          style: theme.textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                      const Icon(Icons.lock_outline_rounded,
+                          size: 16,
+                          color: Colors.green,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'secure',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                            color: Colors.green, fontWeight: FontWeight.w700),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'You will confirm your card securely inside the Stripe payment sheet.',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurface
+                            .withValues(alpha: 0.45)),
                   ),
 
                   const SizedBox(height: 40),
-                  _buildPayButton(l10n, theme, isProcessing),
+                  _buildPayButton(l10n, theme, isProcessing, context),
                   const SizedBox(height: 20),
                 ],
               ),
@@ -224,12 +218,12 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   Widget _buildPayButton(
-      AppLocalizations l10n, ThemeData theme, bool isProcessing) {
+      AppLocalizations l10n, ThemeData theme, bool isProcessing, BuildContext ctx) {
     return SizedBox(
       width: double.infinity,
       height: 60,
       child: ElevatedButton(
-        onPressed: isProcessing ? null : _onPayPressed,
+        onPressed: isProcessing ? null : () => _onPayPressed(ctx),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.warmOrange,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
