@@ -94,6 +94,7 @@ class BookingSuccessPage extends StatelessWidget {
                   time: time,
                   seats: seats,
                   totalAmount: totalAmount,
+                  bookingReference: bookingReference,
                 ),
               ),
 

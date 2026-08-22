@@ -26,18 +26,22 @@ class BookingCubit extends Cubit<BookingState> {
     }
   }
 
-  void toggleSeat(String seatId) {
+  static const int maxSeats = 10;
+
+  bool toggleSeat(String seatId) {
     final current = state;
-    if (current is! SeatMapLoaded) return;
+    if (current is! SeatMapLoaded) return false;
     final seats = List<String>.from(current.selectedSeats);
     if (seats.contains(seatId)) {
       seats.remove(seatId);
     } else {
+      if (seats.length >= maxSeats) return false;
       seats.add(seatId);
     }
     final updated = SeatMapLoaded(seatMap: current.seatMap, selectedSeats: seats);
     _lastLoaded = updated;
     emit(updated);
+    return true;
   }
 
   Future<void> createBooking(int showtimeId, List<SeatDto> seats) async {

@@ -4,7 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ticketa/core/constants/app_constants.dart';
 import 'package:ticketa/core/di/injection.dart';
+import 'package:ticketa/core/services/message_service.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/core/utils/localization_helper.dart';
 import 'package:ticketa/features/booking/data/models/seat_dto.dart';
 import 'package:ticketa/features/booking/presentation/cubit/booking_cubit.dart';
 import 'package:ticketa/features/booking/presentation/cubit/booking_state.dart';
@@ -376,7 +378,19 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
                       selectedSeats: state.selectedSeats,
                       hallType: seatMap.hallType,
                       onSeatToggled: (seatId) {
-                        context.read<BookingCubit>().toggleSeat(seatId);
+                        final ok = context
+                            .read<BookingCubit>()
+                            .toggleSeat(seatId);
+                        if (!ok) {
+                          MessageService.showWarning(
+                            context: context,
+                            message: localeCopy(
+                              context,
+                              'You can select up to 10 seats',
+                              'يمكنك اختيار حتى 10 مقاعد فقط',
+                            ),
+                          );
+                        }
                       },
                     ),
                   ),
