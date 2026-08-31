@@ -1,9 +1,12 @@
 <Solution>
   <Folder Name="/Solution Items/">
     <File Path=".gitignore" />
+    <File Path="run-coverage.bat" />
   </Folder>
   <Project Path="Ticketa.API/Ticketa.API.csproj" Id="06086b04-54db-4cc7-8ef4-67231679352b" />
   <Project Path="Ticketa.Core/Ticketa.Core.csproj" />
   <Project Path="Ticketa.Infrastructure/Ticketa.Infrastructure.csproj" />
+  <Project Path="Ticketa.Test/Ticketa.Test.csproj" Id="897c0852-352f-49a0-9bd3-1f95dd0d389a" />
+  <Project Path="Ticketa.Tests/Ticketa.Tests.csproj" />
   <Project Path="Ticketa.Web/Ticketa.Web.csproj" />
 </Solution>
