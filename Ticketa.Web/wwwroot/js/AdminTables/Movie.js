@@ -275,7 +275,7 @@ if (dataTableElement) {
             className: "align-middle text-center w-24",
             render: (data) => {
                 if (data) {
-                    return `<img src="${imageBase}${data}" alt="Poster" class="w-16 rounded shadow-sm mx-auto" />`;
+                    return `<img src="${imageBase}${data}" alt="Poster" class="w-16 h-24 rounded shadow-sm mx-auto" />`;
                 }
 
                 return `<div class="w-16 h-24 bg-base-300 rounded flex items-center justify-center text-xs text-base-content/50 mx-auto">No Image</div>`;
