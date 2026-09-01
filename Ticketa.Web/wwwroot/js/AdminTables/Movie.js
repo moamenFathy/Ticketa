@@ -870,7 +870,7 @@ window.updateMovieStatus = async function (id, selectEl) {
     selectEl.style.opacity = '0.7';
     selectEl.style.cursor = 'wait';
     indicator.innerHTML = '⟳';
-    indicator.className = 'status-indicator absolute -right-1 -top-1 text-xs animate-spin text-violet-600';
+    indicator.className = 'status-indicator absolute -right-1 -top-1 text-xs animate-spin text-primary';
     indicator.classList.remove('hidden');
 
     try {
