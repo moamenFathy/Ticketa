@@ -293,8 +293,41 @@ The `ShowtimeService` test suite covers **19 comprehensive scenarios** validatin
 
 ---
 
-### Phase 5 — Specifications & Query Builders
-* Integration tests with SQLite/SQL Server for `PaymentManagementSpecification`, `MovieSpecification`, and `BookingHistorySpecification`.
+### Phase 5 — Specifications & Query Builders ✅ (Implemented across 4 Test Classes)
+
+Eliminates the highest-risk complexity hotspots identified in the code coverage report (**Crap Score 380** on `PaymentManagementSpecification`, **182 / 72** on `MovieSpecification`):
+
+#### 1. 💳 `PaymentManagementSpecificationTests.cs` (19 tests)
+* **Search Filters**: Tests keyword searching across `User.FirstName + LastName`, `User.Email`, `Showtime.Movie.Title`, and `BookingReference`.
+* **Column Ordering Matrix**: Validates ascending and descending ordering for all 6 sortable DataTables columns:
+  * Column 0: `User.FirstName` (`asc` / `desc`)
+  * Column 1: `User.Email` (`asc` / `desc`)
+  * Column 2: `Showtime.Movie.Title` (`asc` / `desc`)
+  * Column 3: `TotalAmount` (`asc` / `desc`)
+  * Column 4: `Status` (`asc` / `desc`)
+  * Column 5: `CreatedAt` (`asc` / `desc`)
+  * Fallback / Default: `CreatedAt DESC`
+* **Navigation Includes & Paging**: Verifies eager loading of `User`, `Showtime`, `PaymentSeats`, `"Showtime.Movie"`, and calculates `Skip`/`Take`.
+
+#### 2. 🎬 `MovieSpecificationTests.cs` (16 tests)
+* **Archiving Partition**: Asserts `archivedOnly = false` excludes archived movies and `archivedOnly = true` selects only archived movies.
+* **Filter Combinations**: Tests combining `MovieStatus` filters with search query terms.
+* **Sort Permutations**: Verifies ordering by `VoteAverage`, `ReleaseDate`, `ImportedAt`, `RuntimeMinutes`, and `Status`.
+* **Deep Includes**: Verifies eager loading of `Genres` and `Cast`.
+
+#### 3. 🛡️ `PaymentSpecificationTests.cs` (6 tests)
+* **Deduplication Specification**: Validates the compound filter `UserId + ShowtimeId + SeatHash + PaymentStatus.Pending`.
+* **Filtered Queries**: Tests optional filtering by `ShowtimeId`, `UserId`, and `PaymentStatus`.
+* **Eager Loading**: Verifies inclusion of `PaymentSeats`, `User`, `Showtime`, `"Showtime.Movie"`, and `"Showtime.Hall"`.
+
+#### 4. 📂 `BookingHistorySpecificationTests.cs` (6 tests)
+* **Temporal Partitioning**:
+  * `Upcoming`: Filters `Showtime.StartTime >= UtcNow` and sorts by `StartTime ASC` (soonest first).
+  * `Past`: Filters `Showtime.StartTime < UtcNow` and sorts by `StartTime DESC` (most recent first).
+  * `All`: Retrieves all user bookings sorted by `BookedAt DESC`.
+* **Paging & Count Accuracy**: Validates mathematical page offset calculation `((page - 1) * pageSize, pageSize)` and proves `BookingHistoryCountSpecification` matches criteria.
+
+---
 
 ### Phase 6 — Permissions & RBAC
 * `PermissionAuthorizationHandler`: Verifies claim match succeeds and missing claim fails explicitly.
