@@ -1,4 +1,20 @@
 <Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/architecture.md" />
+    <File Path="docs/authentication.md" />
+    <File Path="docs/database.md" />
+    <File Path="docs/testing-plan.md" />
+  </Folder>
+  <Folder Name="/docs/decisions/">
+    <File Path="docs/decisions/hall-template.md" />
+    <File Path="docs/decisions/payment-first-booking.md" />
+    <File Path="docs/decisions/sql-server-vs-postgresql.md" />
+  </Folder>
+  <Folder Name="/docs/features/">
+    <File Path="docs/features/booking.md" />
+    <File Path="docs/features/payments.md" />
+    <File Path="docs/features/showtimes.md" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".gitignore" />
     <File Path="run-coverage.bat" />

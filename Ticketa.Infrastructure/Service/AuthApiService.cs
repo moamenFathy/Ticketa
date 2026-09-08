@@ -50,11 +50,7 @@ namespace Ticketa.Infrastructure.Service
       GoogleJsonWebSignature.Payload payload;
       try
       {
-        var settings = new GoogleJsonWebSignature.ValidationSettings
-        {
-          Audience = [_config["Google:ClientId"]]
-        };
-        payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
+        payload = await GoogleJsonWebSignature.ValidateAsync(idToken, GetGoogleValidationSettings());
       }
       catch
       {
@@ -187,11 +183,7 @@ namespace Ticketa.Infrastructure.Service
       GoogleJsonWebSignature.Payload payload;
       try
       {
-        var settings = new GoogleJsonWebSignature.ValidationSettings
-        {
-          Audience = [_config["Google:ClientId"]]
-        };
-        payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
+        payload = await GoogleJsonWebSignature.ValidateAsync(idToken, GetGoogleValidationSettings());
       }
       catch
       {
@@ -255,6 +247,22 @@ namespace Ticketa.Infrastructure.Service
     {
       var (accessToken, refreshToken, _) = await BuildTokensAsync(user);
       return AuthResultDto.Success(accessToken, refreshToken);
+    }
+
+    private GoogleJsonWebSignature.ValidationSettings GetGoogleValidationSettings()
+    {
+      var audiences = new List<string>();
+      if (!string.IsNullOrWhiteSpace(_config["Google:ClientId"]))
+        audiences.Add(_config["Google:ClientId"]!);
+      if (!string.IsNullOrWhiteSpace(_config["Google:IosClientId"]))
+        audiences.Add(_config["Google:IosClientId"]!);
+      if (!string.IsNullOrWhiteSpace(_config["Google:AndroidClientId"]))
+        audiences.Add(_config["Google:AndroidClientId"]!);
+
+      return new GoogleJsonWebSignature.ValidationSettings
+      {
+        Audience = audiences.Count > 0 ? audiences : null
+      };
     }
 
     private async Task<(string AccessToken, string RefreshToken, DateTime RefreshTokenExpiry)> BuildTokensAsync(AppUser user)
