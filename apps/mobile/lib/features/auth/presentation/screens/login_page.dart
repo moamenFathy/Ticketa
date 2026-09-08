@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ticketa/core/services/message_service.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/core/di/injection.dart';
+import 'package:ticketa/features/auth/data/google_auth_service.dart';
 import 'package:ticketa/features/auth/presentation/widgets/auth_background.dart';
 import 'package:ticketa/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:ticketa/features/auth/presentation/cubit/auth_state.dart';
@@ -92,6 +93,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                               const SizedBox(height: 24),
                               _buildDividerWithText(theme, isDark, l10n),
                               const SizedBox(height: 24),
+                              _buildGoogleButton(theme, l10n),
+                              const SizedBox(height: 20),
                               _buildGuestButton(theme, l10n),
                               const SizedBox(height: 16),
                               _buildRegisterRow(theme, l10n),
@@ -290,6 +293,47 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     );
   }
 
+  Widget _buildGoogleButton(ThemeData theme, AppLocalizations l10n) {
+    return BlocBuilder<AuthCubit, AuthState>(
+      builder: (context, state) {
+        final isLoading = state is AuthLoading;
+        return SizedBox(
+          width: double.infinity,
+          child: _SocialButton(
+            icon: Icons.g_mobiledata_rounded,
+            iconColor: Colors.red.shade400,
+            label: 'Google',
+            onPressed: isLoading ? null : () => _handleGoogleSignIn(context),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _handleGoogleSignIn(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+
+    final idToken = await GoogleAuthService.signInWithGoogle();
+    if (!mounted || !context.mounted) return;
+    if (idToken == null) {
+      MessageService.showWarning(
+        context: context,
+        message: 'Google sign in was cancelled',
+      );
+      return;
+    }
+
+    final savedEmail = await GoogleAuthService.savedEmail;
+    final savedName = await GoogleAuthService.savedDisplayName;
+    if (!mounted || !context.mounted) return;
+
+    final cubit = context.read<AuthCubit>();
+    await cubit.loginWithGoogleToken(
+      idToken: idToken,
+      email: savedEmail.isNotEmpty ? savedEmail : null,
+    );
+  }
+
   Widget _buildDividerWithText(ThemeData theme, bool isDark, AppLocalizations l10n) {
     return Row(
       children: [
@@ -383,6 +427,57 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         borderSide: BorderSide(color: AppColors.warmOrange, width: 1.5),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+    );
+  }
+}
+
+class _SocialButton extends StatelessWidget {
+  const _SocialButton({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+    this.iconColor = AppColors.warmOrange,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback? onPressed;
+  final Color iconColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return SizedBox(
+      height: 56,
+      child: OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          backgroundColor: theme.colorScheme.surface,
+          foregroundColor: theme.colorScheme.onSurface,
+          side: BorderSide(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.12),
+            width: 1.5,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 22, color: iconColor),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

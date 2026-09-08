@@ -120,4 +120,14 @@ class AuthRepository {
       },
     );
   }
+
+  Future<Map<String, dynamic>> googleLogin(String idToken) async {
+    final response = await _apiService.post(
+      '${ApiConstants.authEndpoint}/google',
+      data: {'idToken': idToken},
+    );
+    return response.data is Map<String, dynamic>
+        ? response.data as Map<String, dynamic>
+        : {};
+  }
 }

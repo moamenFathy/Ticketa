@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ticketa/core/constants/app_constants.dart';
 import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/features/auth/data/auth_repository.dart';
+import 'package:ticketa/features/auth/data/google_auth_service.dart';
 import 'package:ticketa/features/auth/presentation/cubit/auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
@@ -72,6 +73,18 @@ class AuthCubit extends Cubit<AuthState> {
     await prefs.setBool(AppConstants.isGuestKey, true);
     await prefs.setBool(AppConstants.isLoggedInKey, false);
     emit(AuthLoginSuccess('Guest'));
+  }
+
+  Future<void> loginWithGoogleToken({required String idToken, String? email}) async {
+    emit(AuthLoading());
+    try {
+      final result = await _repository.googleLogin(idToken);
+      final token = result['accessToken']?.toString();
+      await _saveAuth(email: email, token: token);
+      emit(AuthLoginSuccess('Login successful'));
+    } catch (e) {
+      emit(AuthError(e.toString().replaceFirst('Exception: ', '')));
+    }
   }
 
   Future<void> resendConfirmation(String email) async {
