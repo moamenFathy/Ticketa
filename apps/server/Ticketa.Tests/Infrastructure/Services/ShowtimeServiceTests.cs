@@ -57,6 +57,65 @@ namespace Ticketa.Tests.Infrastructure.Services
       _sut = new ShowtimeService(_mockUow.Object, _timeConversions, null!);
     }
 
+    #region GetAllAsync & GetHallsAsync Tests
+
+    [Fact]
+    public async Task GetAllAsync_WhenCalled_ReturnsGroupedMovieShowtimes()
+    {
+      // Arrange
+      var movie = new Movie { Id = 1, Title = "Avatar", RuntimeMinutes = 160, Genres = [new Genre { Name = "Sci-Fi" }] };
+      var hall = new Hall { Id = 1, Name = "IMAX 1", Type = HallType.IMAX };
+      var showtime = new Showtime
+      {
+        Id = 1,
+        MovieId = 1,
+        HallId = 1,
+        Movie = movie,
+        Hall = hall,
+        StartTime = DateTime.UtcNow.AddHours(2),
+        EndTime = DateTime.UtcNow.AddHours(4),
+        Price = 150m,
+        Status = ShowtimeStatus.Scheduled
+      };
+
+      _mockShowtimeRepo
+          .Setup(r => r.GetAllWithSpecAsync(It.IsAny<ShowtimeSpecification>(), It.IsAny<CancellationToken>()))
+          .ReturnsAsync([showtime]);
+
+      // Act
+      var result = (await _sut.GetAllAsync("Avatar", "scheduled")).ToList();
+
+      // Assert
+      Assert.Single(result);
+      Assert.Equal("Avatar", result[0].Title);
+      Assert.Single(result[0].Showtimes);
+      Assert.Equal("IMAX 1", result[0].Showtimes[0].HallName);
+    }
+
+    [Fact]
+    public async Task GetHallsAsync_ReturnsMappedHalls()
+    {
+      // Arrange
+      var halls = new List<Hall>
+      {
+        new() { Id = 1, Name = "Hall A", Type = HallType.Standard, TotalRows = 10, SeatsPerRow = 12 }
+      };
+
+      _mockHallRepo
+          .Setup(r => r.GetAllAsync())
+          .ReturnsAsync(halls);
+
+      // Act
+      var result = (await _sut.GetHallsAsync()).ToList();
+
+      // Assert
+      Assert.Single(result);
+      Assert.Equal("Hall A", result[0].Name);
+      Assert.Equal(120, result[0].TotalSeats);
+    }
+
+    #endregion
+
     #region CreateAsync Tests
 
     [Fact]
