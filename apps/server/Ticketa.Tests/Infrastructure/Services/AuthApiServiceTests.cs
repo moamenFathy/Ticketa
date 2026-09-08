@@ -456,6 +456,31 @@ namespace Ticketa.Tests.Infrastructure.Services
 
     #endregion
 
+    #region Google Auth Tests
+
+    [Fact]
+    public async Task GoogleAuthAsync_WhenTokenInvalid_ReturnsFailure()
+    {
+      // Act: Passing an invalid raw string token will cause Google validation to throw
+      var result = await _sut.GoogleAuthAsync("invalid-google-token-xyz");
+
+      // Assert
+      Assert.False(result.Succeeded);
+      Assert.Equal("Invalid Google token.", result.Message);
+    }
+
+    [Fact]
+    public async Task GoogleMobileAuthAsync_WhenTokenInvalid_ReturnsFailure()
+    {
+      // Act
+      var result = await _sut.GoogleMobileAuthAsync("invalid-mobile-token-xyz");
+
+      // Assert
+      Assert.Equal("Invalid Google token.", result.Message);
+    }
+
+    #endregion
+
     #region ResendEmailConfirmationAsync Tests
 
     [Fact]
