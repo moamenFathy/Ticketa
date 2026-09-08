@@ -329,17 +329,88 @@ Eliminates the highest-risk complexity hotspots identified in the code coverage 
 
 ---
 
-### Phase 6 — Permissions & RBAC
-* `PermissionAuthorizationHandler`: Verifies claim match succeeds and missing claim fails explicitly.
-* `RoleService.UpsertAsync`: Validates claim delta synchronization (adds new claims, drops unselected claims).
+### Phase 6 — Permissions & RBAC ✅ (Implemented across 3 Test Classes)
 
-### Phase 7 — User Profile & History
-* `ChangePasswordAsync`: Identity password verification without terminating active sessions.
-* `GetBookingHistoryAsync`: Pagination clamping ($\le 25$ items) and `HasMore` boolean flag boundary calculation.
+Validates authorization handlers, reflection discovery, and role claim synchronization:
 
-### Phase 8 — Background Services & Archiving
-* `ShowtimeCompletionSpecification`: Filters completed showtimes requiring soft-archiving.
-* Soft-delete index isolation: Asserts queries filter out `IsArchived = true` rows by default.
+#### 1. 🛡️ `PermissionAuthorizationHandlerTests.cs` (4 tests)
+* `HandleRequirementAsync_WhenUserHasMatchingPermissionClaim_SucceedsRequirement`
+  * Matches `Claim("permission", "movies:import")` and marks authorization context as succeeded.
+* `HandleRequirementAsync_WhenUserHasDifferentPermissionClaim_FailsExplicitly`
+  * Missing exact claim fails authorization explicitly.
+* `HandleRequirementAsync_WhenUserHasNoPermissionClaims_FailsExplicitly` & `HandleRequirementAsync_WhenUserIsUnauthenticated_FailsExplicitly`
+
+#### 2. 🔐 `RoleServiceTests.cs` (12 tests)
+* **Creation & Claim Assignment**:
+  * Blocks duplicate role names (`RoleExistsAsync`).
+  * Creates `AppRole` and attaches all selected permissions as `Claim("permission", val)` entries.
+* **Update & Delta Synchronization**:
+  * Validates updating role details and synchronizing permission claims (strips removed claims, attaches newly checked claims).
+* **Deletion & User Assignment Guard**:
+  * `DeleteAsync` checks `UserRoles.CountAsync(ur => ur.RoleId == role.Id)`.
+  * If active users are assigned (e.g. 2 users), blocks deletion with error `"Cannot delete role 'BoxOffice' — 2 user(s) are assigned to it."` and prevents `DeleteAsync`.
+  * Deletes unassigned roles cleanly.
+
+#### 3. 🧩 `PermissionsTests.cs` (2 tests)
+* **Reflection Engine**: Verifies `Permissions.GetAll()` dynamically discovers all nested constants across all domain modules without duplicates.
+* **Naming Conventions**: Proves all discovered permissions strictly follow the `module:action` lowercase standard.
+
+---
+
+### Phase 7 — User Profile & History ✅ (Implemented in `ProfileServiceTests.cs`)
+
+Validates profile management, password updates with session preservation, and infinite-scroll pagination:
+
+#### 1. 👤 Profile Data Lifecycle
+* `GetProfileAsync_WhenUserNotFound_ReturnsNull` & `GetProfileAsync_WhenUserExists_ReturnsMappedProfileDto`
+  * Verifies mapping of `FirstName`, `LastName`, `Email`, `DateOfBirth`, and `Theme`.
+* `UpdateProfileAsync_WhenValid_UpdatesFieldsAndReturnsSuccess`
+  * Updates editable fields on `AppUser` while keeping email locked.
+* `UpdateProfileAsync_WhenIdentityFails_ReturnsFailureWithErrors`
+
+#### 2. 🔐 Password Update & Active Session Invariance
+* `ChangePasswordAsync_WhenUserNotFound_ReturnsFailure` & `ChangePasswordAsync_WhenIdentityFails_ReturnsFailureWithErrors`
+  * Validates Identity error propagation for incorrect current passwords or policy failures.
+* `ChangePasswordAsync_WhenValid_SucceedsAndPreservesActiveRefreshTokens`
+  * **Core Security Invariant**: Verifies changing password succeeds while leaving `user.RefreshToken` and `user.RefreshTokenExpiry` **100% untouched** so active mobile/web sessions stay alive.
+
+#### 3. 📂 Booking History Pagination & Projection
+* `GetBookingHistoryAsync_WhenPageSizeExceedsLimit_ClampsPageSizeTo25`
+  * **Security Clamping**: Requests $> 25$ items (e.g. 100) are automatically clamped to `PageSize = 25`.
+* `GetBookingHistoryAsync_WhenHasMorePages_ReturnsHasMoreTrue` & `GetBookingHistoryAsync_WhenOnLastPage_ReturnsHasMoreFalse`
+  * Verifies mathematical `HasMore` calculation `(page * pageSize) < totalCount`.
+* `GetBookingHistoryAsync_ProjectsBookingFieldsAndSeatCountCorrectly`
+  * Asserts `SeatCount = b.BookedSeats.Count`, UTC timestamps, movie title, poster, and total amount.
+
+---
+
+### Phase 8 — Background Services & Archiving ✅ (Implemented across 3 Test Classes)
+
+Validates background task cycles, session completion specifications, and soft-delete invariants:
+
+#### 1. ⚙️ `ShowtimeCompletionSpecificationTests.cs` (7 tests)
+* **`ShowtimeCloseBookingsSpecification` (4 tests)**:
+  * Matches sessions starting within 10 minutes (`StartTime <= UtcNow + 10m`) in `Scheduled` or `SoldOut` status to close bookings.
+  * Excludes future sessions ($> 10$ mins) and already archived sessions.
+* **`ShowtimeCompletionSpecification` (3 tests)**:
+  * Matches expired sessions (`Status == Completed && !IsArchived && EndTime < UtcNow`).
+  * Excludes currently running sessions (`EndTime >= UtcNow`) and already archived sessions.
+
+#### 2. 🔄 `ShowtimeCompletionServiceTests.cs` (3 tests)
+* **Automated Cycle Execution**:
+  * Closes bookable sessions when starting time threshold is reached $\rightarrow$ updates `Status = Completed` and commits `SaveAsync()`.
+  * Archives expired sessions $\rightarrow$ updates `IsArchived = true`, assigns UTC timestamp to `ArchivedAt`, and commits `SaveAsync()`.
+  * Suppresses redundant database writes when zero sessions require updates.
+
+#### 3. 🎬 `MoviesServiceTests.cs` (6 tests)
+* **Status Archiving Lifecycle**:
+  * Setting status to `MovieStatus.Archived` sets `IsArchived = true` and records `ArchivedAt = UtcNow`.
+  * Reactivating status to `MovieStatus.Active` resets `IsArchived = false` and clears `ArchivedAt = null`.
+* **Deletion Safety Guard**:
+  * Prevents deleting movies that still have linked showtime sessions (`"Can't remove this movie — it still has showtimes."`).
+  * Deletes unlinked movies cleanly.
+
+---
 
 ### Phase 9 — Integration: The Concurrency Test ⭐
 * Spawns a real disposable SQL Server via **Testcontainers.MsSql**.
