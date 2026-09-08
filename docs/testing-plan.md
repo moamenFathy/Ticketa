@@ -48,6 +48,41 @@ A test is **vacuous** if its assertions are merely written to match whatever the
 
 ---
 
+## 🧱 The Test Data Builder Pattern
+
+### 🛑 Why We Avoid Manual Entity Instantiation
+Complex domain models like `Showtime`, `Booking`, and `BookedSeat` have deep object graphs (e.g. `Hall`, `Movie`, navigation collections, pricing, UTC timestamps, and enum statuses).
+
+Manually initializing these objects directly within test methods creates severe architectural problems:
+1. **Noisy Setup**: 15–20 lines of repetitive setup code per test obscures what the test is actually verifying.
+2. **Brittle Test Suites**: Adding a new required property or relation to an entity breaks dozens of test files across the solution.
+3. **Loss of Test Intent**: Readers cannot easily distinguish between required domain data and irrelevant boilerplate.
+
+### 💡 The Solution: Fluent Builders (`Ticketa.Tests/TestBuilders/`)
+Test Data Builders provide complete, sensible default instances out-of-the-box, exposing expressive fluent methods for only the properties relevant to the specific test scenario:
+
+```csharp
+// Fluent and expressive — overrides only what matters for the test scenario
+var showtime = new ShowtimeBuilder()
+    .WithId(1)
+    .WithHallType(HallType.Gold)
+    .WithPrice(100m)
+    .WithStatus(ShowtimeStatus.SoldOut)
+    .Build();
+
+var seat = new BookedSeatBuilder()
+    .WithShowtimeId(1)
+    .WithSeat(row: 1, seatNumber: 5)
+    .WithCategory(SeatCategory.VIP)
+    .Build();
+```
+
+* **`ShowtimeBuilder`**: Preconfigures valid default `Hall` (Standard, 182 visible seats), `Movie` (Active), and UTC timeframes.
+* **`BookedSeatBuilder`**: Sets up valid row/seat coordinates, seat categories, and unit pricing.
+* **`BookingBuilder`**: Bundles booked seat collections, computes `TotalAmount`, and sets confirmed status.
+
+---
+
 ## 📊 Code Coverage & Risk Analysis (ReportGenerator & Stryker)
 
 ### Running Coverage Locally
@@ -89,15 +124,51 @@ Phase 0 [Done]  ──>  Phase 1 [Booking]  ──>  Phase 2 [Payment]  ──> 
 * `HallTypeHelper.GetPriceMultiplier`: Verified `VIP (1.5x)`, `Premium (1.2x)`, `Regular (1.0x)`.
 * `HallTemplate.VisibleSeatCount` & `InvisibleSeatCount`: Bowl-shape skip math calculations verified across Standard (110 seats), IMAX (214 seats), and Gold (38 seats).
 
-### Phase 1 — Booking Core Logic
-* `BookingService.CreateAsync`:
-  * Valid selection $\rightarrow$ inserts `Booking` + `BookedSeat`s with accurate price multipliers.
-  * Seat collision $\rightarrow$ returns conflict response; verifies `AddRangeAsync`/`SaveAsync` are never executed.
-  * Capacity threshold $\rightarrow$ automatically transitions `Showtime.Status` to `SoldOut` when capacity is reached.
-* `BookingService.CancelBookingsForPaymentAsync`:
-  * Partial refund $\rightarrow$ removes specific `BookedSeat`s while preserving remaining seats.
-  * Full seat refund $\rightarrow$ transitions `Booking.Status` to `Cancelled`.
-  * Capacity relief $\rightarrow$ reverts `SoldOut` showtime back to `Scheduled`.
+### Phase 1 — Booking Core Logic ✅ (Implemented in `BookingServiceTests.cs`)
+
+The `BookingService` test suite covers **13 comprehensive scenarios** across 5 categories of business guarantees:
+
+#### 1. 🛡️ Safety & Zero-Dirty-Write Guarantees
+* `CreateAsync_WhenShowtimeNotFound_ReturnsConflictWithEmptySeatsAndNeverSaves`
+  * Verifies missing showtime returns `Succeeded = false`.
+  * **Moq Assertion**: Verifies `Bookings.CreateAsync` and `SaveAsync` were **never called** (`Times.Never`), guaranteeing no partial records.
+* `CreateAsync_WhenSeatsAlreadyBooked_ReturnsConflictWithConflictingSeatsAndNeverCreatesBooking`
+  * When requested seats collide with existing bookings, returns `Succeeded = false` with conflicting seat coordinates.
+  * **Moq Assertion**: Verifies `Bookings.CreateAsync` and `SaveAsync` were **never called**.
+
+#### 2. 💰 Financial Correctness & Pricing Multipliers
+* `CreateAsync_WithValidSeats_CalculatesPriceMultipliersAndTotalCorrectly`
+  * Standard Hall Base Price = $100.
+  * User selects Row 1 (Regular, $1.0\times = \$100$) + Row 10 (VIP, $1.5\times = \$150$).
+  * **Assertions**: Verifies per-seat pricing, category assignments, and that `TotalAmount` on the created booking equals exactly **$250.00**.
+
+#### 3. 🎟️ Capacity State Machine & Automated Status Transitions
+* `CreateAsync_WhenBookingFillsCapacity_TransitionsShowtimeStatusToSoldOutAndUpdates`
+  * Capacity = 38 visible seats, existing booked = 36. User books 2 seats ($36 + 2 = 38 \ge 38$).
+  * **Assertions**: Verifies `Showtime.Status` transitions to `ShowtimeStatus.SoldOut` and `Showtimes.UpdateAsync` is called.
+* `CreateAsync_WhenBookingDoesNotFillCapacity_ShowtimeStatusRemainsScheduled`
+  * Capacity = 38 visible seats, existing booked = 10. User books 2 seats ($10 + 2 = 12 < 38$).
+  * **Assertions**: Verifies `Showtime.Status` remains `ShowtimeStatus.Scheduled` with zero redundant update queries.
+
+#### 4. ⚡ Storage Concurrency & Exception Handling
+* `CreateAsync_WhenDbUpdateExceptionOccurs_CatchesExceptionAndReturnsLateConflict`
+  * Simulates a database-level unique constraint collision (`DbUpdateException` on `IX_BookedSeats_ShowtimeId_Row_SeatNumber`).
+  * **Assertions**: Verifies the exception is caught gracefully and re-queries to return the colliding seat coordinates rather than failing with an unhandled 500 error.
+
+#### 5. 🔄 Refund & Cancellation Integrity
+* `CancelBookingsForPaymentAsync_WhenShowtimeNotFound_ReturnsFailureWithMessage`
+* `CancelBookingsForPaymentAsync_WhenPaymentSeatsEmpty_ReturnsFailureWithMessage`
+* `CancelBookingsForPaymentAsync_WhenNoMatchingBookedSeatsFound_ReturnsFailureWithMessage`
+* `CancelBookingsForPaymentAsync_WhenPartialSeatsCancelled_DeletesMatchedSeatsAndPreservesBookingStatus`
+  * When 1 of 2 seats is refunded, only the targeted `BookedSeat` is deleted; the remaining seat and `Booking.Status = Confirmed` are preserved.
+* `CancelBookingsForPaymentAsync_WhenAllSeatsForBookingCancelled_UpdatesBookingStatusToCancelled`
+  * When all seats for a booking are refunded, transitions `Booking.Status` to `Cancelled`.
+* `CancelBookingsForPaymentAsync_WhenSoldOutShowtimeHasCapacityFreed_RevertsStatusToScheduled`
+  * If a `SoldOut` showtime drops below capacity after a refund, automatically re-opens the session by setting `Showtime.Status = Scheduled`.
+* `CancelBookingsForPaymentAsync_WhenSoldOutShowtimeStillAtOrAboveCapacity_StatusRemainsSoldOut`
+  * If remaining seats still meet capacity, preserves `ShowtimeStatus.SoldOut`.
+
+---
 
 ### Phase 2 — Payments (Stripe SDK Boundary)
 * `PaymentService.CreateIntentAsync`:
