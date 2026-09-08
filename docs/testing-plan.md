@@ -170,15 +170,34 @@ The `BookingService` test suite covers **13 comprehensive scenarios** across 5 c
 
 ---
 
-### Phase 2 — Payments (Stripe SDK Boundary)
-* `PaymentService.CreateIntentAsync`:
-  * Verifies amount calculation converted to minor currency units (cents/piastres $\times 100$).
-  * Idempotency key stability: `"intent-{userId}-{showtimeId}-{sortedSeats}"` produces identical keys regardless of input array order.
-* `PaymentService.ConfirmAsync`:
-  * Succeeded intent + `metadata["userId"] == currentUserId` $\rightarrow$ triggers booking creation.
-  * `userId` mismatch $\rightarrow$ security rejection.
-  * Post-payment conflict $\rightarrow$ triggers automated refund through Stripe SDK.
-  * Resilient email dispatch $\rightarrow$ SMTP failures are caught and logged without aborting confirmed bookings.
+### Phase 2 — Payments (Stripe SDK Boundary) ✅ (Implemented in `PaymentServiceTests.cs`)
+
+The `PaymentService` test suite covers **9 comprehensive scenarios** validating Stripe interaction, idempotency, security boundaries, and auto-refunds:
+
+#### 1. ⚡ Intent Creation & Deduplication
+* `CreateIntentAsync_WhenShowtimeNotFound_ReturnsNullAndNeverCallsStripeOrSaves`
+  * Missing showtime returns `null`; verifies Stripe `CreateAsync` and `UoW.SaveAsync` are **never called**.
+* `CreateIntentAsync_WhenDuplicatePendingPaymentExists_ReturnsCachedIntentWithoutCallingStripe`
+  * If a pending payment for `(userId, showtimeId, seatHash)` already exists in the database, returns cached client secret and intent ID without calling Stripe.
+* `CreateIntentAsync_WithValidSeats_CalculatesAmountInMinorUnitsAndCreatesPendingPayment`
+  * Standard Hall Base ($100): Row 1 Regular ($100) + Row 10 VIP ($150) = $250.
+  * **Assertions**: Verifies Stripe `Amount` is converted to **25,000 minor units (cents/piastres)**, sets metadata (`userId`, `showtimeId`), computes sorted `SeatHash` (`"1:5,10:5"`), and records `Payment` with `Status = PaymentStatus.Pending`.
+
+#### 2. 🛡️ Security & Idempotency in Confirmation
+* `ConfirmAsync_WhenPaymentIntentStatusNotSucceeded_ReturnsFailureAndNeverCreatesBooking`
+  * If Stripe intent status is incomplete (e.g. `requires_payment_method`), returns failure (`"Payment has not been completed."`); verifies `BookingService.CreateAsync` is **never called**.
+* `ConfirmAsync_WhenUserIdDoesNotMatchIntentMetadata_ReturnsUnauthorizedFailure`
+  * **Security Check**: When the caller's `userId` does not match `paymentIntent.Metadata["userId"]`, returns failure (`"Unauthorized access."`) and blocks booking creation.
+* `ConfirmAsync_WhenPaymentAlreadyCompletedInDb_ReturnsCachedSuccessAndNeverCreatesBooking`
+  * **Idempotency**: If payment in DB is already `PaymentStatus.Completed`, returns existing booking reference without creating duplicate bookings.
+
+#### 3. 💳 Happy Path & Conflict Auto-Refund
+* `ConfirmAsync_WhenPaymentSucceeded_CompletesPaymentGeneratesQrAndSendsEmail`
+  * Valid payment $\rightarrow$ creates booking, updates `Payment.Status = PaymentStatus.Completed`, sets `CompletedAt`, generates QR code via `IQrCodeService`, and dispatches confirmation email via `IEmailService`.
+* `ConfirmAsync_WhenBookingReturnsSeatConflict_TriggersStripeRefundAndMarksPaymentRefunded`
+  * **Auto-Refund on Collision**: If seats were taken concurrently by another user, catches conflict, invokes `RefundService.CreateAsync(PaymentIntent = paymentIntentId)`, and sets `Payment.Status = PaymentStatus.Refunded`.
+* `ConfirmAsync_WhenEmailSendingThrows_BookingStillSucceeds`
+  * **Fault Tolerance**: If `IEmailService` throws an SMTP exception, verifies the confirmed booking is still returned successfully without failing the customer transaction.
 
 ### Phase 3 — Authentication & Security
 * Anti-enumeration: `RegisterAsync` on an unconfirmed email resends code without leaking account existence.
