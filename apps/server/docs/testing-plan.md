@@ -199,15 +199,99 @@ The `PaymentService` test suite covers **9 comprehensive scenarios** validating 
 * `ConfirmAsync_WhenEmailSendingThrows_BookingStillSucceeds`
   * **Fault Tolerance**: If `IEmailService` throws an SMTP exception, verifies the confirmed booking is still returned successfully without failing the customer transaction.
 
-### Phase 3 — Authentication & Security
-* Anti-enumeration: `RegisterAsync` on an unconfirmed email resends code without leaking account existence.
-* OTP validation: `ConfirmEmailAsync` rejects expired/invalid codes and issues JWT on valid input.
-* Token refresh: Revoked/expired refresh tokens reject renewal; valid tokens rotate both access and refresh tokens.
+### Phase 3 — Authentication & Security ✅ (Implemented in `AuthApiServiceTests.cs`)
 
-### Phase 4 — Showtime Scheduling & 15-Minute Buffer
-* `HasConflictAsync`: Enforces strict 15-minute turnaround buffer between consecutive showtimes in the same hall.
-* Boundary tests: Tests exact overlap limits ($14\text{ min} \rightarrow \text{conflict}$, $15\text{ min} \rightarrow \text{valid}$).
-* `SaveBatchAsync`: Validates multi-item drag-and-drop updates, 5-hour advance scheduling rules, and prevents modifying completed sessions.
+The `AuthApiService` test suite covers **23 comprehensive scenarios** validating anti-enumeration, OTP verification, login gates, dual-token rotation, and password recovery:
+
+#### 1. 📝 Registration & Anti-Enumeration
+* `RegisterAsync_WhenNewUser_CreatesUserGeneratesOtpAndSendsEmail`
+  * New user registration creates `AppUser`, generates random 6-digit OTP, sets 15-minute expiration, and dispatches verification email.
+* `RegisterAsync_WhenExistingUserAlreadyConfirmed_ReturnsFailureAndNeverSendsOtp`
+  * Prevents duplicate registration for confirmed accounts and suppresses email dispatch.
+* `RegisterAsync_WhenExistingUserUnconfirmed_ResendsOtpAndReturnsSuccess`
+  * **Anti-Enumeration & Recovery**: Refreshes OTP code on unconfirmed accounts and dispatches new email without leaking account existence errors.
+* `RegisterAsync_WhenUserManagerCreateFails_ReturnsFailureWithIdentityErrors`
+  * Surfaces identity validation errors (e.g., weak password rules) and blocks email dispatch.
+
+#### 2. ✉️ Email Verification & Activation
+* `ConfirmEmailAsync_WhenUserNotFound_ReturnsFailure`
+* `ConfirmEmailAsync_WhenCodeMismatch_ReturnsFailureAndLeavesEmailUnconfirmed`
+  * Wrong OTP code leaves `EmailConfirmed = false` and rejects token issuance.
+* `ConfirmEmailAsync_WhenCodeExpired_ReturnsFailure`
+  * Code with `VerificationCodeExpiry < UtcNow` is rejected.
+* `ConfirmEmailAsync_WhenCodeValid_ActivatesAccountAndIssuesTokens`
+  * Valid OTP sets `EmailConfirmed = true`, clears OTP fields, persists new refresh token, and issues JWT access token.
+
+#### 3. 🔑 Authentication & Login Gating
+* `LoginAsync_WhenUserNotFoundOrPasswordInvalid_ReturnsFailure`
+* `LoginAsync_WhenEmailNotConfirmed_ReturnsEmailNotConfirmedFailure`
+  * Valid credentials on unconfirmed account are blocked with message `"Email not confirmed. Please check your inbox."`
+* `LoginAsync_WhenCredentialsValidAndConfirmed_ReturnsSuccessWithTokens`
+  * Successful login generates access token with embedded permissions and sets refresh token with 7-day expiration.
+
+#### 4. 🔄 Refresh Token Lifecycle & Revocation
+* `RefreshTokenAsync_WhenRefreshTokenNotFound_ReturnsFailure`
+* `RefreshTokenAsync_WhenRefreshTokenExpired_ReturnsFailure`
+* `RefreshTokenAsync_WhenRefreshTokenValid_RotatesRefreshTokenAndReturnsSuccess`
+  * **Token Rotation**: Generates a new access token and simultaneously rotates to a brand-new refresh token in the database.
+* `LogoutAsync_WhenRefreshTokenValid_ClearsRefreshTokenAndExpiry`
+  * Session revocation sets `user.RefreshToken = null` and `user.RefreshTokenExpiry = null`.
+* `LogoutAsync_WhenRefreshTokenNullOrWhitespace_ReturnsSilently`
+
+#### 5. 🔐 Resend & Password Recovery
+* `ResendEmailConfirmationAsync_WhenUserExistsAndUnconfirmed_SendsNewOtp`
+* `ResendEmailConfirmationAsync_WhenUserNotFoundOrAlreadyConfirmed_ReturnsSilently`
+* `ForgetPasswordAsync_WhenUserExistsAndConfirmed_GeneratesResetLinkAndSendsEmail`
+  * Generates reset token via `UserManager`, encodes token using Base64URL, and sends formatted reset email.
+* `ForgetPasswordAsync_WhenUserNotFoundOrUnconfirmed_ReturnsSilently` (Anti-enumeration)
+* `ResetPasswordAsync_WhenUserNotFound_ReturnsFailure`
+* `ResetPasswordAsync_WhenTokenValid_ResetsPasswordAndReturnsSuccess`
+* `ResetPasswordAsync_WhenIdentityResetFails_ReturnsFailureWithDescription`
+
+---
+
+### Phase 4 — Showtime Scheduling & 15-Minute Buffer ✅ (Implemented in `ShowtimeServiceTests.cs`)
+
+The `ShowtimeService` test suite covers **19 comprehensive scenarios** validating advance scheduling rules, turnaround buffers, immutability gates, deletion safety, and Gantt chart timeline batch persistence:
+
+#### 1. 🕐 Showtime Creation & 15-Minute Turnaround Buffer
+* `CreateAsync_WhenStartTimeInPast_ReturnsPastError`
+  * Rejects past start times (`"A showtime cannot be scheduled in the past."`).
+* `CreateAsync_WhenStartTimeLessThan5HoursFromNow_Returns5HourAdvanceError`
+  * Enforces the 5-hour advance scheduling window (`"A showtime must be scheduled at least 5 hours from now."`).
+* `CreateAsync_WhenMovieNotFound_ReturnsMovieNotFoundError` & `CreateAsync_WhenHallNotFound_ReturnsHallNotFoundError`
+* `CreateAsync_WhenTurnaroundBufferHasConflict_ReturnsConflictError`
+  * Rejects overlapping sessions in the same hall.
+* `CreateAsync_WhenValid_CalculatesEndTimeWith15MinBufferAndCreatesScheduledShowtime`
+  * Validates that `EndTime` equals `StartTime + RuntimeMinutes + 15 minutes buffer` (e.g. 120m movie + 15m = 135m duration) and persists `ShowtimeStatus.Scheduled`.
+
+#### 2. 🔄 Showtime Rescheduling & Immutability Gates
+* `UpdateAsync_WhenStartTimeInPast_ReturnsPastError` & `UpdateAsync_WhenStartTimeLessThan5HoursFromNow_Returns5HourAdvanceError`
+* `UpdateAsync_WhenShowtimeNotFound_ReturnsShowtimeNotFoundError`
+* `UpdateAsync_WhenExistingShowtimeStartsInLessThan5Hours_ReturnsCannotEditError`
+  * **Immutability Rule**: Editing a session whose current start time is $< 5$ hours away is blocked.
+* `UpdateAsync_WhenShowtimeAlreadyCompleted_ReturnsCompletedError`
+  * **Completed Lock**: Modifying completed historical sessions is strictly forbidden.
+* `UpdateAsync_WhenValid_UpdatesStartTimeEndTimePriceAndSaves`
+  * Recalculates end time with the 15-minute buffer and persists updated price.
+
+#### 3. 🛡️ Showtime Deletion & Booking Integrity
+* `DeleteAsync_WhenShowtimeNotFound_ReturnsShowtimeNotFoundError`
+* `DeleteAsync_WhenShowtimeHasBookings_ReturnsCannotRemoveError`
+  * **Financial Audit Protection**: Prevents hard deleting showtimes that have booking or payment history (`"Can't remove this showtime — it has bookings or payments."`).
+* `DeleteAsync_WhenUnbooked_DeletesShowtimeAndSaves`
+  * Deletes unbooked sessions cleanly.
+
+#### 4. 🪑 Seat Map Synthesis & Timeline Batching
+* `GetSeatMapAsync_WhenShowtimeNotFound_ReturnsNull`
+* `GetSeatMapAsync_WhenShowtimeExists_SynthesizesVirtualLayoutWithPricingAndBookedSeats`
+  * Synthesizes mathematical rows/seats, category mappings, multipliers, and active reservations.
+* `SaveBatchAsync_WithValidBatchChanges_PerformsCreateUpdateDeleteAndCommits`
+  * Executes multi-item Gantt chart actions (create, update, delete) in a single atomic transaction.
+* `SaveBatchAsync_WhenBatchItemsHaveErrors_PopulatesErrorsAndCalculatesSuccess`
+  * Collects per-item validation errors while allowing valid changes to commit.
+
+---
 
 ### Phase 5 — Specifications & Query Builders
 * Integration tests with SQLite/SQL Server for `PaymentManagementSpecification`, `MovieSpecification`, and `BookingHistorySpecification`.
