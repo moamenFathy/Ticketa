@@ -37,9 +37,21 @@ class HeroMovieInfo extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              _buildTag(movie.firstGenre, theme),
-              _buildTag(movie.duration > 60 ? "${movie.duration ~/ 60}h ${movie.duration % 60}m" : "${movie.duration}m", theme),
-              _buildTag("⭐ ${movie.rating.toStringAsFixed(1)}", theme, color: AppColors.warmOrange.withValues(alpha: 0.2)),
+              _buildTag(label: movie.firstGenre, theme: theme),
+              _buildTag(
+                label: movie.duration > 60
+                    ? "${movie.duration ~/ 60}h ${movie.duration % 60}m"
+                    : "${movie.duration}m",
+                theme: theme,
+              ),
+              _buildTag(
+                label: movie.rating.toStringAsFixed(1),
+                theme: theme,
+                icon: Icons.star_rounded,
+                iconColor: AppColors.warmOrange,
+                backgroundColor: AppColors.warmOrange.withValues(alpha: 0.15),
+                textColor: AppColors.warmOrange,
+              ),
             ],
           ),
         ],
@@ -47,21 +59,46 @@ class HeroMovieInfo extends StatelessWidget {
     );
   }
 
-  Widget _buildTag(String label, ThemeData theme, {Color? color}) {
+  Widget _buildTag({
+    required String label,
+    required ThemeData theme,
+    IconData? icon,
+    Color? iconColor,
+    Color? backgroundColor,
+    Color? textColor,
+  }) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
-        color: color ?? theme.colorScheme.onSurface.withValues(alpha: 0.05),
+        color: backgroundColor ?? theme.colorScheme.onSurface.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.onSurface.withValues(alpha: 0.1)),
-      ),
-      child: Text(
-        label,
-        style: theme.textTheme.labelSmall?.copyWith(
-          color: color != null ? AppColors.warmOrange : theme.colorScheme.onSurface.withValues(alpha: 0.8),
-          fontWeight: FontWeight.w900,
+        border: Border.all(
+          color: backgroundColor != null
+              ? AppColors.warmOrange.withValues(alpha: 0.3)
+              : theme.colorScheme.onSurface.withValues(alpha: 0.1),
         ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (icon != null) ...[
+            Icon(
+              icon,
+              size: 16,
+              color: iconColor ?? AppColors.warmOrange,
+            ),
+            const SizedBox(width: 4),
+          ],
+          Text(
+            label,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: textColor ?? theme.colorScheme.onSurface.withValues(alpha: 0.8),
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
       ),
     );
   }

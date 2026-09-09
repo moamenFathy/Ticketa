@@ -5,11 +5,13 @@ import 'package:ticketa/features/now_showing/presentation/widgets/now_showing_ca
 class SeeAllMoviesPage extends StatelessWidget {
   final String title;
   final List<Movie> movies;
+  final bool isComingSoon;
 
   const SeeAllMoviesPage({
     super.key,
     required this.title,
     required this.movies,
+    this.isComingSoon = false,
   });
 
   @override
@@ -44,7 +46,10 @@ class SeeAllMoviesPage extends StatelessWidget {
                 ),
               );
             },
-            child: NowShowingCard(movie: movie),
+            child: NowShowingCard(
+              movie: movie,
+              isComingSoon: isComingSoon,
+            ),
           );
         },
       ),

@@ -6,10 +6,12 @@ import 'package:ticketa/l10n/app_localizations.dart';
 
 class NowShowingCard extends StatelessWidget {
   final Movie movie;
+  final bool isComingSoon;
 
   const NowShowingCard({
     super.key,
     required this.movie,
+    this.isComingSoon = false,
   });
 
   @override
@@ -20,7 +22,12 @@ class NowShowingCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => MovieDetailPage(movie: movie)),
+        MaterialPageRoute(
+          builder: (_) => MovieDetailPage(
+            movie: movie,
+            isComingSoon: isComingSoon,
+          ),
+        ),
       ),
       child: Container(
         height: 200,
@@ -38,11 +45,11 @@ class NowShowingCard extends StatelessWidget {
               child: Container(
                 width: 130,
                 decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(24)),
-                    image: DecorationImage(
-                      image: CachedNetworkImageProvider(movie.posterUrl, maxWidth: 400),
-                      fit: BoxFit.cover,
-                    ),
+                  borderRadius: const BorderRadiusDirectional.horizontal(start: Radius.circular(24)),
+                  image: DecorationImage(
+                    image: CachedNetworkImageProvider(movie.posterUrl, maxWidth: 400),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             ),
@@ -94,7 +101,13 @@ class NowShowingCard extends StatelessWidget {
                         const SizedBox(width: 6),
                         Text(l10n.watchTrailer, style: TextStyle(color: theme.colorScheme.primary, fontSize: 12, fontWeight: FontWeight.bold)),
                         const Spacer(),
-                        Icon(Icons.arrow_forward_rounded, color: theme.dividerColor.withValues(alpha: 0.2), size: 16),
+                        Icon(
+                          Localizations.localeOf(context).languageCode == 'ar'
+                              ? Icons.arrow_back_rounded
+                              : Icons.arrow_forward_rounded,
+                          color: theme.dividerColor.withValues(alpha: 0.2),
+                          size: 16,
+                        ),
                       ],
                     ),
                   ],
@@ -139,7 +152,7 @@ class NowShowingCard extends StatelessWidget {
 
   Widget _buildTimeChip(DateTime time, ThemeData theme) {
     return Container(
-      margin: const EdgeInsets.only(right: 6),
+      margin: const EdgeInsetsDirectional.only(end: 6),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: theme.dividerColor.withValues(alpha: 0.05),

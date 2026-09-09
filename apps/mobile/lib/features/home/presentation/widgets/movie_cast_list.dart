@@ -23,7 +23,7 @@ class MovieCastList extends StatelessWidget {
         itemBuilder: (context, index) {
           final member = cast[index];
           return Padding(
-            padding: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsetsDirectional.only(end: 16),
             child: Column(
               children: [
                 CircleAvatar(

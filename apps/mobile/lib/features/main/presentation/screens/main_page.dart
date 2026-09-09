@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cupertino_native/cupertino_native.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
@@ -61,6 +62,7 @@ class _MainPageState extends State<MainPage>
     final theme = Theme.of(context);
     final isIOS = theme.platform == TargetPlatform.iOS;
     final isDark = theme.brightness == Brightness.dark;
+    final isRtl = Localizations.localeOf(context).languageCode == 'ar';
 
     final List<Widget> pages = [
       HomePage(
@@ -89,87 +91,131 @@ class _MainPageState extends State<MainPage>
             ),
           ),
           if (isIOS)
-            _buildIosTabBar(l10n)
+            _buildIosTabBar(l10n, isRtl)
           else
-            _buildAndroidTabBar(l10n, isDark),
+            _buildAndroidTabBar(l10n, isDark, isRtl),
         ],
       ),
     );
   }
 
-  Widget _buildIosTabBar(AppLocalizations l10n) {
+  Widget _buildIosTabBar(AppLocalizations l10n, bool isRtl) {
+    final lang = Localizations.localeOf(context).languageCode;
+    final tabs = isRtl
+        ? [
+            CNTabBarItem(
+              label: l10n.account,
+              icon: const CNSymbol('person.fill'),
+            ),
+            CNTabBarItem(
+              label: l10n.myTickets,
+              icon: const CNSymbol('ticket.fill'),
+            ),
+            CNTabBarItem(
+              label: l10n.now,
+              icon: const CNSymbol('film.fill'),
+            ),
+            CNTabBarItem(
+              label: l10n.home,
+              icon: const CNSymbol('house.fill'),
+            ),
+          ]
+        : [
+            CNTabBarItem(
+              label: l10n.home,
+              icon: const CNSymbol('house.fill'),
+            ),
+            CNTabBarItem(
+              label: l10n.now,
+              icon: const CNSymbol('film.fill'),
+            ),
+            CNTabBarItem(
+              label: l10n.myTickets,
+              icon: const CNSymbol('ticket.fill'),
+            ),
+            CNTabBarItem(
+              label: l10n.account,
+              icon: const CNSymbol('person.fill'),
+            ),
+          ];
+
     return Positioned(
       left: 20,
       right: 20,
       bottom: 0,
       child: CNTabBar(
-        items: [
-          CNTabBarItem(
-            label: l10n.home,
-            icon: const CNSymbol('house.fill'),
-          ),
-          CNTabBarItem(
-            label: l10n.now,
-            icon: const CNSymbol('film.fill'),
-          ),
-          CNTabBarItem(
-            label: l10n.myTickets,
-            icon: const CNSymbol('ticket.fill'),
-          ),
-          CNTabBarItem(
-            label: l10n.account,
-            icon: const CNSymbol('person.fill'),
-          ),
-        ],
-        currentIndex: _currentIndex,
-        onTap: _switchTab,
+        key: ValueKey('cntab_$lang'),
+        items: tabs,
+        currentIndex: isRtl ? (3 - _currentIndex) : _currentIndex,
+        onTap: (index) => _switchTab(isRtl ? (3 - index) : index),
       ),
     );
   }
 
-  Widget _buildAndroidTabBar(AppLocalizations l10n, bool isDark) {
+  Widget _buildAndroidTabBar(AppLocalizations l10n, bool isDark, bool isRtl) {
+    final lang = Localizations.localeOf(context).languageCode;
+    final tabs = isRtl
+        ? [
+            GButton(icon: Icons.person_rounded, text: l10n.account),
+            GButton(icon: Icons.confirmation_number_rounded, text: l10n.myTickets),
+            GButton(icon: Icons.local_play_rounded, text: l10n.now),
+            GButton(icon: Icons.movie_filter_rounded, text: l10n.home),
+          ]
+        : [
+            GButton(icon: Icons.movie_filter_rounded, text: l10n.home),
+            GButton(icon: Icons.local_play_rounded, text: l10n.now),
+            GButton(icon: Icons.confirmation_number_rounded, text: l10n.myTickets),
+            GButton(icon: Icons.person_rounded, text: l10n.account),
+          ];
+
     return Positioned(
-      left: 20,
-      right: 20,
-      bottom: 30,
+      left: 16,
+      right: 16,
+      bottom: 24,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(30),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             decoration: BoxDecoration(
-              color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+              color: isDark
+                  ? const Color(0xE8141416)
+                  : Colors.white.withValues(alpha: 0.92),
               borderRadius: BorderRadius.circular(30),
               border: Border.all(
-                color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.12)
+                    : Colors.black.withValues(alpha: 0.08),
+                width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
+                  color: Colors.black.withValues(alpha: isDark ? 0.40 : 0.08),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
             child: GNav(
+              key: ValueKey('gnav_$lang'),
               rippleColor: AppColors.warmOrange.withValues(alpha: 0.1),
               hoverColor: AppColors.warmOrange.withValues(alpha: 0.1),
-              gap: 8,
+              gap: 6,
               activeColor: AppColors.warmOrange,
-              iconSize: 24,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              duration: const Duration(milliseconds: 400),
-              tabBackgroundColor: AppColors.warmOrange.withValues(alpha: 0.1),
-              color: isDark ? Colors.white.withValues(alpha: 0.4) : Colors.black.withValues(alpha: 0.4),
-              tabs: [
-                GButton(icon: Icons.movie_filter_rounded, text: l10n.home),
-                GButton(icon: Icons.local_play_rounded, text: l10n.now),
-                GButton(icon: Icons.confirmation_number_rounded, text: l10n.myTickets),
-                GButton(icon: Icons.person_rounded, text: l10n.account),
-              ],
-              selectedIndex: _currentIndex,
-              onTabChange: _switchTab,
+              iconSize: 22,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              duration: const Duration(milliseconds: 350),
+              tabBackgroundColor: AppColors.warmOrange.withValues(alpha: isDark ? 0.22 : 0.15),
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.45)
+                  : Colors.black.withValues(alpha: 0.45),
+              tabs: tabs,
+              selectedIndex: isRtl ? (3 - _currentIndex) : _currentIndex,
+              onTabChange: (index) {
+                HapticFeedback.lightImpact();
+                _switchTab(isRtl ? (3 - index) : index);
+              },
             ),
           ),
         ),

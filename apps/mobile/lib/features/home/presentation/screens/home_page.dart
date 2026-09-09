@@ -116,58 +116,117 @@ class _HomePageState extends State<HomePage> {
       },
       child: KeyedSubtree(
         key: const ValueKey('content'),
-        child: Stack(
-          children: [
-            _buildBackground(theme, heroMovies, safePage, isDark),
-            SafeArea(
-              top: false,
-              bottom: false,
-              child: CustomScrollView(
-                physics: const BouncingScrollPhysics(),
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: SizedBox(
-                      height: MediaQuery.of(context).padding.top + 8,
+        child: Container(
+          color: isDark ? const Color(0xFF0C0C0E) : Colors.white,
+          child: SafeArea(
+            top: false,
+            bottom: false,
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Stack(
+                    children: [
+                      // Scrollable Poster Ambient Background behind Header & Hero (Dark Mode cinema glow only)
+                      if (isDark && heroMovies.isNotEmpty && safePage < heroMovies.length)
+                        Positioned.fill(
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 700),
+                            switchInCurve: Curves.easeOutCubic,
+                            switchOutCurve: Curves.easeInCubic,
+                            child: SizedBox.expand(
+                              key: ValueKey<String>(heroMovies[safePage].posterUrl),
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  Positioned.fill(
+                                    child: Opacity(
+                                      opacity: 0.35,
+                                      child: CachedNetworkImage(
+                                        imageUrl: heroMovies[safePage].posterUrl,
+                                        fit: BoxFit.cover,
+                                        alignment: Alignment.topCenter,
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned.fill(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          colors: [
+                                            Colors.black.withValues(alpha: 0.15),
+                                            Colors.black.withValues(alpha: 0.25),
+                                            const Color(0xFF0C0C0E).withValues(alpha: 0.50),
+                                            const Color(0xFF0C0C0E).withValues(alpha: 0.85),
+                                            const Color(0xFF0C0C0E),
+                                          ],
+                                          stops: const [0.0, 0.30, 0.60, 0.85, 1.0],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+
+                      // Header & Hero section content
+                      Column(
+                        children: [
+                          SizedBox(
+                            height: MediaQuery.of(context).padding.top + 8,
+                          ),
+                          HomeHeader(onAvatarTap: widget.onProfileAvatarTap),
+                          if (heroMovies.isNotEmpty)
+                            HomeHeroSection(
+                              movies: heroMovies,
+                              onPageChanged: (index) {
+                                setState(() {
+                                  _currentPage = index;
+                                });
+                              },
+                            ),
+                          const SizedBox(height: 12),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                _staggeredSliver(0.20, MovieHorizontalList(
+                  title: l10n.nowShowing,
+                  movies: nowShowing,
+                  onSeeAll: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => SeeAllMoviesPage(title: l10n.nowShowing, movies: nowShowing),
                     ),
                   ),
-                  _staggeredSliver(0.00, HomeHeader(onAvatarTap: widget.onProfileAvatarTap)),
-                  if (heroMovies.isNotEmpty)
-                    _staggeredSliver(0.10, HomeHeroSection(
-                      movies: heroMovies,
-                      onPageChanged: (index) {
-                        setState(() {
-                          _currentPage = index;
-                        });
-                      },
-                    )),
-                  _staggeredSliver(0.20, MovieHorizontalList(
-                    title: l10n.nowShowing,
-                    movies: nowShowing,
-                    onSeeAll: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => SeeAllMoviesPage(title: l10n.nowShowing, movies: nowShowing),
+                )),
+                _staggeredSliver(0.40, MovieHorizontalList(
+                  title: l10n.comingSoon,
+                  movies: comingSoon,
+                  showRating: false,
+                  isComingSoon: true,
+                  onSeeAll: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => SeeAllMoviesPage(
+                        title: l10n.comingSoon,
+                        movies: comingSoon,
+                        isComingSoon: true,
                       ),
                     ),
-                  )),
-                  _staggeredSliver(0.40, MovieHorizontalList(
-                    title: l10n.comingSoon,
-                    movies: comingSoon,
-                    showRating: false,
-                    onSeeAll: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => SeeAllMoviesPage(title: l10n.comingSoon, movies: comingSoon),
-                      ),
-                    ),
-                  )),
-                  const SliverToBoxAdapter(
-                    child: SizedBox(height: 120),
                   ),
-                ],
-              ),
+                )),
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: 120),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -191,30 +250,5 @@ class _HomePageState extends State<HomePage> {
         child: child,
       ),
     );
-  }
-
-  Widget _buildBackground(ThemeData theme, List<Movie> heroMovies, int safePage, bool isDark) {
-    if (heroMovies.isNotEmpty) {
-      return AnimatedSwitcher(
-        duration: const Duration(milliseconds: 500),
-        child: Container(
-          key: ValueKey<String>(heroMovies[safePage].posterUrl),
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: CachedNetworkImageProvider(heroMovies[safePage].posterUrl, maxWidth: 1080),
-              fit: BoxFit.cover,
-            ),
-          ),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Container(
-              color: (isDark ? Colors.black : Colors.white)
-                  .withValues(alpha: isDark ? 0.4 : 0.6),
-            ),
-          ),
-        ),
-      );
-    }
-    return Container(color: isDark ? Colors.black : Colors.white);
   }
 }

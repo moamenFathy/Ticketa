@@ -15,6 +15,8 @@ class MovieDetailHeader extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     final isDark = theme.brightness == Brightness.dark;
 
+    final isRtl = Localizations.localeOf(context).languageCode == 'ar';
+
     return SliverAppBar(
       expandedHeight: size.height * 0.6,
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -29,8 +31,11 @@ class MovieDetailHeader extends StatelessWidget {
           border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
         ),
         child: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded,
-              color: isDark ? Colors.white : Colors.black87, size: 20),
+          icon: Icon(
+            isRtl ? Icons.arrow_forward_ios_rounded : Icons.arrow_back_ios_new_rounded,
+            color: isDark ? Colors.white : Colors.black87,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),

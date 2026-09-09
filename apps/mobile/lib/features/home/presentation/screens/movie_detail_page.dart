@@ -26,7 +26,12 @@ import 'package:ticketa/l10n/app_localizations.dart';
 
 class MovieDetailPage extends StatefulWidget {
   final Movie movie;
-  const MovieDetailPage({super.key, required this.movie});
+  final bool isComingSoon;
+  const MovieDetailPage({
+    super.key,
+    required this.movie,
+    this.isComingSoon = false,
+  });
 
   @override
   State<MovieDetailPage> createState() => _MovieDetailPageState();
@@ -99,6 +104,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   }
 
   Widget _buildLoadingSkeleton(ThemeData theme) {
+    final isRtl = Localizations.localeOf(context).languageCode == 'ar';
     return Scaffold(
       key: const ValueKey('skeleton'),
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -107,7 +113,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
+            isRtl ? Icons.arrow_forward_ios_rounded : Icons.arrow_back_ios_new_rounded,
             color: theme.colorScheme.onSurface,
           ),
           onPressed: () => Navigator.pop(context),
@@ -141,7 +147,8 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
               _buildMovieInfoSection(theme, l10n, displayMovie),
             ],
           ),
-          _buildBottomBar(theme, l10n, displayMovie),
+          if (!widget.isComingSoon)
+            _buildBottomBar(theme, l10n, displayMovie),
           _buildTrailerOverlay(displayMovie),
         ],
       ),
@@ -207,24 +214,85 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
             ),
             const SizedBox(height: 16),
             _staggeredSection(0.24, MovieCastList(cast: displayMovie.cast)),
-            const SizedBox(height: 32),
-            _staggeredSection(0.32, _SectionHeader(title: l10n.showTime)),
-            const SizedBox(height: 16),
-            _staggeredSection(
-              0.32,
-              displayMovie.showtimeInfos.isNotEmpty
-                  ? MovieDateSelector(
-                          showtimes: displayMovie.showtimeInfos,
-                          onShowtimeSelected: (st) =>
-                              setState(() => _selectedShowtime = st),
-                        )
-                        as Widget
-                  : Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(l10n.noShowtimes),
+            if (!widget.isComingSoon) ...[
+              const SizedBox(height: 32),
+              _staggeredSection(0.32, _SectionHeader(title: l10n.showTime)),
+              const SizedBox(height: 16),
+              _staggeredSection(
+                0.32,
+                displayMovie.showtimeInfos.isNotEmpty
+                    ? MovieDateSelector(
+                            showtimes: displayMovie.showtimeInfos,
+                            onShowtimeSelected: (st) =>
+                                setState(() => _selectedShowtime = st),
+                          )
+                          as Widget
+                    : Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(l10n.noShowtimes),
+                      ),
+              ),
+              const SizedBox(height: 140),
+            ] else ...[
+              const SizedBox(height: 32),
+              _staggeredSection(
+                0.32,
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: AppColors.warmOrange.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(
+                      color: AppColors.warmOrange.withValues(alpha: 0.25),
                     ),
-            ),
-            const SizedBox(height: 140),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.upcoming_rounded,
+                        color: AppColors.warmOrange,
+                        size: 26,
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            localeCopy(
+                              context,
+                              'Coming Soon to Theaters',
+                              'قريباً في صالات السينما',
+                            ),
+                            style: const TextStyle(
+                              color: AppColors.warmOrange,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            localeCopy(
+                              context,
+                              'Tickets will be available soon',
+                              'سيتم فتح حجز التذاكر قريباً',
+                            ),
+                            style: TextStyle(
+                              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 60),
+            ],
           ],
         ),
       ),

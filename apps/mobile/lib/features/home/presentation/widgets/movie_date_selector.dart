@@ -86,7 +86,7 @@ class _MovieDateSelectorState extends State<MovieDateSelector> {
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
-                  margin: const EdgeInsets.only(right: 8),
+                  margin: const EdgeInsetsDirectional.only(end: 8),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
                     color: isSelected ? AppColors.warmOrange : theme.colorScheme.surface,

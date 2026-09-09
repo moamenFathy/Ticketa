@@ -8,6 +8,7 @@ class MovieHorizontalList extends StatelessWidget {
   final String title;
   final List<Movie> movies;
   final bool showRating;
+  final bool isComingSoon;
   final VoidCallback? onSeeAll;
 
   const MovieHorizontalList({
@@ -15,6 +16,7 @@ class MovieHorizontalList extends StatelessWidget {
     required this.title,
     required this.movies,
     this.showRating = true,
+    this.isComingSoon = false,
     this.onSeeAll,
   });
 
@@ -27,7 +29,7 @@ class MovieHorizontalList extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+          padding: const EdgeInsetsDirectional.fromSTEB(20, 10, 20, 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -55,10 +57,14 @@ class MovieHorizontalList extends StatelessWidget {
         SizedBox(
           height: 260,
           child: ListView.builder(
-            padding: const EdgeInsets.only(left: 20),
+            padding: const EdgeInsetsDirectional.only(start: 20),
             scrollDirection: Axis.horizontal,
             itemCount: movies.length,
-            itemBuilder: (context, index) => SmallMovieCard(movie: movies[index], showRating: showRating),
+            itemBuilder: (context, index) => SmallMovieCard(
+              movie: movies[index],
+              showRating: showRating,
+              isComingSoon: isComingSoon,
+            ),
           ),
         ),
       ],

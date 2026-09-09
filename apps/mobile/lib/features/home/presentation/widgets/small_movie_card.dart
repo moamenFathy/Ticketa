@@ -8,7 +8,14 @@ import 'package:ticketa/features/home/presentation/screens/movie_detail_page.dar
 class SmallMovieCard extends StatefulWidget {
   final Movie movie;
   final bool showRating;
-  const SmallMovieCard({super.key, required this.movie, this.showRating = true});
+  final bool isComingSoon;
+
+  const SmallMovieCard({
+    super.key,
+    required this.movie,
+    this.showRating = true,
+    this.isComingSoon = false,
+  });
 
   @override
   State<SmallMovieCard> createState() => _SmallMovieCardState();
@@ -28,14 +35,19 @@ class _SmallMovieCardState extends State<SmallMovieCard> {
       onTapCancel: () => setState(() => _isPressed = false),
       onTap: () => Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => MovieDetailPage(movie: widget.movie)),
+        MaterialPageRoute(
+          builder: (_) => MovieDetailPage(
+            movie: widget.movie,
+            isComingSoon: widget.isComingSoon,
+          ),
+        ),
       ),
       child: AnimatedScale(
         scale: _isPressed ? 0.95 : 1.0,
         duration: const Duration(milliseconds: 150),
         child: Container(
           width: 160,
-          margin: const EdgeInsets.only(right: 20),
+          margin: const EdgeInsetsDirectional.only(end: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -65,9 +77,9 @@ class _SmallMovieCardState extends State<SmallMovieCard> {
                           errorWidget: (_, _, _) => Container(color: Colors.grey[900]),
                         ),
                         if (widget.showRating)
-                          Positioned(
+                          PositionedDirectional(
                             top: 12,
-                            right: 12,
+                            end: 12,
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(10),
                               child: BackdropFilter(
