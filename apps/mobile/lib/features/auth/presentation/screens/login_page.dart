@@ -159,7 +159,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
   Widget _buildInputLabel(ThemeData theme, String label) {
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: AlignmentDirectional.centerStart,
       child: Text(
         label,
         style: theme.textTheme.labelLarge?.copyWith(
@@ -210,7 +210,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
   Widget _buildForgotPassword(ThemeData theme, AppLocalizations l10n) {
     return Align(
-      alignment: Alignment.centerRight,
+      alignment: AlignmentDirectional.centerEnd,
       child: TextButton(
         onPressed: () => Navigator.pushNamed(context, '/forgot-password'),
         style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
@@ -258,14 +258,16 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
               ],
             ),
             child: ElevatedButton(
-              onPressed: isLoading ? null : () {
-                if (_formKey.currentState!.validate()) {
-                  context.read<AuthCubit>().login(
-                    _emailController.text.trim(),
-                    _passwordController.text,
-                  );
-                }
-              },
+              onPressed: isLoading
+                  ? null
+                  : () {
+                      if (_formKey.currentState!.validate()) {
+                        context.read<AuthCubit>().login(
+                              _emailController.text.trim(),
+                              _passwordController.text,
+                            );
+                      }
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.transparent,
                 shadowColor: Colors.transparent,
@@ -283,7 +285,12 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                       children: [
                         Text(l10n.signIn, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
                         const SizedBox(width: 8),
-                        const Icon(Icons.arrow_forward_rounded, size: 20),
+                        Icon(
+                          Localizations.localeOf(context).languageCode == 'ar'
+                              ? Icons.arrow_back_rounded
+                              : Icons.arrow_forward_rounded,
+                          size: 20,
+                        ),
                       ],
                     ),
             ),

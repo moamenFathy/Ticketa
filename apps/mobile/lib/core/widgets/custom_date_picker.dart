@@ -2,7 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 
-Future<DateTime?> showCustomDatePicker(BuildContext context) {
+Future<DateTime?> showCustomDatePicker(
+  BuildContext context, {
+  DateTime? initialDate,
+}) {
   final now = DateTime.now();
   return showModalBottomSheet<DateTime>(
     context: context,
@@ -10,13 +13,17 @@ Future<DateTime?> showCustomDatePicker(BuildContext context) {
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
     ),
-    builder: (ctx) => _CustomDatePicker(now: now),
+    builder: (ctx) => _CustomDatePicker(
+      now: now,
+      initialDate: initialDate,
+    ),
   );
 }
 
 class _CustomDatePicker extends StatefulWidget {
   final DateTime now;
-  const _CustomDatePicker({required this.now});
+  final DateTime? initialDate;
+  const _CustomDatePicker({required this.now, this.initialDate});
 
   @override
   State<_CustomDatePicker> createState() => _CustomDatePickerState();
@@ -31,10 +38,21 @@ class _CustomDatePickerState extends State<_CustomDatePicker> {
   @override
   void initState() {
     super.initState();
-    selectedDate = DateTime(widget.now.year - 18, widget.now.month, widget.now.day.clamp(1, 28));
-    dayCtrl = FixedExtentScrollController(initialItem: selectedDate.day - 1);
-    monthCtrl = FixedExtentScrollController(initialItem: selectedDate.month - 1);
-    yearCtrl = FixedExtentScrollController(initialItem: selectedDate.year - 1950);
+    selectedDate = widget.initialDate ??
+        DateTime(
+          widget.now.year - 18,
+          widget.now.month,
+          widget.now.day.clamp(1, 28),
+        );
+    dayCtrl = FixedExtentScrollController(
+      initialItem: (selectedDate.day - 1).clamp(0, 30),
+    );
+    monthCtrl = FixedExtentScrollController(
+      initialItem: (selectedDate.month - 1).clamp(0, 11),
+    );
+    yearCtrl = FixedExtentScrollController(
+      initialItem: (selectedDate.year - 1950).clamp(0, 82),
+    );
   }
 
   @override

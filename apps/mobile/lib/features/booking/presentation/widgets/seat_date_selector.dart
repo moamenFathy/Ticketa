@@ -116,7 +116,7 @@ class _SeatDateSelectorState extends State<SeatDateSelector> {
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
-                  margin: const EdgeInsets.only(right: 8),
+                  margin: const EdgeInsetsDirectional.only(end: 8),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
                     color: isActive
@@ -161,7 +161,7 @@ class _SeatDateSelectorState extends State<SeatDateSelector> {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   width: 75,
-                  margin: const EdgeInsets.only(right: 15),
+                  margin: const EdgeInsetsDirectional.only(end: 15),
                   decoration: BoxDecoration(
                     color: isSelected
                         ? theme.colorScheme.primary

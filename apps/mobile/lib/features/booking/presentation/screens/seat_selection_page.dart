@@ -463,6 +463,7 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
   }
 
   Widget _buildAppBar(AppLocalizations l10n, ThemeData theme, SeatMapLoaded state) {
+    final isRtl = Localizations.localeOf(context).languageCode == 'ar';
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
@@ -476,7 +477,11 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
                 Navigator.pop(context);
               }
             },
-            child: _buildCircleBtn(Icons.arrow_back_ios_new, theme)),
+            child: _buildCircleBtn(
+              isRtl ? Icons.arrow_forward_ios_rounded : Icons.arrow_back_ios_new_rounded,
+              theme,
+            ),
+          ),
           Text(l10n.selectSeats, style: theme.textTheme.titleLarge),
           _buildCircleBtn(Icons.more_vert, theme),
         ],

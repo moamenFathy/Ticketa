@@ -146,7 +146,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
 
   Widget _buildInputLabel(ThemeData theme, String label) {
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: AlignmentDirectional.centerStart,
       child: Text(
         label,
         style: theme.textTheme.labelLarge?.copyWith(
@@ -201,34 +201,40 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
       },
       builder: (context, state) {
         final isLoading = state is AuthLoading;
+        final hasEmail = _emailController.text.trim().isNotEmpty;
         return SizedBox(
           width: double.infinity,
           height: 56,
           child: DecoratedBox(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(18),
-              gradient: const LinearGradient(
-                colors: [AppColors.warmOrange, AppColors.lighterOrange],
+              gradient: LinearGradient(
+                colors: hasEmail
+                    ? [AppColors.warmOrange, AppColors.lighterOrange]
+                    : [Colors.grey.shade700, Colors.grey.shade600],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.warmOrange.withValues(alpha: 0.4),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
-                ),
-              ],
+              boxShadow: hasEmail
+                  ? [
+                      BoxShadow(
+                        color: AppColors.warmOrange.withValues(alpha: 0.4),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                      ),
+                    ]
+                  : [],
             ),
             child: ElevatedButton(
-              onPressed: isLoading || _emailController.text.trim().isEmpty
+              onPressed: isLoading || !hasEmail
                   ? null
-                  : () => context.read<AuthCubit>().forgotPassword(_emailController.text.trim()),
+                  : () {
+                      context.read<AuthCubit>().forgotPassword(_emailController.text.trim());
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.transparent,
                 shadowColor: Colors.transparent,
                 foregroundColor: Colors.white,
-                disabledForegroundColor: Colors.white.withValues(alpha: 0.5),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                 elevation: 0,
               ),
@@ -240,9 +246,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(l10n.sendResetLink, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
-                        SizedBox(width: 8),
-                        Icon(Icons.send_rounded, size: 20),
+                        Text(l10n.sendResetLink, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+                        const SizedBox(width: 8),
+                        const Icon(Icons.send_rounded, size: 20),
                       ],
                     ),
             ),
@@ -258,7 +264,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.arrow_back_rounded, size: 16, color: theme.colorScheme.onSurface.withValues(alpha: 0.45)),
+          Icon(
+            Localizations.localeOf(context).languageCode == 'ar'
+                ? Icons.arrow_forward_rounded
+                : Icons.arrow_back_rounded,
+            size: 16,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
+          ),
           const SizedBox(width: 6),
           Text(
             l10n.backToSignIn,

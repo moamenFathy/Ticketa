@@ -190,7 +190,7 @@ class _RegisterPageState extends State<RegisterPage>
 
   Widget _buildInputLabel(ThemeData theme, String label) {
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: AlignmentDirectional.centerStart,
       child: Text(
         label,
         style: theme.textTheme.labelLarge?.copyWith(
@@ -404,8 +404,13 @@ class _RegisterPageState extends State<RegisterPage>
                             letterSpacing: 0.5,
                           ),
                         ),
-                        SizedBox(width: 8),
-                        Icon(Icons.arrow_forward_rounded, size: 20),
+                        const SizedBox(width: 8),
+                        Icon(
+                          Localizations.localeOf(context).languageCode == 'ar'
+                              ? Icons.arrow_back_rounded
+                              : Icons.arrow_forward_rounded,
+                          size: 20,
+                        ),
                       ],
                     ),
             ),
