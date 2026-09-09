@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/core/services/message_service.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
@@ -22,6 +23,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   bool _isLoading = true;
   bool _isSaving = false;
   String _theme = 'light';
+  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -38,7 +40,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
         _firstNameController.text = profile['firstName'] as String? ?? '';
         _lastNameController.text = profile['lastName'] as String? ?? '';
         _emailController.text = profile['email'] as String? ?? '';
-        _dateController.text = profile['dateOfBirth'] as String? ?? '';
+        final rawDate = profile['dateOfBirth'] as String? ?? '';
+        _dateController.text = rawDate;
+        if (rawDate.isNotEmpty) {
+          try {
+            _selectedDate = DateTime.tryParse(rawDate);
+          } catch (_) {}
+        }
         _theme = profile['theme'] as String? ?? 'light';
         _isLoading = false;
       });
@@ -57,14 +65,28 @@ class _EditProfilePageState extends State<EditProfilePage> {
     super.dispose();
   }
 
+  String _formatDisplayDate(BuildContext context, String rawDate) {
+    if (rawDate.isEmpty) return '';
+    try {
+      final dt = DateTime.parse(rawDate);
+      final isAr = Localizations.localeOf(context).languageCode == 'ar';
+      return DateFormat('dd MMMM yyyy', isAr ? 'ar' : 'en').format(dt);
+    } catch (_) {
+      return rawDate;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     if (_isLoading) {
       return Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
-        body: const Center(child: CircularProgressIndicator()),
+        body: const Center(
+          child: CircularProgressIndicator(color: AppColors.warmOrange),
+        ),
       );
     }
 
@@ -75,105 +97,161 @@ class _EditProfilePageState extends State<EditProfilePage> {
         slivers: [
           SliverAppBar(
             pinned: true,
-            backgroundColor: theme.scaffoldBackgroundColor,
             elevation: 0,
+            backgroundColor: theme.scaffoldBackgroundColor.withValues(alpha: 0.95),
             surfaceTintColor: Colors.transparent,
+            leading: IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.08)
+                      : Colors.black.withValues(alpha: 0.05),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Localizations.localeOf(context).languageCode == 'ar'
+                      ? Icons.arrow_forward_ios_rounded
+                      : Icons.arrow_back_ios_new_rounded,
+                  size: 16,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+              onPressed: () => Navigator.of(context).maybePop(),
+            ),
             title: Text(
-              localeCopy(context, 'Edit profile', 'تعديل الملف الشخصي'),
+              localeCopy(context, 'Edit Profile', 'تعديل الملف الشخصي'),
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w900,
-                letterSpacing: 0,
+                letterSpacing: -0.3,
               ),
             ),
+            centerTitle: true,
           ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _ProfilePhotoCard(
-                  name:
-                      '${_firstNameController.text} ${_lastNameController.text}'
-                          .trim(),
-                ),
-                const SizedBox(height: 18),
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: _ProfileField(
-                              controller: _firstNameController,
-                              label: localeCopy(
-                                context,
-                                'First name',
-                                'الاسم الأول',
-                              ),
-                              icon: Icons.person_outline_rounded,
-                              validator: (value) => _required(context, value),
-                            ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 12),
+                    // Hero Avatar Card
+                    ListenableBuilder(
+                      listenable: Listenable.merge([
+                        _firstNameController,
+                        _lastNameController,
+                      ]),
+                      builder: (context, _) {
+                        final fullName =
+                            '${_firstNameController.text} ${_lastNameController.text}'
+                                .trim();
+                        return _HeroProfileCard(
+                          name: fullName.isEmpty
+                              ? localeCopy(context, 'Cinema Lover', 'محب السينما')
+                              : fullName,
+                          email: _emailController.text,
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 24),
+                    _SectionHeader(
+                      icon: Icons.person_rounded,
+                      title: localeCopy(
+                        context,
+                        'Personal Information',
+                        'المعلومات الشخصية',
+                      ),
+                      subtitle: localeCopy(
+                        context,
+                        'Keep your cinema identity up to date',
+                        'حافظ على تحديث بياناتك الشخصية',
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // First & Last Name row
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: _PremiumField(
+                            controller: _firstNameController,
+                            label: localeCopy(context, 'First name', 'الاسم الأول'),
+                            hint: localeCopy(context, 'e.g. John', 'مثال: محمد'),
+                            icon: Icons.badge_outlined,
+                            validator: (v) => _required(context, v),
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _ProfileField(
-                              controller: _lastNameController,
-                              label: localeCopy(
-                                context,
-                                'Last name',
-                                'اسم العائلة',
-                              ),
-                              icon: Icons.person_outline_rounded,
-                              validator: (value) => _required(context, value),
-                            ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _PremiumField(
+                            controller: _lastNameController,
+                            label: localeCopy(context, 'Last name', 'اسم العائلة'),
+                            hint: localeCopy(context, 'e.g. Doe', 'مثال: أحمد'),
+                            icon: Icons.badge_outlined,
+                            validator: (v) => _required(context, v),
                           ),
-                        ],
-                      ),
-                      _ProfileField(
-                        controller: _emailController,
-                        label: localeCopy(
-                          context,
-                          'Email address',
-                          'البريد الإلكتروني',
                         ),
-                        icon: Icons.mail_outline_rounded,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          final base = _required(context, value);
-                          if (base != null) return base;
-                          if (!value!.contains('@')) {
-                            return localeCopy(
-                              context,
-                              'Enter a valid email',
-                              'ادخل بريد إلكتروني صحيح',
-                            );
-                          }
-                          return null;
-                        },
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+
+                    // Date of Birth field
+                    _PremiumDateField(
+                      label: localeCopy(context, 'Date of birth', 'تاريخ الميلاد'),
+                      hint: localeCopy(
+                        context,
+                        'Select your birth date',
+                        'اختر تاريخ ميلادك',
                       ),
-                      _ProfileField(
-                        controller: _dateController,
-                        label: localeCopy(
-                          context,
-                          'Date of birth',
-                          'تاريخ الميلاد',
-                        ),
-                        icon: Icons.cake_outlined,
-                        readOnly: true,
-                        onTap: _pickDate,
-                        validator: (value) => _required(context, value),
+                      displayValue: _formatDisplayDate(
+                        context,
+                        _dateController.text,
                       ),
-                    ],
-                  ),
+                      onTap: _pickDate,
+                    ),
+
+                    const SizedBox(height: 28),
+                    _SectionHeader(
+                      icon: Icons.security_rounded,
+                      title: localeCopy(
+                        context,
+                        'Account & Security',
+                        'الحساب والأمان',
+                      ),
+                      subtitle: localeCopy(
+                        context,
+                        'Your primary Ticketa credentials',
+                        'بيانات حسابك الأساسية في تيكتا',
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Read-only email card
+                    _ProtectedEmailCard(
+                      email: _emailController.text,
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    // Save Button
+                    _CinemaSaveButton(
+                      label: localeCopy(
+                        context,
+                        'Save Changes',
+                        'حفظ التغييرات',
+                      ),
+                      loading: _isSaving,
+                      onTap: _saveProfile,
+                    ),
+
+                    const SizedBox(height: 48),
+                  ],
                 ),
-                const SizedBox(height: 18),
-                _SaveButton(
-                  label: localeCopy(context, 'Save changes', 'حفظ التغييرات'),
-                  loading: _isSaving,
-                  onTap: _saveProfile,
-                ),
-              ]),
+              ),
             ),
           ),
         ],
@@ -191,6 +269,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Future<void> _pickDate() async {
     final picked = await showCustomDatePicker(context);
     if (picked != null) {
+      _selectedDate = picked;
       final y = picked.year.toString();
       final m = picked.month.toString().padLeft(2, '0');
       final d = picked.day.toString().padLeft(2, '0');
@@ -233,10 +312,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 }
 
-class _ProfilePhotoCard extends StatelessWidget {
+class _HeroProfileCard extends StatelessWidget {
   final String name;
+  final String email;
 
-  const _ProfilePhotoCard({required this.name});
+  const _HeroProfileCard({
+    required this.name,
+    required this.email,
+  });
 
   static String _initials(String name) {
     final parts = name
@@ -244,7 +327,7 @@ class _ProfilePhotoCard extends StatelessWidget {
         .split(RegExp(r'\s+'))
         .where((p) => p.isNotEmpty)
         .toList();
-    if (parts.isEmpty) return '';
+    if (parts.isEmpty) return 'T';
     if (parts.length >= 2) {
       return (parts[0][0] + parts[1][0]).toUpperCase();
     }
@@ -256,59 +339,419 @@ class _ProfilePhotoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(24),
+        color: isDark
+            ? const Color(0xFF141416)
+            : theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(28),
         border: Border.all(
-          color: theme.colorScheme.onSurface.withValues(alpha: 0.06),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : Colors.black.withValues(alpha: 0.06),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          Stack(
-            clipBehavior: Clip.none,
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: const LinearGradient(
+                colors: [
+                  AppColors.warmOrange,
+                  AppColors.lighterOrange,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.warmOrange.withValues(alpha: 0.35),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: CircleAvatar(
+              radius: 46,
+              backgroundColor: isDark
+                  ? const Color(0xFF1E1E22)
+                  : Colors.white,
+              child: Text(
+                _initials(name),
+                style: const TextStyle(
+                  color: AppColors.warmOrange,
+                  fontSize: 32,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            name,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w900,
+              fontSize: 19,
+              letterSpacing: -0.2,
+            ),
+          ),
+          if (email.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              email,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+
+  const _SectionHeader({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color: AppColors.warmOrange,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w900,
+                letterSpacing: -0.2,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 3),
+        Text(
+          subtitle,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+            fontSize: 12,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PremiumField extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+  final String hint;
+  final IconData icon;
+  final FormFieldValidator<String>? validator;
+
+  const _PremiumField({
+    required this.controller,
+    required this.label,
+    required this.hint,
+    required this.icon,
+    this.validator,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6, left: 4, right: 4),
+          child: Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
+              fontSize: 12.5,
+            ),
+          ),
+        ),
+        TextFormField(
+          controller: controller,
+          validator: validator,
+          style: TextStyle(
+            color: theme.colorScheme.onSurface,
+            fontWeight: FontWeight.w700,
+            fontSize: 14.5,
+          ),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.35),
+              fontSize: 13.5,
+              fontWeight: FontWeight.w500,
+            ),
+            prefixIcon: Icon(
+              icon,
+              size: 20,
+              color: AppColors.warmOrange.withValues(alpha: 0.85),
+            ),
+            filled: true,
+            fillColor: isDark
+                ? const Color(0xFF161619)
+                : theme.colorScheme.surface,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : Colors.black.withValues(alpha: 0.08),
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : Colors.black.withValues(alpha: 0.08),
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: const BorderSide(
+                color: AppColors.warmOrange,
+                width: 1.5,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(
+                color: theme.colorScheme.error,
+              ),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(
+                color: theme.colorScheme.error,
+                width: 1.5,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PremiumDateField extends StatelessWidget {
+  final String label;
+  final String hint;
+  final String displayValue;
+  final VoidCallback onTap;
+
+  const _PremiumDateField({
+    required this.label,
+    required this.hint,
+    required this.displayValue,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final hasValue = displayValue.isNotEmpty;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6, left: 4, right: 4),
+          child: Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
+              fontSize: 12.5,
+            ),
+          ),
+        ),
+        InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(18),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? const Color(0xFF161619)
+                  : theme.colorScheme.surface,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : Colors.black.withValues(alpha: 0.08),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.calendar_month_rounded,
+                  size: 20,
+                  color: AppColors.warmOrange.withValues(alpha: 0.85),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    hasValue ? displayValue : hint,
+                    style: TextStyle(
+                      color: hasValue
+                          ? theme.colorScheme.onSurface
+                          : theme.colorScheme.onSurface.withValues(alpha: 0.35),
+                      fontWeight: hasValue ? FontWeight.w700 : FontWeight.w500,
+                      fontSize: 14.5,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_drop_down_rounded,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                  size: 26,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ProtectedEmailCard extends StatelessWidget {
+  final String email;
+
+  const _ProtectedEmailCard({required this.email});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark
+            ? const Color(0xFF161619)
+            : theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : Colors.black.withValues(alpha: 0.08),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(3),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: const LinearGradient(
-                    colors: [AppColors.warmOrange, Colors.orangeAccent],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.warmOrange.withValues(alpha: 0.24),
-                      blurRadius: 24,
-                      offset: const Offset(0, 10),
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.06)
+                      : Colors.black.withValues(alpha: 0.04),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.mail_rounded,
+                  size: 18,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      localeCopy(
+                        context,
+                        'Email Address',
+                        'البريد الإلكتروني',
+                      ),
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      email.isEmpty ? '—' : email,
+                      style: TextStyle(
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w800,
+                        color: theme.colorScheme.onSurface,
+                      ),
                     ),
                   ],
-                ),
-                child: CircleAvatar(
-                  radius: 46,
-                  backgroundColor: theme.scaffoldBackgroundColor,
-                  child: Text(
-                    _initials(name),
-                    style: TextStyle(
-                      color: AppColors.warmOrange,
-                      fontSize: 32,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1,
-                    ),
-                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          Text(
-            name,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w900,
-              letterSpacing: 0,
+          const SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              localeCopy(
+                context,
+                'Primary email is locked for security and ticket recovery.',
+                'البريد الإلكتروني مقفل لأسباب تتعلق بالأمان واسترجاع التذاكر.',
+              ),
+              style: TextStyle(
+                fontSize: 11,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
+                height: 1.3,
+              ),
             ),
           ),
         ],
@@ -317,74 +760,12 @@ class _ProfilePhotoCard extends StatelessWidget {
   }
 }
 
-class _ProfileField extends StatelessWidget {
-  final TextEditingController controller;
-  final String label;
-  final IconData icon;
-  final TextInputType? keyboardType;
-  final FormFieldValidator<String>? validator;
-  final bool readOnly;
-  final VoidCallback? onTap;
-
-  const _ProfileField({
-    required this.controller,
-    required this.label,
-    required this.icon,
-    this.keyboardType,
-    this.validator,
-    this.readOnly = false,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        validator: validator,
-        readOnly: readOnly,
-        onTap: onTap,
-        style: TextStyle(
-          color: theme.colorScheme.onSurface,
-          fontWeight: FontWeight.w800,
-        ),
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon),
-          filled: true,
-          fillColor: theme.colorScheme.surface,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: BorderSide(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.06),
-            ),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: BorderSide(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.06),
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: const BorderSide(color: AppColors.warmOrange),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SaveButton extends StatelessWidget {
+class _CinemaSaveButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
   final bool loading;
 
-  const _SaveButton({
+  const _CinemaSaveButton({
     required this.label,
     required this.onTap,
     this.loading = false,
@@ -392,29 +773,64 @@ class _SaveButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       width: double.infinity,
       height: 56,
-      child: ElevatedButton(
-        onPressed: loading ? null : onTap,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.warmOrange,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: const LinearGradient(
+          colors: [
+            AppColors.warmOrange,
+            AppColors.lighterOrange,
+          ],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.warmOrange.withValues(alpha: 0.35),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: loading ? null : onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: Center(
+            child: loading
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Colors.white,
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.check_circle_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        label,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                    ],
+                  ),
           ),
         ),
-        child: loading
-            ? const SizedBox(
-                width: 22,
-                height: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color: Colors.white,
-                ),
-              )
-            : Text(label, style: const TextStyle(fontWeight: FontWeight.w900)),
       ),
     );
   }

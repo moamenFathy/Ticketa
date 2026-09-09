@@ -21,7 +21,7 @@ class SettingsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final isRtl = Localizations.localeOf(context).languageCode == 'ar';
 
     return Material(
       color: Colors.transparent,

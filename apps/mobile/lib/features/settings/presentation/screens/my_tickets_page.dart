@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ticketa/core/constants/app_constants.dart';
 import 'package:ticketa/core/di/injection.dart';
@@ -558,6 +560,267 @@ class _FilterChips extends StatelessWidget {
   }
 }
 
+void _showTicketQrModal(BuildContext context, BookingHistoryItemDto ticket) {
+  final theme = Theme.of(context);
+  final isDark = theme.brightness == Brightness.dark;
+  final startsAt = ticket.showtimeStartsAt.toLocal();
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    enableDrag: true,
+    backgroundColor: theme.scaffoldBackgroundColor,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+    ),
+    builder: (ctx) {
+      return Container(
+        decoration: BoxDecoration(
+          color: theme.scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Grab handle
+              Container(
+                width: 44,
+                height: 4.5,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _TicketPoster(
+                    posterUrl: ticket.fullPosterUrl,
+                    isPast: ticket.isPast,
+                    width: 60,
+                    height: 84,
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          ticket.movieTitle,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          '${DateFormat('EEE, dd MMM yyyy • h:mm a').format(startsAt)} • ${ticket.seatCount} ${localeCopy(context, 'Seats', 'مقاعد')}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  _StatusPill(isPast: ticket.isPast),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: QrImageView(
+                  data: ticket.bookingReference.isNotEmpty
+                      ? ticket.bookingReference
+                      : 'TICKETA-${ticket.movieTitle}',
+                  version: QrVersions.auto,
+                  size: 200,
+                  backgroundColor: Colors.white,
+                  eyeStyle: const QrEyeStyle(
+                    eyeShape: QrEyeShape.square,
+                    color: Colors.black,
+                  ),
+                  dataModuleStyle: const QrDataModuleStyle(
+                    dataModuleShape: QrDataModuleShape.square,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: AppColors.warmOrange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: AppColors.warmOrange.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      localeCopy(context, 'Booking Reference', 'رقم الحجز'),
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        ticket.bookingReference,
+                        style: const TextStyle(
+                          color: AppColors.warmOrange,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 15,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.qr_code_scanner_rounded,
+                    size: 16,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    localeCopy(
+                      context,
+                      'Show this QR code at the cinema entrance',
+                      'أظهر رمز الـ QR عند بوابة السينما للدخول',
+                    ),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.15),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: Text(
+                    localeCopy(context, 'Close', 'إغلاق'),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 15,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+class _TicketPoster extends StatelessWidget {
+  final String? posterUrl;
+  final bool isPast;
+  final double width;
+  final double height;
+
+  const _TicketPoster({
+    required this.posterUrl,
+    required this.isPast,
+    this.width = 95,
+    this.height = 138,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    Widget fallback() => Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            color: isPast
+                ? theme.colorScheme.onSurface.withValues(alpha: 0.06)
+                : AppColors.warmOrange.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Icon(
+            Icons.movie_filter_rounded,
+            color: isPast
+                ? theme.colorScheme.onSurface.withValues(alpha: 0.34)
+                : AppColors.warmOrange,
+            size: 32,
+          ),
+        );
+
+    if (posterUrl == null || posterUrl!.isEmpty) {
+      return fallback();
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: CachedNetworkImage(
+        imageUrl: posterUrl!,
+        width: width,
+        height: height,
+        fit: BoxFit.cover,
+        placeholder: (_, _) => Container(
+          width: width,
+          height: height,
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.06),
+          child: const Center(
+            child: SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColors.warmOrange,
+              ),
+            ),
+          ),
+        ),
+        errorWidget: (_, _, _) => fallback(),
+      ),
+    );
+  }
+}
+
 class _TicketCard extends StatelessWidget {
   final BookingHistoryItemDto ticket;
 
@@ -579,112 +842,123 @@ class _TicketCard extends StatelessWidget {
           color: theme.colorScheme.onSurface.withValues(alpha: 0.06),
         ),
       ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 58,
-                  height: 74,
-                  decoration: BoxDecoration(
-                    color: isPast
-                        ? theme.colorScheme.onSurface.withValues(alpha: 0.06)
-                        : AppColors.warmOrange.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Icon(
-                    Icons.movie_filter_rounded,
-                    color: isPast
-                        ? theme.colorScheme.onSurface.withValues(alpha: 0.34)
-                        : AppColors.warmOrange,
-                    size: 28,
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(22),
+          onTap: () => _showTicketQrModal(context, ticket),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _TicketPoster(
+                      posterUrl: ticket.fullPosterUrl,
+                      isPast: isPast,
+                      width: 95,
+                      height: 138,
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Text(
-                              ticket.movieTitle,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 0,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  ticket.movieTitle,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 0,
+                                  ),
+                                ),
                               ),
+                              _StatusPill(isPast: isPast),
+                            ],
+                          ),
+                          const SizedBox(height: 7),
+                          Text(
+                            ticket.bookingReference,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurface
+                                  .withValues(alpha: 0.52),
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
-                          _StatusPill(isPast: isPast),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              _InfoChip(
+                                Icons.calendar_month_rounded,
+                                DateFormat('dd MMM yyyy').format(startsAt),
+                              ),
+                              _InfoChip(
+                                Icons.schedule_rounded,
+                                DateFormat('h:mm a').format(startsAt),
+                              ),
+                              _InfoChip(
+                                Icons.event_seat_rounded,
+                                l10n.seatCount(ticket.seatCount.toString()),
+                              ),
+                              _InfoChip(
+                                Icons.qr_code_2_rounded,
+                                localeCopy(context, 'QR Code', 'رمز QR'),
+                                isHighlight: true,
+                              ),
+                            ],
+                          ),
                         ],
                       ),
-                      const SizedBox(height: 7),
-                      Text(
-                        ticket.bookingReference,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.52),
-                          fontWeight: FontWeight.w700,
+                    ),
+                  ],
+                ),
+              ),
+              _DashedDivider(color: theme.colorScheme.onSurface),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 13, 16, 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _TicketMeta(
+                        label: localeCopy(
+                            context, 'Reference', 'المرجع').toUpperCase(),
+                        value: ticket.bookingReference,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          '${ticket.totalAmount.toStringAsFixed(0)} EGP',
+                          style: const TextStyle(
+                            color: AppColors.warmOrange,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          _InfoChip(
-                            Icons.calendar_month_rounded,
-                            DateFormat('dd MMM yyyy').format(startsAt),
-                          ),
-                          _InfoChip(
-                            Icons.schedule_rounded,
-                            DateFormat('h:mm a').format(startsAt),
-                          ),
-                          _InfoChip(
-                            Icons.event_seat_rounded,
-                            l10n.seatCount(ticket.seatCount.toString()),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                        const SizedBox(width: 8),
+                        Icon(
+                          Icons.qr_code_scanner_rounded,
+                          size: 18,
+                          color: AppColors.warmOrange.withValues(alpha: 0.8),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          _DashedDivider(color: theme.colorScheme.onSurface),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 13, 16, 16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _TicketMeta(
-                    label: localeCopy(
-                        context, 'Reference', 'المرجع').toUpperCase(),
-                    value: ticket.bookingReference,
-                  ),
-                ),
-                Text(
-                  '${ticket.totalAmount.toStringAsFixed(0)} EGP',
-                  style: const TextStyle(
-                    color: AppColors.warmOrange,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -723,8 +997,9 @@ class _StatusPill extends StatelessWidget {
 class _InfoChip extends StatelessWidget {
   final IconData icon;
   final String label;
+  final bool isHighlight;
 
-  const _InfoChip(this.icon, this.label);
+  const _InfoChip(this.icon, this.label, {this.isHighlight = false});
 
   @override
   Widget build(BuildContext context) {
@@ -733,8 +1008,13 @@ class _InfoChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
       decoration: BoxDecoration(
-        color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+        color: isHighlight
+            ? AppColors.warmOrange.withValues(alpha: 0.12)
+            : theme.colorScheme.onSurface.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
+        border: isHighlight
+            ? Border.all(color: AppColors.warmOrange.withValues(alpha: 0.3))
+            : null,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -742,15 +1022,19 @@ class _InfoChip extends StatelessWidget {
           Icon(
             icon,
             size: 14,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.46),
+            color: isHighlight
+                ? AppColors.warmOrange
+                : theme.colorScheme.onSurface.withValues(alpha: 0.46),
           ),
           const SizedBox(width: 5),
           Text(
             label,
             style: TextStyle(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.68),
+              color: isHighlight
+                  ? AppColors.warmOrange
+                  : theme.colorScheme.onSurface.withValues(alpha: 0.68),
               fontSize: 11,
-              fontWeight: FontWeight.w800,
+              fontWeight: isHighlight ? FontWeight.w900 : FontWeight.w800,
               letterSpacing: 0,
             ),
           ),

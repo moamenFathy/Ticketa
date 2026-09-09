@@ -1,3 +1,5 @@
+import 'package:ticketa/core/constants/app_constants.dart';
+
 enum BookingStatus {
   confirmed,
   cancelled,
@@ -57,6 +59,14 @@ class BookingHistoryItemDto {
 
   bool get isUpcoming => showtimeStartsAt.isAfter(DateTime.now());
   bool get isPast => !isUpcoming;
+
+  String? get fullPosterUrl {
+    final path = moviePosterPath;
+    if (path == null || path.trim().isEmpty) return null;
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    final cleanPath = path.startsWith('/') ? path : '/$path';
+    return '${AppConstants.tmdbImageBase}${AppConstants.tmdbPosterSize}$cleanPath';
+  }
 }
 
 class PagedBookingHistoryDto {

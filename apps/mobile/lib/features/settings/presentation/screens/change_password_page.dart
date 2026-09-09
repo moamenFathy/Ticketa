@@ -76,6 +76,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -84,107 +85,179 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         slivers: [
           SliverAppBar(
             pinned: true,
-            backgroundColor: theme.scaffoldBackgroundColor,
             elevation: 0,
+            backgroundColor: theme.scaffoldBackgroundColor.withValues(alpha: 0.95),
             surfaceTintColor: Colors.transparent,
+            leading: IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.08)
+                      : Colors.black.withValues(alpha: 0.05),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Localizations.localeOf(context).languageCode == 'ar'
+                      ? Icons.arrow_forward_ios_rounded
+                      : Icons.arrow_back_ios_new_rounded,
+                  size: 16,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+              onPressed: () => Navigator.of(context).maybePop(),
+            ),
             title: Text(
-              localeCopy(context, 'Change password', 'تغيير كلمة السر'),
+              localeCopy(context, 'Change Password', 'تغيير كلمة السر'),
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w900,
-                letterSpacing: 0,
+                letterSpacing: -0.3,
               ),
             ),
+            centerTitle: true,
           ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                const _PasswordHero(),
-                const SizedBox(height: 18),
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      _PasswordField(
-                        controller: _currentPasswordController,
-                        label: localeCopy(
-                          context,
-                          'Current password',
-                          'كلمة السر الحالية',
-                        ),
-                        hidden: _hideCurrent,
-                        onToggle: () =>
-                            setState(() => _hideCurrent = !_hideCurrent),
-                        validator: (value) => _requiredPassword(context, value),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 12),
+                    const _SecurityHeroCard(),
+                    const SizedBox(height: 24),
+                    _SectionTitle(
+                      title: localeCopy(
+                        context,
+                        'Password Credentials',
+                        'بيانات كلمة السر',
                       ),
-                      _PasswordField(
-                        controller: _newPasswordController,
-                        label: localeCopy(
-                          context,
-                          'New password',
-                          'كلمة السر الجديدة',
-                        ),
-                        hidden: _hideNew,
-                        onToggle: () => setState(() => _hideNew = !_hideNew),
-                        onChanged: (_) => setState(() {}),
-                        validator: (value) {
-                          final base = _requiredPassword(context, value);
-                          if (base != null) return base;
-                          if (value!.length < 8) {
-                            return localeCopy(
-                              context,
-                              'Use at least 8 characters',
-                              'استخدم 8 أحرف على الأقل',
-                            );
-                          }
-                          return null;
-                        },
+                      subtitle: localeCopy(
+                        context,
+                        'Ensure your new password meets security guidelines',
+                        'تأكد من مطابقة كلمة السر الجديدة لمعايير الأمان',
                       ),
-                      _PasswordStrength(password: _newPasswordController.text),
-                      const SizedBox(height: 12),
-                      _PasswordField(
-                        controller: _confirmPasswordController,
-                        label: localeCopy(
-                          context,
-                          'Confirm new password',
-                          'تأكيد كلمة السر الجديدة',
-                        ),
-                        hidden: _hideConfirm,
-                        onToggle: () =>
-                            setState(() => _hideConfirm = !_hideConfirm),
-                        validator: (value) {
-                          final base = _requiredPassword(context, value);
-                          if (base != null) return base;
-                          if (value != _newPasswordController.text) {
-                            return localeCopy(
-                              context,
-                              'Passwords do not match',
-                              'كلمات السر غير متطابقة',
-                            );
-                          }
-                          return null;
-                        },
+                    ),
+                    const SizedBox(height: 14),
+
+                    // Current Password
+                    _CinemaPasswordField(
+                      controller: _currentPasswordController,
+                      label: localeCopy(
+                        context,
+                        'Current password',
+                        'كلمة السر الحالية',
                       ),
-                      const SizedBox(height: 18),
-                      _SaveButton(
-                        label: _isSubmitting
-                            ? localeCopy(
-                                context,
-                                'Updating...',
-                                'جارٍ التحديث...',
-                              )
-                            : localeCopy(
-                                context,
-                                'Update password',
-                                'تحديث كلمة السر',
+                      hint: localeCopy(
+                        context,
+                        'Enter current password',
+                        'أدخل كلمة السر الحالية',
+                      ),
+                      hidden: _hideCurrent,
+                      onToggle: () =>
+                          setState(() => _hideCurrent = !_hideCurrent),
+                      validator: (v) => _requiredPassword(context, v),
+                    ),
+                    const SizedBox(height: 14),
+
+                    // New Password
+                    _CinemaPasswordField(
+                      controller: _newPasswordController,
+                      label: localeCopy(
+                        context,
+                        'New password',
+                        'كلمة السر الجديدة',
+                      ),
+                      hint: localeCopy(
+                        context,
+                        'Enter at least 8 characters',
+                        'أدخل 8 خانات على الأقل',
+                      ),
+                      hidden: _hideNew,
+                      onToggle: () => setState(() => _hideNew = !_hideNew),
+                      onChanged: (_) => setState(() {}),
+                      validator: (value) {
+                        final base = _requiredPassword(context, value);
+                        if (base != null) return base;
+                        if (value!.length < 8) {
+                          return localeCopy(
+                            context,
+                            'Use at least 8 characters',
+                            'استخدم 8 أحرف على الأقل',
+                          );
+                        }
+                        return null;
+                      },
+                    ),
+
+                    // Live Strength meter
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 250),
+                      child: _newPasswordController.text.isNotEmpty
+                          ? Padding(
+                              padding: const EdgeInsets.only(top: 8, bottom: 6),
+                              child: _CinemaPasswordStrength(
+                                password: _newPasswordController.text,
                               ),
-                        onTap: _submit,
-                        isLoading: _isSubmitting,
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                    const SizedBox(height: 14),
+
+                    // Confirm Password
+                    _CinemaPasswordField(
+                      controller: _confirmPasswordController,
+                      label: localeCopy(
+                        context,
+                        'Confirm new password',
+                        'تأكيد كلمة السر الجديدة',
                       ),
-                    ],
-                  ),
+                      hint: localeCopy(
+                        context,
+                        'Re-enter new password',
+                        'أعد إدخال كلمة السر الجديدة',
+                      ),
+                      hidden: _hideConfirm,
+                      onToggle: () =>
+                          setState(() => _hideConfirm = !_hideConfirm),
+                      validator: (value) {
+                        final base = _requiredPassword(context, value);
+                        if (base != null) return base;
+                        if (value != _newPasswordController.text) {
+                          return localeCopy(
+                            context,
+                            'Passwords do not match',
+                            'كلمات السر غير متطابقة',
+                          );
+                        }
+                        return null;
+                      },
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    // Update CTA Button
+                    _CinemaActionButton(
+                      label: _isSubmitting
+                          ? localeCopy(
+                              context,
+                              'Updating...',
+                              'جارٍ التحديث...',
+                            )
+                          : localeCopy(
+                              context,
+                              'Update Password',
+                              'تحديث كلمة السر',
+                            ),
+                      loading: _isSubmitting,
+                      onTap: _submit,
+                    ),
+
+                    const SizedBox(height: 48),
+                  ],
                 ),
-              ]),
+              ),
             ),
           ),
         ],
@@ -200,23 +273,30 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   }
 }
 
-class _PasswordHero extends StatelessWidget {
-  const _PasswordHero();
+class _SecurityHeroCard extends StatelessWidget {
+  const _SecurityHeroCard();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.all(18),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 20),
       decoration: BoxDecoration(
-        color: AppColors.warmOrange,
-        borderRadius: BorderRadius.circular(24),
+        color: isDark ? const Color(0xFF141416) : theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : Colors.black.withValues(alpha: 0.06),
+        ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.warmOrange.withValues(alpha: 0.24),
-            blurRadius: 22,
-            offset: const Offset(0, 12),
+            color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -226,16 +306,30 @@ class _PasswordHero extends StatelessWidget {
             width: 58,
             height: 58,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.16),
+              gradient: const LinearGradient(
+                colors: [
+                  AppColors.warmOrange,
+                  AppColors.lighterOrange,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.warmOrange.withValues(alpha: 0.35),
+                  blurRadius: 18,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
             child: const Icon(
-              Icons.lock_rounded,
+              Icons.shield_outlined,
               color: Colors.white,
-              size: 30,
+              size: 28,
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,26 +337,25 @@ class _PasswordHero extends StatelessWidget {
                 Text(
                   localeCopy(
                     context,
-                    'Keep your account secure',
-                    'حافظ على أمان حسابك',
+                    'Account Protection',
+                    'حماية الحساب',
                   ),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
+                  style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w900,
-                    letterSpacing: 0,
+                    letterSpacing: -0.2,
                   ),
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 4),
                 Text(
                   localeCopy(
                     context,
-                    'Choose a strong password you do not use elsewhere.',
-                    'اختر كلمة سر قوية وغير مستخدمة في مكان آخر.',
+                    'Create a unique password to safeguard your cinema bookings.',
+                    'اختر كلمة سر فريدة لحماية حجوزاتك ومعلوماتك.',
                   ),
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.white.withValues(alpha: 0.76),
-                    fontWeight: FontWeight.w700,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
+                    fontSize: 12,
+                    height: 1.35,
                   ),
                 ),
               ],
@@ -274,17 +367,65 @@ class _PasswordHero extends StatelessWidget {
   }
 }
 
-class _PasswordField extends StatelessWidget {
+class _SectionTitle extends StatelessWidget {
+  final String title;
+  final String subtitle;
+
+  const _SectionTitle({
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(
+              Icons.key_rounded,
+              size: 18,
+              color: AppColors.warmOrange,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w900,
+                letterSpacing: -0.2,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 3),
+        Text(
+          subtitle,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+            fontSize: 12,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CinemaPasswordField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
+  final String hint;
   final bool hidden;
   final VoidCallback onToggle;
   final ValueChanged<String>? onChanged;
   final FormFieldValidator<String>? validator;
 
-  const _PasswordField({
+  const _CinemaPasswordField({
     required this.controller,
     required this.label,
+    required this.hint,
     required this.hidden,
     required this.onToggle,
     this.onChanged,
@@ -294,65 +435,116 @@ class _PasswordField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: TextFormField(
-        controller: controller,
-        obscureText: hidden,
-        onChanged: onChanged,
-        validator: validator,
-        style: TextStyle(
-          color: theme.colorScheme.onSurface,
-          fontWeight: FontWeight.w800,
-        ),
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: const Icon(Icons.lock_outline_rounded),
-          suffixIcon: IconButton(
-            onPressed: onToggle,
-            icon: Icon(
-              hidden ? Icons.visibility_rounded : Icons.visibility_off_rounded,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6, left: 4, right: 4),
+          child: Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
+              fontSize: 12.5,
             ),
-          ),
-          filled: true,
-          fillColor: theme.colorScheme.surface,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: BorderSide(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.06),
-            ),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: BorderSide(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.06),
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: const BorderSide(color: AppColors.warmOrange),
           ),
         ),
-      ),
+        TextFormField(
+          controller: controller,
+          obscureText: hidden,
+          onChanged: onChanged,
+          validator: validator,
+          style: TextStyle(
+            color: theme.colorScheme.onSurface,
+            fontWeight: FontWeight.w700,
+            fontSize: 14.5,
+          ),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.35),
+              fontSize: 13.5,
+              fontWeight: FontWeight.w500,
+            ),
+            prefixIcon: Icon(
+              Icons.lock_outline_rounded,
+              size: 20,
+              color: AppColors.warmOrange.withValues(alpha: 0.85),
+            ),
+            suffixIcon: IconButton(
+              onPressed: onToggle,
+              icon: Icon(
+                hidden ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                size: 20,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+              ),
+            ),
+            filled: true,
+            fillColor: isDark ? const Color(0xFF161619) : theme.colorScheme.surface,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : Colors.black.withValues(alpha: 0.08),
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : Colors.black.withValues(alpha: 0.08),
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: const BorderSide(
+                color: AppColors.warmOrange,
+                width: 1.5,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(
+                color: theme.colorScheme.error,
+              ),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(
+                color: theme.colorScheme.error,
+                width: 1.5,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
 
-class _PasswordStrength extends StatelessWidget {
+class _CinemaPasswordStrength extends StatelessWidget {
   final String password;
 
-  const _PasswordStrength({required this.password});
+  const _CinemaPasswordStrength({required this.password});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final score = _scorePassword(password);
     final label = [
       localeCopy(context, 'Too short', 'قصيرة جدًا'),
       localeCopy(context, 'Weak', 'ضعيفة'),
       localeCopy(context, 'Good', 'جيدة'),
-      localeCopy(context, 'Strong', 'قوية'),
+      localeCopy(context, 'Strong', 'قوية وممتازة'),
     ][score];
 
     final color = switch (score) {
@@ -363,12 +555,14 @@ class _PasswordStrength extends StatelessWidget {
     };
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(18),
+        color: isDark ? const Color(0xFF161619) : theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: theme.colorScheme.onSurface.withValues(alpha: 0.06),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : Colors.black.withValues(alpha: 0.06),
         ),
       ),
       child: Column(
@@ -378,9 +572,11 @@ class _PasswordStrength extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  localeCopy(context, 'Password strength', 'قوة كلمة السر'),
+                  localeCopy(context, 'Password Strength', 'قوة كلمة السر'),
                   style: theme.textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
               ),
@@ -394,16 +590,16 @@ class _PasswordStrength extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Row(
             children: List.generate(4, (index) {
               return Expanded(
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 250),
-                  height: 5,
+                  height: 4.5,
                   margin: EdgeInsetsDirectional.only(end: index == 3 ? 0 : 6),
                   decoration: BoxDecoration(
-                    color: index < score
+                    color: index <= score
                         ? color
                         : theme.colorScheme.onSurface.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(999),
@@ -429,42 +625,77 @@ class _PasswordStrength extends StatelessWidget {
   }
 }
 
-class _SaveButton extends StatelessWidget {
+class _CinemaActionButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
-  final bool isLoading;
+  final bool loading;
 
-  const _SaveButton({
+  const _CinemaActionButton({
     required this.label,
     required this.onTap,
-    this.isLoading = false,
+    this.loading = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       width: double.infinity,
       height: 56,
-      child: ElevatedButton(
-        onPressed: isLoading ? null : onTap,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.warmOrange,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: const LinearGradient(
+          colors: [
+            AppColors.warmOrange,
+            AppColors.lighterOrange,
+          ],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.warmOrange.withValues(alpha: 0.35),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: loading ? null : onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: Center(
+            child: loading
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Colors.white,
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.lock_reset_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        label,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                    ],
+                  ),
           ),
         ),
-        child: isLoading
-            ? const SizedBox(
-                width: 22,
-                height: 22,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2.5,
-                ),
-              )
-            : Text(label, style: const TextStyle(fontWeight: FontWeight.w900)),
       ),
     );
   }
