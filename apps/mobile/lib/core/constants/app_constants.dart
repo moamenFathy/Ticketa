@@ -43,4 +43,9 @@ class AppConstants {
   static const String tmdbCastSize = '/w185';
   static const String tmdbPosterSize = '/w500';
   static const String tmdbBackdropSize = '/w1280';
+
+  // Fallbacks & External URLs
+  static const String defaultBackdropUrl =
+      'https://images.unsplash.com/photo-1478720568477-152d9b164e26?q=80&w=2670&auto=format&fit=crop';
+  static const String webBookingBaseUrl = 'https://ticketa-client.vercel.app/bookings';
 }

@@ -26,6 +26,10 @@ class ApiConstants {
   static const String profilePasswordEndpoint = "Profile/password";
   static const String profileBookingsEndpoint = "Profile/bookings";
 
+  // Stripe
+  static const String stripePublishableKey =
+      'pk_test_51TjmWwRFtQmaK3YIn0wPIZz2f3Zob8aUwvcZzeW2RkKngGTi6pPXiCjCqXqtQpiogz8lvcjQqM89kG6VwpF9kMv7006Yv3TyGG';
+
   // Headers
   static const String contentType = "application/json";
   static const String accept = "application/json";

@@ -54,7 +54,8 @@ class MessageService {
   }) {
     _dismiss();
 
-    final overlay = Overlay.of(context);
+    final overlay = Overlay.maybeOf(context);
+    if (overlay == null || !context.mounted) return;
 
     late final OverlayEntry entry;
 
@@ -72,7 +73,11 @@ class MessageService {
   }
 
   static void _dismiss() {
-    _currentEntry?.remove();
+    try {
+      if (_currentEntry != null && _currentEntry!.mounted) {
+        _currentEntry?.remove();
+      }
+    } catch (_) {}
     _currentEntry = null;
   }
 }

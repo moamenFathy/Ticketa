@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:ticketa/core/errors/exceptions.dart';
 
 class ApiService {
   final Dio _dio;
@@ -64,29 +65,44 @@ class ApiService {
   }
 
   // Error Handling
-  Exception _handleError(DioException e) {
+  AppException _handleError(DioException e) {
+    if (e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.sendTimeout ||
+        e.type == DioExceptionType.receiveTimeout ||
+        e.type == DioExceptionType.connectionError) {
+      return const NetworkException();
+    }
+
+    final statusCode = e.response?.statusCode;
     String? message;
     final data = e.response?.data;
+
     if (data is Map) {
       message = data['message']?.toString();
       if ((message == null || message.isEmpty) && data['errors'] is List) {
         final errors = (data['errors'] as List)
-            .where((e) => e != null)
-            .map((e) => e.toString())
-            .where((e) => e.isNotEmpty)
+            .where((item) => item != null)
+            .map((item) => item.toString())
+            .where((item) => item.isNotEmpty)
             .toList();
         if (errors.isNotEmpty) message = errors.join('\n');
       }
       if ((message == null || message.isEmpty) && data['Errors'] is List) {
         final errors = (data['Errors'] as List)
-            .where((e) => e != null)
-            .map((e) => e.toString())
-            .where((e) => e.isNotEmpty)
+            .where((item) => item != null)
+            .map((item) => item.toString())
+            .where((item) => item.isNotEmpty)
             .toList();
         if (errors.isNotEmpty) message = errors.join('\n');
       }
     }
     message ??= e.message;
-    return Exception(message ?? "Something went wrong");
+    final finalMessage = message ?? 'Something went wrong';
+
+    if (statusCode == 401 || statusCode == 403) {
+      return AuthException(finalMessage, statusCode: statusCode);
+    }
+    return ServerException(finalMessage, statusCode: statusCode);
   }
 }
+

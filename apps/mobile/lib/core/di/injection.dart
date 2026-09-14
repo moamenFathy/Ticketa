@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
@@ -7,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:ticketa/core/constants/api_constants.dart';
 import 'package:ticketa/core/constants/app_constants.dart';
 import 'package:ticketa/core/network/api_service.dart';
+import 'package:ticketa/core/utils/app_logger.dart';
 import 'package:ticketa/core/services/message_service.dart';
 import 'package:ticketa/core/services/navigation_service.dart';
 import 'package:ticketa/features/home/data/movie_repository.dart';
@@ -70,7 +72,15 @@ Future<void> initInjection() async {
       ),
     );
 
-    dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
+    if (kDebugMode) {
+      dio.interceptors.add(
+        LogInterceptor(
+          requestBody: true,
+          responseBody: true,
+          logPrint: (obj) => AppLogger.d(obj.toString(), tag: 'DIO'),
+        ),
+      );
+    }
 
     return dio;
   });

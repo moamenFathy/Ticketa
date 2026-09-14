@@ -190,5 +190,6 @@
   "failedLoadTickets": "Failed to load tickets.",
   "editProfileTitle": "Edit Profile",
   "saveChanges": "Save changes",
-  "fieldRequired": "This field is required"
+  "fieldRequired": "This field is required",
+  "done": "Done"
 }

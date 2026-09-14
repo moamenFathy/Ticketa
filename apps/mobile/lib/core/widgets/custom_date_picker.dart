@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/l10n/app_localizations.dart';
 
 Future<DateTime?> showCustomDatePicker(
   BuildContext context, {
@@ -68,7 +70,9 @@ class _CustomDatePickerState extends State<_CustomDatePicker> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final currentLocale = Localizations.localeOf(context).toString();
 
     return Container(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -95,7 +99,10 @@ class _CustomDatePickerState extends State<_CustomDatePicker> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const SizedBox(width: 60),
-                Text('Date of Birth', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900)),
+                Text(
+                  l10n?.dateOfBirth ?? 'Date of Birth',
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+                ),
                 GestureDetector(
                   onTap: () {
                     final d = dayCtrl.selectedItem + 1;
@@ -109,7 +116,10 @@ class _CustomDatePickerState extends State<_CustomDatePicker> {
                       color: AppColors.warmOrange,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Text('Done', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13)),
+                    child: Text(
+                      l10n?.done ?? 'Done',
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13),
+                    ),
                   ),
                 ),
               ],
@@ -173,8 +183,8 @@ class _CustomDatePickerState extends State<_CustomDatePicker> {
                     },
                     selectionOverlay: null,
                     children: List.generate(12, (i) {
-                      const names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                      return Center(child: Text(names[i],
+                      final monthName = DateFormat('MMM', currentLocale).format(DateTime(2026, i + 1, 1));
+                      return Center(child: Text(monthName,
                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: theme.colorScheme.onSurface)));
                     }),
                   ),
@@ -217,7 +227,10 @@ class _CustomDatePickerState extends State<_CustomDatePicker> {
                   backgroundColor: theme.colorScheme.surfaceContainerHighest,
                   foregroundColor: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
-                child: const Text('Cancel', style: TextStyle(fontWeight: FontWeight.w700)),
+                child: Text(
+                  l10n?.cancel ?? 'Cancel',
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
               ),
             ),
           ),
