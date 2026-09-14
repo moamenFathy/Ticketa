@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:ticketa/core/constants/api_constants.dart';
 import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/core/services/message_service.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/core/utils/app_logger.dart';
+import 'package:ticketa/core/utils/app_responsive.dart';
 import 'package:ticketa/features/booking/data/models/seat_dto.dart';
 import 'package:ticketa/features/payment/data/models/payment_models.dart';
 import 'package:ticketa/features/payment/presentation/cubit/payment_cubit.dart';
@@ -41,9 +44,6 @@ class PaymentPage extends StatefulWidget {
 }
 
 class _PaymentPageState extends State<PaymentPage> {
-  static const String _publishableKey =
-      'pk_test_51TjmWwRFtQmaK3YIn0wPIZz2f3Zob8aUwvcZzeW2RkKngGTi6pPXiCjCqXqtQpiogz8lvcjQqM89kG6VwpF9kMv7006Yv3TyGG';
-
   @override
   void initState() {
     super.initState();
@@ -51,7 +51,7 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   Future<void> _setupStripe() async {
-    Stripe.publishableKey = _publishableKey;
+    Stripe.publishableKey = ApiConstants.stripePublishableKey;
     await Stripe.instance.applySettings();
   }
 
@@ -59,8 +59,10 @@ class _PaymentPageState extends State<PaymentPage> {
       widget.seats.map((s) => 'R${s.row}-S${s.seatNumber}').toList();
 
   Future<void> _onPayPressed(BuildContext ctx) async {
-    debugPrint('[payment] pay pressed, '
-        'showtimeId=${widget.showtimeId} seats=${widget.seats.length}');
+    AppLogger.d(
+      'pay pressed, showtimeId=${widget.showtimeId} seats=${widget.seats.length}',
+      tag: 'Payment',
+    );
     final l10n = AppLocalizations.of(context)!;
     final cubit = ctx.read<PaymentCubit>();
     var state = cubit.state;
@@ -72,7 +74,7 @@ class _PaymentPageState extends State<PaymentPage> {
       ));
       state = cubit.state;
     }
-    debugPrint('[payment] after createIntent -> ${state.runtimeType}');
+    AppLogger.d('after createIntent -> ${state.runtimeType}', tag: 'Payment');
     if (state is! PaymentIntentReady) return;
 
     final theme = Theme.of(context);
@@ -152,11 +154,14 @@ class _PaymentPageState extends State<PaymentPage> {
               elevation: 0,
               centerTitle: true,
             ),
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+            body: AppResponsive.constrainedBody(
+              context: context,
+              maxWidth: AppResponsive.maxFormWidth,
+              child: SingleChildScrollView(
+                padding: AppResponsive.screenPadding(context),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                   OrderSummary(
                     movieTitle: widget.movieTitle,
                     date: widget.date,
@@ -208,8 +213,9 @@ class _PaymentPageState extends State<PaymentPage> {
 
                   const SizedBox(height: 40),
                   _buildPayButton(l10n, theme, isProcessing, context),
-                  const SizedBox(height: 20),
-                ],
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
             ),
           );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/core/utils/app_responsive.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 import 'package:ticketa/features/payment/presentation/widgets/ticket_card.dart';
 
@@ -30,87 +31,95 @@ class BookingSuccessPage extends StatelessWidget {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         bottom: false,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(
-              parent: BouncingScrollPhysics()),
-          padding: const EdgeInsets.symmetric(vertical: 24),
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              Center(
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.green.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.check_circle_rounded, color: Colors.green, size: 80),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      l10n.bookingSuccess,
-                      style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, color: theme.colorScheme.onSurface),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      l10n.enjoyYourMovie,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    if (bookingReference != null && bookingReference!.isNotEmpty) ...[
-                      const SizedBox(height: 8),
+        child: AppResponsive.constrainedBody(
+          context: context,
+          maxWidth: AppResponsive.maxFormWidth,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics()),
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                Center(
+                  child: Column(
+                    children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: AppColors.warmOrange.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.green.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
                         ),
-                        child: Text(
-                          l10n.reference(bookingReference!),
-                          style: TextStyle(
-                            color: AppColors.warmOrange,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 12,
-                            letterSpacing: 1,
+                        child: const Icon(Icons.check_circle_rounded, color: Colors.green, size: 80),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        l10n.bookingSuccess,
+                        style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, color: theme.colorScheme.onSurface),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.enjoyYourMovie,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (bookingReference != null && bookingReference!.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: AppColors.warmOrange.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            l10n.reference(bookingReference!),
+                            style: TextStyle(
+                              color: AppColors.warmOrange,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 12,
+                              letterSpacing: 1,
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
 
-              const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: TicketCard(
-                  movieTitle: movieTitle,
-                  date: date,
-                  time: time,
-                  seats: seats,
-                  totalAmount: totalAmount,
-                  bookingReference: bookingReference,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: TicketCard(
+                    movieTitle: movieTitle,
+                    date: date,
+                    time: time,
+                    seats: seats,
+                    totalAmount: totalAmount,
+                    bookingReference: bookingReference,
+                  ),
                 ),
-              ),
 
-              const SizedBox(height: 24),
-            ],
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.fromLTRB(32, 8, 32, 16),
-        child: _buildButton(
-          l10n.backToHome,
-          Icons.home_outlined,
-          theme.colorScheme.surface,
-          theme.colorScheme.onSurface.withValues(alpha: 0.6),
-          () => Navigator.of(context).popUntil((route) => route.isFirst),
+        child: AppResponsive.constrainedBody(
+          context: context,
+          maxWidth: AppResponsive.maxFormWidth,
+          child: _buildButton(
+            l10n.backToHome,
+            Icons.home_outlined,
+            theme.colorScheme.surface,
+            theme.colorScheme.onSurface.withValues(alpha: 0.6),
+            () => Navigator.of(context).popUntil((route) => route.isFirst),
+          ),
         ),
       ),
     );

@@ -1,5 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ticketa/core/errors/exceptions.dart';
+import 'package:ticketa/core/utils/app_logger.dart';
 import 'package:ticketa/features/booking/data/models/booking_history_dto.dart';
 import 'package:ticketa/features/booking/data/booking_repository.dart';
 
@@ -20,9 +21,9 @@ class MyTicketsLoaded extends MyTicketsState {
 
   MyTicketsLoaded({
     required this.tickets,
-    required this.upcomingCount,
-    required this.pastCount,
-    required this.hasMore,
+    this.upcomingCount = 0,
+    this.pastCount = 0,
+    this.hasMore = false,
     this.isLoadingMore = false,
   });
 }
@@ -37,13 +38,14 @@ class MyTicketsError extends MyTicketsState {
 
 class MyTicketsCubit extends Cubit<MyTicketsState> {
   final BookingRepository _repository;
+  int _page = 1;
+  bool _hasMore = true;
+  TicketsFilter _filter = TicketsFilter.all;
+  List<BookingHistoryItemDto> _tickets = [];
 
   MyTicketsCubit(this._repository) : super(MyTicketsInitial());
 
-  TicketsFilter _filter = TicketsFilter.all;
-  int _page = 1;
-  bool _hasMore = false;
-  List<BookingHistoryItemDto> _tickets = [];
+  TicketsFilter get currentFilter => _filter;
 
   String get _filterParam => switch (_filter) {
         TicketsFilter.all => 'All',
@@ -54,6 +56,7 @@ class MyTicketsCubit extends Cubit<MyTicketsState> {
   Future<void> loadTickets({bool refresh = false}) async {
     if (refresh) {
       _page = 1;
+      _hasMore = true;
       _tickets = [];
     }
 
@@ -84,8 +87,8 @@ class MyTicketsCubit extends Cubit<MyTicketsState> {
         ),
       );
     } catch (e) {
-      debugPrint('[tickets] load failed: $e');
-      emit(MyTicketsError('Failed to load tickets.'));
+      AppLogger.e('load failed: $e', tag: 'Tickets', error: e);
+      emit(MyTicketsError(AppException.extractMessage(e)));
     }
   }
 
@@ -121,7 +124,7 @@ class MyTicketsCubit extends Cubit<MyTicketsState> {
         hasMore: _hasMore,
       ));
     } catch (e) {
-      debugPrint('[tickets] loadMore failed: $e');
+      AppLogger.e('loadMore failed: $e', tag: 'Tickets', error: e);
       _page -= 1;
       emit(state);
     }

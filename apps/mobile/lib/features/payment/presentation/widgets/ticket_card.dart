@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:ticketa/core/constants/app_constants.dart';
 import 'package:ticketa/core/widgets/glass_card.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 
@@ -27,8 +28,7 @@ class TicketCard extends StatelessWidget {
     return 'TICKETA-${DateTime.now().millisecondsSinceEpoch}';
   }
 
-  String get _ticketUrl =>
-      'https://ticketa-client.vercel.app/bookings/$_ticketId';
+  String get _ticketUrl => '${AppConstants.webBookingBaseUrl}/$_ticketId';
 
   @override
   Widget build(BuildContext context) {

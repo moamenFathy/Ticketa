@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ticketa/core/errors/exceptions.dart';
 import 'package:ticketa/features/booking/data/booking_repository.dart';
 import 'package:ticketa/features/booking/data/models/booking_create_dto.dart';
 import 'package:ticketa/features/booking/data/models/booking_details_dto.dart';
@@ -22,7 +23,7 @@ class BookingCubit extends Cubit<BookingState> {
       emit(loaded);
     } catch (e) {
       _lastLoaded = null;
-      emit(BookingError(e.toString().replaceFirst('Exception: ', '')));
+      emit(BookingError(AppException.extractMessage(e)));
     }
   }
 
@@ -66,7 +67,7 @@ class BookingCubit extends Cubit<BookingState> {
         emit(BookingSeatConflict(conflictIds));
       }
     } catch (e) {
-      emit(BookingError(e.toString().replaceFirst('Exception: ', '')));
+      emit(BookingError(AppException.extractMessage(e)));
     }
   }
 
