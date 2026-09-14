@@ -159,9 +159,9 @@ class Movie {
       title: json['title'] ?? '',
       posterUrl: posterPath,
       backdropUrl: backdropPath,
-      genre: (json['genres'] as List<dynamic>?)?.join(', ') ?? '',
+      genre: (json['genres'] as List<dynamic>?)?.join(', ') ?? json['genre']?.toString() ?? '',
       rating: (json['voteAverage'] as num?)?.toDouble() ?? (json['rate'] as num?)?.toDouble() ?? 0.0,
-      duration: json['runtime'] ?? 0,
+      duration: (json['runtime'] as num?)?.toInt() ?? (json['duration'] as num?)?.toInt() ?? 0,
       overview: json['overview'] ?? '',
       trailerKey: json['trailerKey'] as String?,
       cast: (json['cast'] as List<dynamic>?)

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:ticketa/core/utils/app_responsive.dart';
 import 'package:ticketa/features/home/data/models/movie.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import '../widgets/hero_card.dart';
@@ -61,24 +62,26 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
   }
 
   void _startProgress() {
-    if (widget.movies.length <= 1) return;
     _progressController.forward(from: 0.0);
   }
 
   void _pauseProgress() {
-    _progressController.stop();
+    if (_progressController.isAnimating) {
+      _progressController.stop();
+    }
   }
 
   void _resumeProgress() {
-    if (widget.movies.length <= 1) return;
-    _progressController.forward();
+    if (!_progressController.isAnimating && _progressController.value < 1.0) {
+      _progressController.forward();
+    }
   }
 
   @override
   void dispose() {
-    _progressController.dispose();
     _heroController.removeListener(_onScroll);
     _heroController.dispose();
+    _progressController.dispose();
     super.dispose();
   }
 
@@ -97,7 +100,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
       children: [
         const SizedBox(height: 10),
         SizedBox(
-          height: 420,
+          height: AppResponsive.heroHeight(context),
           child: NotificationListener<UserScrollNotification>(
             onNotification: (notification) {
               if (notification.direction != ScrollDirection.idle) {
@@ -178,7 +181,7 @@ class _HomeHeroSectionState extends State<HomeHeroSection>
                           animation: _progressController,
                           builder: (context, child) {
                             return FractionallySizedBox(
-                              alignment: Alignment.centerLeft,
+                              alignment: AlignmentDirectional.centerStart,
                               widthFactor: _progressController.value,
                               child: Container(
                                 decoration: BoxDecoration(

@@ -1,32 +1,21 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ticketa/core/di/injection.dart';
-import 'package:ticketa/core/services/message_service.dart';
-import 'package:ticketa/core/theme/app_colors.dart';
-import 'package:ticketa/core/utils/app_responsive.dart';
-import 'package:ticketa/core/utils/localization_helper.dart';
-import 'package:ticketa/core/utils/youtube_utils.dart';
-import 'package:ticketa/core/constants/app_constants.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ticketa/features/booking/presentation/screens/seat_selection_page.dart';
 import 'package:ticketa/features/home/data/models/movie.dart';
 import 'package:ticketa/features/home/presentation/cubit/movie_detail_cubit.dart';
 import 'package:ticketa/features/home/presentation/cubit/movie_detail_state.dart';
-import 'package:ticketa/features/home/presentation/screens/see_all_cast_page.dart';
-import 'package:ticketa/features/home/presentation/widgets/movie_cast_list.dart';
-import 'package:ticketa/features/home/presentation/widgets/movie_date_selector.dart';
+import 'package:ticketa/features/home/presentation/widgets/fullscreen_trailer_player.dart';
+import 'package:ticketa/features/home/presentation/widgets/movie_detail_bottom_bar.dart';
 import 'package:ticketa/features/home/presentation/widgets/movie_detail_header.dart';
 import 'package:ticketa/features/home/presentation/widgets/movie_detail_skeleton.dart'
     as ticketa_movie_skeleton;
-import 'package:ticketa/features/home/presentation/widgets/movie_info_tag.dart';
+import 'package:ticketa/features/home/presentation/widgets/movie_info_section.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 
 class MovieDetailPage extends StatefulWidget {
   final Movie movie;
   final bool isComingSoon;
+
   const MovieDetailPage({
     super.key,
     required this.movie,
@@ -40,11 +29,6 @@ class MovieDetailPage extends StatefulWidget {
 class _MovieDetailPageState extends State<MovieDetailPage> {
   bool _isPlayingTrailer = false;
   ShowtimeInfo? _selectedShowtime;
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +80,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                 FadeTransition(opacity: animation, child: child),
             child: needsSkeleton
                 ? _buildLoadingSkeleton(theme)
-                : _buildContent(theme, l10n, movie, displayMovie),
+                : _buildContent(theme, l10n, displayMovie),
           );
         },
       ),
@@ -113,7 +97,9 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(
-            isRtl ? Icons.arrow_forward_ios_rounded : Icons.arrow_back_ios_new_rounded,
+            isRtl
+                ? Icons.arrow_forward_ios_rounded
+                : Icons.arrow_back_ios_new_rounded,
             color: theme.colorScheme.onSurface,
           ),
           onPressed: () => Navigator.pop(context),
@@ -127,7 +113,6 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   Widget _buildContent(
     ThemeData theme,
     AppLocalizations l10n,
-    Movie movie,
     Movie displayMovie,
   ) {
     return Scaffold(
@@ -144,340 +129,21 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                     ? () => setState(() => _isPlayingTrailer = true)
                     : null,
               ),
-              _buildMovieInfoSection(theme, l10n, displayMovie),
+              MovieInfoSection(
+                movie: displayMovie,
+                isComingSoon: widget.isComingSoon,
+                onShowtimeSelected: (st) =>
+                    setState(() => _selectedShowtime = st),
+              ),
             ],
           ),
           if (!widget.isComingSoon)
-            _buildBottomBar(theme, l10n, displayMovie),
+            MovieDetailBottomBar(
+              movie: displayMovie,
+              selectedShowtime: _selectedShowtime,
+            ),
           _buildTrailerOverlay(displayMovie),
         ],
-      ),
-    );
-  }
-
-  Widget _buildMovieInfoSection(
-    ThemeData theme,
-    AppLocalizations l10n,
-    Movie displayMovie,
-  ) {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: AppResponsive.screenPadding(context),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 10),
-            _staggeredSection(
-              0.00,
-              Text(
-                displayMovie.title,
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.5,
-                  color: theme.colorScheme.onSurface,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            _staggeredSection(0.08, _buildInfoTags(theme, l10n, displayMovie)),
-            const SizedBox(height: 32),
-            _staggeredSection(0.16, _SectionHeader(title: l10n.storyLine)),
-            const SizedBox(height: 12),
-            _staggeredSection(
-              0.16,
-              Text(
-                displayMovie.overview.isNotEmpty
-                    ? displayMovie.overview
-                    : l10n.storyLine,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                  height: 1.6,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            const SizedBox(height: 32),
-            _staggeredSection(
-              0.24,
-              _SectionHeader(
-                title: l10n.cast,
-                onSeeAll: displayMovie.cast.length >= 3
-                    ? () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              SeeAllCastPage(cast: displayMovie.cast),
-                        ),
-                      )
-                    : null,
-              ),
-            ),
-            const SizedBox(height: 16),
-            _staggeredSection(0.24, MovieCastList(cast: displayMovie.cast)),
-            if (!widget.isComingSoon) ...[
-              const SizedBox(height: 32),
-              _staggeredSection(0.32, _SectionHeader(title: l10n.showTime)),
-              const SizedBox(height: 16),
-              _staggeredSection(
-                0.32,
-                displayMovie.showtimeInfos.isNotEmpty
-                    ? MovieDateSelector(
-                            showtimes: displayMovie.showtimeInfos,
-                            onShowtimeSelected: (st) =>
-                                setState(() => _selectedShowtime = st),
-                          )
-                          as Widget
-                    : Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(l10n.noShowtimes),
-                      ),
-              ),
-              const SizedBox(height: 140),
-            ] else ...[
-              const SizedBox(height: 32),
-              _staggeredSection(
-                0.32,
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: AppColors.warmOrange.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(22),
-                    border: Border.all(
-                      color: AppColors.warmOrange.withValues(alpha: 0.25),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.upcoming_rounded,
-                        color: AppColors.warmOrange,
-                        size: 26,
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            localeCopy(
-                              context,
-                              'Coming Soon to Theaters',
-                              'قريباً في صالات السينما',
-                            ),
-                            style: const TextStyle(
-                              color: AppColors.warmOrange,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            localeCopy(
-                              context,
-                              'Tickets will be available soon',
-                              'سيتم فتح حجز التذاكر قريباً',
-                            ),
-                            style: TextStyle(
-                              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 60),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _staggeredSection(double delay, Widget child) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 600),
-      curve: Interval(delay, 1.0, curve: Curves.easeOutCubic),
-      builder: (context, value, child) {
-        return Opacity(
-          opacity: value,
-          child: Transform.translate(
-            offset: Offset(0, 16 * (1 - value)),
-            child: child,
-          ),
-        );
-      },
-      child: child,
-    );
-  }
-
-  Widget _buildInfoTags(ThemeData theme, AppLocalizations l10n, Movie displayMovie) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          MovieInfoTag(
-            label: displayMovie.rating.toStringAsFixed(1),
-            icon: Icons.star_rounded,
-            color: Colors.amber,
-          ),
-          const SizedBox(width: 10),
-          MovieInfoTag(
-            label: displayMovie.genre.isNotEmpty
-                ? displayMovie.genre.split(', ')[0]
-                : l10n.genreFallback,
-            icon: Icons.movie_filter_outlined,
-            color: AppColors.warmOrange,
-          ),
-          const SizedBox(width: 10),
-          MovieInfoTag(
-            label: displayMovie.duration > 60
-                ? l10n.durationHours(
-                    (displayMovie.duration ~/ 60).toString(),
-                    (displayMovie.duration % 60).toString(),
-                  )
-                : l10n.durationMinutes(displayMovie.duration.toString()),
-            icon: Icons.timer_outlined,
-            color: Colors.grey,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomBar(ThemeData theme, AppLocalizations l10n, Movie movie) {
-    final selectedShowtime =
-        _selectedShowtime ??
-        (movie.showtimeInfos.isNotEmpty ? movie.showtimeInfos.first : null);
-    return Positioned(
-      bottom: 0,
-      left: 0,
-      right: 0,
-      child: Container(
-        padding: EdgeInsets.fromLTRB(
-          AppResponsive.screenPadding(context).left,
-          20,
-          AppResponsive.screenPadding(context).right,
-          30,
-        ),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              theme.scaffoldBackgroundColor.withValues(alpha: 0),
-              theme.scaffoldBackgroundColor.withValues(alpha: 0.9),
-              theme.scaffoldBackgroundColor,
-            ],
-          ),
-        ),
-        child: Row(
-          children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.price,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  selectedShowtime != null
-                      ? "${l10n.currencySuffix} ${selectedShowtime.price.toStringAsFixed(2)}"
-                      : '--',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    color: AppColors.warmOrange,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(width: 24),
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.warmOrange.withValues(alpha: 0.3),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: ElevatedButton(
-                  onPressed: () async {
-                    if (selectedShowtime == null) {
-                      MessageService.showWarning(
-                        context: context,
-                        message: localeCopy(
-                          context,
-                          'No showtimes available for this movie yet',
-                          'لا توجد عروض متاحة لهذا الفيلم حالياً',
-                        ),
-                      );
-                      return;
-                    }
-                    final prefs = await SharedPreferences.getInstance();
-                    final isGuest =
-                        prefs.getBool(AppConstants.isGuestKey) ?? true;
-                    if (isGuest) {
-                      if (!mounted) return;
-                      MessageService.showWarning(
-                        context: context,
-                        message: localeCopy(
-                          context,
-                          'Please sign in to book tickets',
-                          'سجل دخولك أولاً لحجز التذاكر',
-                        ),
-                      );
-                      return;
-                    }
-                    if (!mounted) return;
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => SeatSelectionPage(
-                          movieTitle: movie.title,
-                          showtimeId: selectedShowtime.id,
-                          showtimeInfos: movie.showtimeInfos,
-                          basePrice: selectedShowtime.price,
-                          hallName: selectedShowtime.hallName,
-                          moviePoster: movie.posterUrl,
-                        ),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    backgroundColor: AppColors.warmOrange,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    l10n.bookTickets,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -495,7 +161,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
             return FadeTransition(opacity: animation, child: child);
           },
           child: _isPlayingTrailer && displayMovie.trailerKey != null
-              ? _FullScreenInlinePlayer(
+              ? FullScreenInlinePlayer(
                   key: const ValueKey('full_screen_player'),
                   trailerKey: displayMovie.trailerKey!,
                   posterUrl: displayMovie.posterUrl,
@@ -503,153 +169,6 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                 )
               : const SizedBox.shrink(key: ValueKey('empty_player')),
         ),
-      ),
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  final VoidCallback? onSeeAll;
-
-  const _SectionHeader({required this.title, this.onSeeAll});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          title,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-        if (onSeeAll != null)
-          TextButton(
-            onPressed: onSeeAll,
-            child: Text(
-              l10n.seeAll,
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: AppColors.warmOrange,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _FullScreenInlinePlayer extends StatefulWidget {
-  final String trailerKey;
-  final String posterUrl;
-  final VoidCallback onClose;
-
-  const _FullScreenInlinePlayer({
-    super.key,
-    required this.trailerKey,
-    required this.posterUrl,
-    required this.onClose,
-  });
-
-  @override
-  State<_FullScreenInlinePlayer> createState() =>
-      _FullScreenInlinePlayerState();
-}
-
-class _FullScreenInlinePlayerState extends State<_FullScreenInlinePlayer> {
-  late final YoutubePlayerController _controller;
-  bool _showVideo = true;
-
-  @override
-  void initState() {
-    super.initState();
-    final videoId = extractYoutubeVideoId(widget.trailerKey) ?? '';
-    _controller = YoutubePlayerController.fromVideoId(
-      videoId: videoId,
-      autoPlay: true,
-      params: const YoutubePlayerParams(
-        showControls: true,
-        showFullscreenButton: true,
-        playsInline: true,
-        mute: true,
-      ),
-    );
-    _controller.listen((value) {
-      if (value.playerState == PlayerState.playing) _unmuteSoon();
-    });
-  }
-
-  Future<void> _unmuteSoon() async {
-    await Future.delayed(const Duration(milliseconds: 900));
-    await _controller.unMute();
-  }
-
-  @override
-  void dispose() {
-    _controller.close();
-    super.dispose();
-  }
-
-  void _handleClose() {
-    setState(() {
-      _showVideo = false;
-    });
-    widget.onClose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          // Blurred Poster Background
-          Positioned.fill(
-            child: CachedNetworkImage(
-              imageUrl: widget.posterUrl,
-              fit: BoxFit.cover,
-              memCacheWidth: 1080,
-              placeholder: (_, _) => Container(color: Colors.black),
-              errorWidget: (_, _, _) => Container(color: Colors.black),
-            ),
-          ),
-          Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-              child: Container(color: Colors.black.withValues(alpha: 0.6)),
-            ),
-          ),
-
-          SafeArea(
-            child: Stack(
-              children: [
-                if (_showVideo)
-                  Center(
-                    child: YoutubePlayer(
-                      controller: _controller,
-                      aspectRatio: 16 / 9,
-                    ),
-                  ),
-                Positioned(
-                  top: 16,
-                  left: 16,
-                  child: IconButton(
-                    icon: const Icon(
-                      Icons.close_rounded,
-                      color: Colors.white,
-                      size: 32,
-                    ),
-                    onPressed: _handleClose,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

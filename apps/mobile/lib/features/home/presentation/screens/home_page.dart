@@ -146,6 +146,7 @@ class _HomePageState extends State<HomePage> {
                                         imageUrl: heroMovies[safePage].posterUrl,
                                         fit: BoxFit.cover,
                                         alignment: Alignment.topCenter,
+                                        memCacheWidth: 400,
                                       ),
                                     ),
                                   ),

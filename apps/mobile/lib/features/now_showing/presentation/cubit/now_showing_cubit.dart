@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ticketa/core/errors/exceptions.dart';
 import 'package:ticketa/features/home/data/movie_repository.dart';
 import 'package:ticketa/features/now_showing/presentation/cubit/now_showing_state.dart';
 
@@ -16,7 +17,7 @@ class NowShowingCubit extends Cubit<NowShowingState> {
       }
       emit(NowShowingLoaded(movies));
     } catch (e) {
-      emit(NowShowingError(e.toString()));
+      emit(NowShowingError(AppException.extractMessage(e)));
     }
   }
 }

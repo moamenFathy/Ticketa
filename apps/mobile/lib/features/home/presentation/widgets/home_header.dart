@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ticketa/core/constants/app_constants.dart';
 import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/core/utils/app_responsive.dart';
 import 'package:ticketa/features/auth/data/auth_repository.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 
@@ -70,7 +71,7 @@ class _HomeHeaderState extends State<HomeHeader> {
     final isDark = theme.brightness == Brightness.dark;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 2, 20, 18),
+      padding: AppResponsive.screenPaddingWithVertical(context, top: 2, bottom: 18),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

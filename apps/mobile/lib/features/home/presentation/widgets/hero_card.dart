@@ -34,6 +34,7 @@ class HeroCard extends StatelessWidget {
             fit: BoxFit.cover,
             width: double.infinity,
             height: double.infinity,
+            memCacheWidth: 600,
             placeholder: (_, _) => Container(color: Colors.grey[900]),
             errorWidget: (_, _, _) => Container(color: Colors.grey[900]),
           ),

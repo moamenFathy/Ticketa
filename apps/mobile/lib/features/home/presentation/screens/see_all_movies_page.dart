@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ticketa/core/utils/app_responsive.dart';
 import 'package:ticketa/features/home/data/models/movie.dart';
 import 'package:ticketa/features/now_showing/presentation/widgets/now_showing_card.dart';
 
@@ -28,30 +29,33 @@ class SeeAllMoviesPage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.only(top: 8, bottom: 40),
-        itemCount: movies.length,
-        itemBuilder: (context, index) {
-          final movie = movies[index];
-          return TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0, end: 1),
-            duration: Duration(milliseconds: 400 + (index * 60)),
-            curve: Curves.easeOutCubic,
-            builder: (context, value, child) {
-              return Opacity(
-                opacity: value,
-                child: Transform.translate(
-                  offset: Offset(0, 30 * (1 - value)),
-                  child: child,
-                ),
-              );
-            },
-            child: NowShowingCard(
-              movie: movie,
-              isComingSoon: isComingSoon,
-            ),
-          );
-        },
+      body: AppResponsive.constrainedBody(
+        context: context,
+        child: ListView.builder(
+          padding: AppResponsive.screenPaddingWithVertical(context, top: 8, bottom: 40),
+          itemCount: movies.length,
+          itemBuilder: (context, index) {
+            final movie = movies[index];
+            return TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: 1),
+              duration: Duration(milliseconds: 400 + (index * 60)),
+              curve: Curves.easeOutCubic,
+              builder: (context, value, child) {
+                return Opacity(
+                  opacity: value,
+                  child: Transform.translate(
+                    offset: Offset(0, 30 * (1 - value)),
+                    child: child,
+                  ),
+                );
+              },
+              child: NowShowingCard(
+                movie: movie,
+                isComingSoon: isComingSoon,
+              ),
+            );
+          },
+        ),
       ),
     );
   }

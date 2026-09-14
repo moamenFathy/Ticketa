@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ticketa/features/home/data/models/movie.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/core/utils/app_responsive.dart';
 import 'package:ticketa/features/home/presentation/widgets/small_movie_card.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 
@@ -24,12 +25,13 @@ class MovieHorizontalList extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final horizontalPad = AppResponsive.isTablet(context) ? 48.0 : 20.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(20, 10, 20, 20),
+          padding: EdgeInsetsDirectional.fromSTEB(horizontalPad, 10, horizontalPad, 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -55,9 +57,9 @@ class MovieHorizontalList extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: 260,
+          height: AppResponsive.isTablet(context) ? 310 : 260,
           child: ListView.builder(
-            padding: const EdgeInsetsDirectional.only(start: 20),
+            padding: EdgeInsetsDirectional.only(start: horizontalPad),
             scrollDirection: Axis.horizontal,
             itemCount: movies.length,
             itemBuilder: (context, index) => SmallMovieCard(

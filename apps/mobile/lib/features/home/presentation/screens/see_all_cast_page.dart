@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/core/utils/app_responsive.dart';
 import 'package:ticketa/features/home/data/models/movie.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 
@@ -24,16 +25,18 @@ class SeeAllCastPage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: GridView.builder(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
-        physics: const BouncingScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 0.7,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-        ),
-        itemCount: cast.length,
+      body: AppResponsive.constrainedBody(
+        context: context,
+        child: GridView.builder(
+          padding: AppResponsive.screenPaddingWithVertical(context, top: 8, bottom: 40),
+          physics: const BouncingScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: AppResponsive.castGridColumns(context),
+            childAspectRatio: 0.7,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+          ),
+          itemCount: cast.length,
         itemBuilder: (context, index) {
           final member = cast[index];
           return TweenAnimationBuilder<double>(
@@ -53,8 +56,9 @@ class SeeAllCastPage extends StatelessWidget {
           );
         },
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class _CastCard extends StatelessWidget {

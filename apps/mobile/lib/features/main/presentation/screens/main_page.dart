@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:cupertino_native/cupertino_native.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/core/utils/app_responsive.dart';
 import 'package:ticketa/features/home/presentation/screens/home_page.dart';
 import 'package:ticketa/features/now_showing/presentation/screens/now_showing_page.dart';
 import 'package:ticketa/features/settings/presentation/screens/my_tickets_page.dart';
@@ -101,6 +102,7 @@ class _MainPageState extends State<MainPage>
 
   Widget _buildIosTabBar(AppLocalizations l10n, bool isRtl) {
     final lang = Localizations.localeOf(context).languageCode;
+    final isTab = AppResponsive.isTablet(context);
     final tabs = isRtl
         ? [
             CNTabBarItem(
@@ -140,20 +142,27 @@ class _MainPageState extends State<MainPage>
           ];
 
     return Positioned(
-      left: 20,
-      right: 20,
+      left: isTab ? null : 20,
+      right: isTab ? null : 20,
+      width: isTab ? 500 : null,
       bottom: 0,
-      child: CNTabBar(
-        key: ValueKey('cntab_$lang'),
-        items: tabs,
-        currentIndex: isRtl ? (3 - _currentIndex) : _currentIndex,
-        onTap: (index) => _switchTab(isRtl ? (3 - index) : index),
+      child: Center(
+        child: SizedBox(
+          width: isTab ? 500 : double.infinity,
+          child: CNTabBar(
+            key: ValueKey('cntab_$lang'),
+            items: tabs,
+            currentIndex: isRtl ? (3 - _currentIndex) : _currentIndex,
+            onTap: (index) => _switchTab(isRtl ? (3 - index) : index),
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildAndroidTabBar(AppLocalizations l10n, bool isDark, bool isRtl) {
     final lang = Localizations.localeOf(context).languageCode;
+    final isTab = AppResponsive.isTablet(context);
     final tabs = isRtl
         ? [
             GButton(icon: Icons.person_rounded, text: l10n.account),
@@ -169,14 +178,19 @@ class _MainPageState extends State<MainPage>
           ];
 
     return Positioned(
-      left: 16,
-      right: 16,
+      left: 0,
+      right: 0,
       bottom: 24,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(30),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Container(
+          width: isTab ? 520 : null,
+          margin: EdgeInsets.symmetric(horizontal: isTab ? 0 : 16),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(30),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             decoration: BoxDecoration(
               color: isDark
@@ -220,7 +234,9 @@ class _MainPageState extends State<MainPage>
           ),
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 }
 

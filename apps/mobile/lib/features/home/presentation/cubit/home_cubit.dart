@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ticketa/core/errors/exceptions.dart';
 import 'package:ticketa/features/home/data/movie_repository.dart';
 import 'package:ticketa/features/home/presentation/cubit/home_state.dart';
 
@@ -30,7 +31,7 @@ class HomeCubit extends Cubit<HomeState> {
         topBooked: topBooked,
       ));
     } catch (e) {
-      emit(HomeError(e.toString()));
+      emit(HomeError(AppException.extractMessage(e)));
     }
   }
 }
