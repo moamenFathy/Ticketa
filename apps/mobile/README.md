@@ -1,17 +1,39 @@
-# ticketa
+# 🎬 Ticketa — Smart Cinema Booking & Management Platform
 
-A new Flutter project.
+<p align="center">
+  <img src="assets/Images/readme_banner.jpg" alt="Ticketa Cinema Booking Platform" width="100%" />
+</p>
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🌟 Key Features
 
-A few resources to get you started if this is your first Flutter project:
+- 🎟️ **Real-Time Seat Selection**: Live interactive cinema hall map with real-time seat reservation.
+- 💳 **Seamless Online Payments**: Integrated with **Stripe** for fast, secure checkout.
+- 🎬 **Movie Discovery & Trailers**: High-definition movie trailers, dynamic synopsis, and cast lists.
+- 📱 **Cross-Platform Experience**: Built with **Flutter** (iOS & Android) with responsive tablet support and Web Client.
+- 🛡️ **Clean Architecture & High Performance**: BLoC/Cubit state management, memory-optimized image caching, and strict error handling.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🚀 Getting Started
+
+### Prerequisites
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) (3.x or newer)
+- Dart SDK
+
+### Installation
+```bash
+# Clone the repository
+git clone https://github.com/MohamedGasser15/Ticketa-mobile.git
+
+# Navigate to Flutter project
+cd "Ticketa Flutter"
+
+# Get dependencies
+flutter pub get
+
+# Run the app
+flutter run
+```
+
