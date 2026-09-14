@@ -201,8 +201,9 @@ flutter run
 
 ## 📚 Documentation
 
-Detailed technical documents, database diagrams, API specifications, and architectural decision records (ADRs) are maintained in the central [`docs/`](./docs) directory:
+Detailed technical documents, database diagrams, API specifications, mobile engineering guides, and architectural decision records (ADRs) are maintained in the central [`docs/`](./docs) directory:
 
+- 📱 [**Mobile Client Documentation Hub**](./docs/Modules/Mobile/README.md) — 36 comprehensive specs covering architecture, BLoC state flows, all 18 screens, Stripe payments, and interactive cinema seat maps.
 - 🏛️ [Architecture Overview](./docs/Modules/Server/architecture.md)
 - 🔐 [Authentication & Security](./docs/Modules/Server/authentication.md)
 - 🗄️ [Database Schema & Entities](./docs/Modules/Server/database.md)
