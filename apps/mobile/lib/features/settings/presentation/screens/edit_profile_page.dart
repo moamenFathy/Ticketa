@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/core/services/message_service.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/core/utils/app_responsive.dart';
 import 'package:ticketa/core/utils/localization_helper.dart';
 import 'package:ticketa/core/widgets/custom_date_picker.dart';
 import 'package:ticketa/features/auth/data/auth_repository.dart';
@@ -92,69 +93,72 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          SliverAppBar(
-            pinned: true,
-            elevation: 0,
-            backgroundColor: theme.scaffoldBackgroundColor.withValues(alpha: 0.95),
-            surfaceTintColor: Colors.transparent,
-            leading: IconButton(
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.08)
-                      : Colors.black.withValues(alpha: 0.05),
-                  shape: BoxShape.circle,
+      body: AppResponsive.constrainedBody(
+        context: context,
+        maxWidth: AppResponsive.maxFormWidth,
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              elevation: 0,
+              backgroundColor: theme.scaffoldBackgroundColor.withValues(alpha: 0.95),
+              surfaceTintColor: Colors.transparent,
+              leading: IconButton(
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.08)
+                        : Colors.black.withValues(alpha: 0.05),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Localizations.localeOf(context).languageCode == 'ar'
+                        ? Icons.arrow_forward_ios_rounded
+                        : Icons.arrow_back_ios_new_rounded,
+                    size: 16,
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
-                child: Icon(
-                  Localizations.localeOf(context).languageCode == 'ar'
-                      ? Icons.arrow_forward_ios_rounded
-                      : Icons.arrow_back_ios_new_rounded,
-                  size: 16,
-                  color: theme.colorScheme.onSurface,
+                onPressed: () => Navigator.of(context).maybePop(),
+              ),
+              title: Text(
+                localeCopy(context, 'Edit Profile', 'تعديل الملف الشخصي'),
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.3,
                 ),
               ),
-              onPressed: () => Navigator.of(context).maybePop(),
+              centerTitle: true,
             ),
-            title: Text(
-              localeCopy(context, 'Edit Profile', 'تعديل الملف الشخصي'),
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w900,
-                letterSpacing: -0.3,
-              ),
-            ),
-            centerTitle: true,
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 12),
-                    // Hero Avatar Card
-                    ListenableBuilder(
-                      listenable: Listenable.merge([
-                        _firstNameController,
-                        _lastNameController,
-                      ]),
-                      builder: (context, _) {
-                        final fullName =
-                            '${_firstNameController.text} ${_lastNameController.text}'
-                                .trim();
-                        return _HeroProfileCard(
-                          name: fullName.isEmpty
-                              ? localeCopy(context, 'Cinema Lover', 'محب السينما')
-                              : fullName,
-                          email: _emailController.text,
-                        );
-                      },
-                    ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: AppResponsive.screenPadding(context),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 12),
+                      // Hero Avatar Card
+                      ListenableBuilder(
+                        listenable: Listenable.merge([
+                          _firstNameController,
+                          _lastNameController,
+                        ]),
+                        builder: (context, _) {
+                          final fullName =
+                              '${_firstNameController.text} ${_lastNameController.text}'
+                                  .trim();
+                          return _HeroProfileCard(
+                            name: fullName.isEmpty
+                                ? localeCopy(context, 'Cinema Lover', 'محب السينما')
+                                : fullName,
+                            email: _emailController.text,
+                          );
+                        },
+                      ),
 
                     const SizedBox(height: 24),
                     _SectionHeader(
@@ -256,8 +260,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   String? _required(BuildContext context, String? value) {
     if (value == null || value.trim().isEmpty) {

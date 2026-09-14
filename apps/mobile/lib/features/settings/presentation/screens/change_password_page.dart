@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:ticketa/core/di/injection.dart';
+import 'package:ticketa/core/errors/exceptions.dart';
 import 'package:ticketa/core/services/message_service.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/core/utils/app_responsive.dart';
 import 'package:ticketa/core/utils/localization_helper.dart';
 import 'package:ticketa/features/auth/data/auth_repository.dart';
 
@@ -57,7 +59,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       setState(() {});
     } catch (e) {
       if (!mounted) return;
-      final message = e.toString().replaceFirst('Exception: ', '');
+      final message = AppException.extractMessage(e);
       MessageService.showError(
         context: context,
         message: message.isEmpty
@@ -80,50 +82,53 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          SliverAppBar(
-            pinned: true,
-            elevation: 0,
-            backgroundColor: theme.scaffoldBackgroundColor.withValues(alpha: 0.95),
-            surfaceTintColor: Colors.transparent,
-            leading: IconButton(
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.08)
-                      : Colors.black.withValues(alpha: 0.05),
-                  shape: BoxShape.circle,
+      body: AppResponsive.constrainedBody(
+        context: context,
+        maxWidth: AppResponsive.maxFormWidth,
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              elevation: 0,
+              backgroundColor: theme.scaffoldBackgroundColor.withValues(alpha: 0.95),
+              surfaceTintColor: Colors.transparent,
+              leading: IconButton(
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.08)
+                        : Colors.black.withValues(alpha: 0.05),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Localizations.localeOf(context).languageCode == 'ar'
+                        ? Icons.arrow_forward_ios_rounded
+                        : Icons.arrow_back_ios_new_rounded,
+                    size: 16,
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
-                child: Icon(
-                  Localizations.localeOf(context).languageCode == 'ar'
-                      ? Icons.arrow_forward_ios_rounded
-                      : Icons.arrow_back_ios_new_rounded,
-                  size: 16,
-                  color: theme.colorScheme.onSurface,
+                onPressed: () => Navigator.of(context).maybePop(),
+              ),
+              title: Text(
+                localeCopy(context, 'Change Password', 'تغيير كلمة السر'),
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.3,
                 ),
               ),
-              onPressed: () => Navigator.of(context).maybePop(),
+              centerTitle: true,
             ),
-            title: Text(
-              localeCopy(context, 'Change Password', 'تغيير كلمة السر'),
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w900,
-                letterSpacing: -0.3,
-              ),
-            ),
-            centerTitle: true,
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: AppResponsive.screenPadding(context),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                     const SizedBox(height: 12),
                     const _SecurityHeroCard(),
                     const SizedBox(height: 24),
@@ -262,8 +267,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   String? _requiredPassword(BuildContext context, String? value) {
     if (value == null || value.trim().isEmpty) {

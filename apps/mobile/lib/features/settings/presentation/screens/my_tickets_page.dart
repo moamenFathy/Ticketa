@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ticketa/core/constants/app_constants.dart';
 import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/core/utils/app_responsive.dart';
 import 'package:ticketa/features/booking/data/models/booking_history_dto.dart';
 import 'package:ticketa/features/booking/presentation/cubit/my_tickets_cubit.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
@@ -125,104 +126,108 @@ class _MyTicketsPageState extends State<MyTicketsPage> {
         ),
         body: SafeArea(
           child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 28),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: AppColors.warmOrange.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.confirmation_number_rounded,
-                      color: AppColors.warmOrange,
-                      size: 64,
-                    ),
-                  ),
-                  const SizedBox(height: 28),
-                  Text(
-                    localeCopy(
-                      context,
-                      'Your tickets are safe here',
-                      'تذاكرك محفوظة هنا بأمان',
-                    ),
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w900,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    localeCopy(
-                      context,
-                      'Sign in to view your bookings,\nQR tickets and upcoming showtimes',
-                      'سجل دخولك لعرض حجوزاتك\nوتذاكر QR والعروض القادمة',
-                    ),
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                      height: 1.5,
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: () =>
-                          Navigator.pushReplacementNamed(context, '/login'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.warmOrange,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 0,
+            child: AppResponsive.constrainedBody(
+              context: context,
+              maxWidth: AppResponsive.maxFormWidth,
+              child: SingleChildScrollView(
+                padding: AppResponsive.screenPadding(context),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: AppColors.warmOrange.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
                       ),
-                      child: Text(
-                        localeCopy(context, 'Sign In', 'تسجيل الدخول'),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 16,
-                          letterSpacing: 1,
-                        ),
+                      child: const Icon(
+                        Icons.confirmation_number_rounded,
+                        color: AppColors.warmOrange,
+                        size: 64,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: OutlinedButton(
-                      onPressed: () =>
-                          Navigator.pushReplacementNamed(context, '/register'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.warmOrange,
-                        side: BorderSide(
-                          color: AppColors.warmOrange.withValues(alpha: 0.3),
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
+                    const SizedBox(height: 28),
+                    Text(
+                      localeCopy(
+                        context,
+                        'Your tickets are safe here',
+                        'تذاكرك محفوظة هنا بأمان',
                       ),
-                      child: Text(
-                        localeCopy(
-                          context,
-                          'Create Account',
-                          'إنشاء حساب',
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      localeCopy(
+                        context,
+                        'Sign in to view your bookings,\nQR tickets and upcoming showtimes',
+                        'سجل دخولك لعرض حجوزاتك\nوتذاكر QR والعروض القادمة',
+                      ),
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: () =>
+                            Navigator.pushReplacementNamed(context, '/login'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.warmOrange,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 0,
                         ),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 16,
-                          letterSpacing: 1,
+                        child: Text(
+                          localeCopy(context, 'Sign In', 'تسجيل الدخول'),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 16,
+                            letterSpacing: 1,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: OutlinedButton(
+                        onPressed: () =>
+                            Navigator.pushReplacementNamed(context, '/register'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.warmOrange,
+                          side: BorderSide(
+                            color: AppColors.warmOrange.withValues(alpha: 0.3),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text(
+                          localeCopy(
+                            context,
+                            'Create Account',
+                            'إنشاء حساب',
+                          ),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 16,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -232,55 +237,58 @@ class _MyTicketsPageState extends State<MyTicketsPage> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: BlocProvider(
-        create: (_) => getIt<MyTicketsCubit>()..loadTickets(),
-        child: BlocBuilder<MyTicketsCubit, MyTicketsState>(
-          builder: (context, state) {
-            _cubitContext = context;
-            if (state is MyTicketsLoaded) {
-              _cached = state;
-            }
-            return CustomScrollView(
-              controller: _scrollController,
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                SliverAppBar(
-                  pinned: true,
-                  backgroundColor: theme.scaffoldBackgroundColor,
-                  elevation: 0,
-                  surfaceTintColor: Colors.transparent,
-                  title: Text(
-                    l10n.myTickets,
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 0,
+      body: AppResponsive.constrainedBody(
+        context: context,
+        maxWidth: 700,
+        child: BlocProvider(
+          create: (_) => getIt<MyTicketsCubit>()..loadTickets(),
+          child: BlocBuilder<MyTicketsCubit, MyTicketsState>(
+            builder: (context, state) {
+              _cubitContext = context;
+              if (state is MyTicketsLoaded) {
+                _cached = state;
+              }
+              return CustomScrollView(
+                controller: _scrollController,
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  SliverAppBar(
+                    pinned: true,
+                    backgroundColor: theme.scaffoldBackgroundColor,
+                    elevation: 0,
+                    surfaceTintColor: Colors.transparent,
+                    title: Text(
+                      l10n.myTickets,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0,
+                      ),
                     ),
                   ),
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
-                  sliver: SliverList(
-                    delegate: SliverChildListDelegate([
-                      _TicketsSummary(
-                        upcoming: (state is MyTicketsLoaded
-                                ? state.upcomingCount
-                                : _cached?.upcomingCount) ??
-                            0,
-                        past: (state is MyTicketsLoaded
-                                ? state.pastCount
-                                : _cached?.pastCount) ??
-                            0,
-                      ),
-                      const SizedBox(height: 18),
-                      _FilterChips(
-                        selectedIndex: _selectedFilter,
-                        labels: [
-                          localeCopy(context, 'All', 'الكل'),
-                          localeCopy(context, 'Upcoming', 'القادمة'),
-                          localeCopy(context, 'Past', 'السابقة'),
-                        ],
-                        onChanged: (index) => _onFilterChanged(index, state),
-                      ),
+                  SliverPadding(
+                    padding: AppResponsive.screenPaddingWithVertical(context, top: 12, bottom: 120),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        _TicketsSummary(
+                          upcoming: (state is MyTicketsLoaded
+                                  ? state.upcomingCount
+                                  : _cached?.upcomingCount) ??
+                              0,
+                          past: (state is MyTicketsLoaded
+                                  ? state.pastCount
+                                  : _cached?.pastCount) ??
+                              0,
+                        ),
+                        const SizedBox(height: 18),
+                        _FilterChips(
+                          selectedIndex: _selectedFilter,
+                          labels: [
+                            localeCopy(context, 'All', 'الكل'),
+                            localeCopy(context, 'Upcoming', 'القادمة'),
+                            localeCopy(context, 'Past', 'السابقة'),
+                          ],
+                          onChanged: (index) => _onFilterChanged(index, state),
+                        ),
                       const SizedBox(height: 18),
                       if (state is MyTicketsLoaded) ...[
                         ..._visibleTickets(state.tickets).map(
@@ -423,8 +431,9 @@ class _MyTicketsPageState extends State<MyTicketsPage> {
           },
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class _TicketsSummary extends StatelessWidget {
@@ -800,6 +809,7 @@ class _TicketPoster extends StatelessWidget {
         width: width,
         height: height,
         fit: BoxFit.cover,
+        memCacheWidth: 200,
         placeholder: (_, _) => Container(
           width: width,
           height: height,

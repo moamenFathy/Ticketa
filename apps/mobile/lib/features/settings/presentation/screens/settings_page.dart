@@ -5,6 +5,7 @@ import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
 import 'package:ticketa/core/constants/app_constants.dart';
 import 'package:ticketa/core/services/theme_service.dart';
+import 'package:ticketa/core/utils/app_responsive.dart';
 import 'package:ticketa/features/booking/data/booking_repository.dart';
 import 'package:ticketa/l10n/app_localizations.dart';
 import 'package:ticketa/core/utils/localization_helper.dart';
@@ -82,88 +83,92 @@ class _SettingsPageState extends State<SettingsPage> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 28),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: AppColors.warmOrange.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.person_outline_rounded,
-                    color: AppColors.warmOrange,
-                    size: 64,
-                  ),
-                ),
-                const SizedBox(height: 28),
-                Text(
-                  l10n.welcomeMessage,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w900,
-                    color: theme.colorScheme.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  l10n.signInToAccess,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 40),
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.warmOrange,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 0,
+          child: AppResponsive.constrainedBody(
+            context: context,
+            maxWidth: AppResponsive.maxFormWidth,
+            child: SingleChildScrollView(
+              padding: AppResponsive.screenPadding(context),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AppColors.warmOrange.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
                     ),
-                    child: Text(
-                      l10n.signIn,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 16,
-                        letterSpacing: 1,
-                      ),
+                    child: const Icon(
+                      Icons.person_outline_rounded,
+                      color: AppColors.warmOrange,
+                      size: 64,
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pushReplacementNamed(context, '/register'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.warmOrange,
-                      side: BorderSide(color: AppColors.warmOrange.withValues(alpha: 0.3)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+                  const SizedBox(height: 28),
+                  Text(
+                    l10n.welcomeMessage,
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w900,
+                      color: theme.colorScheme.onSurface,
                     ),
-                    child: Text(
-                      l10n.createAccount,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 16,
-                        letterSpacing: 1,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    l10n.signInToAccess,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.warmOrange,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        l10n.signIn,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                          letterSpacing: 1,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pushReplacementNamed(context, '/register'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.warmOrange,
+                        side: BorderSide(color: AppColors.warmOrange.withValues(alpha: 0.3)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: Text(
+                        l10n.createAccount,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -176,29 +181,32 @@ class _SettingsPageState extends State<SettingsPage> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          SliverAppBar(
-            pinned: true,
-            backgroundColor: theme.scaffoldBackgroundColor,
-            elevation: 0,
-            surfaceTintColor: Colors.transparent,
-            title: Text(
-              l10n.settings,
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0,
+      body: AppResponsive.constrainedBody(
+        context: context,
+        maxWidth: 700,
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              backgroundColor: theme.scaffoldBackgroundColor,
+              elevation: 0,
+              surfaceTintColor: Colors.transparent,
+              title: Text(
+                l10n.settings,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0,
+                ),
               ),
             ),
-          ),
 
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 120),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: AppResponsive.screenPaddingWithVertical(context, top: 10, bottom: 120),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                   const ProfileHeader(),
                   const SizedBox(height: 32),
 
@@ -304,8 +312,9 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildElegantLogout(ThemeData theme, AppLocalizations l10n, bool isDark) {
     return Container(
