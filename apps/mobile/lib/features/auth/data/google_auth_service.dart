@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ticketa/core/utils/app_logger.dart';
 
 const String kWebClientId =
     '768723492799-7qsjikqikqjvhtarqmqqsq6s72sjtg2s.apps.googleusercontent.com';
@@ -22,7 +23,7 @@ class GoogleAuthService {
 
   static Future<String?> signInWithGoogle() async {
     const debugTag = 'GOOGLE_SIGN_IN';
-    debugPrint('[$debugTag] starting sign-in (apple=$_isApple)');
+    AppLogger.d('starting sign-in (apple=$_isApple)', tag: debugTag);
     try {
       await _googleSignIn.signOut();
 
@@ -30,19 +31,25 @@ class GoogleAuthService {
           .signIn()
           .timeout(const Duration(seconds: 30));
       if (account == null) {
-        debugPrint('[$debugTag] account returned null -> user cancelled');
+        AppLogger.w('account returned null -> user cancelled', tag: debugTag);
         return null;
       }
-      debugPrint('[$debugTag] account = ${account.email} '
-          '(${account.displayName ?? 'no-name'})');
+      AppLogger.i(
+        'account = ${account.email} (${account.displayName ?? 'no-name'})',
+        tag: debugTag,
+      );
 
       final auth = await account.authentication;
       final idToken = auth.idToken;
-      debugPrint('[$debugTag] got idToken? ${idToken != null}'
-          ' length=${idToken?.length ?? 0}');
+      AppLogger.d(
+        'got idToken? ${idToken != null} length=${idToken?.length ?? 0}',
+        tag: debugTag,
+      );
       if (idToken == null) {
-        debugPrint('[$debugTag] FAILED: idToken is null '
-            '(likely clientId/serverClientId misconfigured)');
+        AppLogger.e(
+          'FAILED: idToken is null (likely clientId/serverClientId misconfigured)',
+          tag: debugTag,
+        );
         return null;
       }
 
@@ -55,7 +62,7 @@ class GoogleAuthService {
       await prefs.setString('google_email', account.email);
       return idToken;
     } catch (e, st) {
-      debugPrint('[$debugTag] ERROR: $e\n$st');
+      AppLogger.e('Sign in error: $e', tag: debugTag, error: e, stackTrace: st);
       return null;
     }
   }

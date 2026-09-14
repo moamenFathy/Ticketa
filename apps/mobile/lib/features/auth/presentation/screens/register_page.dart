@@ -3,8 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ticketa/core/services/message_service.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
-import 'package:ticketa/core/di/injection.dart';
+import 'package:ticketa/core/utils/app_responsive.dart';
 import 'package:ticketa/core/widgets/custom_date_picker.dart';
+import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/features/auth/presentation/widgets/auth_background.dart';
 import 'package:ticketa/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:ticketa/features/auth/presentation/cubit/auth_state.dart';
@@ -81,57 +82,61 @@ class _RegisterPageState extends State<RegisterPage>
           child: SafeArea(
             child: Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: AnimatedBuilder(
-                  animation: _animController,
-                  builder: (context, _) {
-                    return Opacity(
-                      opacity: _fadeIn.value,
-                      child: Transform.translate(
-                        offset: Offset(0, _slideUp.value),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const SizedBox(height: 40),
-                              _buildHeader(theme, l10n),
-                              const SizedBox(height: 28),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: _buildFirstNameField(theme, isDark, l10n),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: _buildLastNameField(theme, isDark, l10n),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 20),
-                              _buildInputLabel(theme, l10n.email),
-                              const SizedBox(height: 8),
-                              _buildEmailField(theme, isDark, l10n),
-                              const SizedBox(height: 20),
-                              _buildInputLabel(theme, l10n.password),
-                              const SizedBox(height: 8),
-                              _buildPasswordField(theme, isDark, l10n),
-                              const SizedBox(height: 20),
-                              _buildInputLabel(theme, l10n.dateOfBirth),
-                              const SizedBox(height: 8),
-                              _buildDateField(theme, isDark, l10n),
-                              const SizedBox(height: 32),
-                              _buildRegisterButton(theme, l10n),
-                              const SizedBox(height: 24),
-                              _buildLoginRow(theme, l10n),
-                              const SizedBox(height: 40),
-                            ],
+                padding: AppResponsive.screenPadding(context),
+                child: AppResponsive.constrainedBody(
+                  context: context,
+                  maxWidth: AppResponsive.maxFormWidth,
+                  child: AnimatedBuilder(
+                    animation: _animController,
+                    builder: (context, _) {
+                      return Opacity(
+                        opacity: _fadeIn.value,
+                        child: Transform.translate(
+                          offset: Offset(0, _slideUp.value),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(height: 40),
+                                _buildHeader(theme, l10n),
+                                const SizedBox(height: 28),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: _buildFirstNameField(theme, isDark, l10n),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: _buildLastNameField(theme, isDark, l10n),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+                                _buildInputLabel(theme, l10n.email),
+                                const SizedBox(height: 8),
+                                _buildEmailField(theme, isDark, l10n),
+                                const SizedBox(height: 20),
+                                _buildInputLabel(theme, l10n.password),
+                                const SizedBox(height: 8),
+                                _buildPasswordField(theme, isDark, l10n),
+                                const SizedBox(height: 20),
+                                _buildInputLabel(theme, l10n.dateOfBirth),
+                                const SizedBox(height: 8),
+                                _buildDateField(theme, isDark, l10n),
+                                const SizedBox(height: 32),
+                                _buildRegisterButton(theme, l10n),
+                                const SizedBox(height: 24),
+                                _buildLoginRow(theme, l10n),
+                                const SizedBox(height: 40),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
             ),

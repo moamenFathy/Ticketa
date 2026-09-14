@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ticketa/core/services/message_service.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/core/utils/app_responsive.dart';
+import 'package:ticketa/core/widgets/google_logo.dart';
 import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/features/auth/data/google_auth_service.dart';
 import 'package:ticketa/features/auth/presentation/widgets/auth_background.dart';
@@ -22,6 +24,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isGoogleLoading = false;
   late AnimationController _animController;
   late Animation<double> _slideUp;
   late Animation<double> _fadeIn;
@@ -63,16 +66,19 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           child: SafeArea(
             child: Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: AnimatedBuilder(
-                  animation: _animController,
-                  builder: (context, _) {
-                    return Opacity(
-                      opacity: _fadeIn.value,
-                      child: Transform.translate(
-                        offset: Offset(0, _slideUp.value),
-                        child: Form(
-                          key: _formKey,
+                padding: AppResponsive.screenPadding(context),
+                child: AppResponsive.constrainedBody(
+                  context: context,
+                  maxWidth: AppResponsive.maxFormWidth,
+                  child: AnimatedBuilder(
+                    animation: _animController,
+                    builder: (context, _) {
+                      return Opacity(
+                        opacity: _fadeIn.value,
+                        child: Transform.translate(
+                          offset: Offset(0, _slideUp.value),
+                          child: Form(
+                            key: _formKey,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -111,8 +117,9 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildHeader(ThemeData theme, AppLocalizations l10n) {
     return Column(
@@ -228,6 +235,11 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   Widget _buildSignInButton(ThemeData theme, AppLocalizations l10n) {
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
+        if (state is! AuthLoading) {
+          if (_isGoogleLoading && mounted) {
+            setState(() => _isGoogleLoading = false);
+          }
+        }
         if (state is AuthLoginSuccess) {
           Navigator.pushReplacementNamed(context, '/main');
         } else if (state is AuthEmailConfirmRequired) {
@@ -237,7 +249,10 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         }
       },
       builder: (context, state) {
-        final isLoading = state is AuthLoading;
+        final isAuthLoading = state is AuthLoading;
+        final isEmailLoading = isAuthLoading && !_isGoogleLoading;
+        final isAnyLoading = isAuthLoading || _isGoogleLoading;
+
         return SizedBox(
           width: double.infinity,
           height: 56,
@@ -258,7 +273,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
               ],
             ),
             child: ElevatedButton(
-              onPressed: isLoading
+              onPressed: isAnyLoading
                   ? null
                   : () {
                       if (_formKey.currentState!.validate()) {
@@ -275,7 +290,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                 elevation: 0,
               ),
-              child: isLoading
+              child: isEmailLoading
                   ? const SizedBox(
                       height: 22, width: 22,
                       child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
@@ -303,14 +318,17 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   Widget _buildGoogleButton(ThemeData theme, AppLocalizations l10n) {
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, state) {
-        final isLoading = state is AuthLoading;
+        final isAuthLoading = state is AuthLoading;
+        final isGoogleLoading = _isGoogleLoading;
+        final isAnyLoading = isAuthLoading || _isGoogleLoading;
+
         return SizedBox(
           width: double.infinity,
           child: _SocialButton(
-            icon: Icons.g_mobiledata_rounded,
-            iconColor: Colors.red.shade400,
+            customIcon: const GoogleLogo(size: 20),
             label: 'Google',
-            onPressed: isLoading ? null : () => _handleGoogleSignIn(context),
+            isLoading: isGoogleLoading,
+            onPressed: isAnyLoading ? null : () => _handleGoogleSignIn(context),
           ),
         );
       },
@@ -320,25 +338,33 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   Future<void> _handleGoogleSignIn(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
 
-    final idToken = await GoogleAuthService.signInWithGoogle();
-    if (!mounted || !context.mounted) return;
-    if (idToken == null) {
-      MessageService.showWarning(
-        context: context,
-        message: 'Google sign in was cancelled',
+    setState(() => _isGoogleLoading = true);
+    try {
+      final idToken = await GoogleAuthService.signInWithGoogle();
+      if (!mounted || !context.mounted) return;
+      if (idToken == null) {
+        setState(() => _isGoogleLoading = false);
+        MessageService.showWarning(
+          context: context,
+          message: 'Google sign in was cancelled',
+        );
+        return;
+      }
+
+      final savedEmail = await GoogleAuthService.savedEmail;
+      final savedName = await GoogleAuthService.savedDisplayName;
+      if (!mounted || !context.mounted) return;
+
+      final cubit = context.read<AuthCubit>();
+      await cubit.loginWithGoogleToken(
+        idToken: idToken,
+        email: savedEmail.isNotEmpty ? savedEmail : null,
       );
-      return;
+    } catch (_) {
+      if (mounted) {
+        setState(() => _isGoogleLoading = false);
+      }
     }
-
-    final savedEmail = await GoogleAuthService.savedEmail;
-    final savedName = await GoogleAuthService.savedDisplayName;
-    if (!mounted || !context.mounted) return;
-
-    final cubit = context.read<AuthCubit>();
-    await cubit.loginWithGoogleToken(
-      idToken: idToken,
-      email: savedEmail.isNotEmpty ? savedEmail : null,
-    );
   }
 
   Widget _buildDividerWithText(ThemeData theme, bool isDark, AppLocalizations l10n) {
@@ -358,27 +384,30 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   }
 
   Widget _buildGuestButton(ThemeData theme, AppLocalizations l10n) {
-    return Builder(
-      builder: (context) => SizedBox(
-        width: double.infinity,
-        height: 52,
-        child: OutlinedButton.icon(
-          onPressed: () => context.read<AuthCubit>().loginAsGuest(),
-          icon: Icon(Icons.person_outline_rounded, size: 18, color: theme.colorScheme.onSurface.withValues(alpha: 0.5)),
-          label: Text(
-            l10n.continueAsGuest,
-            style: TextStyle(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-              fontWeight: FontWeight.w700,
-              fontSize: 14,
+    return BlocBuilder<AuthCubit, AuthState>(
+      builder: (context, state) {
+        final isBusy = state is AuthLoading || _isGoogleLoading;
+        return SizedBox(
+          width: double.infinity,
+          height: 52,
+          child: OutlinedButton.icon(
+            onPressed: isBusy ? null : () => context.read<AuthCubit>().loginAsGuest(),
+            icon: Icon(Icons.person_outline_rounded, size: 18, color: theme.colorScheme.onSurface.withValues(alpha: isBusy ? 0.25 : 0.5)),
+            label: Text(
+              l10n.continueAsGuest,
+              style: TextStyle(
+                color: theme.colorScheme.onSurface.withValues(alpha: isBusy ? 0.25 : 0.5),
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+              ),
+            ),
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: theme.colorScheme.onSurface.withValues(alpha: 0.12)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
           ),
-          style: OutlinedButton.styleFrom(
-            side: BorderSide(color: theme.colorScheme.onSurface.withValues(alpha: 0.12)),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -440,15 +469,19 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
 class _SocialButton extends StatelessWidget {
   const _SocialButton({
-    required this.icon,
+    this.icon,
+    this.customIcon,
     required this.label,
     required this.onPressed,
+    this.isLoading = false,
     this.iconColor = AppColors.warmOrange,
-  });
+  }) : assert(icon != null || customIcon != null, 'Either icon or customIcon must be provided');
 
-  final IconData icon;
+  final IconData? icon;
+  final Widget? customIcon;
   final String label;
   final VoidCallback? onPressed;
+  final bool isLoading;
   final Color iconColor;
 
   @override
@@ -470,20 +503,29 @@ class _SocialButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
           ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 22, color: iconColor),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
+        child: isLoading
+            ? SizedBox(
+                height: 22,
+                width: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  customIcon ?? Icon(icon, size: 22, color: iconColor),
+                  const SizedBox(width: 10),
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }

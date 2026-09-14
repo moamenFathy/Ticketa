@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ticketa/core/services/message_service.dart';
 import 'package:ticketa/core/theme/app_colors.dart';
+import 'package:ticketa/core/utils/app_responsive.dart';
 import 'package:ticketa/core/di/injection.dart';
 import 'package:ticketa/features/auth/presentation/widgets/auth_background.dart';
 import 'package:ticketa/features/auth/presentation/cubit/auth_cubit.dart';
@@ -59,15 +60,18 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
           child: SafeArea(
             child: Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: AnimatedBuilder(
-                  animation: _animController,
-                  builder: (context, _) {
-                    return Opacity(
-                      opacity: _fadeIn.value,
-                      child: Transform.translate(
-                        offset: Offset(0, _slideUp.value),
-                        child: Column(
+                padding: AppResponsive.screenPadding(context),
+                child: AppResponsive.constrainedBody(
+                  context: context,
+                  maxWidth: AppResponsive.maxFormWidth,
+                  child: AnimatedBuilder(
+                    animation: _animController,
+                    builder: (context, _) {
+                      return Opacity(
+                        opacity: _fadeIn.value,
+                        child: Transform.translate(
+                          offset: Offset(0, _slideUp.value),
+                          child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const SizedBox(height: 40),
@@ -94,8 +98,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildHeader(ThemeData theme, AppLocalizations l10n) {
     return Column(

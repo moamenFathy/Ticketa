@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ticketa/core/constants/app_constants.dart';
 import 'package:ticketa/core/di/injection.dart';
+import 'package:ticketa/core/errors/exceptions.dart';
 import 'package:ticketa/features/auth/data/auth_repository.dart';
-import 'package:ticketa/features/auth/data/google_auth_service.dart';
 import 'package:ticketa/features/auth/presentation/cubit/auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
@@ -21,7 +21,7 @@ class AuthCubit extends Cubit<AuthState> {
       await _saveAuth(email: email, token: token);
       emit(AuthLoginSuccess(message));
     } catch (e) {
-      final msg = e.toString().replaceFirst('Exception: ', '');
+      final msg = AppException.extractMessage(e);
       if (msg.contains('Email not confirmed') ||
           msg.contains('not confirmed')) {
         emit(AuthEmailConfirmRequired(email: email, message: msg));
@@ -51,7 +51,7 @@ class AuthCubit extends Cubit<AuthState> {
           result['message']?.toString() ?? 'Registration successful';
       emit(AuthRegisterSuccess(message));
     } catch (e) {
-      emit(AuthError(e.toString().replaceFirst('Exception: ', '')));
+      emit(AuthError(AppException.extractMessage(e)));
     }
   }
 
@@ -64,7 +64,7 @@ class AuthCubit extends Cubit<AuthState> {
       await _saveAuth(email: email, token: token);
       emit(AuthEmailConfirmed(message));
     } catch (e) {
-      emit(AuthError(e.toString().replaceFirst('Exception: ', '')));
+      emit(AuthError(AppException.extractMessage(e)));
     }
   }
 
@@ -83,7 +83,7 @@ class AuthCubit extends Cubit<AuthState> {
       await _saveAuth(email: email, token: token);
       emit(AuthLoginSuccess('Login successful'));
     } catch (e) {
-      emit(AuthError(e.toString().replaceFirst('Exception: ', '')));
+      emit(AuthError(AppException.extractMessage(e)));
     }
   }
 
@@ -94,7 +94,7 @@ class AuthCubit extends Cubit<AuthState> {
       final message = result['message']?.toString() ?? 'Confirmation resent';
       emit(AuthResendSuccess(message));
     } catch (e) {
-      emit(AuthError(e.toString().replaceFirst('Exception: ', '')));
+      emit(AuthError(AppException.extractMessage(e)));
     }
   }
 
@@ -106,7 +106,7 @@ class AuthCubit extends Cubit<AuthState> {
           result['message']?.toString() ?? 'Reset link sent to your email';
       emit(AuthForgotPasswordSuccess(message));
     } catch (e) {
-      emit(AuthError(e.toString().replaceFirst('Exception: ', '')));
+      emit(AuthError(AppException.extractMessage(e)));
     }
   }
 
