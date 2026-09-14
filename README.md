@@ -8,6 +8,7 @@ Welcome to the **Ticketa** monorepo! This repository unites all core subsystems 
 
 ```text
 Ticketa/
+├── Documentation/        # System architecture, database, API & feature docs
 ├── apps/
 │   ├── server/           # Backend (ASP.NET Core Web API + MVC Admin Portal)
 │   ├── client/           # Frontend Web Application (React.js + TypeScript / Vite)
