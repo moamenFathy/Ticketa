@@ -44,6 +44,16 @@ android {
             )
         }
     }
+
+    applicationVariants.all {
+        outputs.all {
+            val output = this as? com.android.build.gradle.internal.api.BaseVariantOutputImpl
+            val versionName = flutter.versionName ?: "1.0.0"
+            if (buildType.name == "release") {
+                output?.outputFileName = "Ticketa-v$versionName.apk"
+            }
+        }
+    }
 }
 
 flutter {
